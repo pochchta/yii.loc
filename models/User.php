@@ -32,7 +32,12 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-//        return static::findOne(['access_token' => $token]);
+
+    }
+
+    public static function findByUsername($username)
+    {
+        return static::findOne(['username' => $username]);
     }
 
     /**
@@ -62,17 +67,11 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function generateAuthKey()
     {
-        try {
-            $this->auth_key = \Yii::$app->security->generateRandomString();
-        } catch (\yii\base\Exception $e) {
-        }
+        $this->auth_key = \Yii::$app->security->generateRandomString();
     }
 
     public function validatePassword($password)
     {
-        if ($this->password === $password) {
-            return true;
-        }
-        return false;
+        return \Yii::$app->getSecurity()->validatePassword($password, $this->password);
     }
 }

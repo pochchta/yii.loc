@@ -9,6 +9,7 @@ use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
+use app\models\SignUpForm;
 
 class SiteController extends Controller
 {
@@ -96,6 +97,23 @@ class SiteController extends Controller
         Yii::$app->user->logout();
 
         return $this->goHome();
+    }
+
+    public function actionSignUp()
+    {
+        if (!Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }
+
+        $model = new SignUpForm();
+        if ($model->load(Yii::$app->request->post()) && $model->signUp()) {
+            return $this->render('sign-up-success', [
+                'model' => $model
+            ]);
+        }
+        return $this->render('sign-up', [
+            'model' => $model
+        ]);
     }
 
     /**
