@@ -16,8 +16,8 @@ class SignUpForm extends Model
     {
         return [
             [['username', 'password'], 'required'],
-            ['username', 'string', 'max' => '20'],
-            ['password', 'string', 'max' => '20'],
+            ['username', 'string', 'max' => 20],
+            ['password', 'string', 'max' => 20],
             ['username', 'validateUsername'],
         ];
     }
