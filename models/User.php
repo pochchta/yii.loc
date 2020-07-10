@@ -5,6 +5,15 @@ namespace app\models;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 
+/**
+ * This is the model class for table "user".
+ *
+ * @property int $id
+ * @property string $username
+ * @property string $password
+ * @property string|null $auth_key
+ */
+
 class User extends ActiveRecord implements IdentityInterface
 {
     public static function tableName()
@@ -73,5 +82,23 @@ class User extends ActiveRecord implements IdentityInterface
     public function validatePassword($password)
     {
         return \Yii::$app->getSecurity()->validatePassword($password, $this->password);
+    }
+
+    public function rules()
+    {
+        return [
+            [['username', 'password'], 'required'],
+            [['username', 'password', 'auth_key'], 'string', 'max' => 255],
+        ];
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'username' => 'Username',
+            'password' => 'Password',
+            'auth_key' => 'Auth Key',
+        ];
     }
 }

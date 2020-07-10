@@ -27,7 +27,7 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'type',
                 'value' => function ($data) {
-                    return $data->type == '1' ? 'Роль' : 'Разрешение';
+                    return $data->type = app\models\AuthItem::$ROLE ? 'Роль' : 'Разрешение';
                 }
             ],
             'description:ntext',
