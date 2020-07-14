@@ -6,29 +6,30 @@ use yii\grid\GridView;
 /* @var $this yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Users';
+$this->title = 'Auth Assignments';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="user-index">
+<div class="auth-assignment-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Create User', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Create Auth Assignment', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
+
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
-            'id',
-            'username',
-//            'password',
-            'auth_key',
+            'item_name',
+            'user_id',
+            'created_at',
 
             ['class' => 'yii\grid\ActionColumn'],
         ],
     ]); ?>
+
 
 </div>
