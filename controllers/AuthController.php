@@ -49,22 +49,32 @@ class AuthController extends Controller
      */
     public function actionView($id)
     {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
+        $model = $this->findModel($id);
+        $allRoles = $model->getAllRoles();
+        return $this->render('view', compact(
+            'model', 'allRoles'
+        ));
     }
 
     public function actionCreate()
     {
         $model = new AuthItem();
 
-        if ($model->load(Yii::$app->request->post()) && $model->createItem()) {
-            return $this->redirect(['view', 'id' => $model->name]);
+        if ($model->load(Yii::$app->request->post())) {
+            try {
+                $success = $model->createItem();
+            } catch (\Exception $e) {
+                $success = false;
+                Yii::$app->session->setFlash('error', $e->getMessage());
+            }
+            if ($success) {
+                return $this->redirect(['view', 'id' => $model->name]);
+            }
         }
 
-        return $this->render('create', [
-            'model' => $model,
-        ]);
+        return $this->render('create', compact(
+            'model'
+        ));
     }
 
     public function actionUpdate($id)
@@ -72,13 +82,21 @@ class AuthController extends Controller
         $model = new AuthItem();
         $model->findItem($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->updateItem($id)) {
-            return $this->redirect(['view', 'id' => $model->name]);
+        if ($model->load(Yii::$app->request->post())) {
+            try {
+                $success = $model->updateItem($id);
+            } catch (\Exception $e) {
+                $success = false;
+                Yii::$app->session->setFlash('error', $e->getMessage());
+            }
+            if ($success) {
+                return $this->redirect(['view', 'id' => $model->name]);
+            }
         }
 
-        return $this->render('update', [
-            'model' => $model,
-        ]);
+        return $this->render('update', compact(
+            'model'
+        ));
     }
 
     /**
@@ -91,8 +109,6 @@ class AuthController extends Controller
     public function actionDelete($id)
     {
         $model = new AuthItem();
-        $model->findItem($id);
-
         $model->deleteItem($id);
 
         return $this->redirect(['index']);

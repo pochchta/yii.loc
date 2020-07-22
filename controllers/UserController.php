@@ -82,6 +82,7 @@ class UserController extends Controller
             ],
         ]);
 
+
         $allRoles = AuthItem::find()->select(['name', 'type'])->asArray()->all();     // array of string all roles
         foreach($allRoles as $key => $item) {
             $type = $item['type'] == AuthItem::$ROLE ? 'Роль' : 'Разрешение';

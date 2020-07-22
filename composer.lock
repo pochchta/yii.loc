@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "11a1680a8bdbcb2c240930819f6b023c",
+    "content-hash": "85c313f44e37ff84c6b92add501b4557",
     "packages": [
         {
             "name": "almasaeed2010/adminlte",
@@ -54,7 +54,7 @@
             "version": "v3.4.1",
             "source": {
                 "type": "git",
-                "url": "git@github.com:twbs/bootstrap.git",
+                "url": "https://github.com/twbs/bootstrap.git",
                 "reference": "68b0d231a13201eb14acd3dc84e51543d16e5f7e"
             },
             "dist": {
@@ -96,7 +96,7 @@
             "version": "3.4.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/jquery/jquery-dist.git",
+                "url": "git@github.com:jquery/jquery-dist.git",
                 "reference": "15bc73803f76bc53b654b9fdbbbc096f56d7c03d"
             },
             "dist": {
@@ -247,6 +247,47 @@
                 "yii"
             ],
             "time": "2013-12-10T17:49:58+00:00"
+        },
+        {
+            "name": "developeruz/yii2-db-rbac",
+            "version": "1.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/developeruz/yii2-db-rbac.git",
+                "reference": "0d1f471765edf151361530c15358c049ddabce6f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/developeruz/yii2-db-rbac/zipball/0d1f471765edf151361530c15358c049ddabce6f",
+                "reference": "0d1f471765edf151361530c15358c049ddabce6f",
+                "shasum": ""
+            },
+            "require": {
+                "yiisoft/yii2": "*"
+            },
+            "type": "yii2-extension",
+            "autoload": {
+                "psr-4": {
+                    "developeruz\\db_rbac\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Elvira Sheina",
+                    "email": "elleuz@gmail.com",
+                    "homepage": "http://developer.uz"
+                }
+            ],
+            "description": "Dynamic control of access rights in YII2",
+            "keywords": [
+                "rbac",
+                "yii"
+            ],
+            "time": "2018-01-10T09:00:20+00:00"
         },
         {
             "name": "dmstr/yii2-adminlte-asset",

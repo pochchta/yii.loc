@@ -21,7 +21,7 @@ class AuthAssignmentController extends Controller
     public function behaviors()
     {
         return [
-            'access' => [
+/*            'access' => [
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
@@ -30,7 +30,7 @@ class AuthAssignmentController extends Controller
                         'roles' => ['admin'],
                     ],
                 ],
-            ],
+            ],*/
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [

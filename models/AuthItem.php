@@ -22,6 +22,7 @@ class AuthItem extends \yii\db\ActiveRecord
 {
     public static $ROLE = 1;
     public static $PERMIT = 2;
+
     private $_item;
 
     public static function tableName()
@@ -33,20 +34,31 @@ class AuthItem extends \yii\db\ActiveRecord
     {
         return [
             [['name', 'type'], 'required'],
+            [['name'], 'compare', 'compareValue' => '0', 'operator' => '!=='],
             [['type', 'created_at', 'updated_at'], 'integer'],
             [['description', 'data'], 'string'],
             [['name', 'rule_name'], 'string', 'max' => 64],
             [['name'], 'unique', 'on' => 'create'],
-            ['type', 'validateType', 'on' => 'update']
+            [['name'], 'validateName', 'on' => 'update'],
+            [['type'], 'validateType', 'on' => 'update'],
 //            [['rule_name'], 'exist', 'skipOnError' => true, 'targetClass' => AuthRule::className(), 'targetAttribute' => ['rule_name' => 'name']],
         ];
+    }
+
+    public function validateName($attribute, $params)
+    {
+        if (!$this->hasErrors()) {
+            if ($this->_item == NULL) {
+                $this->addError($attribute, 'Элемент не найден');
+            }
+        }
     }
 
     public function validateType($attribute, $params)
     {
         if (!$this->hasErrors()) {
             if ($this->_item == NULL) {
-                $this->addError($attribute, 'Невозможно определить тип');
+                $this->addError($attribute, 'Элемент не найден');
             }
             if ($this->_item->type != $this->type) {
                 $this->addError($attribute, 'Тип изменить нельзя');
@@ -56,7 +68,6 @@ class AuthItem extends \yii\db\ActiveRecord
 
     public function findItem($id)
     {
-        $this->scenario = 'update';
         if ($item = Yii::$app->authManager->getRole($id)) {
         } else {
             $item = Yii::$app->authManager->getPermission($id);
@@ -77,15 +88,11 @@ class AuthItem extends \yii\db\ActiveRecord
             if ($this->type == self::$ROLE) {
                 $role = Yii::$app->authManager->createRole($this->name);
                 $role->description = $this->description;
-                if (Yii::$app->authManager->add($role)){
-                    return true;
-                }
+                return Yii::$app->authManager->add($role);
             } else {
                 $permit = Yii::$app->authManager->createPermission($this->name);
                 $permit->description = $this->description;
-                if (Yii::$app->authManager->add($permit)) {
-                    return true;
-                }
+                return Yii::$app->authManager->add($permit);
             }
         }
         return false;
@@ -93,16 +100,18 @@ class AuthItem extends \yii\db\ActiveRecord
 
     public function updateItem($id)
     {
+        $this->scenario = 'update';
         if ($this->validate()) {
             if ($this->_item == NULL) {
                 $this->findItem($id);
             }
+            if ($this->_item == NULL) {
+                return false;
+            }
             $originalName = $this->_item->name;
             $this->_item->name = $this->name;
             $this->_item->description = $this->description;
-            if (Yii::$app->authManager->update($originalName, $this->_item)) {
-                return true;
-            }
+            return Yii::$app->authManager->update($originalName, $this->_item);
         }
         return false;
     }
@@ -112,7 +121,20 @@ class AuthItem extends \yii\db\ActiveRecord
         if ($this->_item == NULL) {
             $this->findItem($id);
         }
-        Yii::$app->authManager->remove($this->_item);
+        if ($this->_item == NULL) {
+            return false;
+        }
+
+        return Yii::$app->authManager->remove($this->_item);
+    }
+
+    public function getAllRoles() {
+        $arrayRoles = AuthItem::find()->select(['name'])->where(['type' => self::$ROLE])->asArray()->all();
+        $allRoles = array();
+        foreach($arrayRoles as $key => $item) {
+            $allRoles[$item['name']] = $item['name'];
+        }
+        return $allRoles;
     }
 
     public function attributeLabels()

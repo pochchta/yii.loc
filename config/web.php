@@ -13,6 +13,20 @@ $config = [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
     ],
+
+/*    'as AccessBehavior' => [
+        'class' => \developeruz\db_rbac\behaviors\AccessBehavior::className(),
+        'protect' => ['site/about', 'auth-assignment'],
+    ],
+    'modules' => [
+        'permit' => [
+            'class' => 'developeruz\db_rbac\Yii2DbRbac',
+            'params' => [
+                'userClass' => 'app\models\User',
+            ],
+        ],
+    ],*/
+
     'components' => [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
@@ -53,6 +67,8 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                '<module:\w+>/<controller:\w+>/<action:(\w|-)+>' => '<module>/<controller>/<action>',
+                '<module:\w+>/<controller:\w+>/<action:(\w|-)+>/<id:\d+>' => '<module>/<controller>/<action>',
             ],
         ],
     ],

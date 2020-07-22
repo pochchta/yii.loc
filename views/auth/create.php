@@ -5,7 +5,7 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model app\models\AuthItem */
 
-$this->title = 'Create Auth Item';
+$this->title = 'Создание роли или разрешения';
 $this->params['breadcrumbs'][] = ['label' => 'Auth Items', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -13,8 +13,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <?= $this->render('_form', [
-        'model' => $model,
-    ]) ?>
+    <?= $this->render('_form', compact(
+        'model'
+    )) ?>
 
 </div>

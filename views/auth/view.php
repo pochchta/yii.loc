@@ -50,4 +50,8 @@ $this->params['breadcrumbs'][] = $this->title;
         ],
     ]) ?>
 
+    <?php foreach($allRoles as $permit): ?>
+        <?= "$permit<br>" ?>
+    <?php endforeach ?>
+
 </div>
