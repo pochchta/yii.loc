@@ -11,15 +11,15 @@ use yii\widgets\DetailView;
 /* @var $modelAssign app\models\AuthAssignment */
 
 $this->title = $model->username;
-$this->params['breadcrumbs'][] = ['label' => 'Users', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Пользователи', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->id], [
+        <?= Html::a('Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('Удалить', ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
             'data' => [
                 'confirm' => 'Are you sure you want to delete this item?',
@@ -38,25 +38,6 @@ $this->params['breadcrumbs'][] = $this->title;
         ],
     ]) */?>
 
-    <?php
-        $dataProvider->sort = [
-            'attributes' => [
-                'item.type' => [
-                    'asc' => ['type' => SORT_ASC],
-                    'desc' => ['type' => SORT_DESC],
-                ],
-                'created_at' => [
-                    'asc' => ['created_at' => SORT_ASC],
-                    'desc' => ['created_at' => SORT_DESC]
-                ],
-                'item_name' => [
-                    'asc' => ['item_name' => SORT_ASC],
-                    'desc' => ['item_name' => SORT_DESC]
-                ]
-            ],
-            'defaultOrder' => ['item.type'=> SORT_ASC],
-        ];
-    ?>
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'columns' => [
@@ -78,19 +59,13 @@ $this->params['breadcrumbs'][] = $this->title;
                 'format' => 'ntext',
                 'label' => 'Разрешения'
             ],
-            [
-                'attribute' => 'item.type',
-                'value' => function ($data) {
-                    return $data->item->type == \app\models\AuthItem::$ROLE ? 'Роль' : 'Разрешение';
-                }
-            ],
              'item.description',
             [
                 'attribute' => 'created_at',
                 'format' => 'date'
             ],
 
-            ['class' => 'yii\grid\ActionColumn', 'controller' => 'auth-assignment'],
+            ['class' => 'yii\grid\ActionColumn', 'controller' => 'auth-assignment', 'template' => '{delete}'],
         ],
     ]); ?>
 
