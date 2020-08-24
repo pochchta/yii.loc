@@ -62,21 +62,11 @@ class UserController extends Controller
         $model = $this->findModel($id);                             // модель юзер для вывода его данных
 
         $dataProvider = new ActiveDataProvider([                    // вывод ролей для выбранного юзера
-            'query' => AuthAssignment::find()->where(['user_id' => $model->id])->joinWith(['item']),
+            'query' => AuthAssignment::find()->where(['user_id' => $model->id])->joinWith(['item'])
         ]);
 
-        $allRoles = AuthItem::find()->select(['name', 'type'])->asArray()->all();     // array of string all roles
-        foreach($allRoles as $key => $item) {
-            $type = $item['type'] == AuthItem::$ROLE ? 'Роль' : 'Разрешение';
-            $allRoles[$type][$item['name']] = $item['name'];
-            unset($allRoles[$key]);
-        }
-
-        $allRolesByUser = Yii::$app->authManager->getChildRoles('admin');
-        $allPermsByUser = Yii::$app->authManager->getPermissionsByRole('admin');
-
         return $this->render('view', compact(
-            'model', 'dataProvider', 'modelAssign', 'allRoles', 'allRolesByUser', 'allPermsByUser'
+            'model', 'dataProvider', 'modelAssign'
         ));
     }
 

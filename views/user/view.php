@@ -9,17 +9,12 @@ use yii\widgets\DetailView;
 /* @var $model app\models\User */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $modelAssign app\models\AuthAssignment */
-/* @var array $allRoles app\models\User */
-/* @var array $allRolesByUser app\models\User */
-/* @var array $allPermsByUser app\models\User */
 
 $this->title = $model->username;
 $this->params['breadcrumbs'][] = ['label' => 'Users', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
-<!--< class="user-view">-->
-
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
@@ -33,13 +28,13 @@ $this->params['breadcrumbs'][] = $this->title;
         ]) ?>
     </p>
 
-    <?/*= DetailView::widget([
+<!--    --><?/*= DetailView::widget([
         'model' => $model,
         'attributes' => [
             'id',
             'username',
 //            'password',
-            'auth_key',
+//            'auth_key',
         ],
     ]) */?>
 
@@ -66,18 +61,13 @@ $this->params['breadcrumbs'][] = $this->title;
         'dataProvider' => $dataProvider,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
-
-            'item_name',
             [
                 'attribute' => 'item_name',
+                'label' => 'Роль'
+            ],
+            [
                 'value' => function ($data) {
-                    $ret = "Роли:";
-                    $arrRoles = Yii::$app->authManager->getChildRoles($data->item_name);
-                    foreach ($arrRoles as $item) {
-                        $ret .= ' '.$item->name.',';
-                    }
-                    $ret = rtrim($ret, ',');
-                    $ret .= "\nРазрешения:";
+                    $ret = '';
                     $arrPerms = Yii::$app->authManager->getPermissionsByRole($data->item_name);
                     foreach ($arrPerms as $item) {
                         $ret .= ' '.$item->name.',';
@@ -86,7 +76,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $ret;
                 },
                 'format' => 'ntext',
-                'header' => 'Включает в себя'
+                'label' => 'Разрешения'
             ],
             [
                 'attribute' => 'item.type',
@@ -109,15 +99,21 @@ $this->params['breadcrumbs'][] = $this->title;
             $button = Html::submitButton('Добавить', ['class' => 'btn btn-success']);
             $span = "<span class='input-group-addon' id='basic-addon'>{$button}</span>";
             $formGroup = "<div class='input-group'>{input}{$span}</div>";
+
+            $allRoles = Yii::$app->authManager->getRoles();
+            $arrayRoles = array();
+            foreach ($allRoles as $item) {
+                $arrayRoles[$item->name] = $item->name;
+            }
         ?>
 
         <?= $form->field($modelAssign, 'user_id', [
             "template" => "{input}"
-        ])->hiddenInput(['value' => $model->id])->label() ?>
+        ])->hiddenInput(['value' => $model->id])->label(false) ?>
 
         <?= $form->field($modelAssign, 'item_name', [
-                "template" => "{label}\n{$formGroup}\n{error}"
-        ])->dropDownList($allRoles, ['value' => 'guest', 'class' => 'form-control', 'aria-describedby' => 'basic-addon']) ?>
+            "template" => "{label}\n{$formGroup}\n{error}"
+        ])->dropDownList($arrayRoles, ['value' => 'guest', 'class' => 'form-control', 'aria-describedby' => 'basic-addon'])->label('Добавить роль пользователю') ?>
 
         <?php ActiveForm::end(); ?>
     </div>
