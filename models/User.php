@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use developeruz\db_rbac\interfaces\UserRbacInterface;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 
@@ -15,13 +14,8 @@ use yii\web\IdentityInterface;
  * @property string|null $auth_key
  */
 
-class User extends ActiveRecord implements IdentityInterface, UserRbacInterface
+class User extends ActiveRecord implements IdentityInterface
 {
-    public function getUserName()
-    {
-        return $this->username;
-    }
-
     public static function tableName()
     {
         return 'user';

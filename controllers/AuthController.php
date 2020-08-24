@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\AuthItemChild;
 use Yii;
 use app\models\AuthItem;
 use yii\data\ActiveDataProvider;
@@ -49,10 +50,18 @@ class AuthController extends Controller
      */
     public function actionView($id)
     {
+        $modelChildItem = new AuthItemChild();
+        if ($modelChildItem->load(Yii::$app->request->post()) && $modelChildItem->save()) {
+            return $this->refresh();
+        }
+
         $model = $this->findModel($id);
-        $allRoles = $model->getAllRoles();
+        $dataProvider = new ActiveDataProvider([
+            'query' => AuthItemChild::find()->where(['parent' => $model->name])->joinWith(['item']),
+        ]);
+
         return $this->render('view', compact(
-            'model', 'allRoles'
+            'model', 'modelChildItem', 'dataProvider'
         ));
     }
 

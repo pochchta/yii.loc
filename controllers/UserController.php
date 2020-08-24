@@ -54,34 +54,16 @@ class UserController extends Controller
      */
     public function actionView($id)
     {
-        $model = $this->findModel($id);                             // User model
-
-        $modelAssign = new AuthAssignment();                        // AuthAssignment model
+        $modelAssign = new AuthAssignment();                        // модель связи юзер-роль для добавления ролей
         if ($modelAssign->load(Yii::$app->request->post()) && $modelAssign->save()) {
             return $this->refresh();
         }
 
-        $dataProvider = new ActiveDataProvider([                    // all AuthAssignment for user
-            'query' => AuthAssignment::find()->where(['user_id' => $model->id])->joinWith(['item']),
-            'sort'=> [
-                'attributes' => [
-                    'item.type' => [
-                        'asc' => ['type' => SORT_ASC],
-                        'desc' => ['type' => SORT_DESC],
-                    ],
-                    'created_at' => [
-                        'asc' => ['created_at' => SORT_ASC],
-                        'desc' => ['created_at' => SORT_DESC]
-                    ],
-                    'item_name' => [
-                        'asc' => ['item_name' => SORT_ASC],
-                        'desc' => ['item_name' => SORT_DESC]
-                    ]
-                ],
-                'defaultOrder' => ['item.type'=> SORT_ASC],
-            ],
-        ]);
+        $model = $this->findModel($id);                             // модель юзер для вывода его данных
 
+        $dataProvider = new ActiveDataProvider([                    // вывод ролей для выбранного юзера
+            'query' => AuthAssignment::find()->where(['user_id' => $model->id])->joinWith(['item']),
+        ]);
 
         $allRoles = AuthItem::find()->select(['name', 'type'])->asArray()->all();     // array of string all roles
         foreach($allRoles as $key => $item) {

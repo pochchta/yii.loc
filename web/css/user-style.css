@@ -1,9 +1,9 @@
-.user-auth-assignment-form #basic-addon{
+.one-button-form #basic-addon{
     padding: 0;
     border: none;
     outline: none;
 }
-.user-auth-assignment-form #basic-addon button {
+.one-button-form #basic-addon button {
     border-radius: 0 4px 4px 0;
     outline: none;
 }

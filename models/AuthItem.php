@@ -129,12 +129,22 @@ class AuthItem extends \yii\db\ActiveRecord
     }
 
     public function getAllRoles() {
-        $arrayRoles = AuthItem::find()->select(['name'])->where(['type' => self::$ROLE])->asArray()->all();
-        $allRoles = array();
-        foreach($arrayRoles as $key => $item) {
-            $allRoles[$item['name']] = $item['name'];
+        $findRoles = AuthItem::find()->select(['name'])->where(['type' => self::$ROLE])->asArray()->all();
+        $outArray = array();
+        foreach($findRoles as $key => $item) {
+            $outArray[$item['name']] = $item['name'];
         }
-        return $allRoles;
+        return $outArray;
+    }
+
+    public function getAllPermits()
+    {
+        $findPermits = AuthItem::find()->select(['name'])->where(['type' => self::$PERMIT])->asArray()->all();
+        $outArray = array();
+        foreach ($findPermits as $key => $item) {
+            $outArray[$item['name']] = $item['name'];
+        }
+        return $outArray;
     }
 
     public function attributeLabels()

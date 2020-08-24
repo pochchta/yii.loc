@@ -43,6 +43,25 @@ $this->params['breadcrumbs'][] = $this->title;
         ],
     ]) */?>
 
+    <?php
+        $dataProvider->sort = [
+            'attributes' => [
+                'item.type' => [
+                    'asc' => ['type' => SORT_ASC],
+                    'desc' => ['type' => SORT_DESC],
+                ],
+                'created_at' => [
+                    'asc' => ['created_at' => SORT_ASC],
+                    'desc' => ['created_at' => SORT_DESC]
+                ],
+                'item_name' => [
+                    'asc' => ['item_name' => SORT_ASC],
+                    'desc' => ['item_name' => SORT_DESC]
+                ]
+            ],
+            'defaultOrder' => ['item.type'=> SORT_ASC],
+        ];
+    ?>
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'columns' => [
@@ -85,8 +104,7 @@ $this->params['breadcrumbs'][] = $this->title;
         ],
     ]); ?>
 
-    <div class="user-auth-assignment-form">
-
+    <div class="one-button-form">
         <?php $form = ActiveForm::begin();
             $button = Html::submitButton('Добавить', ['class' => 'btn btn-success']);
             $span = "<span class='input-group-addon' id='basic-addon'>{$button}</span>";
@@ -102,7 +120,6 @@ $this->params['breadcrumbs'][] = $this->title;
         ])->dropDownList($allRoles, ['value' => 'guest', 'class' => 'form-control', 'aria-describedby' => 'basic-addon']) ?>
 
         <?php ActiveForm::end(); ?>
-
     </div>
 
 

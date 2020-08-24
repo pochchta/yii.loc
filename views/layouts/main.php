@@ -40,6 +40,7 @@ AppAsset::register($this);
         'items' => [
             ['label' => 'Пользователи', 'url' => ['/user/index']],
             ['label' => 'Роли', 'url' => ['/auth/index']],
+            ['label' => 'Назначения ролей', 'url' => ['/auth-assignment/index']],
             ['label' => 'Домой', 'url' => ['/site/index']],
             ['label' => 'О нас', 'url' => ['/site/about']],
             ['label' => 'Контакты', 'url' => ['/site/contact']],

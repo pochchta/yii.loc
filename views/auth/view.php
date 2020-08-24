@@ -1,6 +1,8 @@
 <?php
 
+use yii\grid\GridView;
 use yii\helpers\Html;
+use yii\widgets\ActiveForm;
 use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
@@ -49,9 +51,43 @@ $this->params['breadcrumbs'][] = $this->title;
 //            'updated_at',
         ],
     ]) ?>
+    <?php if ($model->type === $model::$ROLE): ?>
+        <?= GridView::widget([
+            'dataProvider' => $dataProvider,
+            'columns' => [
+                ['class' => 'yii\grid\SerialColumn'],
 
-    <?php foreach($allRoles as $permit): ?>
-        <?= "$permit<br>" ?>
-    <?php endforeach ?>
+                'child',
+                'item.description',
+    /*            [
+                    'attribute' => 'parent',
+                    'value' => function ($data) {
+                        return Html::a('удалить', ['unlink', 'parent' => $data->parent, 'child' => $data->child], ['confirm' => 'Вы уверены?']);
+                    },
+                    'format' => 'html',
+                    'header' => 'Действия'
+                ],*/
+                ['class' => 'yii\grid\ActionColumn', 'controller' => 'auth-item-child', 'template' => '{delete}'],
+            ],
+        ]); ?>
+
+        <div class="one-button-form">
+            <?php $form = ActiveForm::begin();
+            $button = Html::submitButton('Добавить', ['class' => 'btn btn-success']);
+            $span = "<span class='input-group-addon' id='basic-addon'>{$button}</span>";
+            $formGroup = "<div class='input-group'>{input}{$span}</div>";
+            ?>
+
+            <?= $form->field($modelChildItem, 'parent', [
+                "template" => "{input}"
+            ])->hiddenInput(['value' => $model->name])->label() ?>
+
+            <?= $form->field($modelChildItem, 'child', [
+                "template" => "{label}\n{$formGroup}\n{error}"
+            ])->dropDownList($model->getAllPermits(), ['class' => 'form-control', 'aria-describedby' => 'basic-addon']) ?>
+
+            <?php ActiveForm::end(); ?>
+        </div>
+    <?php endif ?>
 
 </div>
