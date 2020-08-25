@@ -32,22 +32,28 @@ $this->params['breadcrumbs'][] = $this->title;
         'dataProvider' => $dataProvider,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
+
             [
                 'attribute' => 'item_name',
-                'label' => 'Роль'
+                'label' => 'Роль',
+                'value' => function ($data) {
+                    return Html::a($data->item_name, ['/auth/view', 'id' => $data->item_name]);
+                },
+                'format' => 'html'
             ],
             [
+                'label' => 'Разрешения',
                 'value' => function ($data) {
                     $ret = '';
                     $arrPerms = Yii::$app->authManager->getPermissionsByRole($data->item_name);
                     foreach ($arrPerms as $item) {
-                        $ret .= ' '.$item->name.',';
+                        $ret .= Html::a($item->name, ['/auth/view', 'id' => $item->name]);
+                        $ret .= ', ';
                     }
-                    $ret = rtrim($ret, ',');
+                    $ret = rtrim($ret, ', ');
                     return $ret;
                 },
-                'format' => 'ntext',
-                'label' => 'Разрешения'
+                'format' => 'html',
             ],
              'item.description',
             [

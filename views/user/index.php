@@ -24,9 +24,27 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => 'yii\grid\SerialColumn'],
 
             'id',
-            'username',
-//            'password',
-//            'auth_key',
+            [
+                'attribute' => 'username',
+                'value' => function ($data) {
+                    return Html::a($data->username, ['view', 'id' => $data->id]);
+                },
+                'format' => 'html'
+            ],
+            [
+                'value' => function ($data) {
+                    $ret = '';
+                    $arrRoles = Yii::$app->authManager->getRolesByUser($data->id);
+                    foreach ($arrRoles as $item) {
+                        $ret .= Html::a($item->name, ['/auth/view', 'id' => $item->name]);
+                        $ret .= ', ';
+                    }
+                    $ret = rtrim($ret, ', ');
+                    return $ret;
+                },
+                'label' => 'Роли',
+                'format' => 'html'
+            ],
 
             ['class' => 'yii\grid\ActionColumn'],
         ],
