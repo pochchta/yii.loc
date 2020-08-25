@@ -3,7 +3,6 @@
 use yii\grid\GridView;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
-use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\User */
@@ -15,6 +14,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Пользователи', 'url' =
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
+<div class="user-view">
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
@@ -22,21 +22,11 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= Html::a('Удалить', ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
             'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
+                'confirm' => 'Вы действительно хотите удалить элемент?',
                 'method' => 'post',
             ],
         ]) ?>
     </p>
-
-<!--    --><?/*= DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'id',
-            'username',
-//            'password',
-//            'auth_key',
-        ],
-    ]) */?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -92,46 +82,4 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <?php ActiveForm::end(); ?>
     </div>
-
-
-
-
-<!--<pre>-->
-<?php
-//    var_dump(Yii::$app->authManager->getRolesByUser(17));
-//?>
-<!--</pre>-->
-<!--    <pre>
-        <?php /*var_dump($allRolesByUser); */?>
-        <?php /*var_dump($allPermsByUser); */?>
-    </pre>-->
-
-<!--    <div class="allRolesByUser">
-        <?php /*foreach($allRolesByUser as $key => $item): */?>
-            <p>
-                <?/*= $item->name */?>
-            </p>
-        <?php /*endforeach */?>
-    </div>
-
-    <div class="allPermsByUser">
-
-    </div>-->
-
-<!--    <pre>
-    <?php
-/*        $admin = Yii::$app->authManager->getRole('admin');
-        $guest = Yii::$app->authManager->getRole('guest');
-        $perm = Yii::$app->authManager->getPermission('createPost');
-        try {
-//            var_dump(Yii::$app->authManager->addChild($admin, $guest));
-//            var_dump(Yii::$app->authManager->addChild($guest, $admin));
-            var_dump(Yii::$app->authManager->addChild($guest, $perm));
-        } catch (Exception $e) {
-            echo "Такую связь добавить нельзя. Код ошибки:\n";
-            echo $e->getMessage();
-        }
-    */?>
-    </pre>-->
-
 </div>
