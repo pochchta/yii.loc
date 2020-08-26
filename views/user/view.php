@@ -41,6 +41,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 },
                 'format' => 'html'
             ],
+            'item.description',
             [
                 'label' => 'Разрешения',
                 'value' => function ($data) {
@@ -54,9 +55,9 @@ $this->params['breadcrumbs'][] = $this->title;
                 },
                 'format' => 'html',
             ],
-             'item.description',
             [
                 'attribute' => 'created_at',
+                'label' => 'Назначено',
                 'format' => 'date'
             ],
 
