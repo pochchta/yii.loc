@@ -45,9 +45,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 'label' => 'Разрешения',
                 'value' => function ($data) {
                     $ret = '';
-                    $arrPerms = Yii::$app->authManager->getPermissionsByRole($data->item_name);
-                    foreach ($arrPerms as $item) {
-                        $ret .= Html::a($item->name, ['/auth/view', 'id' => $item->name]);
+                    foreach ($data->permits as $item) {
+                        $ret .= Html::a($item->child, ['/auth/view', 'id' => $item->child]);
                         $ret .= ', ';
                     }
                     $ret = rtrim($ret, ', ');
@@ -71,10 +70,10 @@ $this->params['breadcrumbs'][] = $this->title;
             $span = "<span class='input-group-addon' id='basic-addon'>{$button}</span>";
             $formGroup = "<div class='input-group'>{input}{$span}</div>";
 
-            $allRoles = Yii::$app->authManager->getRoles();
+//            $allRoles = Yii::$app->authManager->getRoles();
             $arrayRoles = array();
-            foreach ($allRoles as $item) {
-                $arrayRoles[$item->name] = $item->name;
+            foreach ($dataProvider->models as $item) {
+                $arrayRoles[$item->item_name] = $item->item_name;
             }
         ?>
 

@@ -76,4 +76,14 @@ class AuthAssignment extends \yii\db\ActiveRecord
     {
         return $this->hasOne(AuthItem::className(), ['name' => 'item_name']);
     }
+
+    /**
+     * Gets query for [[ItemChild]]
+     * для получения названий разрешений, которые являются дочерними для роли
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPermits()
+    {
+        return $this->hasMany(AuthItemChild::className(), ['parent' => 'item_name']);
+    }
 }
