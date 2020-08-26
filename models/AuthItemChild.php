@@ -49,21 +49,21 @@ class AuthItemChild extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Parent0]].
-     *
+     * Gets query for [[Parent]].
+     * for information about parent
      * @return \yii\db\ActiveQuery
      */
-    public function getParent()
+    public function getItemParent()
     {
         return $this->hasOne(AuthItem::className(), ['name' => 'parent']);
     }
 
     /**
-     * Gets query for [[Child0]].
-     *
+     * Gets query for [[Child]].
+     * for information about child
      * @return \yii\db\ActiveQuery
      */
-    public function getItem()
+    public function getItemChild()
     {
         return $this->hasOne(AuthItem::className(), ['name' => 'child']);
     }

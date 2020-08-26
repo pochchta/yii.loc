@@ -7,9 +7,11 @@ use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\AuthItem */
+/* @var $modelChildItem app\models\AuthItemChild */
+/* @var $dataProvider \yii\data\ActiveDataProvider */
 
 $this->title = $model->name;
-$this->params['breadcrumbs'][] = ['label' => 'Auth Items', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Роли и разрешения', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
@@ -18,11 +20,11 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Update', ['update', 'id' => $model->name], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->name], [
+        <?= Html::a('Изменить', ['update', 'id' => $model->name], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('Удалить', ['delete', 'id' => $model->name], [
             'class' => 'btn btn-danger',
             'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
+                'confirm' => 'Вы действительно хотите удалить элемент?',
                 'method' => 'post',
             ],
         ]) ?>
@@ -57,16 +59,15 @@ $this->params['breadcrumbs'][] = $this->title;
             'columns' => [
                 ['class' => 'yii\grid\SerialColumn'],
 
-                'child',
-                'item.description',
-    /*            [
-                    'attribute' => 'parent',
-                    'value' => function ($data) {
-                        return Html::a('удалить', ['unlink', 'parent' => $data->parent, 'child' => $data->child], ['confirm' => 'Вы уверены?']);
+                [
+                    'attribute' => 'child',
+                    'value' => function ($model) {
+                        return Html::a($model->child, ['view', 'id' => $model->child]);
                     },
-                    'format' => 'html',
-                    'header' => 'Действия'
-                ],*/
+                    'format' => 'html'
+                ],
+                'itemChild.description',
+
                 ['class' => 'yii\grid\ActionColumn', 'controller' => 'auth-item-child', 'template' => '{delete}'],
             ],
         ]); ?>

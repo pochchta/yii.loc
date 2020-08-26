@@ -57,7 +57,7 @@ class AuthController extends Controller
 
         $model = $this->findModel($id);
         $dataProvider = new ActiveDataProvider([
-            'query' => AuthItemChild::find()->where(['parent' => $model->name])->joinWith(['item']),
+            'query' => AuthItemChild::find()->where(['parent' => $model->name])->with('itemChild'),
         ]);
 
         return $this->render('view', compact(

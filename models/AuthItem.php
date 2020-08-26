@@ -159,4 +159,14 @@ class AuthItem extends \yii\db\ActiveRecord
             'updated_at' => 'Обновлено',
         ];
     }
+
+    /**
+     * Gets query for [[ItemChild]]
+     * для получения названий разрешений, которые являются дочерними для роли
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPermits()
+    {
+        return $this->hasMany(AuthItemChild::className(), ['parent' => 'name']);
+    }
 }
