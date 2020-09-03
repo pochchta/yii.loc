@@ -45,9 +45,9 @@ $this->params['breadcrumbs'][] = $this->title;
                     $ret = '';
                     foreach ($data->permits as $item) {
                         $ret .= Html::a($item->child, ['view', 'id' => $item->child]);
-                        $ret .= ', ';
+                        $ret .= Yii::$app->formatter->asNtext(",\n");
                     }
-                    $ret = rtrim($ret, ', ');
+                    $ret = rtrim($ret, ",\n");
                     return $ret;
                 },
                 'format' => 'html',

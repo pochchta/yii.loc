@@ -6,9 +6,9 @@ use yii\helpers\Html;
 /* @var $model app\models\AuthItem */
 
 $this->title = 'Обновление роли или разрешения: ' . $model->name;
-$this->params['breadcrumbs'][] = ['label' => 'Auth Items', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Роли и разрешения', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->name]];
-$this->params['breadcrumbs'][] = 'Update';
+$this->params['breadcrumbs'][] = 'Изменение';
 ?>
 <div class="auth-item-update">
 

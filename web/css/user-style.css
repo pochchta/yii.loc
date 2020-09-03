@@ -7,3 +7,6 @@
     border-radius: 0 4px 4px 0;
     outline: none;
 }
+table td:last-child{
+    /*white-space: nowrap;*/
+}
