@@ -43,11 +43,11 @@ $this->params['breadcrumbs'][] = $this->title;
                 'label' => 'Разрешения',
                 'value' => function ($data) {
                     $ret = '';
+                    $lineBreak = Yii::$app->formatter->asNtext(",\n");
                     foreach ($data->permits as $item) {
-                        $ret .= Html::a($item->child, ['view', 'id' => $item->child]);
-                        $ret .= Yii::$app->formatter->asNtext(",\n");
+                        $ret .= Html::a($item->child, ['view', 'id' => $item->child]).$lineBreak;
                     }
-                    $ret = rtrim($ret, ",\n");
+                    $ret = rtrim($ret, $lineBreak);
                     return $ret;
                 },
                 'format' => 'html',

@@ -128,7 +128,7 @@ class AuthItem extends \yii\db\ActiveRecord
         return Yii::$app->authManager->remove($this->_item);
     }
 
-    public function getAllRoles() {
+    public static function getNamesAllRoles() {
         $findRoles = AuthItem::find()->select(['name'])->where(['type' => self::$ROLE])->asArray()->all();
         $outArray = array();
         foreach($findRoles as $key => $item) {
@@ -137,7 +137,7 @@ class AuthItem extends \yii\db\ActiveRecord
         return $outArray;
     }
 
-    public function getAllPermits()
+    public static function getNamesAllPermits()
     {
         $findPermits = AuthItem::find()->select(['name'])->where(['type' => self::$PERMIT])->asArray()->all();
         $outArray = array();

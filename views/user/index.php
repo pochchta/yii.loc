@@ -34,12 +34,12 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'value' => function ($data) {
                     $ret = '';
+                    $lineBreak = Yii::$app->formatter->asNtext(",\n");
                     $arrRoles = Yii::$app->authManager->getRolesByUser($data->id);
                     foreach ($arrRoles as $item) {
-                        $ret .= Html::a($item->name, ['/auth/view', 'id' => $item->name]);
-                        $ret .= ', ';
+                        $ret .= Html::a($item->name, ['/auth/view', 'id' => $item->name]).$lineBreak;
                     }
-                    $ret = rtrim($ret, ', ');
+                    $ret = rtrim($ret, $lineBreak);
                     return $ret;
                 },
                 'label' => 'Роли',

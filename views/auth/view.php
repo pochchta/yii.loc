@@ -85,7 +85,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
             <?= $form->field($modelChildItem, 'child', [
                 "template" => "{label}\n{$formGroup}\n{error}"
-            ])->dropDownList($model->getAllPermits(), ['class' => 'form-control', 'aria-describedby' => 'basic-addon']) ?>
+            ])->dropDownList($model::getNamesAllPermits(), ['class' => 'form-control', 'aria-describedby' => 'basic-addon']) ?>
 
             <?php ActiveForm::end(); ?>
         </div>
