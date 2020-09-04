@@ -1,5 +1,6 @@
 <?php
 
+use app\models\AuthItem;
 use yii\grid\GridView;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
@@ -46,11 +47,11 @@ $this->params['breadcrumbs'][] = $this->title;
                 'label' => 'Разрешения',
                 'value' => function ($data) {
                     $ret = '';
+                    $lineBreak = Yii::$app->formatter->asNtext(",\n");
                     foreach ($data->permits as $item) {
-                        $ret .= Html::a($item->child, ['/auth/view', 'id' => $item->child]);
-                        $ret .= ', ';
+                        $ret .= Html::a($item->child, ['/auth/view', 'id' => $item->child]).$lineBreak;
                     }
-                    $ret = rtrim($ret, ', ');
+                    $ret = rtrim($ret, $lineBreak);
                     return $ret;
                 },
                 'format' => 'html',
@@ -70,12 +71,6 @@ $this->params['breadcrumbs'][] = $this->title;
             $button = Html::submitButton('Добавить', ['class' => 'btn btn-success']);
             $span = "<span class='input-group-addon' id='basic-addon'>{$button}</span>";
             $formGroup = "<div class='input-group'>{input}{$span}</div>";
-
-//            $allRoles = Yii::$app->authManager->getRoles();
-            $arrayRoles = array();
-            foreach ($dataProvider->models as $item) {
-                $arrayRoles[$item->item_name] = $item->item_name;
-            }
         ?>
 
         <?= $form->field($modelAssign, 'user_id', [
@@ -84,7 +79,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <?= $form->field($modelAssign, 'item_name', [
             "template" => "{label}\n{$formGroup}\n{error}"
-        ])->dropDownList($arrayRoles, ['value' => 'guest', 'class' => 'form-control', 'aria-describedby' => 'basic-addon'])->label('Добавить роль пользователю') ?>
+        ])->dropDownList(AuthItem::getNamesAllRoles(), ['value' => 'guest', 'class' => 'form-control', 'aria-describedby' => 'basic-addon'])->label('Добавить роль пользователю') ?>
 
         <?php ActiveForm::end(); ?>
     </div>
