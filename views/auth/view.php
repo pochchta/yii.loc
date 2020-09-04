@@ -68,7 +68,25 @@ $this->params['breadcrumbs'][] = $this->title;
                 ],
                 'itemChild.description',
 
-                ['class' => 'yii\grid\ActionColumn', 'controller' => 'auth-item-child', 'template' => '{delete}'],
+                [
+                    'class' => 'yii\grid\ActionColumn',
+                    'template' => '{delete}',
+                    'buttons' =>
+                        [
+                            'delete' => function ($url, $model) {
+                                return Html::a('<span class="glyphicon glyphicon-trash"></span>', [
+                                   '/auth-item-child/delete',
+                                    'parent' => $model->parent,
+                                    'child' => $model->child,
+                                ], [
+                                    'title' => Yii::t('yii', 'Change user role'),
+                                    'data' => [
+                                        'confirm' => 'Вы действительно хотите удалить элемент?',
+                                        'method' => 'post'
+                                    ]
+                                ]); },
+                        ]
+                    ],
             ],
         ]); ?>
 
