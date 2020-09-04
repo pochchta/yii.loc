@@ -3,7 +3,6 @@
 namespace app\controllers;
 
 use app\models\AuthAssignment;
-use app\models\AuthItem;
 use Yii;
 use app\models\User;
 use yii\data\ActiveDataProvider;
@@ -32,11 +31,6 @@ class UserController extends Controller
             'access' => [
                 'class' => AccessControl::className(),
                 'rules' => [
-                    [
-                        'actions' => ['view'],
-                        'allow' => true,
-                        'roles' => ['ViewingOwnUser'],
-                    ],
                     [
                         'allow' => true,
                         'roles' => ['ChangingUsers'],

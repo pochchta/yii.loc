@@ -29,11 +29,6 @@ class AuthController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['index'],
-                        'allow' => true,
-                        'roles' => ['ViewingAuthItem'],
-                    ],
-                    [
                         'allow' => true,
                         'roles' => ['ChangingAuthItem'],
                     ],
