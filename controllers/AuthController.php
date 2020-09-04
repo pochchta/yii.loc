@@ -23,6 +23,7 @@ class AuthController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
+                    'delete-child' => ['POST'],
                 ],
             ],
             'access' => [
@@ -131,6 +132,21 @@ class AuthController extends Controller
         $model->deleteItem($id);
 
         return $this->redirect(['index']);
+    }
+
+    /**
+     * Deletes link between child and parent
+    */
+
+    public function actionDeleteChild($parent, $child) {
+        $role = Yii::$app->authManager->getRole($parent);
+        $permit = Yii::$app->authManager->getPermission($child);
+        if ($role == NULL || $permit == NULL) throw new NotFoundHttpException('Не найдены элементы');
+        if (Yii::$app->authManager->removeChild($role, $permit)) {
+            return $this->redirect(Yii::$app->request->referrer);
+        } else {
+            throw new NotFoundHttpException('Операция не выполнена');
+        }
     }
 
     /**

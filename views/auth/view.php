@@ -75,16 +75,17 @@ $this->params['breadcrumbs'][] = $this->title;
                         [
                             'delete' => function ($url, $model) {
                                 return Html::a('<span class="glyphicon glyphicon-trash"></span>', [
-                                   '/auth-item-child/delete',
+                                   'delete-child',
                                     'parent' => $model->parent,
                                     'child' => $model->child,
                                 ], [
-                                    'title' => Yii::t('yii', 'Change user role'),
+                                    'title' => Yii::t('yii', 'Удалить'),
                                     'data' => [
                                         'confirm' => 'Вы действительно хотите удалить элемент?',
                                         'method' => 'post'
                                     ]
-                                ]); },
+                                ]);
+                            },
                         ]
                     ],
             ],
