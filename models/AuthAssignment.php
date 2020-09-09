@@ -86,4 +86,9 @@ class AuthAssignment extends \yii\db\ActiveRecord
     {
         return $this->hasMany(AuthItemChild::className(), ['parent' => 'item_name']);
     }
+
+    public function getUser()
+    {
+        return $this->hasOne(User::class, ['id' => 'user_id']);
+    }
 }

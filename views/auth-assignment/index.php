@@ -5,31 +5,43 @@ use yii\grid\GridView;
 
 /* @var $this yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
+/* @var $searchModel app\models\AssignmentSearch */
 
-$this->title = 'Auth Assignments';
+$this->title = 'Назначения ролей';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="auth-assignment-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p>
-        <?= Html::a('Create Auth Assignment', ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
-
-
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
+        'filterModel' => $searchModel,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
-            'item_name',
+            [
+                'attribute' => 'item_name',
+                'label' => 'Роль'
+            ],
             'user_id',
-            'created_at',
+            [
+                'attribute' => 'username',
+                'value' => function ($model) {
+                    return $model->user->username;
+                },
+                'label' => 'Имя пользователя',
+            ],
+            [
+                'attribute' => 'created_at',
+                'format' => 'date',
+                'filter' => Html::activeInput('date', $searchModel, 'created_at_start').
+                    Yii::$app->formatter->asNtext(",\n").
+                    Html::activeInput('date', $searchModel, 'created_at_end')
+            ],
 
-            ['class' => 'yii\grid\ActionColumn'],
+            ['class' => 'yii\grid\ActionColumn', 'template' => '{delete}'],
         ],
     ]); ?>
-
 
 </div>

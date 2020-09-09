@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\AssignmentSearch;
 use Yii;
 use app\models\AuthAssignment;
 use yii\data\ActiveDataProvider;
@@ -45,11 +46,11 @@ class AuthAssignmentController extends Controller
      */
     public function actionIndex()
     {
-        $dataProvider = new ActiveDataProvider([
-            'query' => AuthAssignment::find(),
-        ]);
+        $searchModel = new AssignmentSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
+            'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }
