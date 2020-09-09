@@ -35,9 +35,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 'value' => function ($data) {
                     $ret = '';
                     $lineBreak = Yii::$app->formatter->asNtext(",\n");
-                    $arrRoles = Yii::$app->authManager->getRolesByUser($data->id);
-                    foreach ($arrRoles as $item) {
-                        $ret .= Html::a($item->name, ['/auth/view', 'id' => $item->name]).$lineBreak;
+                    foreach ($data->roles as $item) {
+                        $ret .= Html::a($item->item_name, ['/auth/view', 'id' => $item->item_name]).$lineBreak;
                     }
                     $ret = rtrim($ret, $lineBreak);
                     return $ret;

@@ -101,4 +101,9 @@ class User extends ActiveRecord implements IdentityInterface
             'auth_key' => 'Ключ идентификации',
         ];
     }
+
+    public function getRoles()
+    {
+        return $this->hasMany(AuthAssignment::className(), ['user_id' => 'id']);
+    }
 }
