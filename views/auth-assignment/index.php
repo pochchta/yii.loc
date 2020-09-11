@@ -22,14 +22,26 @@ $this->params['breadcrumbs'][] = $this->title;
 
             [
                 'attribute' => 'item_name',
+                'value' => function ($model) {
+                    return Html::a($model->item_name, ['/auth/view', 'id' => $model->item_name]);
+                },
+                'format' => 'html',
                 'label' => 'Роль'
             ],
-            'user_id',
+            [
+                'attribute' => 'user_id',
+                'value' => function ($model) {
+                    return Html::a($model->user_id, ['/user/view', 'id' => $model->user_id]);
+                },
+                'format' => 'html',
+                'label' => 'ID'
+            ],
             [
                 'attribute' => 'username',
                 'value' => function ($model) {
-                    return $model->user->username;
+                    return Html::a($model->user->username, ['/user/view', 'id' => $model->user_id]);
                 },
+                'format' => 'html',
                 'label' => 'Имя пользователя',
             ],
             [
