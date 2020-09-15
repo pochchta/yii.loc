@@ -10,6 +10,7 @@ use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\widgets\ActiveForm;
 
 /**
  * AuthController implements the CRUD actions for AuthItem model.
@@ -83,13 +84,7 @@ class AuthController extends Controller
         $model = new AuthItem();
 
         if ($model->load(Yii::$app->request->post())) {
-            try {
-                $success = $model->createItem();
-            } catch (\Exception $e) {
-                $success = false;
-                Yii::$app->session->setFlash('error', $e->getMessage());
-            }
-            if ($success) {
+            if ($model->save()) {
                 return $this->redirect(['view', 'id' => $model->name]);
             }
         }
@@ -101,17 +96,32 @@ class AuthController extends Controller
 
     public function actionUpdate($id)
     {
-        $model = new AuthItem();
-        $model->findItem($id);
+        $model = $this->findModel($id);
+
+        $validator = new \yii\validators\CompareValidator();
+        $validator->compareValue = $model->type;        // '==' by default
 
         if ($model->load(Yii::$app->request->post())) {
-            try {
-                $success = $model->updateItem($id);
-            } catch (\Exception $e) {
-                $success = false;
-                Yii::$app->session->setFlash('error', $e->getMessage());
+            $isValidData = $model->validate();
+            $isValidType = $validator->validate($model->type);        // отдельная валидация на изменение типа
+            if ($isValidType == false) {
+                $model->addError('type', 'Тип менять нельзя');
             }
-            if ($success) {
+            if ($isValidData && $isValidType) {
+                $manager = Yii::$app->authManager;
+                if ($model->oldAttributes['type'] == AuthItem::$ROLE) {
+                    $item = $manager->getRole($model->oldAttributes['name']);
+                } else {
+                    $item = $manager->getPermission($model->oldAttributes['name']);
+                }
+                if ($item) {
+                    $item->name = $model->name;
+                    $item->description = $model->description;
+                    $manager->update($model->oldAttributes['name'], $item);
+                } else {
+                    throw new NotFoundHttpException('Не найден элемент для обновления');
+                }
+
                 return $this->redirect(['view', 'id' => $model->name]);
             }
         }
@@ -130,8 +140,19 @@ class AuthController extends Controller
      */
     public function actionDelete($id)
     {
-        $model = new AuthItem();
-        $model->deleteItem($id);
+        $model = $this->findModel($id);
+
+        $manager = Yii::$app->authManager;
+        if ($model->type == AuthItem::$ROLE) {
+            $item = $manager->getRole($model->name);
+        } else {
+            $item = $manager->getPermission($model->name);
+        }
+        if ($item) {
+            $manager->remove($item);
+        } else {
+            throw new NotFoundHttpException('Не найден элемент для удаления');
+        }
 
         return $this->redirect(['index']);
     }
