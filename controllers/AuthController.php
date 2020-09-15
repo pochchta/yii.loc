@@ -61,12 +61,14 @@ class AuthController extends Controller
      */
     public function actionView($id)
     {
+        $model = $this->findModel($id);
+
         $modelChildItem = new AuthItemChild();
         if ($modelChildItem->load(Yii::$app->request->post()) && $modelChildItem->save()) {
+            $model->touch('updated_at');
             return $this->refresh();
         }
 
-        $model = $this->findModel($id);
         $dataProvider = new ActiveDataProvider([
             'query' => AuthItemChild::find()->where(['parent' => $model->name])->with('itemChild'),
         ]);
@@ -136,15 +138,18 @@ class AuthController extends Controller
 
     /**
      * Deletes link between child and parent
+     * @param string $parent
+     * @param string $child
     */
 
     public function actionDeleteChild($parent, $child) {
-        $role = Yii::$app->authManager->getRole($parent);
-        $permit = Yii::$app->authManager->getPermission($child);
-        if ($role == NULL || $permit == NULL) throw new NotFoundHttpException('Не найдены элементы');
-        if (Yii::$app->authManager->removeChild($role, $permit)) {
+        $modelChild = AuthItemChild::findOne(['parent' => $parent, 'child' => $child]);
+        try {
+            if ($modelChild->delete()) {     // not false AND not 0
+                AuthItem::findOne($parent)->touch('updated_at');
+            }
             return $this->redirect(Yii::$app->request->referrer);
-        } else {
+        } catch (\Throwable $e) {
             throw new NotFoundHttpException('Операция не выполнена');
         }
     }
@@ -162,6 +167,6 @@ class AuthController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('Запрошенная страница не существует.');
     }
 }
