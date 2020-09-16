@@ -60,11 +60,16 @@ class AuthAssignmentController extends Controller
      * @param string $item_name
      * @param string $user_id
      * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
+     * @throws NotFoundHttpException if the model cannot be found OR cannot be delete
      */
     public function actionDelete($item_name, $user_id)
     {
-        $this->findModel($item_name, $user_id)->delete();
+        $model = $this->findModel($item_name, $user_id);
+        try {
+            $model->delete();
+        } catch (\Throwable $e) {
+            throw new NotFoundHttpException('Запись не была удалена');
+        }
         if ($referrer = Yii::$app->request->referrer) {
             return $this->redirect($referrer);
         }
