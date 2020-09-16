@@ -10,7 +10,6 @@ use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use yii\widgets\ActiveForm;
 
 /**
  * AuthController implements the CRUD actions for AuthItem model.
@@ -66,7 +65,11 @@ class AuthController extends Controller
 
         $modelChildItem = new AuthItemChild();
         if ($modelChildItem->load(Yii::$app->request->post()) && $modelChildItem->save()) {
-            $model->touch('updated_at');
+            try {
+                $model->touch('updated_at');        // method touch throws exception
+            } catch (\Exception $e) {
+                // дата не проставлена
+            }
             return $this->refresh();
         }
 
@@ -79,6 +82,11 @@ class AuthController extends Controller
         ));
     }
 
+    /**
+     * Creating AuthItem model.
+     * If creating is successful, the browser will be redirected to the 'view' page.
+     * @return mixed
+     */
     public function actionCreate()
     {
         $model = new AuthItem();
@@ -94,6 +102,13 @@ class AuthController extends Controller
         ));
     }
 
+    /**
+     * Updating AuthItem model.
+     * If updating is successful, the browser will be redirected to the 'view' page.
+     * @param string $id
+     * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found
+     */
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
@@ -117,7 +132,11 @@ class AuthController extends Controller
                 if ($item) {
                     $item->name = $model->name;
                     $item->description = $model->description;
-                    $manager->update($model->oldAttributes['name'], $item);
+                    try {
+                        $manager->update($model->oldAttributes['name'], $item);
+                    } catch (\Exception $e) {
+                        throw new NotFoundHttpException('Не удалось обновить');
+                    }
                 } else {
                     throw new NotFoundHttpException('Не найден элемент для обновления');
                 }
@@ -161,13 +180,15 @@ class AuthController extends Controller
      * Deletes link between child and parent
      * @param string $parent
      * @param string $child
-    */
+     * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found
+     */
 
     public function actionDeleteChild($parent, $child) {
         $modelChild = AuthItemChild::findOne(['parent' => $parent, 'child' => $child]);
         try {
             if ($modelChild->delete()) {     // not false AND not 0
-                AuthItem::findOne($parent)->touch('updated_at');
+                AuthItem::findOne($parent)->touch('updated_at');    // method touch throws exception
             }
             return $this->redirect(Yii::$app->request->referrer);
         } catch (\Throwable $e) {

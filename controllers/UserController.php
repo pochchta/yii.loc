@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\models\AuthAssignment;
 use Yii;
 use app\models\User;
+use yii\base\Exception;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -83,13 +84,18 @@ class UserController extends Controller
      * Creates a new User model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found OR if password bad
      */
     public function actionCreate()
     {
         $model = new User();
 
         if ($model->load(Yii::$app->request->post())) {
-            $model->password = Yii::$app->getSecurity()->generatePasswordHash($model->password);
+            try {
+                $model->password = Yii::$app->getSecurity()->generatePasswordHash($model->password);
+            } catch (Exception $e) {
+                throw new NotFoundHttpException('Не подходящий пароль');
+            }
             if ($model->save()) {
                 return $this->redirect(['view', 'id' => $model->id]);
             }
@@ -106,14 +112,18 @@ class UserController extends Controller
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param string $id
      * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
+     * @throws NotFoundHttpException if the model cannot be found if password bad
      */
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post())) {
-            $model->password = Yii::$app->getSecurity()->generatePasswordHash($model->password);
+            try {
+                $model->password = Yii::$app->getSecurity()->generatePasswordHash($model->password);
+            } catch (Exception $e) {
+                throw new NotFoundHttpException('Не подходящий пароль');
+            }
             if ($model->save()) {
                 return $this->redirect(['view', 'id' => $model->id]);
             }
@@ -135,7 +145,11 @@ class UserController extends Controller
     {
         $model = $this->findModel($id);
         Yii::$app->authManager->revokeall($model->id);
-        $model->delete();
+        try {
+            $model->delete();
+        } catch (\Throwable $e) {
+            throw new NotFoundHttpException('Запись не была удалена.');
+        }
 
         return $this->redirect(['index']);
     }
