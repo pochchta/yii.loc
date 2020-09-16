@@ -14,6 +14,7 @@ use yii\behaviors\TimestampBehavior;
  * @property resource|null $data
  * @property int|null $created_at
  * @property int|null $updated_at
+ * @method touch(string $string) Method TimestampBehavior
  */
 class AuthItem extends \yii\db\ActiveRecord
 {
