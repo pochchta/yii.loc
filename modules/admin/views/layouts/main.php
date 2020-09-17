@@ -43,24 +43,27 @@ AppAsset::register($this);
             ['label' => 'Роли', 'url' => ['/admin/auth/index']],
             ['label' => 'Назначения ролей', 'url' => ['/admin/auth-assignment/index']],
             ['label' => 'Домой', 'url' => ['/site/index']],
-            Yii::$app->user->can('ChangingUsers') ? (
+/*            Yii::$app->user->can('ChangingUsers') ? (
             ['label' => 'Админка', 'url' => ['/admin'], 'items' => [
                 ['label' => 'Пользователи', 'url' => ['/admin/user/index']],
                 ['label' => 'Роли', 'url' => ['/admin/auth/index']],
                 ['label' => 'Назначения ролей', 'url' => ['/admin/auth-assignment/index']],
-            ]]) : '',
+            ]]) : '',*/
             Yii::$app->user->isGuest ? (
-            ['label' => 'Войти', 'url' => ['/site/login']]
+                ['label' => 'Войти', 'url' => ['/site/login']]
             ) : (
-                '<li>'
-                . Html::beginForm(['/site/logout'], 'post')
-                . Html::submitButton(
-                    'Выйти (' . Yii::$app->user->identity->username . ')',
-                    ['class' => 'btn btn-link logout']
-                )
-                . Html::endForm()
-                . '</li>'
-            )
+                ['label' => Yii::$app->user->identity->username, 'items' => [
+                    ['label' => 'Профиль', 'url' => ['/site/profile']],
+                    ['label' => 'Админка', 'url' => ['/admin']],
+                        '<li>'
+                        . Html::a('Выйти', ['/site/logout'], [
+                            'data' => [
+                                'method' => 'post'
+                            ]
+                        ])
+                        . '</li>'
+                ]]
+            ),
         ],
     ]);
     NavBar::end();
