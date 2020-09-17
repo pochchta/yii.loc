@@ -1,6 +1,6 @@
 <?php
 
-namespace app\models;
+namespace app\modules\admin\models;
 
 use Yii;
 
@@ -30,6 +30,7 @@ class AuthItemChild extends \yii\db\ActiveRecord
     {
         return [
             [['parent', 'child'], 'required'],
+            [['parent', 'child'], 'trim'],
             [['parent', 'child'], 'string', 'max' => 64],
             [['parent', 'child'], 'unique', 'targetAttribute' => ['parent', 'child']],
             [['parent'], 'exist', 'skipOnError' => true, 'targetClass' => AuthItem::className(), 'targetAttribute' => ['parent' => 'name']],

@@ -6,8 +6,8 @@ use yii\widgets\ActiveForm;
 use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\AuthItem */
-/* @var $modelChildItem app\models\AuthItemChild */
+/* @var $model app\modules\admin\models\AuthItem */
+/* @var $modelChildItem app\modules\admin\models\AuthItemChild */
 /* @var $dataProvider \yii\data\ActiveDataProvider */
 
 $this->title = $model->name;

@@ -1,11 +1,11 @@
 <?php
 
-namespace app\models;
+namespace app\modules\admin\models;
 
+use app\models\User;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use yii\filters\AccessControl;
 
 /**
  * This is the model class for table "auth_assignment".
@@ -47,8 +47,9 @@ class AuthAssignment extends \yii\db\ActiveRecord
     {
         return [
             [['item_name', 'user_id'], 'required'],
-            [['user_id', 'created_at'], 'integer'],
             [['item_name'], 'string', 'max' => 64],
+            [['item_name'], 'trim'],
+            [['user_id'], 'integer'],
             [['item_name', 'user_id'], 'unique', 'targetAttribute' => ['item_name', 'user_id']],
             [['item_name'], 'exist', 'skipOnError' => true, 'targetClass' => AuthItem::class, 'targetAttribute' => ['item_name' => 'name']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],

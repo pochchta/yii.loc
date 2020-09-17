@@ -1,9 +1,9 @@
 <?php
 
-namespace app\controllers;
+namespace app\modules\admin\controllers;
 
-use app\models\AuthAssignment;
 use Yii;
+use app\modules\admin\models\AuthAssignment;
 use app\models\User;
 use yii\base\Exception;
 use yii\data\ActiveDataProvider;

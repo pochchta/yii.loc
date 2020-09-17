@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\AuthAssignment */
+/* @var $model app\modules\admin\models\AuthAssignment */
 
 $this->title = $model->item_name;
 $this->params['breadcrumbs'][] = ['label' => 'Auth Assignments', 'url' => ['index']];

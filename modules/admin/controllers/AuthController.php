@@ -1,10 +1,10 @@
 <?php
 
-namespace app\controllers;
+namespace app\modules\admin\controllers;
 
-use app\models\AuthItemChild;
+use app\modules\admin\models\AuthItem;
+use app\modules\admin\models\AuthItemChild;
 use Yii;
-use app\models\AuthItem;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;

@@ -5,7 +5,7 @@ use yii\grid\GridView;
 
 /* @var $this yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
-/* @var $searchModel app\models\AssignmentSearch */
+/* @var $searchModel app\modules\admin\models\AssignmentSearch */
 
 $this->title = 'Назначения ролей';
 $this->params['breadcrumbs'][] = $this->title;
@@ -23,7 +23,7 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'item_name',
                 'value' => function ($model) {
-                    return Html::a($model->item_name, ['/auth/view', 'id' => $model->item_name]);
+                    return Html::a($model->item_name, ['auth/view', 'id' => $model->item_name]);
                 },
                 'format' => 'html',
                 'label' => 'Роль'
@@ -31,7 +31,7 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'user_id',
                 'value' => function ($model) {
-                    return Html::a($model->user_id, ['/user/view', 'id' => $model->user_id]);
+                    return Html::a($model->user_id, ['user/view', 'id' => $model->user_id]);
                 },
                 'format' => 'html',
                 'label' => 'ID'
@@ -39,7 +39,7 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'username',
                 'value' => function ($model) {
-                    return Html::a($model->user->username, ['/user/view', 'id' => $model->user_id]);
+                    return Html::a($model->user->username, ['user/view', 'id' => $model->user_id]);
                 },
                 'format' => 'html',
                 'label' => 'Имя пользователя',

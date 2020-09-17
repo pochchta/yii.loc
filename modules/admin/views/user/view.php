@@ -1,6 +1,6 @@
 <?php
 
-use app\models\AuthItem;
+use app\modules\admin\models\AuthItem;
 use yii\grid\GridView;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
@@ -8,7 +8,7 @@ use yii\widgets\ActiveForm;
 /* @var $this yii\web\View */
 /* @var $model app\models\User */
 /* @var $dataProvider yii\data\ActiveDataProvider */
-/* @var $modelAssign app\models\AuthAssignment */
+/* @var $modelAssign app\modules\admin\models\AuthAssignment */
 
 $this->title = $model->username;
 $this->params['breadcrumbs'][] = ['label' => 'Пользователи', 'url' => ['index']];
@@ -38,7 +38,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'item_name',
                 'label' => 'Роль',
                 'value' => function ($data) {
-                    return Html::a($data->item_name, ['/auth/view', 'id' => $data->item_name]);
+                    return Html::a($data->item_name, ['auth/view', 'id' => $data->item_name]);
                 },
                 'format' => 'html'
             ],
@@ -49,7 +49,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     $ret = '';
                     $lineBreak = Yii::$app->formatter->asNtext(",\n");
                     foreach ($data->permits as $item) {
-                        $ret .= Html::a($item->child, ['/auth/view', 'id' => $item->child]).$lineBreak;
+                        $ret .= Html::a($item->child, ['auth/view', 'id' => $item->child]).$lineBreak;
                     }
                     $ret = rtrim($ret, $lineBreak);
                     return $ret;

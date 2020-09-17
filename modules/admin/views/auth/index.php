@@ -1,5 +1,6 @@
 <?php
 
+use app\modules\admin\models\AuthItem;
 use yii\helpers\Html;
 use yii\grid\GridView;
 
@@ -35,7 +36,7 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'type',
                 'value' => function ($data) {
-                    return $data->type == \app\models\AuthItem::$ROLE ? 'Роль' : 'Разрешение';
+                    return $data->type == AuthItem::$ROLE ? 'Роль' : 'Разрешение';
                 }
             ],
             'description:ntext',

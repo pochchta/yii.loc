@@ -2,7 +2,6 @@
 
 use yii\helpers\Html;
 use yii\grid\GridView;
-use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
@@ -36,7 +35,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     $ret = '';
                     $lineBreak = Yii::$app->formatter->asNtext(",\n");
                     foreach ($data->roles as $item) {
-                        $ret .= Html::a($item->item_name, ['/auth/view', 'id' => $item->item_name]).$lineBreak;
+                        $ret .= Html::a($item->item_name, ['auth/view', 'id' => $item->item_name]).$lineBreak;
                     }
                     $ret = rtrim($ret, $lineBreak);
                     return $ret;

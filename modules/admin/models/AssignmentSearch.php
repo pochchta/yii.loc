@@ -1,10 +1,9 @@
 <?php
 
-namespace app\models;
+namespace app\modules\admin\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\AuthAssignment;
 
 /**
  * UserSearch represents the model behind the search form of `app\models\AuthAssignment`.
@@ -22,8 +21,8 @@ class AssignmentSearch extends AuthAssignment
     {
         return [
             [['user_id'], 'integer'],
-            [['item_name', 'username'], 'string', 'max' => 255],
-            [['created_at_start', 'created_at_end'], 'safe']
+            [['item_name', 'username'], 'string', 'max' => 64],
+            [['created_at_start', 'created_at_end'], 'integer']
         ];
     }
 

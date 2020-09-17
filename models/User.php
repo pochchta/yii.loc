@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\modules\admin\models\AuthAssignment;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 
@@ -88,6 +89,7 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return [
             [['username', 'password'], 'required'],
+            [['username', 'password'], 'trim'],
             [['username', 'password'], 'string', 'max' => 64],
             [['username'], 'unique']
         ];

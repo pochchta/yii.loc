@@ -1,10 +1,10 @@
 <?php
 
-namespace app\controllers;
+namespace app\modules\admin\controllers;
 
-use app\models\AssignmentSearch;
+use app\modules\admin\models\AssignmentSearch;
+use app\modules\admin\models\AuthAssignment;
 use Yii;
-use app\models\AuthAssignment;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;

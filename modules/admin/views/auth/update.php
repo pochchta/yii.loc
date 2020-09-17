@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\AuthItem */
+/* @var $model app\modules\admin\models\AuthItem */
 
 $this->title = 'Обновление роли или разрешения: ' . $model->name;
 $this->params['breadcrumbs'][] = ['label' => 'Роли и разрешения', 'url' => ['index']];
