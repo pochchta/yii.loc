@@ -48,19 +48,21 @@ AppAsset::register($this);
                     ['label' => 'Назначения ролей', 'url' => ['/admin/auth-assignment/index']],
             ]]) : '',*/
             Yii::$app->user->isGuest ? (
-            ['label' => 'Войти', 'url' => ['/site/login']]
+                ['label' => 'Войти', 'url' => ['/site/login']]
             ) : (
-            ['label' => Yii::$app->user->identity->username, 'items' => [
-                ['label' => 'Профиль', 'url' => ['/site/profile']],
-                ['label' => 'Админка', 'url' => ['/admin']],
-                '<li>'
-                . Html::a('Выйти', ['/site/logout'], [
-                    'data' => [
-                        'method' => 'post'
-                    ]
-                ])
-                . '</li>'
-            ]]
+                ['label' => Yii::$app->user->identity->username, 'items' => [
+                    ['label' => 'Профиль', 'url' => ['/site/profile']],
+                    Yii::$app->user->can('ChangingUsers') ? (
+                        ['label' => 'Админка', 'url' => ['/admin']]
+                    ) : (''),
+                    '<li>'
+                    . Html::a('Выйти', ['/site/logout'], [
+                        'data' => [
+                            'method' => 'post'
+                        ]
+                    ])
+                    . '</li>'
+                ]]
             ),
         ],
     ]);

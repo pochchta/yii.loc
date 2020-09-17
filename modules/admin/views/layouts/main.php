@@ -54,14 +54,16 @@ AppAsset::register($this);
             ) : (
                 ['label' => Yii::$app->user->identity->username, 'items' => [
                     ['label' => 'Профиль', 'url' => ['/site/profile']],
-                    ['label' => 'Админка', 'url' => ['/admin']],
-                        '<li>'
-                        . Html::a('Выйти', ['/site/logout'], [
-                            'data' => [
-                                'method' => 'post'
-                            ]
-                        ])
-                        . '</li>'
+                    Yii::$app->user->can('ChangingUsers') ? (
+                        ['label' => 'Админка', 'url' => ['/admin']]
+                    ) : (''),
+                    '<li>'
+                    . Html::a('Выйти', ['/site/logout'], [
+                        'data' => [
+                            'method' => 'post'
+                        ]
+                    ])
+                    . '</li>'
                 ]]
             ),
         ],
