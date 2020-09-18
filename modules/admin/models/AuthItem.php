@@ -38,8 +38,9 @@ class AuthItem extends \yii\db\ActiveRecord
         return [
             ['name', 'required'],
             ['name', 'unique'],
-            ['name', 'trim'],
             ['name', 'string', 'max' => 64],
+            ['name', 'trim'],
+            ['name', 'match', 'pattern' => '/^[\w- ]+$/i'],
 //            ['name', 'compare', 'compareValue' => '0', 'operator' => '!=='],
 
             ['type', 'required'],

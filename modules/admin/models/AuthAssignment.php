@@ -49,8 +49,9 @@ class AuthAssignment extends \yii\db\ActiveRecord
             [['item_name', 'user_id'], 'required'],
             [['item_name'], 'string', 'max' => 64],
             [['item_name'], 'trim'],
-            [['user_id'], 'integer'],
+            [['item_name'], 'match', 'pattern' => '/^[\w- ]+$/i'],
             [['item_name', 'user_id'], 'unique', 'targetAttribute' => ['item_name', 'user_id']],
+            [['user_id'], 'integer'],
             [['item_name'], 'exist', 'skipOnError' => true, 'targetClass' => AuthItem::class, 'targetAttribute' => ['item_name' => 'name']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
         ];

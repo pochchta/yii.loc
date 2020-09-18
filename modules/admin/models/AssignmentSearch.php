@@ -22,6 +22,7 @@ class AssignmentSearch extends AuthAssignment
         return [
             [['user_id'], 'integer'],
             [['item_name', 'username'], 'string', 'max' => 64],
+            [['item_name', 'username'], 'match', 'pattern' => '/^[\w- ]+$/i'],
             [['created_at_start', 'created_at_end'], 'integer']
         ];
     }

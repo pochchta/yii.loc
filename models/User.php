@@ -89,9 +89,10 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return [
             [['username', 'password'], 'required'],
-            [['username', 'password'], 'trim'],
             [['username', 'password'], 'string', 'max' => 64],
-            [['username'], 'unique']
+            ['username', 'unique'],
+            ['username', 'trim'],
+            ['username', 'match', 'pattern' => '/^[\w- ]+$/i'],
         ];
     }
 
