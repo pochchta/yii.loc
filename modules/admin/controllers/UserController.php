@@ -48,7 +48,7 @@ class UserController extends Controller
     public function actionIndex()
     {
         $dataProvider = new ActiveDataProvider([
-            'query' => User::find()->with('roles'),
+            'query' => User::find()->with('roles.item'),
         ]);
 
         return $this->render('index', [
@@ -129,6 +129,7 @@ class UserController extends Controller
             }
         }
 
+        $model->password = '';
         return $this->render('update', [
             'model' => $model,
         ]);
