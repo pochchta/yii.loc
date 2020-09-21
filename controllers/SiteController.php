@@ -2,7 +2,9 @@
 
 namespace app\controllers;
 
+use app\modules\admin\models\AuthAssignment;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
@@ -19,21 +21,21 @@ class SiteController extends Controller
     public function behaviors()
     {
         return [
-/*            'access' => [
-                'class' => AccessControl::className(),
-                'only' => ['logout'],
-                'rules' => [
-                    [
-                        'actions' => ['logout'],
-                        'allow' => true,
-                        'roles' => ['@'],
-                    ],
-                ],
-            ],*/
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'logout' => ['post'],
+                ],
+            ],
+            'access' => [
+                'class' => AccessControl::className(),
+                'only' => ['logout', 'profile'],
+                'rules' => [
+                    [
+                        'actions' => ['logout', 'profile'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
                 ],
             ],
         ];
@@ -142,5 +144,15 @@ class SiteController extends Controller
     public function actionAbout()
     {
         return $this->render('about');
+    }
+
+    public function actionProfile()
+    {
+        $dataProvider = new ActiveDataProvider([                    // вывод ролей для выбранного юзера
+            'query' => AuthAssignment::find()->where(['user_id' => Yii::$app->user->identity->id])->with('item', 'permits.itemChild')
+        ]);
+        return $this->render('profile', compact(
+            'dataProvider'
+        ));
     }
 }
