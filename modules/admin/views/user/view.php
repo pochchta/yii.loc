@@ -38,7 +38,11 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'item_name',
                 'label' => 'Роль',
                 'value' => function ($data) {
-                    return Html::a($data->item_name, ['auth/view', 'id' => $data->item_name]);
+                    return Html::a(
+                        $data->item_name,
+                        ['auth/view', 'id' => $data->item_name],
+                        ['title' => $data->item->description]
+                    );
                 },
                 'format' => 'html'
             ],
@@ -49,7 +53,11 @@ $this->params['breadcrumbs'][] = $this->title;
                     $ret = '';
                     $lineBreak = Yii::$app->formatter->asNtext(",\n");
                     foreach ($data->permits as $item) {
-                        $ret .= Html::a($item->child, ['auth/view', 'id' => $item->child]).$lineBreak;
+                        $ret .= Html::a(
+                            $item->child,
+                            ['auth/view', 'id' => $item->child],
+                            ['title' => $item->itemChild->description]
+                        ).$lineBreak;
                     }
                     $ret = rtrim($ret, $lineBreak);
                     return $ret;
@@ -79,7 +87,10 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <?= $form->field($modelAssign, 'item_name', [
             "template" => "{label}\n{$formGroup}\n{error}"
-        ])->dropDownList(AuthItem::getNamesAllRoles(), ['value' => 'guest', 'class' => 'form-control', 'aria-describedby' => 'basic-addon'])->label('Добавить роль пользователю') ?>
+        ])->dropDownList(
+            AuthItem::getNamesAllItems(AuthItem::$ROLE),
+            ['value' => 'guest', 'class' => 'form-control', 'aria-describedby' => 'basic-addon']
+        )->label('Добавить роль пользователю') ?>
 
         <?php ActiveForm::end(); ?>
     </div>

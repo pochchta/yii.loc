@@ -72,7 +72,7 @@ class UserController extends Controller
         $model = $this->findModel($id);                             // модель юзер для вывода его данных
 
         $dataProvider = new ActiveDataProvider([                    // вывод ролей для выбранного юзера
-            'query' => AuthAssignment::find()->where(['user_id' => $model->id])->with('item', 'permits')
+            'query' => AuthAssignment::find()->where(['user_id' => $model->id])->with('item', 'permits.itemChild')
         ]);
 
         return $this->render('view', compact(
