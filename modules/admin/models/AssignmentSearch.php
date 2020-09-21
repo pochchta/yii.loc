@@ -46,7 +46,7 @@ class AssignmentSearch extends AuthAssignment
     public function search($params)
     {
         $query = AuthAssignment::find();
-        $query->joinWith('user');
+        $query->joinWith('user')->with('item');
 
         // add conditions that should always apply here
 
