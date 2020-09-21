@@ -71,7 +71,7 @@ class AuthAssignment extends \yii\db\ActiveRecord
 
     /**
      * Gets query for [[ItemName]].
-     *
+     * для получения свойств роли
      * @return \yii\db\ActiveQuery
      */
     public function getItem()
@@ -81,7 +81,7 @@ class AuthAssignment extends \yii\db\ActiveRecord
 
     /**
      * Gets query for [[ItemChild]]
-     * для получения названий разрешений, которые являются дочерними для роли
+     * для получения свойств разрешений, которые являются дочерними для роли
      * @return \yii\db\ActiveQuery
      */
     public function getPermits()
@@ -89,6 +89,11 @@ class AuthAssignment extends \yii\db\ActiveRecord
         return $this->hasMany(AuthItemChild::className(), ['parent' => 'item_name']);
     }
 
+    /**
+     * Gets query
+     * для получения свойств юзера
+     * @return \yii\db\ActiveQuery
+     */
     public function getUser()
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
