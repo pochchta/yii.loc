@@ -63,21 +63,22 @@ class AuthItem extends \yii\db\ActiveRecord
         ];
     }
 
-    public static function getNamesAllRoles() {
-        $findRoles = AuthItem::find()->select(['name'])->where(['type' => self::$ROLE])->asArray()->all();
-        $outArray = array();
-        foreach($findRoles as $key => $item) {
-            $outArray[$item['name']] = $item['name'];
-        }
-        return $outArray;
-    }
-
-    public static function getNamesAllPermits()
+    /**
+     * Gets names . description
+     * @param int|null $type
+     * @return array
+     */
+    public static function getNamesAllItems($type = NULL)
     {
-        $findPermits = AuthItem::find()->select(['name'])->where(['type' => self::$PERMIT])->asArray()->all();
+        $query = AuthItem::find()->select(['name', 'description']);
+        if ($type == self::$ROLE) {
+            $query->where(['type' => self::$ROLE]);
+        } elseif ($type == self::$PERMIT) {
+            $query->where(['type' => self::$PERMIT]);
+        }
         $outArray = array();
-        foreach ($findPermits as $key => $item) {
-            $outArray[$item['name']] = $item['name'];
+        foreach ($query->asArray()->all() as $key => $item) {
+            $outArray[$item['name']] = $item['name'].' ('.$item['description'].')';
         }
         return $outArray;
     }
