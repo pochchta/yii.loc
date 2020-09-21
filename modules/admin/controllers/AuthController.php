@@ -45,7 +45,7 @@ class AuthController extends Controller
     public function actionIndex()
     {
         $dataProvider = new ActiveDataProvider([
-            'query' => AuthItem::find(),
+            'query' => AuthItem::find()->with('permits.itemChild'),
         ]);
 
         return $this->render('index', [

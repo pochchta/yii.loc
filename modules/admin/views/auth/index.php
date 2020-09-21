@@ -29,7 +29,11 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'name',
                 'value' => function ($data) {
-                    return Html::a($data->name, ['view', 'id' => $data->name]);
+                    return Html::a(
+                        $data->name,
+                        ['view', 'id' => $data->name],
+                        ['title' => $data->description]
+                    );
                 },
                 'format' => 'html',
             ],
@@ -46,7 +50,12 @@ $this->params['breadcrumbs'][] = $this->title;
                     $ret = '';
                     $lineBreak = Yii::$app->formatter->asNtext(",\n");
                     foreach ($data->permits as $item) {
-                        $ret .= Html::a($item->child, ['view', 'id' => $item->child]).$lineBreak;
+                        $ret .= Html::a(
+                            $item->child,
+                            ['view', 'id' => $item->child],
+                            ['title' => $item->itemChild->description]
+                        )
+                        . $lineBreak;
                     }
                     $ret = rtrim($ret, $lineBreak);
                     return $ret;
