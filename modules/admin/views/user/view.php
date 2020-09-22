@@ -6,7 +6,7 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\User */
+/* @var $model app\modules\admin\models\User */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $modelAssign app\modules\admin\models\AuthAssignment */
 

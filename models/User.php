@@ -5,6 +5,7 @@ namespace app\models;
 use app\modules\admin\models\AuthAssignment;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
+use yii\web\NotFoundHttpException;
 
 /**
  * This is the model class for table "user".
@@ -17,6 +18,9 @@ use yii\web\IdentityInterface;
 
 class User extends ActiveRecord implements IdentityInterface
 {
+    public $oldPass;                   // старый пароль
+    public $newPass;                   // новый пароль
+    public $newPassRepeat;             // подтверждение нового пароля
     public static function tableName()
     {
         return 'user';
@@ -80,20 +84,41 @@ class User extends ActiveRecord implements IdentityInterface
         $this->auth_key = \Yii::$app->security->generateRandomString();
     }
 
+    /**
+     * @param $password
+     * @return bool
+     * @throws NotFoundHttpException
+     */
     public function validatePassword($password)
     {
-        return \Yii::$app->getSecurity()->validatePassword($password, $this->password);
+        try {
+            return \Yii::$app->getSecurity()->validatePassword($password, $this->password);
+        } catch (\Exception $e) {
+            throw new NotFoundHttpException('Неправильный пароль');
+        }
     }
 
     public function rules()
     {
         return [
-            [['username', 'password'], 'required'],
-            [['username', 'password'], 'string', 'max' => 64],
+            [['username', 'oldPass'], 'required'],
+            [['username', 'oldPass', 'newPass', 'newPassRepeat'], 'string', 'max' => 64],
             ['username', 'unique'],
             ['username', 'trim'],
             ['username', 'match', 'pattern' => '/^[\w- ]+$/i'],
+            [['newPass', 'newPassRepeat'], 'validateNewPass'],
         ];
+    }
+
+    public function validateNewPass($attribute, $params)
+    {
+        if (!$this->hasErrors()) {
+            if ($this->newPass != '' || $this->newPassRepeat != '') {
+                if ($this->newPass !== $this->newPassRepeat) {
+                    $this->addError($attribute, 'Новый пароль и повторный новый пароль не совпадают');
+                }
+            }
+        }
     }
 
     public function attributeLabels()

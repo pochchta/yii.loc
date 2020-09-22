@@ -4,9 +4,11 @@ namespace app\modules\admin\controllers;
 
 use app\modules\admin\models\AuthItem;
 use app\modules\admin\models\AuthItemChild;
+use Exception;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
+use yii\validators\CompareValidator;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -67,7 +69,7 @@ class AuthController extends Controller
         if ($modelChildItem->load(Yii::$app->request->post()) && $modelChildItem->save()) {
             try {
                 $model->touch('updated_at');        // method touch throws exception
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // дата не проставлена
             }
             return $this->refresh();
@@ -113,7 +115,7 @@ class AuthController extends Controller
     {
         $model = $this->findModel($id);
 
-        $validator = new \yii\validators\CompareValidator();
+        $validator = new CompareValidator();
         $validator->compareValue = $model->type;        // '==' by default
 
         if ($model->load(Yii::$app->request->post())) {
@@ -134,7 +136,7 @@ class AuthController extends Controller
                     $item->description = $model->description;
                     try {
                         $manager->update($model->oldAttributes['name'], $item);
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         throw new NotFoundHttpException('Не удалось обновить');
                     }
                 } else {

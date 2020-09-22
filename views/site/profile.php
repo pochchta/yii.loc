@@ -2,6 +2,7 @@
 
 use yii\grid\GridView;
 use yii\helpers\Html;
+use yii\widgets\ActiveForm;
 
 $this->title = 'Профиль';
 $this->params['breadcrumbs'][] = $this->title;
@@ -10,8 +11,9 @@ $this->params['breadcrumbs'][] = $this->title;
 <div>
     <h1>Профиль</h1>
     <p>
-        Информация о пользователе <?= \yii::$app->user->identity->username ?>
+        Информация о пользователе <?= Html::encode(\yii::$app->user->identity->username) ?>
     </p>
+
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'columns' => [
@@ -54,4 +56,33 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
         ],
     ]); ?>
+
+    <div class="user-form">
+
+        <?php $form = ActiveForm::begin(); ?>
+
+        <?= $form->field($model, 'username')->textInput(['maxlength' => true]) ?>
+
+        <?= $form->field($model, 'oldPass')
+            ->label('Старый пароль')
+            ->passwordInput(['maxlength' => true])
+        ?>
+
+        <?= $form->field($model, 'newPass')
+            ->label('Новый пароль')
+            ->passwordInput(['maxlength' => true])
+        ?>
+
+        <?= $form->field($model, 'newPassRepeat')
+            ->label('Повтор нового пароля')
+            ->passwordInput(['maxlength' => true])
+        ?>
+
+        <div class="form-group">
+            <?= Html::submitButton('Сохранить', ['class' => 'btn btn-success']) ?>
+        </div>
+
+        <?php ActiveForm::end(); ?>
+
+    </div>
 </div>

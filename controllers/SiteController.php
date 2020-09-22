@@ -2,11 +2,14 @@
 
 namespace app\controllers;
 
+use app\models\User;
 use app\modules\admin\models\AuthAssignment;
 use Yii;
+use yii\base\Exception;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
@@ -146,13 +149,61 @@ class SiteController extends Controller
         return $this->render('about');
     }
 
+    /**
+     * Updates an existing User model.
+     * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found if password bad
+     */
     public function actionProfile()
     {
+        $model = $this->findModel(Yii::$app->user->identity->id);
+
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->validatePassword($model->oldPass) == false) {
+                $model->addError('oldPass', 'Пароль не верен');
+            } else {
+                $attributes = NULL;                     // полное обновление данных
+                if ($model->newPass == '' && $model->newPassRepeat == '') {
+                    $attributes = ['username'];         // частичное обновление данных
+                }
+                try {
+                    $model->password = Yii::$app->getSecurity()->generatePasswordHash($model->newPass);
+                } catch (Exception $e) {
+                    throw new NotFoundHttpException('Не подходящий пароль');
+                }
+                if ($model->save(true, $attributes)) {
+                    return $this->refresh();
+                }
+            }
+        }
+
         $dataProvider = new ActiveDataProvider([                    // вывод ролей для выбранного юзера
-            'query' => AuthAssignment::find()->where(['user_id' => Yii::$app->user->identity->id])->with('item', 'permits.itemChild')
+            'query' => AuthAssignment::find()
+                ->where(['user_id' => Yii::$app->user->identity->id])
+                ->with('item', 'permits.itemChild')
         ]);
+
+        $model->oldPass = '';
+        $model->newPass = '';
+        $model->newPassRepeat = '';
         return $this->render('profile', compact(
-            'dataProvider'
+            'model', 'dataProvider'
         ));
+    }
+
+    /**
+     * Finds the User model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param string $id
+     * @return User the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = User::findOne($id)) !== null) {
+            return $model;
+        }
+
+        throw new NotFoundHttpException('Запрошенная страница не существует.');
     }
 }

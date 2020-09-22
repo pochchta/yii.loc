@@ -2,9 +2,9 @@
 
 namespace app\modules\admin\controllers;
 
+use app\modules\admin\models\User;
 use Yii;
 use app\modules\admin\models\AuthAssignment;
-use app\models\User;
 use yii\base\Exception;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
@@ -92,7 +92,7 @@ class UserController extends Controller
 
         if ($model->load(Yii::$app->request->post())) {
             try {
-                $model->password = Yii::$app->getSecurity()->generatePasswordHash($model->password);
+                $model->password = Yii::$app->getSecurity()->generatePasswordHash($model->newPass);
             } catch (Exception $e) {
                 throw new NotFoundHttpException('Не подходящий пароль');
             }
@@ -101,7 +101,8 @@ class UserController extends Controller
             }
         }
 
-        $model->password = '';
+        $model->newPass = '';
+        $model->newPassRepeat = '';
         return $this->render('create', [
             'model' => $model,
         ]);
@@ -120,7 +121,7 @@ class UserController extends Controller
 
         if ($model->load(Yii::$app->request->post())) {
             try {
-                $model->password = Yii::$app->getSecurity()->generatePasswordHash($model->password);
+                $model->password = Yii::$app->getSecurity()->generatePasswordHash($model->newPass);
             } catch (Exception $e) {
                 throw new NotFoundHttpException('Не подходящий пароль');
             }
@@ -129,7 +130,8 @@ class UserController extends Controller
             }
         }
 
-        $model->password = '';
+        $model->newPass = '';
+        $model->newPassRepeat = '';
         return $this->render('update', [
             'model' => $model,
         ]);
