@@ -47,12 +47,16 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'created_at',
                 'format' => 'date',
-                'filter' => Html::activeInput('date', $searchModel, 'created_at_start').
-                    Yii::$app->formatter->asNtext(",\n").
-                    Html::activeInput('date', $searchModel, 'created_at_end')
+                'filter' => Html::activeInput('date', $searchModel, 'created_at_start')
+                    . Yii::$app->formatter->asNtext("\n")
+                    . Html::activeInput('date', $searchModel, 'created_at_end')
             ],
 
-            ['class' => 'yii\grid\ActionColumn', 'template' => '{delete}'],
+            ['class' => 'yii\grid\ActionColumn', 'template' => '{delete}', 'header' => Html::a(
+                '',
+                ['index'],
+                ['class' => 'glyphicon glyphicon-remove', 'title' => 'Очистить все фильтры']
+            )],
         ],
     ]); ?>
 
