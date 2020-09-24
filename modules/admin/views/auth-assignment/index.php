@@ -52,11 +52,24 @@ $this->params['breadcrumbs'][] = $this->title;
                     . Html::activeInput('date', $searchModel, 'created_at_end')
             ],
 
-            ['class' => 'yii\grid\ActionColumn', 'template' => '{delete}', 'header' => Html::a(
-                '',
-                ['index'],
-                ['class' => 'glyphicon glyphicon-remove', 'title' => 'Очистить все фильтры']
-            )],
+            [
+                'format' => 'raw',
+                'filter' => Html::a(
+                    '',
+                    ['index'],
+                    ['class' => 'glyphicon glyphicon-remove', 'title' => 'Очистить все фильтры']
+                ),
+                'value' => function ($model) {
+                    return Html::a(
+                        '',
+                        ['auth-assignment/delete', 'item_name' => $model->item_name, 'user_id' => $model->user_id],
+                        ['class' => 'glyphicon glyphicon-trash', 'title' => 'Удалить', 'data' => [
+                            'method' => 'post',
+                            'confirm' => 'Вы уверены, что хотите удалить этот элемент?'
+                        ]]
+                    );
+                }
+            ],
         ],
     ]); ?>
 
