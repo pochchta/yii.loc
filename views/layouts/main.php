@@ -38,15 +38,9 @@ AppAsset::register($this);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
-            ['label' => 'О нас', 'url' => ['/site/about']],
-            ['label' => 'Контакты', 'url' => ['/site/contact']],
+            ['label' => 'Приборы', 'url' => ['/device/index']],
             ['label' => 'Домой', 'url' => ['/site/index']],
-/*            Yii::$app->user->can('ChangingUsers') ? (
-                ['label' => 'Админка', 'url' => ['/admin'], 'items' => [
-                    ['label' => 'Пользователи', 'url' => ['/admin/user/index']],
-                    ['label' => 'Роли', 'url' => ['/admin/auth/index']],
-                    ['label' => 'Назначения ролей', 'url' => ['/admin/auth-assignment/index']],
-            ]]) : '',*/
+
             Yii::$app->user->isGuest ? (
                 ['label' => 'Войти', 'url' => ['/site/login']]
             ) : (
