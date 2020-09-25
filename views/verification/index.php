@@ -4,33 +4,32 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 
 /* @var $this yii\web\View */
-/* @var $searchModel app\models\DeviceSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Devices';
+$this->title = 'Verifications';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="device-index">
+<div class="verification-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Create Device', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Create Verification', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
-        'filterModel' => $searchModel,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
             'id',
+            'device_id',
             'name',
             'type',
-            'description:ntext',
-            'verif_next_date',
+            'description',
+            //'verif_date',
+            //'verif_period',
             //'created_at',
             //'updated_at',
             //'creator',

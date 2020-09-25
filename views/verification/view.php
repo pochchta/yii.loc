@@ -4,14 +4,14 @@ use yii\helpers\Html;
 use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\Device */
+/* @var $model app\models\Verification */
 
 $this->title = $model->name;
-$this->params['breadcrumbs'][] = ['label' => 'Devices', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Verifications', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
-<div class="device-view">
+<div class="verification-view">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
@@ -30,10 +30,12 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
         'attributes' => [
             'id',
+            'device_id',
             'name',
             'type',
-            'description:ntext',
-            'verif_next_date',
+            'description',
+            'verif_date',
+            'verif_period',
             'created_at',
             'updated_at',
             'creator',

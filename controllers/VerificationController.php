@@ -3,16 +3,16 @@
 namespace app\controllers;
 
 use Yii;
-use app\models\Device;
-use app\models\DeviceSearch;
+use app\models\Verification;
+use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * DeviceController implements the CRUD actions for Device model.
+ * VerificationController implements the CRUD actions for Verification model.
  */
-class DeviceController extends Controller
+class VerificationController extends Controller
 {
     /**
      * {@inheritdoc}
@@ -30,22 +30,22 @@ class DeviceController extends Controller
     }
 
     /**
-     * Lists all Device models.
+     * Lists all Verification models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new DeviceSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider = new ActiveDataProvider([
+            'query' => Verification::find(),
+        ]);
 
         return $this->render('index', [
-            'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }
 
     /**
-     * Displays a single Device model.
+     * Displays a single Verification model.
      * @param string $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
@@ -58,13 +58,13 @@ class DeviceController extends Controller
     }
 
     /**
-     * Creates a new Device model.
+     * Creates a new Verification model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new Device();
+        $model = new Verification();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
@@ -76,7 +76,7 @@ class DeviceController extends Controller
     }
 
     /**
-     * Updates an existing Device model.
+     * Updates an existing Verification model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param string $id
      * @return mixed
@@ -96,7 +96,7 @@ class DeviceController extends Controller
     }
 
     /**
-     * Deletes an existing Device model.
+     * Deletes an existing Verification model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param string $id
      * @return mixed
@@ -110,15 +110,15 @@ class DeviceController extends Controller
     }
 
     /**
-     * Finds the Device model based on its primary key value.
+     * Finds the Verification model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param string $id
-     * @return Device the loaded model
+     * @return Verification the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Device::findOne($id)) !== null) {
+        if (($model = Verification::findOne($id)) !== null) {
             return $model;
         }
 

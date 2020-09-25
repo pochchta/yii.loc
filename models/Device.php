@@ -5,18 +5,19 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "t_device".
+ * This is the model class for table "device".
  *
  * @property int $id
  * @property string|null $name
  * @property string|null $type
  * @property string|null $description
+ * @property int|null $verif_next_date
  * @property int|null $created_at
  * @property int|null $updated_at
- * @property int|null $author_creating
- * @property int|null $author_updating
+ * @property int|null $creator
+ * @property int|null $updater
  *
- * @property Verification[] $tVerifications
+ * @property Verification[] $verifications
  */
 class Device extends \yii\db\ActiveRecord
 {
@@ -25,7 +26,7 @@ class Device extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 't_device';
+        return 'device';
     }
 
     /**
@@ -35,7 +36,7 @@ class Device extends \yii\db\ActiveRecord
     {
         return [
             [['description'], 'string'],
-            [['created_at', 'updated_at', 'author_creating', 'author_updating'], 'integer'],
+            [['verif_next_date', 'created_at', 'updated_at', 'creator', 'updater'], 'integer'],
             [['name', 'type'], 'string', 'max' => 255],
         ];
     }
@@ -47,13 +48,14 @@ class Device extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'name' => 'Имя',
-            'type' => 'Тип',
-            'description' => 'Описание',
-            'created_at' => 'Создано',
-            'updated_at' => 'Обновлено',
-            'author_creating' => 'Автор создания',
-            'author_updating' => 'Автор обновления',
+            'name' => 'Name',
+            'type' => 'Type',
+            'description' => 'Description',
+            'verif_next_date' => 'Verif Next Date',
+            'created_at' => 'Created At',
+            'updated_at' => 'Updated At',
+            'creator' => 'Creator',
+            'updater' => 'Updater',
         ];
     }
 
