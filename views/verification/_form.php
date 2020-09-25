@@ -14,11 +14,11 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'device_id')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'name')->textInput() ?>
+    <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'type')->textInput() ?>
+    <?= $form->field($model, 'type')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'description')->textInput() ?>
+    <?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>
 
     <?= $form->field($model, 'verif_date')->textInput() ?>
 
@@ -28,9 +28,9 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'updated_at')->textInput() ?>
 
-    <?= $form->field($model, 'creator')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'created_by')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'updater')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'updated_by')->textInput(['maxlength' => true]) ?>
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>

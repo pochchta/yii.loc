@@ -3,6 +3,9 @@
 namespace app\models;
 
 use Yii;
+use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "device".
@@ -14,12 +17,12 @@ use Yii;
  * @property int|null $verif_next_date
  * @property int|null $created_at
  * @property int|null $updated_at
- * @property int|null $creator
- * @property int|null $updater
+ * @property int|null $created_by
+ * @property int|null $updated_by
  *
  * @property Verification[] $verifications
  */
-class Device extends \yii\db\ActiveRecord
+class Device extends ActiveRecord
 {
     /**
      * {@inheritdoc}
@@ -29,6 +32,24 @@ class Device extends \yii\db\ActiveRecord
         return 'device';
     }
 
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
+                ],
+            ],
+            [
+                'class' => BlameableBehavior::class,
+                'createdByAttribute' => 'created_by',
+                'updatedByAttribute' => 'updated_by',
+            ],
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -36,7 +57,7 @@ class Device extends \yii\db\ActiveRecord
     {
         return [
             [['description'], 'string'],
-            [['verif_next_date', 'created_at', 'updated_at', 'creator', 'updater'], 'integer'],
+            [['verif_next_date'], 'integer'],
             [['name', 'type'], 'string', 'max' => 255],
         ];
     }
@@ -48,14 +69,14 @@ class Device extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'name' => 'Name',
-            'type' => 'Type',
-            'description' => 'Description',
-            'verif_next_date' => 'Verif Next Date',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
-            'creator' => 'Creator',
-            'updater' => 'Updater',
+            'name' => 'Имя',
+            'type' => 'Тип',
+            'description' => 'Описание',
+            'verif_next_date' => 'Дата поверки',
+            'created_at' => 'Создано',
+            'updated_at' => 'Обновлено',
+            'created_by' => 'Создал',
+            'updated_by' => 'Обновил',
         ];
     }
 
@@ -66,6 +87,16 @@ class Device extends \yii\db\ActiveRecord
      */
     public function getVerifications()
     {
-        return $this->hasMany(Verification::className(), ['device_id' => 'id']);
+        return $this->hasMany(Verification::class, ['device_id' => 'id']);
+    }
+
+    public function getCreator()
+    {
+        return $this->hasOne(User::class, ['id' => 'created_by']);
+    }
+
+    public function getUpdater()
+    {
+        return $this->hasOne(User::class, ['id' => 'updated_by']);
     }
 }

@@ -26,15 +26,25 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
-            'id',
+//            'id',
             'name',
             'type',
             'description:ntext',
             'verif_next_date',
-            //'created_at',
-            //'updated_at',
-            //'creator',
-            //'updater',
+            'created_at:date',
+            'updated_at:date',
+            [
+                'attribute' => 'created_by',
+                'value' => function($model) {
+                    return $model->creator->username;
+                }
+            ],
+            [
+                'attribute' => 'updated_by',
+                'value' => function($model) {
+                    return $model->updater->username;
+                }
+            ],
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

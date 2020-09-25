@@ -17,7 +17,7 @@ class DeviceSearch extends Device
     public function rules()
     {
         return [
-            [['id', 'verif_next_date', 'created_at', 'updated_at', 'creator', 'updater'], 'integer'],
+            [['id', 'verif_next_date', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['name', 'type', 'description'], 'safe'],
         ];
     }
@@ -40,7 +40,7 @@ class DeviceSearch extends Device
      */
     public function search($params)
     {
-        $query = Device::find();
+        $query = Device::find()->with('creator', 'updater');
 
         // add conditions that should always apply here
 
@@ -62,8 +62,8 @@ class DeviceSearch extends Device
             'verif_next_date' => $this->verif_next_date,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'creator' => $this->creator,
-            'updater' => $this->updater,
+            'created_by' => $this->created_by,
+            'updated_by' => $this->updated_by,
         ]);
 
         $query->andFilterWhere(['like', 'name', $this->name])

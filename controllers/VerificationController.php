@@ -60,14 +60,16 @@ class VerificationController extends Controller
     /**
      * Creates a new Verification model.
      * If creation is successful, the browser will be redirected to the 'view' page.
+     * @param $device_id
      * @return mixed
      */
-    public function actionCreate()
+    public function actionCreate($device_id)
     {
         $model = new Verification();
+        $model->device_id = $device_id;
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect(['/device/view', 'id' => $model->device_id]);
         }
 
         return $this->render('create', [
@@ -87,7 +89,7 @@ class VerificationController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect(['/device/view', 'id' => $model->device_id]);
         }
 
         return $this->render('update', [

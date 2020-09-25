@@ -24,9 +24,9 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'updated_at')->textInput() ?>
 
-    <?= $form->field($model, 'creator')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'created_by')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'updater')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'updated_by')->textInput(['maxlength' => true]) ?>
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>

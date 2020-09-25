@@ -3,21 +3,24 @@
 namespace app\models;
 
 use Yii;
+use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "verification".
  *
  * @property int $id
  * @property int $device_id
- * @property int|null $name
- * @property int|null $type
- * @property int|null $description
+ * @property string|null $name
+ * @property string|null $type
+ * @property string|null $description
  * @property int|null $verif_date
  * @property int|null $verif_period
  * @property int|null $created_at
  * @property int|null $updated_at
- * @property int|null $creator
- * @property int|null $updater
+ * @property int|null $created_by
+ * @property int|null $updated_by
  *
  * @property Device $device
  */
@@ -31,6 +34,24 @@ class Verification extends \yii\db\ActiveRecord
         return 'verification';
     }
 
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
+                ],
+            ],
+            [
+                'class' => BlameableBehavior::class,
+                'createdByAttribute' => 'created_by',
+                'updatedByAttribute' => 'updated_by',
+            ],
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -38,7 +59,9 @@ class Verification extends \yii\db\ActiveRecord
     {
         return [
             [['device_id'], 'required'],
-            [['device_id', 'name', 'type', 'description', 'verif_date', 'verif_period', 'created_at', 'updated_at', 'creator', 'updater'], 'integer'],
+            [['device_id', 'verif_date', 'verif_period'], 'integer'],
+            [['description'], 'string'],
+            [['name', 'type'], 'string', 'max' => 255],
             [['device_id'], 'exist', 'skipOnError' => true, 'targetClass' => Device::className(), 'targetAttribute' => ['device_id' => 'id']],
         ];
     }
@@ -51,15 +74,15 @@ class Verification extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'device_id' => 'Device ID',
-            'name' => 'Name',
-            'type' => 'Type',
-            'description' => 'Description',
-            'verif_date' => 'Verif Date',
-            'verif_period' => 'Verif Period',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
-            'creator' => 'Creator',
-            'updater' => 'Updater',
+            'name' => 'Имя',
+            'type' => 'Тип',
+            'description' => 'Описание',
+            'verif_date' => 'Дата поверки',
+            'verif_period' => 'Период поверки',
+            'created_at' => 'Создано',
+            'updated_at' => 'Обновлено',
+            'created_by' => 'Создал',
+            'updated_by' => 'Обновил',
         ];
     }
 
@@ -71,5 +94,15 @@ class Verification extends \yii\db\ActiveRecord
     public function getDevice()
     {
         return $this->hasOne(Device::className(), ['id' => 'device_id']);
+    }
+
+    public function getCreator()
+    {
+        return $this->hasOne(User::class, ['id' => 'created_by']);
+    }
+
+    public function getUpdater()
+    {
+        return $this->hasOne(User::class, ['id' => 'updated_by']);
     }
 }

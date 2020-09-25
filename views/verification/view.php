@@ -33,13 +33,13 @@ $this->params['breadcrumbs'][] = $this->title;
             'device_id',
             'name',
             'type',
-            'description',
+            'description:ntext',
             'verif_date',
             'verif_period',
             'created_at',
             'updated_at',
-            'creator',
-            'updater',
+            'created_by',
+            'updated_by',
         ],
     ]) ?>
 
