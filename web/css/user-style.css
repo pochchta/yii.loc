@@ -8,6 +8,9 @@
     outline: none;
 }
 
+.a-action {
+    padding: 0 1px;
+}
 /*table td:last-child{
     white-space: nowrap;
 }*/

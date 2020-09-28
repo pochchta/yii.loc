@@ -14,11 +14,15 @@ class DeviceSearch extends Device
     /**
      * {@inheritdoc}
      */
+
+    public $last_date_start, $last_date_end, $next_date_start, $next_date_end;
+
     public function rules()
     {
         return [
             [['id', 'last_date', 'next_date', 'period', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['name', 'type', 'description'], 'string', 'max' => 64],
+            [['last_date_start', 'last_date_end', 'next_date_start', 'next_date_end'], 'string', 'max' => 64],
         ];
     }
 
@@ -62,8 +66,6 @@ class DeviceSearch extends Device
             'last_date' => $this->last_date,
             'next_date' => $this->next_date,
             'period' => $this->period,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
         ]);
@@ -71,6 +73,19 @@ class DeviceSearch extends Device
         $query->andFilterWhere(['like', 'name', $this->name])
             ->andFilterWhere(['like', 'type', $this->type])
             ->andFilterWhere(['like', 'description', $this->description]);
+
+        if ($this->last_date_start != '') {
+            $query->andFilterWhere(['>=', 'last_date', strtotime($this->last_date_start)]);
+        }
+        if ($this->last_date_end != '') {
+            $query->andFilterWhere(['<', 'last_date', strtotime($this->last_date_end)]);
+        }
+        if ($this->next_date_start != '') {
+            $query->andFilterWhere(['<', 'next_date', strtotime($this->next_date_start)]);
+        }
+        if ($this->next_date_end != '') {
+            $query->andFilterWhere(['<', 'next_date', strtotime($this->next_date_end)]);
+        }
 
         return $dataProvider;
     }

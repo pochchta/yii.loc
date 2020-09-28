@@ -30,25 +30,65 @@ $this->params['breadcrumbs'][] = $this->title;
             'name',
             'type',
             'description:ntext',
-            'last_date:date',
-            'next_date:date',
-            'period',
-            'created_at:date',
-            'updated_at:date',
             [
+                'attribute' => 'last_date',
+                'format' => 'date',
+                'filter' => Html::activeInput('date', $searchModel, 'last_date_start')
+                    . Yii::$app->formatter->asNtext("\n")
+                    . Html::activeInput('date', $searchModel, 'last_date_end')
+            ],
+            [
+                'attribute' => 'next_date',
+                'format' => 'date',
+                'filter' => Html::activeInput('date', $searchModel, 'next_date_start')
+                    . Yii::$app->formatter->asNtext("\n")
+                    . Html::activeInput('date', $searchModel, 'next_date_end')
+            ],
+//            'period',
+//            'created_at:date',
+//            'updated_at:date',
+/*            [
                 'attribute' => 'created_by',
                 'value' => function($model) {
                     return $model->creator->username;
                 }
-            ],
-            [
+            ],*/
+/*            [
                 'attribute' => 'updated_by',
                 'value' => function($model) {
                     return $model->updater->username;
                 }
-            ],
+            ],*/
 
-            ['class' => 'yii\grid\ActionColumn'],
+            [
+                'format' => 'raw',
+                'filter' => Html::a(
+                    '',
+                    ['index'],
+                    ['class' => 'glyphicon glyphicon-remove', 'title' => 'Очистить все фильтры']
+                ),
+                'value' => function ($model) {
+                    return
+                        Html::a(
+                            '',
+                            ['view', 'id' => $model->id],
+                            ['class' => 'glyphicon glyphicon-eye-open a-action', 'title' => 'Просмотр']
+                        )
+                        . Html::a(
+                            '',
+                            ['update', 'id' => $model->id],
+                            ['class' => 'glyphicon glyphicon-pencil a-action', 'title' => 'Редактировать']
+                        )
+                        . Html::a(
+                            '',
+                            ['delete', 'id' => $model->id],
+                            ['class' => 'glyphicon glyphicon-trash a-action', 'title' => 'Удалить', 'data' => [
+                                'method' => 'post',
+                                'confirm' => 'Вы уверены, что хотите удалить этот элемент?'
+                            ]]
+                        );
+                }
+            ],
         ],
     ]); ?>
 
