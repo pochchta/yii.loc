@@ -14,13 +14,16 @@ use yii\db\ActiveRecord;
  * @property string|null $name
  * @property string|null $type
  * @property string|null $description
- * @property int|null $verif_next_date
+ * @property int|null $last_date
+ * @property int|null $next_date
+ * @property int|null $period
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null $created_by
  * @property int|null $updated_by
  *
  * @property Verification[] $verifications
+ * @method touch(string $string) Method TimestampBehavior
  */
 class Device extends ActiveRecord
 {
@@ -57,7 +60,6 @@ class Device extends ActiveRecord
     {
         return [
             [['description'], 'string'],
-            [['verif_next_date'], 'integer'],
             [['name', 'type'], 'string', 'max' => 255],
         ];
     }
@@ -72,7 +74,9 @@ class Device extends ActiveRecord
             'name' => 'Имя',
             'type' => 'Тип',
             'description' => 'Описание',
-            'verif_next_date' => 'Дата поверки',
+            'last_date' => 'Дата последней поверки',
+            'next_date' => 'Дата следующей поверки',
+            'period' => 'Период поверки',
             'created_at' => 'Создано',
             'updated_at' => 'Обновлено',
             'created_by' => 'Создал',

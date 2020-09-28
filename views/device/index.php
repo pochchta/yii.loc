@@ -30,7 +30,9 @@ $this->params['breadcrumbs'][] = $this->title;
             'name',
             'type',
             'description:ntext',
-            'verif_next_date',
+            'last_date:date',
+            'next_date:date',
+            'period',
             'created_at:date',
             'updated_at:date',
             [

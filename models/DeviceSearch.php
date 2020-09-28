@@ -17,8 +17,8 @@ class DeviceSearch extends Device
     public function rules()
     {
         return [
-            [['id', 'verif_next_date', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['name', 'type', 'description'], 'safe'],
+            [['id', 'last_date', 'next_date', 'period', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['name', 'type', 'description'], 'string', 'max' => 64],
         ];
     }
 
@@ -59,7 +59,9 @@ class DeviceSearch extends Device
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'verif_next_date' => $this->verif_next_date,
+            'last_date' => $this->last_date,
+            'next_date' => $this->next_date,
+            'period' => $this->period,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'created_by' => $this->created_by,

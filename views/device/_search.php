@@ -23,7 +23,7 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'description') ?>
 
-    <?= $form->field($model, 'verif_next_date') ?>
+    <?= $form->field($model, 'next_date') ?>
 
     <?php // echo $form->field($model, 'created_at') ?>
 

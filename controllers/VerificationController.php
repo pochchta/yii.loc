@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Device;
 use Yii;
 use app\models\Verification;
 use yii\data\ActiveDataProvider;
@@ -69,6 +70,7 @@ class VerificationController extends Controller
         $model->device_id = $device_id;
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Device::findOne($model->device_id)->touch('updated_at');    // method touch throws exception
             return $this->redirect(['/device/view', 'id' => $model->device_id]);
         }
 
