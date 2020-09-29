@@ -5,10 +5,10 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model app\models\Verification */
 
-$this->title = 'Update Verification: ' . $model->name;
-$this->params['breadcrumbs'][] = ['label' => 'Verifications', 'url' => ['index']];
+$this->title = 'Изменение записи: ' . $model->name;
+$this->params['breadcrumbs'][] = ['label' => 'Поверки', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = 'Update';
+$this->params['breadcrumbs'][] = 'Изменение';
 ?>
 <div class="verification-update">
 

@@ -5,8 +5,8 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model app\models\Verification */
 
-$this->title = 'Create Verification';
-$this->params['breadcrumbs'][] = ['label' => 'Verifications', 'url' => ['index']];
+$this->title = 'Создать новую запись';
+$this->params['breadcrumbs'][] = ['label' => 'Поверки', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="verification-create">
