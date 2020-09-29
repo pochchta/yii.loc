@@ -40,12 +40,18 @@ $this->params['breadcrumbs'][] = $this->title;
             'period',
             'created_at:date',
             'updated_at:date',
-            'created_by',
-            'updated_by',
+            [
+                'attribute' => 'created_by',
+                'value' => $model->creator->username,
+            ],
+            [
+                'attribute' => 'updated_by',
+                'value' => $model->updater->username,
+            ],
         ],
     ]) ?>
 
-    <p>Verifications:</p>
+    <h3>Verifications:</h3>
 
     <p>
         <?= Html::a(
@@ -65,12 +71,22 @@ $this->params['breadcrumbs'][] = $this->title;
             'name',
             'type',
             'description',
-            'last_date',
+            'last_date:date',
             'period',
             'created_at:date',
             'updated_at:date',
-            'created_by',
-            'updated_by',
+            [
+                'attribute' => 'created_by',
+                'value' => function ($model) {
+                    return $model->creator->username;
+                }
+            ],
+            [
+                'attribute' => 'updated_by',
+                'value' => function ($model) {
+                    return $model->updater->username;
+                }
+            ],
 
             ['class' => 'yii\grid\ActionColumn', 'controller' => '/verification'],
         ],

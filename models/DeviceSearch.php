@@ -81,7 +81,7 @@ class DeviceSearch extends Device
             $query->andFilterWhere(['<', 'last_date', strtotime($this->last_date_end)]);
         }
         if ($this->next_date_start != '') {
-            $query->andFilterWhere(['<', 'next_date', strtotime($this->next_date_start)]);
+            $query->andFilterWhere(['>=', 'next_date', strtotime($this->next_date_start)]);
         }
         if ($this->next_date_end != '') {
             $query->andFilterWhere(['<', 'next_date', strtotime($this->next_date_end)]);

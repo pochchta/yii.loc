@@ -59,10 +59,11 @@ class Verification extends \yii\db\ActiveRecord
     {
         return [
             [['device_id'], 'required'],
-            [['device_id', 'last_date', 'period'], 'integer'],
+            [['device_id', 'period'], 'integer'],
+            [['last_date'], 'date', 'format' => 'php:Y-m-d', 'timestampAttribute' => 'last_date'],
             [['description'], 'string'],
             [['name', 'type'], 'string', 'max' => 255],
-            [['device_id'], 'exist', 'skipOnError' => true, 'targetClass' => Device::className(), 'targetAttribute' => ['device_id' => 'id']],
+            [['device_id'], 'exist', 'skipOnError' => true, 'targetClass' => Device::class, 'targetAttribute' => ['device_id' => 'id']],
         ];
     }
 
@@ -77,8 +78,8 @@ class Verification extends \yii\db\ActiveRecord
             'name' => 'Имя',
             'type' => 'Тип',
             'description' => 'Описание',
-            'last_date' => 'Дата поверки',
-            'period' => 'Период поверки',
+            'last_date' => 'Дата пов.',
+            'period' => 'Период пов.',
             'created_at' => 'Создано',
             'updated_at' => 'Обновлено',
             'created_by' => 'Создал',

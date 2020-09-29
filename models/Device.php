@@ -2,10 +2,12 @@
 
 namespace app\models;
 
+use DateTime;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\web\NotFoundHttpException;
 
 /**
  * This is the model class for table "device".
@@ -82,6 +84,46 @@ class Device extends ActiveRecord
             'created_by' => 'Создал',
             'updated_by' => 'Обновил',
         ];
+    }
+
+    /**
+     * Обновление дат device исходя из позднейшей даты verifications
+     * @throws NotFoundHttpException
+     */
+    public function updateDate()
+    {
+        $arrVerifications = Verification::find()->where(['device_id' => $this->id])->asArray()->all();
+        $lastVerification = [];
+        foreach ($arrVerifications as $item) {
+            if (empty($item['last_date']) || empty($item['period'])) {
+                continue;
+            }
+            try {
+                $newDate = new DateTime();
+                $newDate->setTimestamp($item['last_date']);
+                $newDate->add(new \DateInterval('P'.$item['period'].'Y'));
+                $item['next_date'] = $newDate->getTimestamp();
+            } catch (\Exception $e) {
+                continue;
+            }
+            if (empty($lastVerification)) {
+                $lastVerification = $item;
+                continue;
+            }
+            if ($item['next_date'] > $lastVerification['next_date']) {
+                $lastVerification = $item;
+            }
+        }
+        if (empty($lastVerification)) {
+            $this->last_date = NULL;
+            $this->next_date = NULL;
+            $this->period = NULL;
+        } else {
+            $this->last_date = $lastVerification['last_date'];
+            $this->next_date = $lastVerification['next_date'];
+            $this->period = $lastVerification['period'];
+        }
+        return $this->save();
     }
 
     /**

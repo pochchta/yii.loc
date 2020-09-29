@@ -20,7 +20,9 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>
 
-    <?= $form->field($model, 'last_date')->textInput() ?>
+    <?= $form->field($model, 'last_date')->input('date', ['value' =>
+        (new DateTime())->setTimestamp($model->last_date)->format('Y-m-d')
+    ]) ?>
 
     <?= $form->field($model, 'period')->textInput() ?>
 
