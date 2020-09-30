@@ -4,7 +4,6 @@ namespace app\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\Device;
 
 /**
  * DeviceSearch represents the model behind the search form of `app\models\Device`.
@@ -20,9 +19,10 @@ class DeviceSearch extends Device
     public function rules()
     {
         return [
-            [['id', 'last_date', 'next_date', 'period', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['id', 'number', 'last_date', 'next_date', 'period', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
             [['name', 'type', 'description'], 'string', 'max' => 64],
             [['last_date_start', 'last_date_end', 'next_date_start', 'next_date_end'], 'string', 'max' => 64],
+            [['deleted'], 'default', 'value' => 0]
         ];
     }
 
@@ -63,6 +63,7 @@ class DeviceSearch extends Device
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
+            'number' => $this->number,
             'last_date' => $this->last_date,
             'next_date' => $this->next_date,
             'period' => $this->period,
@@ -74,6 +75,9 @@ class DeviceSearch extends Device
             ->andFilterWhere(['like', 'type', $this->type])
             ->andFilterWhere(['like', 'description', $this->description]);
 
+        if ($this->deleted == 0 || $this->deleted == 1) {
+            $query->andFilterWhere(['deleted' => $this->deleted]);
+        }
         if ($this->last_date_start != '') {
             $query->andFilterWhere(['>=', 'last_date', strtotime($this->last_date_start)]);
         }

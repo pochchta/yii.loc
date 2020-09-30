@@ -2,8 +2,9 @@
 
 namespace app\models;
 
+use DateInterval;
 use DateTime;
-use Yii;
+use Exception;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -14,6 +15,7 @@ use yii\web\NotFoundHttpException;
  *
  * @property int $id
  * @property string|null $name
+ * @property string|null $number
  * @property string|null $type
  * @property string|null $description
  * @property int|null $last_date
@@ -23,6 +25,7 @@ use yii\web\NotFoundHttpException;
  * @property int|null $updated_at
  * @property int|null $created_by
  * @property int|null $updated_by
+ * @property int $deleted
  *
  * @property Verification[] $verifications
  * @method touch(string $string) Method TimestampBehavior
@@ -74,6 +77,7 @@ class Device extends ActiveRecord
         return [
             'id' => 'ID',
             'name' => 'Имя',
+            'number' => 'Номер',
             'type' => 'Тип',
             'description' => 'Описание',
             'last_date' => 'Дата пред. пов.',
@@ -83,6 +87,7 @@ class Device extends ActiveRecord
             'updated_at' => 'Обновлено',
             'created_by' => 'Создал',
             'updated_by' => 'Обновил',
+            'deleted' => 'Удален'
         ];
     }
 
@@ -101,9 +106,9 @@ class Device extends ActiveRecord
             try {
                 $newDate = new DateTime();
                 $newDate->setTimestamp($item['last_date']);
-                $newDate->add(new \DateInterval('P'.$item['period'].'Y'));
+                $newDate->add(new DateInterval('P'.$item['period'].'Y'));
                 $item['next_date'] = $newDate->getTimestamp();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 continue;
             }
             if (empty($lastVerification)) {

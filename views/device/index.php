@@ -28,8 +28,9 @@ $this->params['breadcrumbs'][] = $this->title;
 
 //            'id',
             'name',
+            'number',
             'type',
-            'description:ntext',
+//            'description:ntext',
             [
                 'attribute' => 'last_date',
                 'format' => 'date',
@@ -43,6 +44,14 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => Html::activeInput('date', $searchModel, 'next_date_start')
                     . Yii::$app->formatter->asNtext("\n")
                     . Html::activeInput('date', $searchModel, 'next_date_end')
+            ],
+            [
+                'attribute' => 'deleted',
+                'value' => function ($model) {
+                    return ($model->deleted == 0) ? 'нет' : 'да';
+                },
+//                'filter' => Html::dropDownList('number', 0, ['0' => 'нет', '1' => 'да', '-1' => 'все'])
+                'filter' => Html::activeDropDownList($searchModel, 'deleted', ['0' => 'нет', '1' => 'да', '-1' => 'все'])
             ],
 //            'period',
 //            'created_at:date',
@@ -63,28 +72,37 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'format' => 'raw',
                 'filter' => Html::a(
-                    '',
+                    '<span class="glyphicon glyphicon-remove a-action"></span>',
                     ['index'],
-                    ['class' => 'glyphicon glyphicon-remove', 'title' => 'Очистить все фильтры']
+                    ['title' => 'Очистить все фильтры']
                 ),
                 'value' => function ($model) {
+                    if ($model->deleted == 0) {
+                        $deleteMessage = 'Вы уверены, что хотите удалить этот элемент?';
+                        $deleteTitle = 'Удалить';
+                        $deleteCssClass = 'glyphicon glyphicon-trash a-action';
+                    } else {
+                        $deleteMessage = 'Вы уверены, что хотите восстановить этот элемент';
+                        $deleteTitle = 'Восстановить';
+                        $deleteCssClass = 'glyphicon glyphicon-refresh a-action';
+                    }
                     return
                         Html::a(
-                            '',
+                            '<span class="glyphicon glyphicon-eye-open a-action"></span>',
                             ['view', 'id' => $model->id],
-                            ['class' => 'glyphicon glyphicon-eye-open a-action', 'title' => 'Просмотр']
+                            ['title' => 'Просмотр']
                         )
                         . Html::a(
-                            '',
+                            '<span class="glyphicon glyphicon-pencil a-action"></span>',
                             ['update', 'id' => $model->id],
-                            ['class' => 'glyphicon glyphicon-pencil a-action', 'title' => 'Редактировать']
+                            ['title' => 'Редактировать']
                         )
                         . Html::a(
-                            '',
+                            '<span class="' . $deleteCssClass . '"></span>',
                             ['delete', 'id' => $model->id],
-                            ['class' => 'glyphicon glyphicon-trash a-action', 'title' => 'Удалить', 'data' => [
+                            ['title' => $deleteTitle, 'data' => [
                                 'method' => 'post',
-                                'confirm' => 'Вы уверены, что хотите удалить этот элемент?'
+                                'confirm' => $deleteMessage
                             ]]
                         );
                 }

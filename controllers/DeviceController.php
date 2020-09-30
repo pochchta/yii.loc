@@ -112,9 +112,11 @@ class DeviceController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+        $model->deleted == 0 ? $model->deleted = 1 : $model->deleted = 0;
+        $model->save();
 
-        return $this->redirect(['index']);
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
     /**
