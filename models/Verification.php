@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -21,10 +20,11 @@ use yii\db\ActiveRecord;
  * @property int|null $updated_at
  * @property int|null $created_by
  * @property int|null $updated_by
+ * @property int $deleted
  *
  * @property Device $device
  */
-class Verification extends \yii\db\ActiveRecord
+class Verification extends ActiveRecord
 {
     /**
      * {@inheritdoc}

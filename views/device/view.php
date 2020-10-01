@@ -7,23 +7,35 @@ use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Device */
+/* @var $searchModel app\models\VerificationSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
 $this->title = $model->name;
 $this->params['breadcrumbs'][] = ['label' => 'Приборы', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 YiiAsset::register($this);
+
+if ($model->deleted == 0) {
+    $deleteMessage = 'Вы уверены, что хотите удалить этот элемент?';
+    $deleteTitle = 'Удалить';
+    $deleteText = '';
+} else {
+    $deleteMessage = 'Вы уверены, что хотите восстановить этот элемент';
+    $deleteTitle = 'Восстановить';
+    $deleteText = ' (удален)';
+
+}
 ?>
 <div class="device-view">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+    <h1><?= Html::encode($this->title) . $deleteText?></h1>
 
     <p>
         <?= Html::a('Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Удалить', ['delete', 'id' => $model->id], [
+        <?= Html::a($deleteTitle, ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
             'data' => [
-                'confirm' => 'Вы уверены, что хотите удалить этот элемент?',
+                'confirm' => $deleteMessage,
                 'method' => 'post',
             ],
         ]) ?>
@@ -34,6 +46,7 @@ YiiAsset::register($this);
         'attributes' => [
             'id',
             'name',
+            'number',
             'type',
             'description:ntext',
             'last_date:date',
@@ -64,32 +77,77 @@ YiiAsset::register($this);
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
+        'filterModel' => $searchModel,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
             'id',
-            'device_id',
+    //            'device_id',
             'name',
             'type',
-            'description',
+    //            'description',
             'last_date:date',
             'period',
-            'created_at:date',
-            'updated_at:date',
+    //            'created_at:date',
+    //            'updated_at:date',
+            /*            [
+                            'attribute' => 'created_by',
+                            'value' => function ($model) {
+                                return $model->creator->username;
+                            }
+                        ],*/
+            /*            [
+                            'attribute' => 'updated_by',
+                            'value' => function ($model) {
+                                return $model->updater->username;
+                            }
+                        ],*/
             [
-                'attribute' => 'created_by',
+                'attribute' => 'deleted',
                 'value' => function ($model) {
-                    return $model->creator->username;
-                }
-            ],
-            [
-                'attribute' => 'updated_by',
-                'value' => function ($model) {
-                    return $model->updater->username;
-                }
+                    return ($model->deleted == 0) ? 'нет' : 'да';
+                },
+                'filter' => Html::activeDropDownList($searchModel, 'deleted', ['0' => 'нет', '1' => 'да', '-1' => 'все'])
             ],
 
-            ['class' => 'yii\grid\ActionColumn', 'controller' => '/verification'],
+            [
+                'format' => 'raw',
+                'filter' => Html::a(
+                    '<span class="glyphicon glyphicon-remove a-action"></span>',
+                    ['view', 'id' => $model->id],
+                    ['title' => 'Очистить все фильтры']
+                ),
+                'value' => function ($model) {
+                    if ($model->deleted == 0) {
+                        $deleteMessage = 'Вы уверены, что хотите удалить этот элемент?';
+                        $deleteTitle = 'Удалить';
+                        $deleteCssClass = 'glyphicon glyphicon-trash a-action';
+                    } else {
+                        $deleteMessage = 'Вы уверены, что хотите восстановить этот элемент';
+                        $deleteTitle = 'Восстановить';
+                        $deleteCssClass = 'glyphicon glyphicon-refresh a-action';
+                    }
+                    return
+                        Html::a(
+                            '<span class="glyphicon glyphicon-eye-open a-action"></span>',
+                            ['verification/view', 'id' => $model->id],
+                            ['title' => 'Просмотр']
+                        )
+                        . Html::a(
+                            '<span class="glyphicon glyphicon-pencil a-action"></span>',
+                            ['verification/update', 'id' => $model->id],
+                            ['title' => 'Редактировать']
+                        )
+                        . Html::a(
+                            '<span class="' . $deleteCssClass . '"></span>',
+                            ['verification/delete', 'id' => $model->id],
+                            ['title' => $deleteTitle, 'data' => [
+                                'method' => 'post',
+                                'confirm' => $deleteMessage
+                            ]]
+                        );
+                }
+            ],
         ],
     ]); ?>
 

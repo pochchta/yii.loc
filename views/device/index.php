@@ -50,7 +50,6 @@ $this->params['breadcrumbs'][] = $this->title;
                 'value' => function ($model) {
                     return ($model->deleted == 0) ? 'нет' : 'да';
                 },
-//                'filter' => Html::dropDownList('number', 0, ['0' => 'нет', '1' => 'да', '-1' => 'все'])
                 'filter' => Html::activeDropDownList($searchModel, 'deleted', ['0' => 'нет', '1' => 'да', '-1' => 'все'])
             ],
 //            'period',

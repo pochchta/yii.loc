@@ -3,10 +3,10 @@
 namespace app\controllers;
 
 use app\models\Device;
+use app\models\VerificationSearch;
 use DateTime;
 use Yii;
 use app\models\Verification;
-use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -37,11 +37,11 @@ class VerificationController extends Controller
      */
     public function actionIndex()
     {
-        $dataProvider = new ActiveDataProvider([
-            'query' => Verification::find(),
-        ]);
+        $searchModel = new VerificationSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
+            'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }
@@ -115,16 +115,16 @@ class VerificationController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDelete($id)
+        public function actionDelete($id)
     {
         $model = $this->findModel($id);
-        $deleteId = $model->device_id;
-        $model->delete();
-        if (Device::findOne($deleteId)->updateDate() == false) {
+        $model->deleted == 0 ? $model->deleted = 1 : $model->deleted = 0;
+        $model->save();
+        if (Device::findOne($model->device_id)->updateDate() == false) {
             throw new NotFoundHttpException('Device: Не удалось обновить даты');
         }
 
-        return $this->redirect(['/device/view', 'id' => $deleteId]);
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
     /**

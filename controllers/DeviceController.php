@@ -2,11 +2,10 @@
 
 namespace app\controllers;
 
-use app\models\Verification;
+use app\models\VerificationSearch;
 use Yii;
 use app\models\Device;
 use app\models\DeviceSearch;
-use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -56,12 +55,13 @@ class DeviceController extends Controller
     {
         $model = $this->findModel($id);
 
-        $dataProvider = new ActiveDataProvider([
-            'query' => Verification::find()->where(['device_id' => $model->id]),
-        ]);
+        $searchModel = new VerificationSearch();
+        $queryParams = Yii::$app->request->queryParams;
+        $queryParams['VerificationSearch']['device_id'] = $model->id;
+        $dataProvider = $searchModel->search($queryParams);
 
         return $this->render('view', compact(
-           'model', 'dataProvider'
+           'model', 'dataProvider', 'searchModel'
         ));
     }
 
