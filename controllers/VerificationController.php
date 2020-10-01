@@ -118,7 +118,8 @@ class VerificationController extends Controller
         public function actionDelete($id)
     {
         $model = $this->findModel($id);
-        $model->deleted == 0 ? $model->deleted = 1 : $model->deleted = 0;
+        $model->deleted == Verification::NOT_DELETED ? $model->deleted = Verification::DELETED :
+            $model->deleted = Verification::NOT_DELETED;
         $model->save();
         if (Device::findOne($model->device_id)->updateDate() == false) {
             throw new NotFoundHttpException('Device: Не удалось обновить даты');

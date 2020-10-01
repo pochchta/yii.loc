@@ -8,7 +8,6 @@ use Exception;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use yii\web\NotFoundHttpException;
 
 /**
  * This is the model class for table "device".
@@ -32,6 +31,9 @@ use yii\web\NotFoundHttpException;
  */
 class Device extends ActiveRecord
 {
+    const NOT_DELETED = 0;
+    const DELETED = 1;
+    const ALL = -1;
     /**
      * {@inheritdoc}
      */
@@ -93,14 +95,14 @@ class Device extends ActiveRecord
 
     /**
      * Обновление дат device исходя из позднейшей даты verifications
-     * @throws NotFoundHttpException
+     * return bool
      */
     public function updateDate()
     {
         $arrVerifications = Verification::find()->where(['device_id' => $this->id])->asArray()->all();
         $lastVerification = [];
         foreach ($arrVerifications as $item) {
-            if (empty($item['last_date']) || empty($item['period'])) {
+            if (empty($item['last_date']) || empty($item['period']) || $item['deleted'] != self::NOT_DELETED) {
                 continue;
             }
             try {

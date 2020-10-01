@@ -26,6 +26,9 @@ use yii\db\ActiveRecord;
  */
 class Verification extends ActiveRecord
 {
+    const NOT_DELETED = 0;
+    const DELETED = 1;
+    const ALL = -1;
     /**
      * {@inheritdoc}
      */

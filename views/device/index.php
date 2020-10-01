@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Device;
 use yii\helpers\Html;
 use yii\grid\GridView;
 
@@ -48,9 +49,13 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'deleted',
                 'value' => function ($model) {
-                    return ($model->deleted == 0) ? 'нет' : 'да';
+                    return ($model->deleted == Device::NOT_DELETED) ? 'нет' : 'да';
                 },
-                'filter' => Html::activeDropDownList($searchModel, 'deleted', ['0' => 'нет', '1' => 'да', '-1' => 'все'])
+                'filter' => Html::activeDropDownList($searchModel, 'deleted', [
+                    Device::NOT_DELETED => 'нет',
+                    Device::DELETED => 'да',
+                    Device::ALL => 'все'
+                ])
             ],
 //            'period',
 //            'created_at:date',
@@ -76,7 +81,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     ['title' => 'Очистить все фильтры']
                 ),
                 'value' => function ($model) {
-                    if ($model->deleted == 0) {
+                    if ($model->deleted == Device::NOT_DELETED) {
                         $deleteMessage = 'Вы уверены, что хотите удалить этот элемент?';
                         $deleteTitle = 'Удалить';
                         $deleteCssClass = 'glyphicon glyphicon-trash a-action';

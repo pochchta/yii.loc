@@ -18,7 +18,7 @@ class VerificationSearch extends Verification
         return [
             [['id', 'device_id', 'last_date', 'period', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
             [['name', 'type', 'description'], 'safe'],
-            [['deleted'], 'default', 'value' => 0]
+            [['deleted'], 'default', 'value' => Verification::NOT_DELETED]
         ];
     }
 
@@ -72,7 +72,7 @@ class VerificationSearch extends Verification
             ->andFilterWhere(['like', 'type', $this->type])
             ->andFilterWhere(['like', 'description', $this->description]);
 
-        if ($this->deleted == 0 || $this->deleted == 1) {
+        if ($this->deleted == Verification::NOT_DELETED || $this->deleted == Verification::DELETED) {
             $query->andFilterWhere(['deleted' => $this->deleted]);
         }
 

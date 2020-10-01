@@ -22,7 +22,7 @@ class DeviceSearch extends Device
             [['id', 'number', 'last_date', 'next_date', 'period', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
             [['name', 'type', 'description'], 'string', 'max' => 64],
             [['last_date_start', 'last_date_end', 'next_date_start', 'next_date_end'], 'string', 'max' => 64],
-            [['deleted'], 'default', 'value' => 0]
+            [['deleted'], 'default', 'value' => Device::NOT_DELETED]
         ];
     }
 
@@ -75,7 +75,7 @@ class DeviceSearch extends Device
             ->andFilterWhere(['like', 'type', $this->type])
             ->andFilterWhere(['like', 'description', $this->description]);
 
-        if ($this->deleted == 0 || $this->deleted == 1) {
+        if ($this->deleted == Device::NOT_DELETED || $this->deleted == Device::DELETED) {
             $query->andFilterWhere(['deleted' => $this->deleted]);
         }
         if ($this->last_date_start != '') {

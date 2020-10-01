@@ -1,5 +1,7 @@
 <?php
 
+use app\models\Device;
+use app\models\Verification;
 use yii\grid\GridView;
 use yii\helpers\Html;
 use yii\web\YiiAsset;
@@ -15,7 +17,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Приборы', 'url' => ['index'
 $this->params['breadcrumbs'][] = $this->title;
 YiiAsset::register($this);
 
-if ($model->deleted == 0) {
+if ($model->deleted == Device::NOT_DELETED) {
     $deleteMessage = 'Вы уверены, что хотите удалить этот элемент?';
     $deleteTitle = 'Удалить';
     $deleteText = '';
@@ -105,9 +107,13 @@ if ($model->deleted == 0) {
             [
                 'attribute' => 'deleted',
                 'value' => function ($model) {
-                    return ($model->deleted == 0) ? 'нет' : 'да';
+                    return ($model->deleted == Verification::NOT_DELETED) ? 'нет' : 'да';
                 },
-                'filter' => Html::activeDropDownList($searchModel, 'deleted', ['0' => 'нет', '1' => 'да', '-1' => 'все'])
+                'filter' => Html::activeDropDownList($searchModel, 'deleted', [
+                    Verification::NOT_DELETED => 'нет',
+                    Verification::DELETED => 'да',
+                    Verification::ALL => 'все'
+                ])
             ],
 
             [
@@ -118,7 +124,7 @@ if ($model->deleted == 0) {
                     ['title' => 'Очистить все фильтры']
                 ),
                 'value' => function ($model) {
-                    if ($model->deleted == 0) {
+                    if ($model->deleted == Verification::NOT_DELETED) {
                         $deleteMessage = 'Вы уверены, что хотите удалить этот элемент?';
                         $deleteTitle = 'Удалить';
                         $deleteCssClass = 'glyphicon glyphicon-trash a-action';

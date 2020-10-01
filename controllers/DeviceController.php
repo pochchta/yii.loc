@@ -113,7 +113,8 @@ class DeviceController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
-        $model->deleted == 0 ? $model->deleted = 1 : $model->deleted = 0;
+        $model->deleted == Device::NOT_DELETED ? $model->deleted = Device::DELETED :
+            $model->deleted = Device::NOT_DELETED;
         $model->save();
 
         return $this->redirect(Yii::$app->request->referrer);
