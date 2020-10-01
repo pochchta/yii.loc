@@ -13,6 +13,7 @@ use yii\filters\VerbFilter;
 
 /**
  * VerificationController implements the CRUD actions for Verification model.
+ * TODO права доступа
  */
 class VerificationController extends Controller
 {
@@ -69,17 +70,19 @@ class VerificationController extends Controller
     public function actionCreate($device_id)
     {
         $model = new Verification();
-        $model->device_id = $device_id;
-        $model->last_date = (new DateTime())->getTimestamp();
-        $model->period = '1';
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            if (Device::findOne($model->device_id)->updateDate() == false) {
-                throw new NotFoundHttpException('Device: Не удалось обновить даты');
+        if ($model->load(Yii::$app->request->post())) {
+            $model->device_id = $device_id;
+            if ($model->save()) {
+                if (Device::findOne($model->device_id)->updateDate() == false) {
+                    throw new NotFoundHttpException('Device: Не удалось обновить даты');
+                }
+                return $this->redirect(['device/view', 'id' => $model->device_id]);
             }
-            return $this->redirect(['/device/view', 'id' => $model->device_id]);
         }
 
+        $model->last_date = (new DateTime())->getTimestamp();
+        $model->period = '1';
         return $this->render('create', [
             'model' => $model,
         ]);
@@ -96,11 +99,14 @@ class VerificationController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            if (Device::findOne($model->device_id)->updateDate() == false) {
-                throw new NotFoundHttpException('Device: Не удалось обновить даты');
+        if ($model->load(Yii::$app->request->post())) {
+            $model->device_id = $model->getOldAttributes()['device_id'];
+            if ($model->save()) {
+                if (Device::findOne($model->device_id)->updateDate() == false) {
+                    throw new NotFoundHttpException('Device: Не удалось обновить даты');
+                }
+                return $this->redirect(['device/view', 'id' => $model->device_id]);
             }
-            return $this->redirect(['/device/view', 'id' => $model->device_id]);
         }
 
         return $this->render('update', [

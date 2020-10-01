@@ -62,11 +62,12 @@ class Verification extends ActiveRecord
     {
         return [
             [['device_id'], 'required'],
-            [['device_id', 'period'], 'integer'],
+            [['device_id'], 'integer'],
+            [['device_id'], 'exist', 'skipOnError' => true, 'targetClass' => Device::class, 'targetAttribute' => ['device_id' => 'id']],
+            [['period'], 'integer', 'max' => 255],
             [['last_date'], 'date', 'format' => 'php:Y-m-d', 'timestampAttribute' => 'last_date'],
             [['description'], 'string'],
             [['name', 'type'], 'string', 'max' => 255],
-            [['device_id'], 'exist', 'skipOnError' => true, 'targetClass' => Device::class, 'targetAttribute' => ['device_id' => 'id']],
         ];
     }
 
@@ -77,7 +78,7 @@ class Verification extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'device_id' => 'Device ID',
+            'device_id' => '№ прибора',
             'name' => 'Имя',
             'type' => 'Тип',
             'description' => 'Описание',
@@ -87,6 +88,7 @@ class Verification extends ActiveRecord
             'updated_at' => 'Обновлено',
             'created_by' => 'Создал',
             'updated_by' => 'Обновил',
+            'deleted' => 'Удален'
         ];
     }
 

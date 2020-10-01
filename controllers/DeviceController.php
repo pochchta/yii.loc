@@ -12,6 +12,7 @@ use yii\filters\VerbFilter;
 
 /**
  * DeviceController implements the CRUD actions for Device model.
+ * TODO права доступа
  */
 class DeviceController extends Controller
 {

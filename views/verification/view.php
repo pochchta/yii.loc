@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Verification;
 use yii\helpers\Html;
 use yii\web\YiiAsset;
 use yii\widgets\DetailView;
@@ -11,17 +12,28 @@ $this->title = $model->name;
 $this->params['breadcrumbs'][] = ['label' => 'Поверки', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 YiiAsset::register($this);
+
+if ($model->deleted == Verification::NOT_DELETED) {
+    $deleteMessage = 'Вы уверены, что хотите удалить этот элемент?';
+    $deleteTitle = 'Удалить';
+    $deleteText = '';
+} else {
+    $deleteMessage = 'Вы уверены, что хотите восстановить этот элемент';
+    $deleteTitle = 'Восстановить';
+    $deleteText = ' (удален)';
+
+}
 ?>
 <div class="verification-view">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+    <h1><?= Html::encode($this->title) . $deleteText?></h1>
 
     <p>
         <?= Html::a('Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Удалить', ['delete', 'id' => $model->id], [
+        <?= Html::a($deleteTitle, ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
             'data' => [
-                'confirm' => 'Вы уверены, что хотите удалить этот элемент?',
+                'confirm' => $deleteMessage,
                 'method' => 'post',
             ],
         ]) ?>
@@ -31,7 +43,15 @@ YiiAsset::register($this);
         'model' => $model,
         'attributes' => [
             'id',
-            'device_id',
+            [
+                'attribute' => 'device_id',
+                'format' => 'html',
+                'value' => Html::a(
+                    $model->device->number,
+                    ['device/view', 'id' => $model->device_id],
+                    ['title' => $model->device->name]
+                ),
+            ],
             'name',
             'type',
             'description:ntext',

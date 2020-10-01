@@ -5,6 +5,8 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model app\models\Verification */
 
+/*TODO отобразить назвение и номер прибора*/
+
 $this->title = 'Изменение записи: ' . $model->name;
 $this->params['breadcrumbs'][] = ['label' => 'Поверки', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->id]];
