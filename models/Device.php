@@ -67,7 +67,7 @@ class Device extends ActiveRecord
     {
         return [
             [['description'], 'string'],
-            [['name', 'type'], 'string', 'max' => 255],
+            [['name', 'type', 'number'], 'string', 'max' => 255],
         ];
     }
 
