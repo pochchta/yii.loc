@@ -7,14 +7,12 @@ use yii\widgets\ActiveForm;
 /* @var $this yii\web\View */
 /* @var $model app\models\Verification */
 /* @var $form yii\widgets\ActiveForm */
-
-$deleteStatus = $model->device->deleted == Device::NOT_DELETED ? '' : ' (удален)';
 ?>
 
 <p><?=
     'Относится к прибору: '
     . Html::a(
-        $model->device->name . ', №' . $model->device->number . $deleteStatus,
+        $model->device->name . ', №' . $model->device->number . ($model->device->deleted == Device::DELETED ? ' (удален)' : ''),
         ['device/view', 'id' => $model->device_id]
     )
 ?></p>

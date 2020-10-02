@@ -46,7 +46,7 @@ if ($model->deleted == Device::NOT_DELETED) {
     <?= DetailView::widget([
         'model' => $model,
         'attributes' => [
-            'id',
+//            'id',
             'name',
             'number',
             'type',

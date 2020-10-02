@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Device;
 use app\models\Verification;
 use yii\helpers\Html;
 use yii\web\YiiAsset;
@@ -42,15 +43,14 @@ if ($model->deleted == Verification::NOT_DELETED) {
     <?= DetailView::widget([
         'model' => $model,
         'attributes' => [
-            'id',
+//            'id',
             [
-                'attribute' => 'device_id',
                 'format' => 'html',
                 'value' => Html::a(
-                    $model->device->number,
-                    ['device/view', 'id' => $model->device_id],
-                    ['title' => $model->device->name]
+                    $model->device->name . ', №' . $model->device->number . ($model->device->deleted == Device::DELETED ? ' (удален)' : ''),
+                    ['device/view', 'id' => $model->device_id]
                 ),
+                'label' => 'Относится к прибору',
             ],
             'name',
             'type',
