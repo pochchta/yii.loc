@@ -12,12 +12,11 @@ class SignUpForm extends Model
 
     private $_user = false;
 
-    public function rules()
+    public function rules() // TODO trim, unique, pattern
     {
         return [
             [['username', 'password'], 'required'],
-            ['username', 'string', 'max' => 20],
-            ['password', 'string', 'max' => 20],
+            [['username', 'password'], 'string', 'max' => 64],
             ['username', 'validateUsername'],
         ];
     }

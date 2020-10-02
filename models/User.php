@@ -18,9 +18,6 @@ use yii\web\NotFoundHttpException;
 
 class User extends ActiveRecord implements IdentityInterface
 {
-    public $oldPass;                   // старый пароль
-    public $newPass;                   // новый пароль
-    public $newPassRepeat;             // подтверждение нового пароля
     public static function tableName()
     {
         return 'user';
@@ -89,7 +86,7 @@ class User extends ActiveRecord implements IdentityInterface
      * @return bool
      * @throws NotFoundHttpException
      */
-    public function validatePassword($password)
+    public function validatePassword($password)     // TODO как выглядит invalidargumentexception при отключенном режиме разработки
     {
         try {
             return \Yii::$app->getSecurity()->validatePassword($password, $this->password);
@@ -101,24 +98,10 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['username', 'oldPass'], 'required'],
-            [['username', 'oldPass', 'newPass', 'newPassRepeat'], 'string', 'max' => 64],
+            [['username', 'password'], 'required'],
+            [['username', 'password'], 'string', 'max' => 64],
             ['username', 'unique'],
-            ['username', 'trim'],
-            ['username', 'match', 'pattern' => '/^[\w- ]+$/i'],
-            [['newPass', 'newPassRepeat'], 'validateNewPass'],
         ];
-    }
-
-    public function validateNewPass($attribute, $params)
-    {
-        if (!$this->hasErrors()) {
-            if ($this->newPass != '' || $this->newPassRepeat != '') {
-                if ($this->newPass !== $this->newPassRepeat) {
-                    $this->addError($attribute, 'Новый пароль и повторный новый пароль не совпадают');
-                }
-            }
-        }
     }
 
     public function attributeLabels()
@@ -133,6 +116,6 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function getRoles()
     {
-        return $this->hasMany(AuthAssignment::className(), ['user_id' => 'id']);
+        return $this->hasMany(AuthAssignment::class, ['user_id' => 'id']);
     }
 }

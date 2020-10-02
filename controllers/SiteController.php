@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\ProfileForm;
 use app\models\User;
 use app\modules\admin\models\AuthAssignment;
 use Yii;
@@ -13,7 +14,6 @@ use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
-use app\models\ContactForm;
 use app\models\SignUpForm;
 
 class SiteController extends Controller
@@ -58,16 +58,6 @@ class SiteController extends Controller
                 'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
             ],
         ];
-    }
-
-    /**
-     * Displays homepage.
-     *
-     * @return string
-     */
-    public function actionIndex()
-    {
-        return $this->render('index');
     }
 
     /**
@@ -122,58 +112,18 @@ class SiteController extends Controller
     }
 
     /**
-     * Displays contact page.
-     *
-     * @return Response|string
-     */
-    public function actionContact()
-    {
-        $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
-            Yii::$app->session->setFlash('contactFormSubmitted');
-
-            return $this->refresh();
-        }
-        return $this->render('contact', [
-            'model' => $model,
-        ]);
-    }
-
-    /**
-     * Displays about page.
-     *
-     * @return string
-     */
-    public function actionAbout()
-    {
-        return $this->render('about');
-    }
-
-    /**
      * Updates an existing User model.
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found if password bad
+     * // TODO нужно затестировать
      */
     public function actionProfile()
     {
-        $model = $this->findModel(Yii::$app->user->identity->id);
+        $model = new ProfileForm();
 
         if ($model->load(Yii::$app->request->post())) {
-            if ($model->validatePassword($model->oldPass) == false) {
-                $model->addError('oldPass', 'Пароль не верен');
-            } else {
-                $attributes = NULL;                     // полное обновление данных
-                if ($model->newPass == '' && $model->newPassRepeat == '') {
-                    $attributes = ['username'];         // частичное обновление данных
-                }
-                try {
-                    $model->password = Yii::$app->getSecurity()->generatePasswordHash($model->newPass);
-                } catch (Exception $e) {
-                    throw new NotFoundHttpException('Не подходящий пароль');
-                }
-                if ($model->save(true, $attributes)) {
-                    return $this->refresh();
-                }
+            if ($model->updateUser()) {
+                return $this->refresh();
             }
         }
 

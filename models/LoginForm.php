@@ -23,12 +23,11 @@ class LoginForm extends Model
     /**
      * @return array the validation rules.
      */
-    public function rules()
+    public function rules() // TODO trim, unique, pattern
     {
         return [
             [['username', 'password'], 'required'],
-            ['username', 'string', 'max' => 20],
-            ['password', 'string', 'max' => 20],
+            [['username', 'password'], 'string', 'max' => 64],
             ['rememberMe', 'boolean'],
             // password is validated by validatePassword()
             ['password', 'validatePassword'],
