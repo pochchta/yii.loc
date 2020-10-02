@@ -6,13 +6,13 @@ use app\models\VerificationSearch;
 use Yii;
 use app\models\Device;
 use app\models\DeviceSearch;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
  * DeviceController implements the CRUD actions for Device model.
- * TODO права доступа
  */
 class DeviceController extends Controller
 {
@@ -23,9 +23,24 @@ class DeviceController extends Controller
     {
         return [
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['POST'],
+                ],
+            ],
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'view'],
+                        'roles' => ['@'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['create', 'update', 'delete'],
+                        'roles' => ['ChangingDevice'],
+                    ],
                 ],
             ],
         ];

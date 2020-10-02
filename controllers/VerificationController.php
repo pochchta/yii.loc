@@ -7,13 +7,13 @@ use app\models\VerificationSearch;
 use DateTime;
 use Yii;
 use app\models\Verification;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
  * VerificationController implements the CRUD actions for Verification model.
- * TODO права доступа
  */
 class VerificationController extends Controller
 {
@@ -24,9 +24,24 @@ class VerificationController extends Controller
     {
         return [
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['POST'],
+                ],
+            ],
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'view'],
+                        'roles' => ['@'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['create', 'update', 'delete'],
+                        'roles' => ['ChangingVerification'],
+                    ],
                 ],
             ],
         ];
@@ -72,7 +87,7 @@ class VerificationController extends Controller
         $model = new Verification();
 
         if ($model->load(Yii::$app->request->post())) {
-            $model->device_id = $device_id;
+            $model->device_id = $model->getOldAttributes()['device_id'];
             if ($model->save()) {
                 if (Device::findOne($model->device_id)->updateDate() == false) {
                     throw new NotFoundHttpException('Device: Не удалось обновить даты');
@@ -81,6 +96,7 @@ class VerificationController extends Controller
             }
         }
 
+        $model->device_id = $device_id;
         $model->last_date = (new DateTime())->getTimestamp();
         $model->period = '1';
         return $this->render('create', [
