@@ -42,7 +42,8 @@ AppAsset::register($this);
             ['label' => 'Пользователи', 'url' => ['/admin/user/index']],
             ['label' => 'Роли', 'url' => ['/admin/auth/index']],
             ['label' => 'Назначения ролей', 'url' => ['/admin/auth-assignment/index']],
-            ['label' => 'Домой', 'url' => ['/site/index']],
+            ['label' => 'Приборы', 'url' => ['/device/index']],
+
 /*            Yii::$app->user->can('ChangingUsers') ? (
             ['label' => 'Админка', 'url' => ['/admin'], 'items' => [
                 ['label' => 'Пользователи', 'url' => ['/admin/user/index']],

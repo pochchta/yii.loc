@@ -5,10 +5,11 @@ $db = require __DIR__ . '/db.php';
 
 $config = [
     'language' => 'ru-RU',
-    'name' => 'Тест',
+    'name' => 'Приборы',
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
+    'defaultRoute' => 'device',
     'modules' => [
         'admin' => [
             'class' => 'app\modules\admin\Module',
