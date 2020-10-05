@@ -14,6 +14,6 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>Вы зарегистрированы под следующим именем:</p>
-    <p><?= Html::encode($model->username) ?></p>
+    <h3><?= Html::encode($model->username) ?></h3>
 
 </div>

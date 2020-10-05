@@ -106,6 +106,8 @@ class SiteController extends Controller
                 'model' => $model
             ]);
         }
+
+        $model->password = '';
         return $this->render('sign-up', [
             'model' => $model
         ]);
