@@ -4,8 +4,9 @@
 namespace app\models;
 
 use Yii;
-use yii\base\Exception;
 use yii\base\Model;
+use yii\base\Exception;
+use yii\base\InvalidArgumentException;
 use yii\web\NotFoundHttpException;
 
 class ProfileForm  extends Model
@@ -46,7 +47,7 @@ class ProfileForm  extends Model
 
     /**
      * @param $attribute
-     * @throws NotFoundHttpException
+     * @throws InvalidArgumentException
      */
     public function validateOldPass($attribute)
     {
@@ -94,7 +95,7 @@ class ProfileForm  extends Model
 
     /**
      * Обновление данных пользователя
-     * @throws NotFoundHttpException
+     * @throws Exception
      */
     public function updateUser()
     {
@@ -109,11 +110,7 @@ class ProfileForm  extends Model
             if ($this->newPass == '' && $this->newPassRepeat == '') {
                 $attributes = ['username'];         // или частичное обновление данных
             }
-            try {
-                $user->password = Yii::$app->getSecurity()->generatePasswordHash($this->newPass);
-            } catch (Exception $e) {
-                throw new NotFoundHttpException('Неподходящий пароль.');
-            }
+            $user->password = Yii::$app->getSecurity()->generatePasswordHash($this->newPass);
             if ($user->save(true, $attributes)) {
                 return true;
             }

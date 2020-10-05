@@ -3,9 +3,11 @@
 namespace app\models;
 
 use app\modules\admin\models\AuthAssignment;
+use Yii;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
-use yii\web\NotFoundHttpException;
+use yii\base\Exception;
+use yii\base\InvalidArgumentException;
 
 /**
  * This is the model class for table "user".
@@ -43,7 +45,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-
+        return NULL;
     }
 
     public static function findByUsername($username)
@@ -76,23 +78,22 @@ class User extends ActiveRecord implements IdentityInterface
         return $this->getAuthKey() === $authKey;
     }
 
+    /**
+     * @throws Exception
+     */
     public function generateAuthKey()
     {
-        $this->auth_key = \Yii::$app->security->generateRandomString();
+        $this->auth_key = Yii::$app->security->generateRandomString();
     }
 
     /**
      * @param $password
      * @return bool
-     * @throws NotFoundHttpException
+     * @throws InvalidArgumentException
      */
-    public function validatePassword($password)     // TODO как выглядит invalidargumentexception при отключенном режиме разработки
+    public function validatePassword($password)
     {
-        try {
-            return \Yii::$app->getSecurity()->validatePassword($password, $this->password);
-        } catch (\Exception $e) {
-            throw new NotFoundHttpException('Неправильный пароль');
-        }
+        return Yii::$app->getSecurity()->validatePassword($password, $this->password);
     }
 
     public function rules()
