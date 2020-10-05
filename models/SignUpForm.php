@@ -12,16 +12,18 @@ class SignUpForm extends Model
 
     private $_user = false;
 
-    public function rules() // TODO trim, unique, pattern
+    public function rules()
     {
         return [
             [['username', 'password'], 'required'],
             [['username', 'password'], 'string', 'max' => 64],
             ['username', 'validateUsername'],
+            ['username', 'trim'],
+            ['username', 'match', 'pattern' => '/^[\w- ]+$/iu', 'message' => 'Только буквы, цифры, тире и пробелы'],
         ];
     }
 
-    public function validateUsername($attribute, $params)
+    public function validateUsername($attribute)
     {
         if (!$this->hasErrors()) {
             $user = $this->getUser();

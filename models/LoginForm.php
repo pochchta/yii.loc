@@ -23,14 +23,15 @@ class LoginForm extends Model
     /**
      * @return array the validation rules.
      */
-    public function rules() // TODO trim, unique, pattern
+    public function rules()
     {
         return [
             [['username', 'password'], 'required'],
             [['username', 'password'], 'string', 'max' => 64],
-            ['rememberMe', 'boolean'],
-            // password is validated by validatePassword()
+            ['username', 'trim'],
+            ['username', 'match', 'pattern' => '/^[\w- ]+$/iu', 'message' => 'Только буквы, цифры, тире и пробелы'],
             ['password', 'validatePassword'],
+            ['rememberMe', 'boolean'],
         ];
     }
 
@@ -41,7 +42,7 @@ class LoginForm extends Model
      * @param string $attribute the attribute currently being validated
      * @param array $params the additional name-value pairs given in the rule
      */
-    public function validatePassword($attribute, $params)
+    public function validatePassword($attribute)
     {
         if (!$this->hasErrors()) {
             $user = $this->getUser();

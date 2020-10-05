@@ -114,8 +114,7 @@ class SiteController extends Controller
     /**
      * Updates an existing User model.
      * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found if password bad
-     * // TODO нужно затестировать
+     * @throws Exception
      */
     public function actionProfile()
     {
