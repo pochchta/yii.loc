@@ -11,7 +11,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <div>
     <h1>Профиль</h1>
     <p>
-        Информация о пользователе <?= Html::encode(\yii::$app->user->identity->username) ?>
+        Информация о пользователе <?= Html::encode(yii::$app->user->identity->username) ?>
     </p>
 
     <?= GridView::widget([
@@ -63,19 +63,13 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <?= $form->field($model, 'username')->textInput(['maxlength' => true]) ?>
 
-        <?= $form->field($model, 'oldPass')
-            ->label('Старый пароль')
-            ->passwordInput(['maxlength' => true])
+        <?= $form->field($model, 'oldPass')->passwordInput(['maxlength' => true])
         ?>
 
-        <?= $form->field($model, 'newPass')
-            ->label('Новый пароль')
-            ->passwordInput(['maxlength' => true])
+        <?= $form->field($model, 'newPass')->passwordInput(['maxlength' => true])
         ?>
 
-        <?= $form->field($model, 'newPassRepeat')
-            ->label('Повтор нового пароля')
-            ->passwordInput(['maxlength' => true])
+        <?= $form->field($model, 'newPassRepeat')->passwordInput(['maxlength' => true])
         ?>
 
         <div class="form-group">

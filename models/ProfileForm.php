@@ -16,37 +16,49 @@ class ProfileForm  extends Model
     public $newPassRepeat;             // подтверждение нового пароля
 
     private $_userByName = false;
-    private $_userByAuthorization = false;
+    private $_userById = false;
 
-    public function rules() // TODO trim, unique, pattern
+    public function rules()
     {
         return [
             [['username', 'oldPass'], 'required'],
             [['username', 'oldPass', 'newPass', 'newPassRepeat'], 'string', 'max' => 64],
-            ['username', 'unique'],
+            ['username', 'validateUsername'],
             ['username', 'trim'],
-            ['username', 'match', 'pattern' => '/^[\w- ]+$/i'],
+            ['username', 'match', 'pattern' => '/^[\w- ]+$/iu', 'message' => 'Только буквы, цифры, тире и пробелы'],
             [['oldPass'], 'validateOldPass'],
             [['newPass', 'newPassRepeat'], 'validateNewPass'],
         ];
     }
 
-    /**
-     * @param $attribute
-     * @param $params
-     * @throws NotFoundHttpException
-     */
-    public function validateOldPass($attribute, $params)
+    public function validateUsername($attribute)
     {
         if (!$this->hasErrors()) {
-            $user = $this->getUserByAuthorization();
-            if ($user->validatePassword($this->oldPass) == false) {
-                $this->addError('oldPass', 'Пароль не верен');
+            $user = $this->getUserByName();
+
+            if ($user) {
+                if ($user->username !== $this->getUserById()->username) {
+                    $this->addError($attribute, 'Это имя пользователя занято');
+                }
             }
         }
     }
 
-    public function validateNewPass($attribute, $params)
+    /**
+     * @param $attribute
+     * @throws NotFoundHttpException
+     */
+    public function validateOldPass($attribute)
+    {
+        if (!$this->hasErrors()) {
+            $user = $this->getUserById();
+            if ($user->validatePassword($this->oldPass) == false) {
+                $this->addError($attribute, 'Старый пароль не верен');
+            }
+        }
+    }
+
+    public function validateNewPass($attribute)
     {
         if (!$this->hasErrors()) {
             if ($this->newPass != '' || $this->newPassRepeat != '') {
@@ -57,7 +69,7 @@ class ProfileForm  extends Model
         }
     }
 
-    public function getUserByUsername()
+    public function getUserByName()
     {
         if ($this->_userByName === false) {
             $this->_userByName = User::findByUsername($this->username);
@@ -65,18 +77,18 @@ class ProfileForm  extends Model
         return $this->_userByName;
     }
 
-    public function getUserByAuthorization()
+    public function getUserById()
     {
-        if ($this->_userByAuthorization === false) {
-            $this->_userByAuthorization = User::findOne(Yii::$app->user->identity->id);
+        if ($this->_userById === false) {
+            $this->_userById = User::findOne(Yii::$app->user->identity->id);
         }
-        return $this->_userByAuthorization;
+        return $this->_userById;
     }
 
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $user = $this->getUserByAuthorization();
+        $user = $this->getUserById();
         $this->username = $user->username;
     }
 
@@ -87,7 +99,7 @@ class ProfileForm  extends Model
     public function updateUser()
     {
         if ($this->validate()) {
-            $user = $this->getUserByAuthorization();
+            $user = $this->getUserById();
             if ($user === NULL) {
                 throw new NotFoundHttpException('Запрошенная страница не существует.');
             }
@@ -112,14 +124,10 @@ class ProfileForm  extends Model
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
             'username' => 'Имя пользователя',
-            'password' => 'Пароль',
-            'auth_key' => 'Ключ идентификации',
+            'oldPass' => 'Старый пароль',
+            'newPass' => 'Новый пароль',
+            'newPassRepeat' => 'Повтор нового пароля',
         ];
     }
-
-
-
-
 }
