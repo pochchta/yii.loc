@@ -33,7 +33,7 @@ class DeviceController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'view'],
+                        'actions' => ['index', 'view', 'print'],
                         'roles' => ['@'],
                     ],
                     [
@@ -134,6 +134,21 @@ class DeviceController extends Controller
         $model->save();
 
         return $this->redirect(Yii::$app->request->referrer);
+    }
+
+    /**
+     * @param string $id
+     * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionPrint($id)
+    {
+        $this->layout = false;
+        $model = $this->findModel($id);
+
+        return $this->render('print', [
+            'model' => $model
+        ]);
     }
 
     /**

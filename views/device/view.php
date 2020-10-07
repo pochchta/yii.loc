@@ -33,6 +33,7 @@ if ($model->deleted == Device::NOT_DELETED) {
     <h1><?= Html::encode($this->title) . $deleteText?></h1>
 
     <p>
+        <?= Html::a('Печать', ['print', 'id' => $model->id], ['class' => 'btn btn-warning']) ?>
         <?= Html::a('Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
         <?= Html::a($deleteTitle, ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
