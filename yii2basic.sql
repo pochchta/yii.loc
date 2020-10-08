@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Окт 08 2020 г., 06:15
+-- Время создания: Окт 08 2020 г., 09:05
 -- Версия сервера: 5.6.37
 -- Версия PHP: 7.1.7
 
@@ -65,10 +65,12 @@ CREATE TABLE IF NOT EXISTS `auth_item` (
 INSERT INTO `auth_item` (`name`, `type`, `description`, `rule_name`, `data`, `created_at`, `updated_at`) VALUES
 ('admin', 1, 'Роль администратора', NULL, NULL, 1594262191, 1600657155),
 ('ChangingAuthItem', 2, 'Изменение ролей и разрешений', NULL, NULL, 1599096920, 1599096920),
+('ChangingDepartment', 2, 'Изменение списка цехов', NULL, NULL, 1602133666, 1602133666),
 ('ChangingDevice', 2, 'Изменение данных приборов', NULL, NULL, 1601606502, 1601606502),
+('ChangingScale', 2, 'Изменение списка пределов измерений', NULL, NULL, 1602133549, 1602133549),
 ('ChangingUsers', 2, 'Изменение данных пользователей', NULL, NULL, 1599102504, 1599114781),
 ('ChangingVerification', 2, 'Изменение данных поверок', NULL, NULL, 1601606646, 1601606646),
-('manager', 1, 'Роль пользователя', NULL, NULL, 1599791590, 1601872387);
+('manager', 1, 'Роль пользователя', NULL, NULL, 1599791590, 1602133710);
 
 -- --------------------------------------------------------
 
@@ -87,7 +89,9 @@ CREATE TABLE IF NOT EXISTS `auth_item_child` (
 
 INSERT INTO `auth_item_child` (`parent`, `child`) VALUES
 ('admin', 'ChangingAuthItem'),
+('manager', 'ChangingDepartment'),
 ('manager', 'ChangingDevice'),
+('manager', 'ChangingScale'),
 ('admin', 'ChangingUsers'),
 ('manager', 'ChangingVerification');
 
@@ -120,14 +124,15 @@ CREATE TABLE IF NOT EXISTS `department` (
   `created_by` int(10) unsigned DEFAULT NULL,
   `updated_by` int(10) unsigned DEFAULT NULL,
   `deleted` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 --
 -- Дамп данных таблицы `department`
 --
 
 INSERT INTO `department` (`id`, `name`, `phone`, `description`, `created_at`, `updated_at`, `created_by`, `updated_by`, `deleted`) VALUES
-(1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0);
+(1, 'РТР', '02-02', 'Описание телеканала', 1602133907, 1602136653, 18, 17, 0),
+(3, 'ОРТ', '01-01', 'Описание', 1602133907, 1602133907, 17, 17, 0);
 
 -- --------------------------------------------------------
 
@@ -160,7 +165,7 @@ CREATE TABLE IF NOT EXISTS `device` (
 --
 
 INSERT INTO `device` (`id`, `name`, `number`, `type`, `description`, `last_date`, `next_date`, `period`, `id_department`, `id_scale`, `accuracy`, `position`, `created_at`, `updated_at`, `created_by`, `updated_by`, `deleted`) VALUES
-(1, 'ЦЦЦ-1', '11111', 'йцукылодло', 'ывапдллдоолдолдлдоыв', 1601337600, 1632873600, 1, 1, 1, NULL, NULL, 1601012825, 1601606118, 18, 17, 0),
+(1, 'ЦЦЦ-1', '11111', 'FTFM', 'Прибор описание', 1601337600, 1632873600, 1, 3, 2, '0.25', '0.20-120 TI', 1601012825, 1602135766, 18, 17, 0),
 (2, 'ЦЦЦ-1', '2222222', 'type123', 'klasdfkljboj kljkljklwer', 1601337600, 1664409600, 2, 1, 1, NULL, NULL, 1601012825, 1601525193, 17, 17, 0),
 (3, 'ЦЦЦ-1', '3333333', '', '', 1577836800, 1609459200, 1, 1, 1, NULL, NULL, 1601012944, 1601610951, 17, 17, 0);
 
@@ -208,7 +213,7 @@ CREATE TABLE IF NOT EXISTS `scale` (
 --
 
 INSERT INTO `scale` (`id`, `value`, `description`, `created_at`, `updated_at`, `created_by`, `updated_by`, `deleted`) VALUES
-(1, NULL, NULL, NULL, NULL, NULL, NULL, 0),
+(1, '0-20 mA', 'text', 1602126556, 1602136777, 18, 17, 0),
 (2, '4-20 mA', 'text', 1602126556, 1602126556, 17, 17, 0);
 
 -- --------------------------------------------------------
@@ -360,7 +365,7 @@ ALTER TABLE `verification`
 -- AUTO_INCREMENT для таблицы `department`
 --
 ALTER TABLE `department`
-  MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
+  MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
 --
 -- AUTO_INCREMENT для таблицы `device`
 --
