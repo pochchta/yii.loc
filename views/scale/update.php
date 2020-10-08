@@ -6,7 +6,7 @@ use yii\helpers\Html;
 /* @var $model app\models\Scale */
 
 $this->title = 'Обновление записи: ' . $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Scales', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Шкалы', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->id, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = 'Изменение';
 ?>

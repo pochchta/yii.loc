@@ -2,9 +2,10 @@
 
 namespace app\controllers;
 
+use app\models\DepartmentSearch;
 use Yii;
 use app\models\Department;
-use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -21,9 +22,24 @@ class DepartmentController extends Controller
     {
         return [
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['POST'],
+                ],
+            ],
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'view'],
+                        'roles' => ['@'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['create', 'update', 'delete'],
+                        'roles' => ['ChangingDepartment'],
+                    ],
                 ],
             ],
         ];
@@ -35,11 +51,11 @@ class DepartmentController extends Controller
      */
     public function actionIndex()
     {
-        $dataProvider = new ActiveDataProvider([
-            'query' => Department::find(),
-        ]);
+        $searchModel = new DepartmentSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
+            'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }
@@ -97,16 +113,18 @@ class DepartmentController extends Controller
 
     /**
      * Deletes an existing Department model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param string $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+        $model->deleted == Department::NOT_DELETED ? $model->deleted = Department::DELETED :
+            $model->deleted = Department::NOT_DELETED;
+        $model->save();
 
-        return $this->redirect(['index']);
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
     /**
@@ -122,6 +140,6 @@ class DepartmentController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('Запрошенная страница не существует.');
     }
 }

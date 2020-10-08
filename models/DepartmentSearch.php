@@ -6,21 +6,18 @@ use yii\base\Model;
 use yii\data\ActiveDataProvider;
 
 /**
- * DeviceSearch represents the model behind the search form of `app\models\Device`.
+ * DepartmentSearch represents the model behind the search form of `app\models\Department`.
  */
-class DeviceSearch extends Device
+class DepartmentSearch extends Department
 {
     /**
      * {@inheritdoc}
      */
-
-    public $last_date_start, $last_date_end, $next_date_start, $next_date_end;
-
     public function rules()
     {
         return [
-            [['id', 'number', 'last_date', 'next_date', 'period', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
-            [['name', 'type', 'description'], 'string', 'max' => 64],
+            [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
+            [['name', 'phone', 'description'], 'string', 'max' => 64],
             [['deleted'], 'default', 'value' => Device::NOT_DELETED]
         ];
     }
@@ -43,7 +40,7 @@ class DeviceSearch extends Device
      */
     public function search($params)
     {
-        $query = Device::find()->with('creator', 'updater', 'department', 'scale');
+        $query = Department::find()->with('creator', 'updater');
 
         // add conditions that should always apply here
 
@@ -62,32 +59,18 @@ class DeviceSearch extends Device
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'number' => $this->number,
-            'last_date' => $this->last_date,
-            'next_date' => $this->next_date,
-            'period' => $this->period,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
         ]);
 
         $query->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'type', $this->type])
+            ->andFilterWhere(['like', 'phone', $this->phone])
             ->andFilterWhere(['like', 'description', $this->description]);
 
-        if ($this->deleted == Device::NOT_DELETED || $this->deleted == Device::DELETED) {
+        if ($this->deleted == Department::NOT_DELETED || $this->deleted == Department::DELETED) {
             $query->andFilterWhere(['deleted' => $this->deleted]);
-        }
-        if ($this->last_date_start != '') {
-            $query->andFilterWhere(['>=', 'last_date', strtotime($this->last_date_start)]);
-        }
-        if ($this->last_date_end != '') {
-            $query->andFilterWhere(['<', 'last_date', strtotime($this->last_date_end)]);
-        }
-        if ($this->next_date_start != '') {
-            $query->andFilterWhere(['>=', 'next_date', strtotime($this->next_date_start)]);
-        }
-        if ($this->next_date_end != '') {
-            $query->andFilterWhere(['<', 'next_date', strtotime($this->next_date_end)]);
         }
 
         return $dataProvider;

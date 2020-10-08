@@ -20,11 +20,20 @@ use yii\db\ActiveRecord;
  * @property int|null $last_date
  * @property int|null $next_date
  * @property int|null $period
+ * @property int|null $id_department
+ * @property int|null $id_scale
+ * @property string|null $accuracy
+ * @property string|null $position
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null $created_by
  * @property int|null $updated_by
  * @property int $deleted
+ *
+ * @property User|null $creator magic property
+ * @property User|null $updater magic property
+ * @property Department|null $department magic property
+ * @property Scale|null $scale magic property
  *
  * @property Verification[] $verifications
  * @method touch(string $string) Method TimestampBehavior
@@ -67,7 +76,10 @@ class Device extends ActiveRecord
     {
         return [
             [['description'], 'string'],
-            [['name', 'type', 'number'], 'string', 'max' => 255],
+            [['name', 'type', 'number', 'accuracy', 'position'], 'string', 'max' => 255],
+            [['id_department', 'id_scale'], 'integer'],
+            [['id_department'], 'exist', 'skipOnError' => true, 'targetClass' => Department::class, 'targetAttribute' => ['id_department' => 'id']],
+            [['id_scale'], 'exist', 'skipOnError' => true, 'targetClass' => Scale::class, 'targetAttribute' => ['id_scale' => 'id']],
         ];
     }
 
@@ -85,6 +97,10 @@ class Device extends ActiveRecord
             'last_date' => 'Дата пред. пов.',
             'next_date' => 'Дата след. пов.',
             'period' => 'Период пов.',
+            'id_department' => 'Цех',
+            'id_scale' => 'Шкала',
+            'accuracy' => 'Класс точности',
+            'position' => 'Позиция',
             'created_at' => 'Создано',
             'updated_at' => 'Обновлено',
             'created_by' => 'Создал',
@@ -151,5 +167,15 @@ class Device extends ActiveRecord
     public function getUpdater()
     {
         return $this->hasOne(User::class, ['id' => 'updated_by']);
+    }
+
+    public function getDepartment()
+    {
+        return $this->hasOne(Department::class, ['id' => 'id_department']);
+    }
+
+    public function getScale()
+    {
+        return $this->hasOne(Scale::class, ['id' => 'id_scale']);
     }
 }

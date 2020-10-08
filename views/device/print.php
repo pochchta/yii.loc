@@ -25,9 +25,9 @@ $this->registerCssFile('@web/css/passport-print.css');
 <div class="view_for_print">
     <table class="department">
         <tr>
-            <td>КТЦ</td>
-            <td>5-55-21</td>
-            <td>12-34-56</td>
+            <td><?= Html::encode($model->department->name) ?></td>
+            <td><?= Html::encode($model->department->phone) ?></td>
+            <td><?= Html::encode($model->position) ?></td>
         </tr>
     </table>
     <table class="device">
@@ -44,10 +44,10 @@ $this->registerCssFile('@web/css/passport-print.css');
             <td>Класс точности</td>
         </tr>
         <tr>
-            <td><?= Html::encode($model->name) ?></td>
+            <td><?= Html::encode($model->type) ?></td>
             <td><?= Html::encode($model->number) ?></td>
-            <td>4-20 мА</td>
-            <td>0,25</td>
+            <td><?= Html::encode($model->scale->value) ?></td>
+            <td><?= Html::encode($model->accuracy) ?></td>
         </tr>
         <tr>
             <td colspan="4">

@@ -55,6 +55,16 @@ if ($model->deleted == Device::NOT_DELETED) {
             'last_date:date',
             'next_date:date',
             'period',
+            [
+                'attribute' => 'id_department',
+                'value' => $model->department->name
+            ],
+            [
+                'attribute' => 'id_scale',
+                'value' => $model->scale->value
+            ],
+            'accuracy',
+            'position',
             'created_at:date',
             'updated_at:date',
             [
