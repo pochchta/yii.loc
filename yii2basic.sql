@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Окт 08 2020 г., 04:49
+-- Время создания: Окт 08 2020 г., 06:15
 -- Версия сервера: 5.6.37
 -- Версия PHP: 7.1.7
 
@@ -115,6 +115,10 @@ CREATE TABLE IF NOT EXISTS `department` (
   `name` varchar(255) DEFAULT NULL,
   `phone` varchar(255) DEFAULT NULL,
   `description` text,
+  `created_at` int(11) DEFAULT NULL,
+  `updated_at` int(11) DEFAULT NULL,
+  `created_by` int(10) unsigned DEFAULT NULL,
+  `updated_by` int(10) unsigned DEFAULT NULL,
   `deleted` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
@@ -122,8 +126,8 @@ CREATE TABLE IF NOT EXISTS `department` (
 -- Дамп данных таблицы `department`
 --
 
-INSERT INTO `department` (`id`, `name`, `phone`, `description`, `deleted`) VALUES
-(1, NULL, NULL, NULL, 0);
+INSERT INTO `department` (`id`, `name`, `phone`, `description`, `created_at`, `updated_at`, `created_by`, `updated_by`, `deleted`) VALUES
+(1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -140,8 +144,8 @@ CREATE TABLE IF NOT EXISTS `device` (
   `last_date` int(11) DEFAULT NULL,
   `next_date` int(11) DEFAULT NULL,
   `period` tinyint(1) unsigned DEFAULT NULL,
-  `id_department` int(10) unsigned NOT NULL,
-  `id_scale` int(10) unsigned NOT NULL,
+  `id_department` int(11) unsigned DEFAULT NULL,
+  `id_scale` int(11) unsigned DEFAULT NULL,
   `accuracy` varchar(255) DEFAULT NULL,
   `position` varchar(255) DEFAULT NULL,
   `created_at` int(11) DEFAULT NULL,
@@ -192,15 +196,20 @@ CREATE TABLE IF NOT EXISTS `scale` (
   `id` int(10) unsigned NOT NULL,
   `value` varchar(255) DEFAULT NULL,
   `description` text,
+  `created_at` int(11) DEFAULT NULL,
+  `updated_at` int(11) DEFAULT NULL,
+  `created_by` int(10) unsigned DEFAULT NULL,
+  `updated_by` int(10) unsigned DEFAULT NULL,
   `deleted` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 --
 -- Дамп данных таблицы `scale`
 --
 
-INSERT INTO `scale` (`id`, `value`, `description`, `deleted`) VALUES
-(1, NULL, NULL, 0);
+INSERT INTO `scale` (`id`, `value`, `description`, `created_at`, `updated_at`, `created_by`, `updated_by`, `deleted`) VALUES
+(1, NULL, NULL, NULL, NULL, NULL, NULL, 0),
+(2, '4-20 mA', 'text', 1602126556, 1602126556, 17, 17, 0);
 
 -- --------------------------------------------------------
 
@@ -238,7 +247,7 @@ INSERT INTO `user` (`id`, `username`, `password`, `auth_key`) VALUES
 
 CREATE TABLE IF NOT EXISTS `verification` (
   `id` int(11) unsigned NOT NULL,
-  `device_id` int(11) unsigned NOT NULL,
+  `device_id` int(11) unsigned DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `type` varchar(255) DEFAULT NULL,
   `description` text,
@@ -300,7 +309,9 @@ ALTER TABLE `auth_rule`
 -- Индексы таблицы `department`
 --
 ALTER TABLE `department`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `created_by` (`created_by`),
+  ADD KEY `updated_by` (`updated_by`);
 
 --
 -- Индексы таблицы `device`
@@ -322,7 +333,9 @@ ALTER TABLE `migration`
 -- Индексы таблицы `scale`
 --
 ALTER TABLE `scale`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `created_by` (`created_by`),
+  ADD KEY `updated_by` (`updated_by`);
 
 --
 -- Индексы таблицы `user`
@@ -357,7 +370,7 @@ ALTER TABLE `device`
 -- AUTO_INCREMENT для таблицы `scale`
 --
 ALTER TABLE `scale`
-  MODIFY `id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
+  MODIFY `id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT для таблицы `user`
 --
@@ -392,6 +405,13 @@ ALTER TABLE `auth_item_child`
   ADD CONSTRAINT `auth_item_child_ibfk_2` FOREIGN KEY (`child`) REFERENCES `auth_item` (`name`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Ограничения внешнего ключа таблицы `department`
+--
+ALTER TABLE `department`
+  ADD CONSTRAINT `department_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`),
+  ADD CONSTRAINT `department_ibfk_2` FOREIGN KEY (`updated_by`) REFERENCES `user` (`id`);
+
+--
 -- Ограничения внешнего ключа таблицы `device`
 --
 ALTER TABLE `device`
@@ -399,6 +419,13 @@ ALTER TABLE `device`
   ADD CONSTRAINT `device_ibfk_2` FOREIGN KEY (`id_scale`) REFERENCES `scale` (`id`),
   ADD CONSTRAINT `device_ibfk_3` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`),
   ADD CONSTRAINT `device_ibfk_4` FOREIGN KEY (`updated_by`) REFERENCES `user` (`id`);
+
+--
+-- Ограничения внешнего ключа таблицы `scale`
+--
+ALTER TABLE `scale`
+  ADD CONSTRAINT `scale_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`),
+  ADD CONSTRAINT `scale_ibfk_2` FOREIGN KEY (`updated_by`) REFERENCES `user` (`id`);
 
 --
 -- Ограничения внешнего ключа таблицы `verification`
