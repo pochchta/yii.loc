@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Окт 08 2020 г., 03:55
+-- Время создания: Окт 08 2020 г., 04:49
 -- Версия сервера: 5.6.37
 -- Версия PHP: 7.1.7
 
@@ -123,8 +123,7 @@ CREATE TABLE IF NOT EXISTS `department` (
 --
 
 INSERT INTO `department` (`id`, `name`, `phone`, `description`, `deleted`) VALUES
-(1, NULL, NULL, NULL, 0),
-(2, NULL, NULL, NULL, 0);
+(1, NULL, NULL, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -309,7 +308,9 @@ ALTER TABLE `department`
 ALTER TABLE `device`
   ADD PRIMARY KEY (`id`),
   ADD KEY `id_department` (`id_department`),
-  ADD KEY `id_scale` (`id_scale`);
+  ADD KEY `id_scale` (`id_scale`),
+  ADD KEY `created_by` (`created_by`),
+  ADD KEY `updated_by` (`updated_by`);
 
 --
 -- Индексы таблицы `migration`
@@ -334,7 +335,9 @@ ALTER TABLE `user`
 --
 ALTER TABLE `verification`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `device_id` (`device_id`);
+  ADD KEY `device_id` (`device_id`),
+  ADD KEY `created_by` (`created_by`),
+  ADD KEY `updated_by` (`updated_by`);
 
 --
 -- AUTO_INCREMENT для сохранённых таблиц
@@ -393,13 +396,17 @@ ALTER TABLE `auth_item_child`
 --
 ALTER TABLE `device`
   ADD CONSTRAINT `device_ibfk_1` FOREIGN KEY (`id_department`) REFERENCES `department` (`id`),
-  ADD CONSTRAINT `device_ibfk_2` FOREIGN KEY (`id_scale`) REFERENCES `scale` (`id`);
+  ADD CONSTRAINT `device_ibfk_2` FOREIGN KEY (`id_scale`) REFERENCES `scale` (`id`),
+  ADD CONSTRAINT `device_ibfk_3` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`),
+  ADD CONSTRAINT `device_ibfk_4` FOREIGN KEY (`updated_by`) REFERENCES `user` (`id`);
 
 --
 -- Ограничения внешнего ключа таблицы `verification`
 --
 ALTER TABLE `verification`
-  ADD CONSTRAINT `verification_ibfk_1` FOREIGN KEY (`device_id`) REFERENCES `device` (`id`);
+  ADD CONSTRAINT `verification_ibfk_1` FOREIGN KEY (`device_id`) REFERENCES `device` (`id`),
+  ADD CONSTRAINT `verification_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`),
+  ADD CONSTRAINT `verification_ibfk_3` FOREIGN KEY (`updated_by`) REFERENCES `user` (`id`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
