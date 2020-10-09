@@ -21,7 +21,9 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?//= $form->field($model, 'device_id')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'device_id')->dropDownList(
+        [$model->device_id => $model->device->number]
+    ) ?>
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
