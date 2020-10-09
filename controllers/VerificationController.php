@@ -87,7 +87,6 @@ class VerificationController extends Controller
         $model = new Verification();
 
         if ($model->load(Yii::$app->request->post())) {
-            $model->device_id = $model->getOldAttributes()['device_id'];
             if ($model->save()) {
                 if (Device::findOne($model->device_id)->updateDate() == false) {
                     throw new NotFoundHttpException('Device: Не удалось обновить даты');
