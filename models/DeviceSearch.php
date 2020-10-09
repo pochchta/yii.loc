@@ -21,6 +21,7 @@ class DeviceSearch extends Device
         return [
             [['id', 'number', 'last_date', 'next_date', 'period', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
             [['name', 'type', 'description'], 'string', 'max' => 64],
+            [['last_date_start', 'last_date_end', 'next_date_start', 'next_date_end'], 'string', 'max' => 64],
             [['deleted'], 'default', 'value' => Device::NOT_DELETED]
         ];
     }
