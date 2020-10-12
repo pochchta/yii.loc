@@ -81,6 +81,21 @@ class Scale extends ActiveRecord
     }
 
     /**
+     * Gets arr[id] = names of scale
+     * @return array
+     */
+    public static function getAllValue()
+    {
+        $query = self::find()->select(['id', 'value'])->asArray()->all();
+
+        $outArray = array();
+        foreach ($query as $key => $item) {
+            $outArray[$item['id']] = $item['value'];
+        }
+        return $outArray;
+    }
+
+    /**
      * Gets query for [[Devices]].
      *
      * @return ActiveQuery

@@ -1,12 +1,13 @@
 <?php
 
+use app\models\Department;
+use app\models\Scale;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Device */
 /* @var $form yii\widgets\ActiveForm */
-// TODO dropdownlist и методы классов Scale, Department, возвращающие массивы [id => name]
 // TODO breadcrumbs для поверок ведет на поверки, а не на прибор
 ?>
 
@@ -22,9 +23,9 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>
 
-    <?= $form->field($model, 'id_department')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'id_department')->dropDownList(Department::getAllNames()) ?>
 
-    <?= $form->field($model, 'id_scale')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'id_scale')->dropDownList(Scale::getAllValue()) ?>
 
     <?= $form->field($model, 'accuracy')->textInput(['maxlength' => true]) ?>
 

@@ -83,6 +83,21 @@ class Department extends ActiveRecord
     }
 
     /**
+     * Gets arr[id] = names of departments
+     * @return array
+     */
+    public static function getAllNames()
+    {
+        $query = self::find()->select(['id', 'name'])->asArray()->all();
+
+        $outArray = array();
+        foreach ($query as $key => $item) {
+            $outArray[$item['id']] = $item['name'];
+        }
+        return $outArray;
+    }
+
+    /**
      * Gets query for [[Devices]].
      *
      * @return ActiveQuery
