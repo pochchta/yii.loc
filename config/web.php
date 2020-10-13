@@ -29,6 +29,7 @@ $config = [
         ],
         'authManager' => [
             'class' => 'yii\rbac\DbManager',
+            // TODO: кеш AccessManager отключен
 //            'cache' => 'cache' //Включаем кеширование
         ],
         'cache' => [

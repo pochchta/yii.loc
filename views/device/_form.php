@@ -8,7 +8,6 @@ use yii\widgets\ActiveForm;
 /* @var $this yii\web\View */
 /* @var $model app\models\Device */
 /* @var $form yii\widgets\ActiveForm */
-// TODO breadcrumbs для поверок ведет на поверки, а не на прибор
 ?>
 
 <div class="device-form">
