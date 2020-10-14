@@ -83,6 +83,7 @@ class DepartmentController extends Controller
         $model = new Department();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', 'Данные сохранены');
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -103,6 +104,7 @@ class DepartmentController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', 'Данные сохранены');
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -122,7 +124,13 @@ class DepartmentController extends Controller
         $model = $this->findModel($id);
         $model->deleted == Department::NOT_DELETED ? $model->deleted = Department::DELETED :
             $model->deleted = Department::NOT_DELETED;
-        $model->save();
+        if ($model->save()) {
+            if ($model->deleted == Department::NOT_DELETED) {
+                Yii::$app->session->setFlash('success', 'Данные восстановлены');
+            } else {
+                Yii::$app->session->setFlash('success', 'Данные удалены');
+            }
+        }
 
         return $this->redirect(Yii::$app->request->referrer);
     }
