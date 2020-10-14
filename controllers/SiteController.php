@@ -124,6 +124,7 @@ class SiteController extends Controller
 
         if ($model->load(Yii::$app->request->post())) {
             if ($model->updateUser()) {
+                Yii::$app->session->setFlash('success', 'Данные сохранены');
                 return $this->refresh();
             }
         }
