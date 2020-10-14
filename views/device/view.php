@@ -1,6 +1,7 @@
 <?php
 
 use app\models\Device;
+use app\models\QRImage;
 use app\models\Verification;
 use yii\grid\GridView;
 use yii\helpers\Html;
@@ -43,6 +44,10 @@ if ($model->deleted == Device::NOT_DELETED) {
             ],
         ]) ?>
     </p>
+
+    <?php
+        echo '<img src="' . QRImage::getPath() . '">';
+    ?>
 
     <?= DetailView::widget([
         'model' => $model,
