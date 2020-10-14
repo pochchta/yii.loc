@@ -88,9 +88,10 @@ class VerificationController extends Controller
 
         if ($model->load(Yii::$app->request->post())) {
             if ($model->save()) {
-                if (Device::findOne($model->device_id)->updateDate() == false) {
+                if ($this->findModelDevice($model->device_id)->updateDate() == false) {
                     throw new NotFoundHttpException('Device: Не удалось обновить даты');
                 }
+                Yii::$app->session->setFlash('success', 'Данные сохранены');
                 return $this->redirect(['device/view', 'id' => $model->device_id]);
             }
         }
@@ -117,9 +118,10 @@ class VerificationController extends Controller
         if ($model->load(Yii::$app->request->post())) {
             $model->device_id = $model->getOldAttributes()['device_id'];
             if ($model->save()) {
-                if (Device::findOne($model->device_id)->updateDate() == false) {
+                if ($this->findModelDevice($model->device_id)->updateDate() == false) {
                     throw new NotFoundHttpException('Device: Не удалось обновить даты');
                 }
+                Yii::$app->session->setFlash('success', 'Данные сохранены');
                 return $this->redirect(['device/view', 'id' => $model->device_id]);
             }
         }
@@ -141,8 +143,14 @@ class VerificationController extends Controller
         $model = $this->findModel($id);
         $model->deleted == Verification::NOT_DELETED ? $model->deleted = Verification::DELETED :
             $model->deleted = Verification::NOT_DELETED;
-        $model->save();
-        if (Device::findOne($model->device_id)->updateDate() == false) {
+        if ($model->save()) {
+            if ($model->deleted == Verification::NOT_DELETED) {
+                Yii::$app->session->setFlash('success', 'Данные восстановлены');
+            } else {
+                Yii::$app->session->setFlash('success', 'Данные удалены');
+            }
+        }
+        if ($this->findModelDevice($model->device_id)->updateDate() == false) {
             throw new NotFoundHttpException('Device: Не удалось обновить даты');
         }
 
@@ -162,6 +170,22 @@ class VerificationController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('Запрошенная страница не существует.');
+    }
+
+    /**
+     * Finds the Device model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param string $id
+     * @return Device the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModelDevice($id)
+    {
+        if (($model = Device::findOne($id)) !== null) {
+            return $model;
+        }
+
+        throw new NotFoundHttpException('Запрошенная страница не существует.');
     }
 }
