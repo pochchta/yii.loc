@@ -46,7 +46,7 @@ if ($model->deleted == Device::NOT_DELETED) {
     </p>
 
     <?php
-        echo '<img src="' . QRImage::getPath() . '">';
+        echo '<img src="' . QRImage::getUrl() . '">';
     ?>
 
     <?= DetailView::widget([

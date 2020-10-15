@@ -13,28 +13,45 @@ use yii\web\NotFoundHttpException;
 
 class QRImage
 {
-    const IMAGE_DIR = '/QRImage/';
+    const IMAGE_DIR = 'QRImage';
+    const QUANTITY = 100;   // кол-во файлов в подпапке
 
     /**
      * @return string
      * @throws NotFoundHttpException
      */
-    public static function getPath()
+    public static function getUrl()
     {
-        $imageUrl = self::IMAGE_DIR . Yii::$app->request->get()['id'] . '.png';
-        $imagePath = Yii::getAlias('@webroot') . $imageUrl;
-        $imageDir = Yii::getAlias('@webroot') . self::IMAGE_DIR;
-        if (file_exists($imageDir) == false) {
+        $id = Yii::$app->request->get()['id'];
+        $idDir = (int) ($id / self::QUANTITY);
+        $imageUrl = '/' . self::IMAGE_DIR . '/' . $idDir . '/' . $id . '.png';
+        $webRoot = Yii::getAlias('@webroot');   // A:/OSPanelWinXP/domains/yii.loc/web
+        $imagePath = $webRoot . $imageUrl ;
+
+        $imageDirPath = $webRoot . '/' . self::IMAGE_DIR;
+        if (file_exists($imageDirPath) == false) {
             try {
-                if (mkdir($imageDir, 0700) == false) {
+                if (mkdir($imageDirPath, 0700) == false) {
                     throw new Exception();
                 }
             } catch (Exception $e) {
                 throw new NotFoundHttpException('QRImage: ошибка записи папки');
             }
         }
+
+        $idDirPath = $webRoot . '/' . self::IMAGE_DIR . '/' . $idDir;
+        if (file_exists($idDirPath) == false) {
+            try {
+                if (mkdir($idDirPath, 0700) == false) {
+                    throw new Exception();
+                }
+            } catch (Exception $e) {
+                throw new NotFoundHttpException('QRImage: ошибка записи папки');
+            }
+        }
+
         if (file_exists($imagePath) == false) {
-            $qrCode = (new QrCode(Url::to('', true)))
+            $qrCode = (new QrCode(Url::to(['/device/view', 'id' => $id], true)))
                 ->setSize(200)
                 ->setMargin(5)
                 ->setErrorCorrectionLevel(ErrorCorrectionLevelInterface::HIGH);
