@@ -33,4 +33,4 @@ tests/_support/_generated
 /.vagrant
 
 #image QR code
-/web/QRImage
+/web/qr-image

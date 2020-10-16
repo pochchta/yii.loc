@@ -13,7 +13,7 @@ use yii\web\NotFoundHttpException;
 
 class QRImage
 {
-    const IMAGE_DIR = 'QRImage';
+    const IMAGE_DIR = 'qr-image';
     const QUANTITY = 100;   // кол-во файлов в подпапке
 
     /**
