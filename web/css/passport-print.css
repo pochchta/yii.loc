@@ -17,6 +17,17 @@ html, body{
 .view_for_print table.device td{
 	width: 25%;
 }
+.view_for_print .qr_image {
+	position: absolute;
+	margin-left: 189mm;
+	margin-top: 1mm;
+	background-repeat: no-repeat ;
+	background-position: right center;
+	background-size: contain;
+	width: 20mm;
+	height: 20mm;
+}
+
 .view_for_print table.verification td{
 	width: 11.1%;
 }

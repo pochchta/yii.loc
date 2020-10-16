@@ -2,6 +2,7 @@
 
 /* @var $this yii\web\View */
 
+use app\models\QRImage;
 use yii\helpers\Html;
 
 /* @var $model app\models\Device */
@@ -30,6 +31,7 @@ $this->registerCssFile('@web/css/passport-print.css');
             <td><?= Html::encode($model->position) ?></td>
         </tr>
     </table>
+    <div class="qr_image" style="background-image: url('<?= QRImage::getUrl() ?>')"></div>
     <table class="device">
         <tr>
             <td colspan="4" class="center">Паспорт</td>
