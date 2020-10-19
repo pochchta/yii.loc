@@ -33,7 +33,7 @@ class DeviceController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'view', 'print'],
+                        'actions' => ['index', 'print-list-device', 'view', 'print'],
                         'roles' => ['@'],
                     ],
                     [
@@ -73,7 +73,7 @@ class DeviceController extends Controller
 
         $searchModel = new VerificationSearch();
         $queryParams = Yii::$app->request->queryParams;
-        $queryParams['VerificationSearch']['device_id'] = $model->id;
+        $queryParams['VerificationSearch']['device_id'] = $model->id;   // TODO: $searchModel->device_id = $model->id
         $dataProvider = $searchModel->search($queryParams);
 
         return $this->render('view', compact(
@@ -156,6 +156,18 @@ class DeviceController extends Controller
 
         return $this->render('print', [
             'model' => $model
+        ]);
+    }
+
+    public function actionPrintListDevice()
+    {
+        $this->layout = false;
+        $searchModel = new DeviceSearch();
+        $searchModel->limit = 500;
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+        return $this->render('print-list-device', [
+            'dataProvider' => $dataProvider,
         ]);
     }
 

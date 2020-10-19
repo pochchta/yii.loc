@@ -13,8 +13,10 @@ class DeviceSearch extends Device
     /**
      * {@inheritdoc}
      */
+    const DEFAULT_LIMIT_RECORDS = 20;
 
     public $last_date_start, $last_date_end, $next_date_start, $next_date_end;
+    public $limit = self::DEFAULT_LIMIT_RECORDS;
 
     public function rules()
     {
@@ -45,12 +47,12 @@ class DeviceSearch extends Device
     public function search($params)
     {
         $query = Device::find()->with('creator', 'updater', 'department', 'scale');
-
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
+        $dataProvider->pagination->pageSize = $this->limit;
 
         $this->load($params);
 

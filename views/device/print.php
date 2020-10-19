@@ -1,14 +1,13 @@
 <?php
 
-/* @var $this yii\web\View */
-
 use app\models\QRImage;
 use yii\helpers\Html;
 
+/* @var $this yii\web\View */
 /* @var $model app\models\Device */
 
 $this->title = 'Печать паспорта ' . $model->name;
-$this->registerCssFile('@web/css/passport-print.css');
+$this->registerCssFile('@web/css/user-print.css');  // TODO: размер паспорта больше половины страницы
 ?>
 
 <?php $this->beginPage() ?>
@@ -16,14 +15,12 @@ $this->registerCssFile('@web/css/passport-print.css');
 <html lang="<?= Yii::$app->language ?>">
 <head>
     <meta charset="<?= Yii::$app->charset ?>">
-<!--    <meta http-equiv="X-UA-Compatible" content="IE=edge">-->
-<!--    <meta name="viewport" content="width=device-width, initial-scale=1">-->
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
 </head>
 
 <body>
-<div class="view_for_print">
+<div class="content view_for_print">
     <table class="department">
         <tr>
             <td><?= Html::encode($model->department->name) ?></td>
