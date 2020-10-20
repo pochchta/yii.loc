@@ -16,10 +16,10 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Создать новую запись', ['create'], ['class' => 'btn btn-success']) ?>
         <?= Html::a('Печать списка', array_merge(['print-list-device'], $params), [
             'class' => 'btn btn-warning',
         ]) ?>
+        <?= Html::a('Создать новую запись', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
