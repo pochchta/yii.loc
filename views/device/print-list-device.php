@@ -3,7 +3,8 @@
 use yii\helpers\Html;
 
 /* @var $dataProvider yii\data\ActiveDataProvider */
-/* @var $model app\models\Device*/
+/* @var $model app\models\Device */
+/* @var $params array */
 
 $this->title = 'Печать списка приборов';
 $this->registerCssFile('@web/css/user-print.css');
@@ -20,6 +21,8 @@ $this->registerCssFile('@web/css/user-print.css');
 
 <body>
 <div class="content print-table-device">
+    <?= Html::a('Назад', array_merge(['index'], $params), ['class' => 'hide']) ?>
+
     <table>
         <thead>
         <tr>

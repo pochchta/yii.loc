@@ -7,7 +7,7 @@ use yii\helpers\Html;
 /* @var $model app\models\Device */
 
 $this->title = 'Печать паспорта ' . $model->name;
-$this->registerCssFile('@web/css/user-print.css');  // TODO: размер паспорта больше половины страницы
+$this->registerCssFile('@web/css/user-print.css');
 ?>
 
 <?php $this->beginPage() ?>
@@ -21,6 +21,8 @@ $this->registerCssFile('@web/css/user-print.css');  // TODO: размер пас
 
 <body>
 <div class="content view_for_print">
+    <?= Html::a('Назад', ['view', 'id' => $model->id], ['class' => 'hide']) ?>
+
     <table class="department">
         <tr>
             <td><?= Html::encode($model->department->name) ?></td>
@@ -50,8 +52,8 @@ $this->registerCssFile('@web/css/user-print.css');  // TODO: размер пас
         </tr>
         <tr>
             <td colspan="4">
-                Изменения_________________________________________________________________________________________________
-                __________________________________________________________________________________________________________
+                Изменения_______________________________________________________________________________________
+                ________________________________________________________________________________________________
             </td>
         </tr>
     </table>

@@ -95,4 +95,8 @@ class DeviceSearch extends Device
 
         return $dataProvider;
     }
+
+    public function formName() {
+        return '';
+    }
 }

@@ -52,13 +52,12 @@ class DeviceController extends Controller
      */
     public function actionIndex()
     {
+        $params = Yii::$app->request->queryParams;
         $searchModel = new DeviceSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
+        $dataProvider = $searchModel->search($params);
+        return $this->render('index', compact(
+            'searchModel', 'dataProvider', 'params'
+        ));
     }
 
     /**
@@ -164,10 +163,12 @@ class DeviceController extends Controller
         $this->layout = false;
         $searchModel = new DeviceSearch();
         $searchModel->limit = 500;
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $params = Yii::$app->request->queryParams;
+        $dataProvider = $searchModel->search($params);
 
         return $this->render('print-list-device', [
             'dataProvider' => $dataProvider,
+            'params' => $params
         ]);
     }
 
