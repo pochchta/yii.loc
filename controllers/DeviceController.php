@@ -71,9 +71,8 @@ class DeviceController extends Controller
         $model = $this->findModel($id);
 
         $searchModel = new VerificationSearch();
-        $queryParams = Yii::$app->request->queryParams;
-        $queryParams['VerificationSearch']['device_id'] = $model->id;   // TODO: $searchModel->device_id = $model->id
-        $dataProvider = $searchModel->search($queryParams);
+        $searchModel->device_id = $model->id;
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('view', compact(
            'model', 'dataProvider', 'searchModel'
