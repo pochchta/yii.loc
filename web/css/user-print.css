@@ -34,7 +34,8 @@ html, body{
 	border-spacing: 0;
 	table-layout:fixed;
 }
-.content td{
+.content td,
+.content th{
 	border-bottom: 1px solid black;
 	border-right: 1px solid black;
 	height: 8mm;
@@ -87,7 +88,6 @@ html, body{
 }
 
 .print-table-device th{
-	height: 8mm;
 	border: 1px solid black;
 	border-left: none;
 }
@@ -96,4 +96,7 @@ html, body{
 }
 .print-table-device tr{
 	page-break-inside: avoid;
+}
+.print-table-device th:nth-child(1){
+    width: 10mm;
 }

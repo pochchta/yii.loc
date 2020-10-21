@@ -29,7 +29,15 @@ $this->registerCssFile('@web/css/user-print.css');
             <th>№</th>
             <th>Название</th>
             <th>Номер</th>
-            <th>След. пов.</th>
+            <th>Тип</th>
+            <th>Цех</th>
+            <th>Шкала</th>
+            <th>Точность</th>
+            <th>Позиция</th>
+            <th>Создал</th>
+            <th>Обновил</th>
+            <th>Создано</th>
+            <th>Обновлено</th>
         </tr>
         </thead>
         <?php
@@ -40,7 +48,15 @@ $this->registerCssFile('@web/css/user-print.css');
                 <td><?= $n++ ?></td>
                 <td><?= $model->name ?></td>
                 <td><?= $model->number ?></td>
-                <td><?= Yii::$app->formatter->asDate($model->next_date) ?></td>
+                <td><?= $model->type ?></td>
+                <td><?= $model->department->name ?></td>
+                <td><?= $model->scale->value ?></td>
+                <td><?= $model->accuracy ?></td>
+                <td><?= $model->position ?></td>
+                <td><?= $model->creator->username ?></td>
+                <td><?= $model->updater->username ?></td>
+                <td><?= Yii::$app->formatter->asDate($model->created_at) ?></td>
+                <td><?= Yii::$app->formatter->asDate($model->updated_at) ?></td>
             </tr>
         <?php endforeach; ?>
     </table>
