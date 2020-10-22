@@ -52,9 +52,20 @@ if ($model->deleted == Device::NOT_DELETED) {
             'number',
             'type',
             'description:ntext',
-            'last_date:date',
-            'next_date:date',
-            'period',
+            [
+                'value' => $model->activeVerification->last_date,
+                'label' => 'Дата поверки',
+                'format' => 'date',
+            ],
+            [
+                'value' => $model->activeVerification->next_date,
+                'label' => 'Дата cледующей поверки',
+                'format' => 'date',
+            ],
+            [
+                'value' => $model->activeVerification->period,
+                'label' => 'Межповерочный период',
+            ],
             [
                 'attribute' => 'id_department',
                 'value' => $model->department->name

@@ -72,6 +72,7 @@ class DeviceController extends Controller
 
         $searchModel = new VerificationSearch();
         $searchModel->device_id = $model->id;
+        $searchModel->status = -1;
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('view', compact(

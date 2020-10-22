@@ -28,8 +28,8 @@ use yii\db\ActiveRecord;
  * @property User|null $updater magic property
  * @property Department|null $department magic property
  * @property Scale|null $scale magic property
- *
- * @property Verification[] $verifications
+ * @property Verification|null $activeVerification magic property
+ * @property Verification[] $verifications magic property
  * @method touch(string $string) Method TimestampBehavior
  */
 class Device extends ActiveRecord
@@ -108,6 +108,11 @@ class Device extends ActiveRecord
     public function getVerifications()
     {
         return $this->hasMany(Verification::class, ['device_id' => 'id']);
+    }
+
+    public function getActiveVerification()
+    {
+        return $this->hasOne(Verification::class, ['device_id' => 'id'])->where(['status' => Verification::STATUS_ON]);
     }
 
     public function getCreator()

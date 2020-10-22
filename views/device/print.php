@@ -73,7 +73,7 @@ $this->registerCssFile('@web/css/user-print.css');
             <td>Подпись</td>
         </tr>
         <tr>
-            <td><?= Yii::$app->formatter->asDate($model->last_date) ?></td>
+            <td><?= Yii::$app->formatter->asDate($model->activeVerification->last_date) ?></td>
             <td></td>
             <td></td>
             <td></td>
@@ -84,7 +84,7 @@ $this->registerCssFile('@web/css/user-print.css');
             <td></td>
         </tr>
         <tr>
-            <td><?= Yii::$app->formatter->asDate($model->next_date) ?></td>
+            <td><?= Yii::$app->formatter->asDate($model->activeVerification->next_date) ?></td>
             <td></td>
             <td></td>
             <td></td>

@@ -63,13 +63,13 @@ html, body{
 }
 .view_for_print .qr_image {
 	position: absolute;
-	margin-left: 169mm;
+	margin-left: 173mm;
 	margin-top: 1mm;
 	background-repeat: no-repeat;
 	background-position: right center;
 	background-size: contain;
-	width: 20mm;
-	height: 20mm;
+	width: 16mm;
+	height: 16mm;
 }
 .view_for_print table.verification td{
 	width: 11.1%;
