@@ -2,6 +2,9 @@
 
 namespace app\models;
 
+use DateInterval;
+use DateTime;
+use Exception;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -15,11 +18,13 @@ use yii\db\ActiveRecord;
  * @property string|null $type
  * @property string|null $description
  * @property int|null $last_date
+ * @property int|null $next_date
  * @property int|null $period
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null $created_by
  * @property int|null $updated_by
+ * @property int $status
  * @property int $deleted
  *
  * @property Device $device
@@ -29,6 +34,9 @@ class Verification extends ActiveRecord
     const NOT_DELETED = 0;
     const DELETED = 1;
     const ALL = -1;
+
+    const STATUS_OFF = 0;
+    const STATUS_ON = 1;
     /**
      * {@inheritdoc}
      */
@@ -66,6 +74,7 @@ class Verification extends ActiveRecord
             [['device_id'], 'exist', 'skipOnError' => true, 'targetClass' => Device::class, 'targetAttribute' => ['device_id' => 'id']],
             [['period'], 'integer', 'max' => 255],
             [['last_date'], 'date', 'format' => 'php:Y-m-d', 'timestampAttribute' => 'last_date'],
+            [['next_date'], 'date', 'format' => 'php:Y-m-d', 'timestampAttribute' => 'next_date'],
             [['description'], 'string'],
             [['name', 'type'], 'string', 'max' => 255],
         ];
@@ -82,14 +91,56 @@ class Verification extends ActiveRecord
             'name' => 'Имя',
             'type' => 'Тип',
             'description' => 'Описание',
-            'last_date' => 'Дата пов.',
+            'last_date' => 'Дата пред. пов.',
+            'next_date' => 'Дата след. пов.',
             'period' => 'Период пов.',
             'created_at' => 'Создано',
             'updated_at' => 'Обновлено',
             'created_by' => 'Создал',
             'updated_by' => 'Обновил',
+            'status' => 'Статус',
             'deleted' => 'Удален'
         ];
+    }
+
+    /**
+     * Установка флагов статус для verifications с одинаковым device_id
+     * return bool
+     */
+    public function checkLastVerification()
+    {
+                $arrVerifications = Verification::find()->where(['device_id' => $this->id])->asArray()->all();
+                $lastVerification = [];
+                foreach ($arrVerifications as $item) {
+                    if (empty($item['last_date']) || empty($item['period']) || $item['deleted'] != self::NOT_DELETED) {
+                        continue;
+                    }
+                    try {
+                        $newDate = new DateTime();
+                        $newDate->setTimestamp($item['last_date']);
+                        $newDate->add(new DateInterval('P'.$item['period'].'Y'));
+                        $item['next_date'] = $newDate->getTimestamp();
+                    } catch (Exception $e) {
+                        continue;
+                    }
+                    if (empty($lastVerification)) {
+                        $lastVerification = $item;
+                        continue;
+                    }
+                    if ($item['next_date'] > $lastVerification['next_date']) {
+                        $lastVerification = $item;
+                    }
+                }
+                if (empty($lastVerification)) {
+                    $this->last_date = NULL;
+                    $this->next_date = NULL;
+                    $this->period = NULL;
+                } else {
+                    $this->last_date = $lastVerification['last_date'];
+                    $this->next_date = $lastVerification['next_date'];
+                    $this->period = $lastVerification['period'];
+                }
+                return $this->save();
     }
 
     /**
@@ -99,7 +150,7 @@ class Verification extends ActiveRecord
      */
     public function getDevice()
     {
-        return $this->hasOne(Device::className(), ['id' => 'device_id']);
+        return $this->hasOne(Device::class, ['id' => 'device_id']);
     }
 
     public function getCreator()

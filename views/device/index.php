@@ -36,20 +36,6 @@ $this->params['breadcrumbs'][] = $this->title;
             'type',
 //            'description:ntext',
             [
-                'attribute' => 'last_date',
-                'format' => 'date',
-                'filter' => Html::activeInput('date', $searchModel, 'last_date_start')
-                    . Yii::$app->formatter->asNtext("\n")
-                    . Html::activeInput('date', $searchModel, 'last_date_end')
-            ],
-            [
-                'attribute' => 'next_date',
-                'format' => 'date',
-                'filter' => Html::activeInput('date', $searchModel, 'next_date_start')
-                    . Yii::$app->formatter->asNtext("\n")
-                    . Html::activeInput('date', $searchModel, 'next_date_end')
-            ],
-            [
                 'attribute' => 'deleted',
                 'value' => function ($model) {
                     return ($model->deleted == Device::NOT_DELETED) ? 'нет' : 'да';

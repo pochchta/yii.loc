@@ -10,14 +10,21 @@ use yii\data\ActiveDataProvider;
  */
 class VerificationSearch extends Verification
 {
+    const DEFAULT_LIMIT_RECORDS = 20;
+    public $limit = self::DEFAULT_LIMIT_RECORDS;
+    public $last_date_start, $last_date_end, $next_date_start, $next_date_end;
+
     /**
      * {@inheritdoc}
      */
+
     public function rules()
     {
         return [
-            [['id', 'device_id', 'last_date', 'period', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
-            [['name', 'type', 'description'], 'safe'],
+            [['id', 'device_id', 'period', 'created_at', 'updated_at', 'created_by', 'updated_by', 'status', 'deleted'], 'integer'],
+            [['name', 'type', 'description'], 'string', 'max' => 64],
+            [['last_date_start', 'last_date_end', 'next_date_start', 'next_date_end'], 'string', 'max' => 64],
+            [['status'], 'default', 'value' => Verification::STATUS_ON],
             [['deleted'], 'default', 'value' => Verification::NOT_DELETED]
         ];
     }
@@ -47,6 +54,7 @@ class VerificationSearch extends Verification
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
+        $dataProvider->pagination->pageSize = $this->limit;
 
         $this->load($params);
 
@@ -60,7 +68,6 @@ class VerificationSearch extends Verification
         $query->andFilterWhere([
             'id' => $this->id,
             'device_id' => $this->device_id,
-            'last_date' => $this->last_date,
             'period' => $this->period,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
@@ -72,8 +79,25 @@ class VerificationSearch extends Verification
             ->andFilterWhere(['like', 'type', $this->type])
             ->andFilterWhere(['like', 'description', $this->description]);
 
+        if ($this->status == Verification::STATUS_OFF || $this->status == Verification::STATUS_ON) {
+            $query->andFilterWhere(['status' => $this->status]);
+        }
+
         if ($this->deleted == Verification::NOT_DELETED || $this->deleted == Verification::DELETED) {
             $query->andFilterWhere(['deleted' => $this->deleted]);
+        }
+
+        if ($this->last_date_start != '') {
+            $query->andFilterWhere(['>=', 'last_date', strtotime($this->last_date_start)]);
+        }
+        if ($this->last_date_end != '') {
+            $query->andFilterWhere(['<', 'last_date', strtotime($this->last_date_end)]);
+        }
+        if ($this->next_date_start != '') {
+            $query->andFilterWhere(['>=', 'next_date', strtotime($this->next_date_start)]);
+        }
+        if ($this->next_date_end != '') {
+            $query->andFilterWhere(['<', 'next_date', strtotime($this->next_date_end)]);
         }
 
         return $dataProvider;

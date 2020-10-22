@@ -10,20 +10,18 @@ use yii\data\ActiveDataProvider;
  */
 class DeviceSearch extends Device
 {
+    const DEFAULT_LIMIT_RECORDS = 20;
+    public $limit = self::DEFAULT_LIMIT_RECORDS;
+
     /**
      * {@inheritdoc}
      */
-    const DEFAULT_LIMIT_RECORDS = 20;
-
-    public $last_date_start, $last_date_end, $next_date_start, $next_date_end;
-    public $limit = self::DEFAULT_LIMIT_RECORDS;
 
     public function rules()
     {
         return [
-            [['id', 'number', 'last_date', 'next_date', 'period', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
+            [['id', 'number', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
             [['name', 'type', 'description'], 'string', 'max' => 64],
-            [['last_date_start', 'last_date_end', 'next_date_start', 'next_date_end'], 'string', 'max' => 64],
             [['deleted'], 'default', 'value' => Device::NOT_DELETED]
         ];
     }
@@ -66,9 +64,6 @@ class DeviceSearch extends Device
         $query->andFilterWhere([
             'id' => $this->id,
             'number' => $this->number,
-            'last_date' => $this->last_date,
-            'next_date' => $this->next_date,
-            'period' => $this->period,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
         ]);
@@ -79,18 +74,6 @@ class DeviceSearch extends Device
 
         if ($this->deleted == Device::NOT_DELETED || $this->deleted == Device::DELETED) {
             $query->andFilterWhere(['deleted' => $this->deleted]);
-        }
-        if ($this->last_date_start != '') {
-            $query->andFilterWhere(['>=', 'last_date', strtotime($this->last_date_start)]);
-        }
-        if ($this->last_date_end != '') {
-            $query->andFilterWhere(['<', 'last_date', strtotime($this->last_date_end)]);
-        }
-        if ($this->next_date_start != '') {
-            $query->andFilterWhere(['>=', 'next_date', strtotime($this->next_date_start)]);
-        }
-        if ($this->next_date_end != '') {
-            $query->andFilterWhere(['<', 'next_date', strtotime($this->next_date_end)]);
         }
 
         return $dataProvider;

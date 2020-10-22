@@ -2,9 +2,6 @@
 
 namespace app\models;
 
-use DateInterval;
-use DateTime;
-use Exception;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -17,9 +14,6 @@ use yii\db\ActiveRecord;
  * @property string|null $number
  * @property string|null $type
  * @property string|null $description
- * @property int|null $last_date
- * @property int|null $next_date
- * @property int|null $period
  * @property int|null $id_department
  * @property int|null $id_scale
  * @property string|null $accuracy
@@ -94,9 +88,6 @@ class Device extends ActiveRecord
             'number' => 'Номер',
             'type' => 'Тип',
             'description' => 'Описание',
-            'last_date' => 'Дата пред. пов.',
-            'next_date' => 'Дата след. пов.',
-            'period' => 'Период пов.',
             'id_department' => 'Цех',
             'id_scale' => 'Шкала',
             'accuracy' => 'Класс точности',
@@ -107,46 +98,6 @@ class Device extends ActiveRecord
             'updated_by' => 'Обновил',
             'deleted' => 'Удален'
         ];
-    }
-
-    /**
-     * Обновление дат device исходя из позднейшей даты verifications
-     * return bool
-     */
-    public function updateDate()
-    {
-        $arrVerifications = Verification::find()->where(['device_id' => $this->id])->asArray()->all();
-        $lastVerification = [];
-        foreach ($arrVerifications as $item) {
-            if (empty($item['last_date']) || empty($item['period']) || $item['deleted'] != self::NOT_DELETED) {
-                continue;
-            }
-            try {
-                $newDate = new DateTime();
-                $newDate->setTimestamp($item['last_date']);
-                $newDate->add(new DateInterval('P'.$item['period'].'Y'));
-                $item['next_date'] = $newDate->getTimestamp();
-            } catch (Exception $e) {
-                continue;
-            }
-            if (empty($lastVerification)) {
-                $lastVerification = $item;
-                continue;
-            }
-            if ($item['next_date'] > $lastVerification['next_date']) {
-                $lastVerification = $item;
-            }
-        }
-        if (empty($lastVerification)) {
-            $this->last_date = NULL;
-            $this->next_date = NULL;
-            $this->period = NULL;
-        } else {
-            $this->last_date = $lastVerification['last_date'];
-            $this->next_date = $lastVerification['next_date'];
-            $this->period = $lastVerification['period'];
-        }
-        return $this->save();
     }
 
     /**
