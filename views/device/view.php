@@ -110,7 +110,20 @@ if ($model->deleted == Device::NOT_DELETED) {
             'name',
             'type',
     //            'description',
-            'last_date:date',
+            [
+                'attribute' => 'last_date',
+                'format' => 'date',
+                'filter' => Html::activeInput('date', $searchModel, 'last_date_start')
+                    . Yii::$app->formatter->asNtext("\n")
+                    . Html::activeInput('date', $searchModel, 'last_date_end')
+            ],
+            [
+                'attribute' => 'next_date',
+                'format' => 'date',
+                'filter' => Html::activeInput('date', $searchModel, 'next_date_start')
+                    . Yii::$app->formatter->asNtext("\n")
+                    . Html::activeInput('date', $searchModel, 'next_date_end')
+            ],
             'period',
     //            'created_at:date',
     //            'updated_at:date',
@@ -126,6 +139,17 @@ if ($model->deleted == Device::NOT_DELETED) {
                                 return $model->updater->username;
                             }
                         ],*/
+            [
+                'attribute' => 'status',
+                'value' => function ($model) {
+                    return ($model->status == Verification::STATUS_OFF) ? 'off' : 'on';
+                },
+                'filter' => Html::activeDropDownList($searchModel, 'status', [
+                    Verification::STATUS_OFF => 'off',
+                    Verification::STATUS_ON => 'on',
+                    Verification::ALL => 'все'
+                ])
+            ],
             [
                 'attribute' => 'deleted',
                 'value' => function ($model) {

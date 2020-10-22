@@ -90,7 +90,7 @@ class Verification extends ActiveRecord
             'name' => 'Имя',
             'type' => 'Тип',
             'description' => 'Описание',
-            'last_date' => 'Дата пред. пов.',
+            'last_date' => 'Дата пов.',
             'next_date' => 'Дата след. пов.',
             'period' => 'Период пов.',
             'created_at' => 'Создано',
@@ -108,6 +108,9 @@ class Verification extends ActiveRecord
      * @return bool
      */
     public function save($runValidation = true, $attributeNames = null) {
+        if ($this->validate(['last_date']) == false) {
+            return false;
+        }
         $newDate = new DateTime();
         $newDate->setTimestamp($this->last_date);
         try {

@@ -56,6 +56,7 @@ if ($model->deleted == Verification::NOT_DELETED) {
             'type',
             'description:ntext',
             'last_date:date',
+            'next_date:date',
             'period',
             'created_at:date',
             'updated_at:date',
