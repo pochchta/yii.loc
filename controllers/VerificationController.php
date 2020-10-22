@@ -88,11 +88,13 @@ class VerificationController extends Controller
 
         if ($model->load(Yii::$app->request->post())) {
             if ($model->save()) {
-                if ($this->findModelDevice($model->device_id)->updateDate() == false) {
-                    throw new NotFoundHttpException('Device: Не удалось обновить даты');
+                if ($model->checkLastVerification() == false) {
+                    throw new NotFoundHttpException('Verification: Не удалось обновить статусы');
                 }
                 Yii::$app->session->setFlash('success', 'Данные сохранены');
                 return $this->redirect(['device/view', 'id' => $model->device_id]);
+            } else {
+                throw new NotFoundHttpException('Verification: Не удалось сохранить данные');
             }
         }
 
@@ -118,11 +120,13 @@ class VerificationController extends Controller
         if ($model->load(Yii::$app->request->post())) {
             $model->device_id = $model->getOldAttributes()['device_id'];
             if ($model->save()) {
-                if ($this->findModelDevice($model->device_id)->updateDate() == false) {
-                    throw new NotFoundHttpException('Device: Не удалось обновить даты');
+                if ($model->checkLastVerification() == false) {
+                    throw new NotFoundHttpException('Verification: Не удалось обновить статусы');
                 }
                 Yii::$app->session->setFlash('success', 'Данные сохранены');
                 return $this->redirect(['device/view', 'id' => $model->device_id]);
+            } else {
+                throw new NotFoundHttpException('Verification: Не удалось сохранить данные');
             }
         }
 
@@ -144,14 +148,16 @@ class VerificationController extends Controller
         $model->deleted == Verification::NOT_DELETED ? $model->deleted = Verification::DELETED :
             $model->deleted = Verification::NOT_DELETED;
         if ($model->save()) {
+            if ($model->checkLastVerification() == false) {
+                throw new NotFoundHttpException('Verification: Не удалось обновить статусы');
+            }
             if ($model->deleted == Verification::NOT_DELETED) {
                 Yii::$app->session->setFlash('success', 'Данные восстановлены');
             } else {
                 Yii::$app->session->setFlash('success', 'Данные удалены');
             }
-        }
-        if ($this->findModelDevice($model->device_id)->updateDate() == false) {
-            throw new NotFoundHttpException('Device: Не удалось обновить даты');
+        } else {
+            throw new NotFoundHttpException('Verification: Не удалось сохранить данные');
         }
 
         return $this->redirect(Yii::$app->request->referrer);

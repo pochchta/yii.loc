@@ -74,7 +74,6 @@ class Verification extends ActiveRecord
             [['device_id'], 'exist', 'skipOnError' => true, 'targetClass' => Device::class, 'targetAttribute' => ['device_id' => 'id']],
             [['period'], 'integer', 'max' => 255],
             [['last_date'], 'date', 'format' => 'php:Y-m-d', 'timestampAttribute' => 'last_date'],
-            [['next_date'], 'date', 'format' => 'php:Y-m-d', 'timestampAttribute' => 'next_date'],
             [['description'], 'string'],
             [['name', 'type'], 'string', 'max' => 255],
         ];
@@ -103,44 +102,54 @@ class Verification extends ActiveRecord
         ];
     }
 
+    /** Вычисление next_date
+     * @param bool $runValidation
+     * @param array $attributeNames
+     * @return bool
+     */
+    public function save($runValidation = true, $attributeNames = null) {
+        $newDate = new DateTime();
+        $newDate->setTimestamp($this->last_date);
+        try {
+            $newDate->add(new DateInterval('P' . $this->period . 'Y'));
+        } catch (Exception $e) {
+            return false;
+        }
+        $this->next_date = $newDate->getTimestamp();
+
+        return parent::save($runValidation, $attributeNames);
+    }
+
     /**
-     * Установка флагов статус для verifications с одинаковым device_id
-     * return bool
+     * Установка флагов status для verifications с одинаковым device_id
+     * @return bool
      */
     public function checkLastVerification()
     {
-                $arrVerifications = Verification::find()->where(['device_id' => $this->id])->asArray()->all();
-                $lastVerification = [];
-                foreach ($arrVerifications as $item) {
-                    if (empty($item['last_date']) || empty($item['period']) || $item['deleted'] != self::NOT_DELETED) {
-                        continue;
-                    }
-                    try {
-                        $newDate = new DateTime();
-                        $newDate->setTimestamp($item['last_date']);
-                        $newDate->add(new DateInterval('P'.$item['period'].'Y'));
-                        $item['next_date'] = $newDate->getTimestamp();
-                    } catch (Exception $e) {
-                        continue;
-                    }
-                    if (empty($lastVerification)) {
-                        $lastVerification = $item;
-                        continue;
-                    }
-                    if ($item['next_date'] > $lastVerification['next_date']) {
-                        $lastVerification = $item;
-                    }
+        $arrVerifications = Verification::find()->where(['device_id' => $this->device_id])->all();
+        $arrDate = [];
+        foreach ($arrVerifications as $key => $item) {   /** @var $item Verification */
+            $item->status = self::STATUS_OFF;
+            if (empty($item->next_date) || $item->deleted != self::NOT_DELETED) {
+                continue;
+            }
+            $arrDate[$item->next_date] = $key;
+        }
+        if (krsort($arrDate) == false) {
+            return false;
+        }
+        $keyLastVerification = reset($arrDate);
+        foreach ($arrVerifications as $key => $item) {   /** @var $item Verification */
+            if ($keyLastVerification === $key) {
+                $item->status = self::STATUS_ON;
+            }
+            if ($item->getAttribute('status') !== $item->getOldAttribute('status')) {
+                if ($item->save() == false) {
+                    return false;
                 }
-                if (empty($lastVerification)) {
-                    $this->last_date = NULL;
-                    $this->next_date = NULL;
-                    $this->period = NULL;
-                } else {
-                    $this->last_date = $lastVerification['last_date'];
-                    $this->next_date = $lastVerification['next_date'];
-                    $this->period = $lastVerification['period'];
-                }
-                return $this->save();
+            }
+        }
+        return true;
     }
 
     /**
