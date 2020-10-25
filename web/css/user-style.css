@@ -15,6 +15,13 @@ table td:last-child{
     white-space: nowrap;
 }
 
+span.color-ok{
+    color: green;
+}
+span.color-err{
+    color: red;
+}
+
 /*
 .button-as-a{
     background: none;

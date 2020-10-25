@@ -30,8 +30,13 @@ $this->params['breadcrumbs'][] = $this->title;
             'description:ntext',
             [
                 'attribute' => 'deleted',
+                'format' => 'html',
                 'value' => function ($model) {
-                    return ($model->deleted == Scale::NOT_DELETED) ? 'нет' : 'да';
+                    if ($model->deleted == Scale::NOT_DELETED) {
+                        return '';
+                    } else {
+                        return '<span class="glyphicon glyphicon-remove-sign color-err" title="Удален"></span>';
+                    }
                 },
                 'filter' => Html::activeDropDownList($searchModel, 'deleted', [
                     Scale::NOT_DELETED => 'нет',

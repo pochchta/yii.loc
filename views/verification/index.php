@@ -68,19 +68,29 @@ $this->params['breadcrumbs'][] = $this->title;
                         ],*/
             [
                 'attribute' => 'status',
+                'format' => 'html',
                 'value' => function ($model) {
-                    return ($model->status == Verification::STATUS_OFF) ? 'off' : 'on';
+                    if ($model->status == Verification::STATUS_ON) {
+                        return '<span class="glyphicon glyphicon-ok-circle color-ok" title="Действующая поверка"></span>';
+                    } else {
+                        return '';
+                    }
                 },
                 'filter' => Html::activeDropDownList($searchModel, 'status', [
                     Verification::STATUS_OFF => 'off',
                     Verification::STATUS_ON => 'on',
                     Verification::ALL => 'все'
-                ])
+                ]),
             ],
             [
                 'attribute' => 'deleted',
+                'format' => 'html',
                 'value' => function ($model) {
-                    return ($model->deleted == Verification::NOT_DELETED) ? 'нет' : 'да';
+                    if ($model->deleted == Verification::NOT_DELETED) {
+                        return '';
+                    } else {
+                        return '<span class="glyphicon glyphicon-remove-sign color-err" title="Удален"></span>';
+                    }
                 },
                 'filter' => Html::activeDropDownList($searchModel, 'deleted', [
                     Verification::NOT_DELETED => 'нет',
