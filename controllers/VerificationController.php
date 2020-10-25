@@ -89,12 +89,12 @@ class VerificationController extends Controller
         if ($model->load(Yii::$app->request->post())) {
             if ($model->save()) {
                 if ($model->checkLastVerification() == false) {
-                    throw new NotFoundHttpException('Verification: Не удалось обновить статусы');
+                    throw new NotFoundHttpException('Ошибка (поверка): активная поверка не определена');
                 }
                 Yii::$app->session->setFlash('success', 'Данные сохранены');
                 return $this->redirect(['device/view', 'id' => $model->device_id]);
             } else {
-                throw new NotFoundHttpException('Verification: Не удалось сохранить данные');
+                throw new NotFoundHttpException('Ошибка (поверка): Не удалось сохранить данные поверки');
             }
         }
 
@@ -121,12 +121,12 @@ class VerificationController extends Controller
             $model->device_id = $model->getOldAttributes()['device_id'];
             if ($model->save()) {
                 if ($model->checkLastVerification() == false) {
-                    throw new NotFoundHttpException('Verification: Не удалось обновить статусы');
+                    throw new NotFoundHttpException('Ошибка (поверка): активная поверка не определена');
                 }
                 Yii::$app->session->setFlash('success', 'Данные сохранены');
                 return $this->redirect(['device/view', 'id' => $model->device_id]);
             } else {
-                throw new NotFoundHttpException('Verification: Не удалось сохранить данные');
+                throw new NotFoundHttpException('Ошибка (поверка): Не удалось сохранить данные поверки');
             }
         }
 
@@ -149,7 +149,7 @@ class VerificationController extends Controller
             $model->deleted = Verification::NOT_DELETED;
         if ($model->save()) {
             if ($model->checkLastVerification() == false) {
-                throw new NotFoundHttpException('Verification: Не удалось обновить статусы');
+                throw new NotFoundHttpException('Ошибка (поверка): активная поверка не определена');
             }
             if ($model->deleted == Verification::NOT_DELETED) {
                 Yii::$app->session->setFlash('success', 'Данные восстановлены');
@@ -157,7 +157,7 @@ class VerificationController extends Controller
                 Yii::$app->session->setFlash('success', 'Данные удалены');
             }
         } else {
-            throw new NotFoundHttpException('Verification: Не удалось сохранить данные');
+            throw new NotFoundHttpException('Ошибка (поверка): Не удалось сохранить данные поверки');
         }
 
         return $this->redirect(Yii::$app->request->referrer);
