@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Device;
 use app\models\ScaleSearch;
 use Yii;
 use app\models\Scale;
@@ -123,6 +124,12 @@ class ScaleController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
+        if ($model->deleted == Scale::NOT_DELETED) {
+            if (Device::findOne(['id_scale' => $model->id]) !== NULL) {
+                throw new NotFoundHttpException('Ошибка (шкала): запись нельзя удалить, т.к. она используется');
+            }
+        }
+
         $model->deleted == Scale::NOT_DELETED ? $model->deleted = Scale::DELETED :
             $model->deleted = Scale::NOT_DELETED;
         if ($model->save()) {

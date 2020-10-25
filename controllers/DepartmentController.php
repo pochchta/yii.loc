@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\DepartmentSearch;
+use app\models\Device;
 use Yii;
 use app\models\Department;
 use yii\filters\AccessControl;
@@ -122,6 +123,11 @@ class DepartmentController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
+        if ($model->deleted == Department::NOT_DELETED) {
+            if (Device::findOne(['id_department' => $model->id]) !== NULL) {
+                throw new NotFoundHttpException('Ошибка (цех): запись нельзя удалить, т.к. она используется');
+            }
+        }
         $model->deleted == Department::NOT_DELETED ? $model->deleted = Department::DELETED :
             $model->deleted = Department::NOT_DELETED;
         if ($model->save()) {
