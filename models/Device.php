@@ -69,6 +69,7 @@ class Device extends ActiveRecord
     public function rules()
     {
         return [
+            [['id_department', 'id_scale'], 'required'],
             [['description'], 'string'],
             [['name', 'type', 'number', 'accuracy', 'position'], 'string', 'max' => 255],
             [['id_department', 'id_scale'], 'integer'],

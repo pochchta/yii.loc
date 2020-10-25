@@ -1,6 +1,8 @@
 <?php
 
+use app\models\Department;
 use app\models\Device;
+use app\models\Scale;
 use yii\helpers\Html;
 use yii\grid\GridView;
 
@@ -35,6 +37,26 @@ $this->params['breadcrumbs'][] = $this->title;
             'number',
             'type',
 //            'description:ntext',
+            [
+                'attribute' => 'id_department',
+                'value' => function ($model) {
+                    return $model->department->name;
+                },
+                'filter' => Html::activeDropDownList(
+                    $searchModel,
+                    'id_department',
+                    [Department::ALL => 'все'] + Department::getAllNames())
+            ],
+            [
+                'attribute' => 'id_scale',
+                'value' => function ($model) {
+                    return $model->scale->value;
+                },
+                'filter' => Html::activeDropDownList(
+                    $searchModel,
+                    'id_scale',
+                    [Scale::ALL => 'все'] + Scale::getAllValue())
+            ],
             [
                 'attribute' => 'deleted',
                 'format' => 'html',

@@ -88,7 +88,7 @@ class Department extends ActiveRecord
      */
     public static function getAllNames()
     {
-        $query = self::find()->select(['id', 'name'])->asArray()->all();
+        $query = self::find()->select(['id', 'name'])->where(['deleted' => Department::NOT_DELETED])->asArray()->all();
 
         $outArray = array();
         foreach ($query as $key => $item) {

@@ -86,7 +86,7 @@ class Scale extends ActiveRecord
      */
     public static function getAllValue()
     {
-        $query = self::find()->select(['id', 'value'])->asArray()->all();
+        $query = self::find()->select(['id', 'value'])->where(['deleted' => Scale::NOT_DELETED])->asArray()->all();
 
         $outArray = array();
         foreach ($query as $key => $item) {

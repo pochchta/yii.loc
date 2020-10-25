@@ -20,9 +20,11 @@ class DeviceSearch extends Device
     public function rules()
     {
         return [
-            [['id', 'number', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
+            [['id', 'number', 'id_department', 'id_scale', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
             [['name', 'type', 'description'], 'string', 'max' => 64],
-            [['deleted'], 'default', 'value' => Device::NOT_DELETED]
+            [['deleted'], 'default', 'value' => Device::NOT_DELETED],
+            [['id_department'], 'default', 'value' => Department::ALL],
+            [['id_scale'], 'default', 'value' => Scale::ALL],
         ];
     }
 
@@ -72,7 +74,14 @@ class DeviceSearch extends Device
             ->andFilterWhere(['like', 'type', $this->type])
             ->andFilterWhere(['like', 'description', $this->description]);
 
-        if ($this->deleted == Device::NOT_DELETED || $this->deleted == Device::DELETED) {
+        if ($this->id_department != Department::ALL) {
+            $query->andFilterWhere(['id_department' => $this->id_department]);
+        }
+        if ($this->id_scale != Scale::ALL) {
+            $query->andFilterWhere(['id_scale' => $this->id_scale]);
+        }
+
+        if ($this->deleted != Device::ALL) {
             $query->andFilterWhere(['deleted' => $this->deleted]);
         }
 
