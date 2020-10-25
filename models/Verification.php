@@ -103,24 +103,24 @@ class Verification extends ActiveRecord
     }
 
     /** Вычисление next_date
-     * @param bool $runValidation
-     * @param array $attributeNames
+     * @param $insert
      * @return bool
      */
-    public function save($runValidation = true, $attributeNames = null) {
-        if ($this->validate(['last_date']) == false) {
-            return false;
-        }
-        $newDate = new DateTime();
-        $newDate->setTimestamp($this->last_date);
-        try {
-            $newDate->add(new DateInterval('P' . $this->period . 'Y'));
-        } catch (Exception $e) {
-            return false;
-        }
-        $this->next_date = $newDate->getTimestamp();
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            $newDate = new DateTime();
+            $newDate->setTimestamp($this->last_date);
+            try {
+                $newDate->add(new DateInterval('P' . $this->period . 'Y'));
+            } catch (Exception $e) {
+                return false;
+            }
+            $this->next_date = $newDate->getTimestamp();
 
-        return parent::save($runValidation, $attributeNames);
+            return true;
+        }
+        return false;
     }
 
     /**
