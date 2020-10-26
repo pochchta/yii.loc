@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use app\models\Incoming;
 use app\models\IncomingSearch;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -21,9 +22,24 @@ class IncomingController extends Controller
     {
         return [
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['POST'],
+                ],
+            ],
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'view'],
+                        'roles' => ['@'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['create', 'update', 'delete'],
+                        'roles' => ['ChangingIncoming'],
+                    ],
                 ],
             ],
         ];
@@ -97,16 +113,25 @@ class IncomingController extends Controller
 
     /**
      * Deletes an existing Incoming model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
 
-        return $this->redirect(['index']);
+        $model->deleted == Incoming::NOT_DELETED ? $model->deleted = Incoming::DELETED :
+            $model->deleted = Incoming::NOT_DELETED;
+        if ($model->save()) {
+            if ($model->deleted == Incoming::NOT_DELETED) {
+                Yii::$app->session->setFlash('success', 'Данные восстановлены');
+            } else {
+                Yii::$app->session->setFlash('success', 'Данные удалены');
+            }
+        }
+
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
     /**
@@ -122,6 +147,6 @@ class IncomingController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('Запрошенная страница не существует.');
     }
 }
