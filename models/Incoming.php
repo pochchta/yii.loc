@@ -25,6 +25,16 @@ use yii\db\ActiveRecord;
  */
 class Incoming extends ActiveRecord
 {
+    const NOT_DELETED = 0;
+    const DELETED = 1;
+    const ALL = -1;
+
+    const NOT_PAID = 0;
+    const PAID = 1;
+
+    const INCOMING = 0;
+    const READY = 1;
+    const OUTGOING = 2;
     /**
      * {@inheritdoc}
      */
@@ -39,11 +49,9 @@ class Incoming extends ActiveRecord
     public function rules()
     {
         return [
-            [['device_id', 'status', 'payment', 'created_by', 'updated_by', 'created_at', 'updated_at', 'deleted'], 'integer'],
+            [['device_id', 'status', 'payment'], 'integer'],
             [['description'], 'string'],
             [['device_id'], 'exist', 'skipOnError' => true, 'targetClass' => Device::class, 'targetAttribute' => ['device_id' => 'id']],
-            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['created_by' => 'id']],
-            [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['updated_by' => 'id']],
         ];
     }
 
