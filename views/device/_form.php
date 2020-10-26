@@ -24,7 +24,7 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'id_department')->dropDownList(Department::getAllNames()) ?>
 
-    <?= $form->field($model, 'id_scale')->dropDownList(Scale::getAllValue()) ?>
+    <?= $form->field($model, 'id_scale')->dropDownList(Scale::getAllValues()) ?>
 
     <?= $form->field($model, 'accuracy')->textInput(['maxlength' => true]) ?>
 

@@ -20,6 +20,8 @@ use yii\db\ActiveRecord;
  * @property int $deleted
  *
  * @property Device[] $devices
+ * @property User|null $creator magic property
+ * @property User|null $updater magic property
  */
 class Scale extends ActiveRecord
 {
@@ -85,7 +87,7 @@ class Scale extends ActiveRecord
      * Gets arr[id] = names of scale
      * @return array
      */
-    public static function getAllValue()
+    public static function getAllValues()
     {
         $query = self::find()->select(['id', 'value'])->where(['deleted' => Scale::NOT_DELETED])->asArray()->all();
 

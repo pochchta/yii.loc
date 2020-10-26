@@ -55,7 +55,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => Html::activeDropDownList(
                     $searchModel,
                     'id_scale',
-                    [Scale::ALL => 'все'] + Scale::getAllValue())
+                    [Scale::ALL => 'все'] + Scale::getAllValues())
             ],
             [
                 'attribute' => 'deleted',
