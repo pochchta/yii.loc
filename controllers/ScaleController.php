@@ -125,7 +125,7 @@ class ScaleController extends Controller
     {
         $model = $this->findModel($id);
         if ($model->deleted == Scale::NOT_DELETED) {
-            if (Device::findOne(['id_scale' => $model->id]) !== NULL) {
+            if (Device::findOne(['id_scale' => $model->id, 'deleted' => Device::NOT_DELETED]) !== NULL) {
                 throw new NotFoundHttpException('Ошибка (шкала): запись нельзя удалить, т.к. она используется');
             }
         }

@@ -124,7 +124,7 @@ class DepartmentController extends Controller
     {
         $model = $this->findModel($id);
         if ($model->deleted == Department::NOT_DELETED) {
-            if (Device::findOne(['id_department' => $model->id]) !== NULL) {
+            if (Device::findOne(['id_department' => $model->id, 'deleted' => Device::NOT_DELETED]) !== NULL) {
                 throw new NotFoundHttpException('Ошибка (цех): запись нельзя удалить, т.к. она используется');
             }
         }
