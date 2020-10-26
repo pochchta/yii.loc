@@ -5,10 +5,10 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model app\models\Incoming */
 
-$this->title = 'Update Incoming: ' . $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Incomings', 'url' => ['index']];
+$this->title = 'Изменение записи: ' . $model->id;
+$this->params['breadcrumbs'][] = ['label' => 'Приемка', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->id, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = 'Update';
+$this->params['breadcrumbs'][] = 'Изменение';
 ?>
 <div class="incoming-update">
 

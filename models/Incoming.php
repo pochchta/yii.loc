@@ -2,7 +2,8 @@
 
 namespace app\models;
 
-use Yii;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "incoming".
@@ -22,7 +23,7 @@ use Yii;
  * @property User $createdBy
  * @property User $updatedBy
  */
-class Incoming extends \yii\db\ActiveRecord
+class Incoming extends ActiveRecord
 {
     /**
      * {@inheritdoc}
@@ -40,9 +41,9 @@ class Incoming extends \yii\db\ActiveRecord
         return [
             [['device_id', 'status', 'payment', 'created_by', 'updated_by', 'created_at', 'updated_at', 'deleted'], 'integer'],
             [['description'], 'string'],
-            [['device_id'], 'exist', 'skipOnError' => true, 'targetClass' => Device::className(), 'targetAttribute' => ['device_id' => 'id']],
-            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
-            [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['updated_by' => 'id']],
+            [['device_id'], 'exist', 'skipOnError' => true, 'targetClass' => Device::class, 'targetAttribute' => ['device_id' => 'id']],
+            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['created_by' => 'id']],
+            [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['updated_by' => 'id']],
         ];
     }
 
@@ -53,45 +54,45 @@ class Incoming extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'device_id' => 'Device ID',
-            'description' => 'Description',
-            'status' => 'Status',
-            'payment' => 'Payment',
-            'created_by' => 'Created By',
-            'updated_by' => 'Updated By',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
-            'deleted' => 'Deleted',
+            'device_id' => '№ прибора',
+            'description' => 'Описание',
+            'status' => 'Статус',
+            'payment' => 'Оплата',
+            'created_by' => 'Создал',
+            'updated_by' => 'Обновил',
+            'created_at' => 'Создано',
+            'updated_at' => 'Обновлено',
+            'deleted' => 'Удален',
         ];
     }
 
     /**
      * Gets query for [[Device]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getDevice()
     {
-        return $this->hasOne(Device::className(), ['id' => 'device_id']);
+        return $this->hasOne(Device::class, ['id' => 'device_id']);
     }
 
     /**
      * Gets query for [[CreatedBy]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getCreatedBy()
     {
-        return $this->hasOne(User::className(), ['id' => 'created_by']);
+        return $this->hasOne(User::class, ['id' => 'created_by']);
     }
 
     /**
      * Gets query for [[UpdatedBy]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getUpdatedBy()
     {
-        return $this->hasOne(User::className(), ['id' => 'updated_by']);
+        return $this->hasOne(User::class, ['id' => 'updated_by']);
     }
 }
