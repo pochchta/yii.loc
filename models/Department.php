@@ -21,6 +21,8 @@ use yii\db\ActiveRecord;
  * @property int $deleted
  *
  * @property Device[] $devices
+ * @property User|null $creator magic property
+ * @property User|null $updater magic property
  */
 class Department extends ActiveRecord
 {

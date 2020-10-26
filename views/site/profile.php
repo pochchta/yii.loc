@@ -4,6 +4,8 @@ use yii\grid\GridView;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
+/* @var $dataProvider yii\data\ActiveDataProvider */
+
 $this->title = 'Профиль';
 $this->params['breadcrumbs'][] = $this->title;
 ?>

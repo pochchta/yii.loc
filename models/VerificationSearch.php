@@ -47,7 +47,7 @@ class VerificationSearch extends Verification
      */
     public function search($params)
     {
-        $query = Verification::find()->with('creator', 'updater', 'device');;
+        $query = Verification::find()->with('creator', 'updater', 'device');
 
         // add conditions that should always apply here
 

@@ -30,7 +30,6 @@ use yii\db\ActiveRecord;
  * @property Scale|null $scale magic property
  * @property Verification|null $activeVerification magic property
  * @property Verification[] $verifications magic property
- * @method touch(string $string) Method TimestampBehavior
  */
 class Device extends ActiveRecord
 {

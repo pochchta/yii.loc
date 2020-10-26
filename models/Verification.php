@@ -28,6 +28,8 @@ use yii\db\ActiveRecord;
  * @property int $deleted
  *
  * @property Device $device
+ * @property User|null $creator magic property
+ * @property User|null $updater magic property
  */
 class Verification extends ActiveRecord
 {
