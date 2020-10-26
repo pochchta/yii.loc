@@ -22,9 +22,13 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>
 
-    <?= $form->field($model, 'id_department')->dropDownList(Department::getAllNames()) ?>
+    <?= $form->field($model, 'id_department')->dropDownList(
+        [Department::ALL => 'не выбрано'] + Department::getAllNames()
+    ) ?>
 
-    <?= $form->field($model, 'id_scale')->dropDownList(Scale::getAllValues()) ?>
+    <?= $form->field($model, 'id_scale')->dropDownList(
+        [Scale::ALL => 'не выбрано'] + Scale::getAllValues()
+    ) ?>
 
     <?= $form->field($model, 'accuracy')->textInput(['maxlength' => true]) ?>
 
