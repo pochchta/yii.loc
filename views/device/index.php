@@ -58,6 +58,13 @@ $this->params['breadcrumbs'][] = $this->title;
                     [Scale::ALL => 'все'] + Scale::getAllValues())
             ],
             [
+                'format' => 'date',
+                'value' => function ($model) {
+                    return $model->activeVerification->last_date;
+                },
+                'label' => 'Дата пов.'
+            ],
+            [
                 'attribute' => 'deleted',
                 'format' => 'html',
                 'value' => function ($model) {

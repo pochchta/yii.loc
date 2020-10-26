@@ -99,7 +99,7 @@ class Verification extends ActiveRecord
             'updated_at' => 'Обновлено',
             'created_by' => 'Создал',
             'updated_by' => 'Обновил',
-            'status' => 'Статус',
+            'status' => 'Активная',
             'deleted' => 'Удален'
         ];
     }
