@@ -59,6 +59,7 @@ class Department extends ActiveRecord
     public function rules()
     {
         return [
+            [['name'], 'required'],
             [['description'], 'string'],
             [['name', 'phone'], 'string', 'max' => 255],
         ];

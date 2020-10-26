@@ -58,6 +58,7 @@ class Scale extends ActiveRecord
     public function rules()
     {
         return [
+            [['value'], 'required'],
             [['description'], 'string'],
             [['value'], 'string', 'max' => 255],
         ];

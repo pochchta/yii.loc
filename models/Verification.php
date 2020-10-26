@@ -69,7 +69,7 @@ class Verification extends ActiveRecord
     public function rules()
     {
         return [
-            [['device_id'], 'required'],
+            [['name', 'device_id'], 'required'],
             [['device_id'], 'integer'],
             [['device_id'], 'exist', 'skipOnError' => true, 'targetClass' => Device::class, 'targetAttribute' => ['device_id' => 'id']],
             [['period'], 'integer', 'max' => 255],

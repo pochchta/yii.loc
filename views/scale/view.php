@@ -8,7 +8,7 @@ use yii\widgets\DetailView;
 /* @var $this yii\web\View */
 /* @var $model app\models\Scale */
 
-$this->title = $model->id;
+$this->title = $model->value;
 $this->params['breadcrumbs'][] = ['label' => 'Шкалы', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 YiiAsset::register($this);
