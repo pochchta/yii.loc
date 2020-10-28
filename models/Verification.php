@@ -39,6 +39,8 @@ class Verification extends ActiveRecord
 
     const STATUS_OFF = 0;
     const STATUS_ON = 1;
+
+    const PERIOD_BY_DEFAULT = '1';
     /**
      * {@inheritdoc}
      */
@@ -71,7 +73,7 @@ class Verification extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'device_id'], 'required'],
+            [['name', 'device_id', 'last_date', 'period'], 'required'],
             [['device_id'], 'integer'],
             [['device_id'], 'exist', 'skipOnError' => true, 'targetClass' => Device::class, 'targetAttribute' => ['device_id' => 'id']],
             [['period'], 'integer', 'max' => 255],

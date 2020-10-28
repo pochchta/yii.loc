@@ -105,7 +105,7 @@ class VerificationController extends Controller
 
         $model->device_id = $device_id;
         $model->last_date = (new DateTime())->getTimestamp();
-        $model->period = '1';
+        $model->period = Verification::PERIOD_BY_DEFAULT;
         return $this->render('create', [
             'model' => $model,
         ]);
