@@ -7,7 +7,7 @@ use yii\grid\GridView;
 /* @var $searchModel app\models\IncomingSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Приемка';
+$this->title = 'Приемки';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="incoming-index">

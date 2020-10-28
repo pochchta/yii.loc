@@ -6,7 +6,7 @@ use yii\helpers\Html;
 /* @var $model app\models\Incoming */
 
 $this->title = 'Создание новой записи';
-$this->params['breadcrumbs'][] = ['label' => 'Приемка', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Приемки', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="incoming-create">

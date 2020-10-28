@@ -8,7 +8,7 @@ use yii\widgets\DetailView;
 /* @var $model app\models\Incoming */
 
 $this->title = $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Приемка', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Приемки', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 YiiAsset::register($this);
 ?>

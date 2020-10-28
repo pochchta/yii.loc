@@ -58,13 +58,6 @@ $this->params['breadcrumbs'][] = $this->title;
                     [Scale::ALL => 'все'] + Scale::getAllValues())
             ],
             [
-                'format' => 'date',
-                'value' => function ($model) {
-                    return $model->activeVerification->last_date;
-                },
-                'label' => 'Дата пов.'
-            ],
-            [
                 'attribute' => 'deleted',
                 'format' => 'html',
                 'value' => function ($model) {
@@ -104,15 +97,6 @@ $this->params['breadcrumbs'][] = $this->title;
                     ['title' => 'Очистить все фильтры']
                 ),
                 'value' => function ($model) {
-                    if ($model->deleted == Device::NOT_DELETED) {
-                        $deleteMessage = 'Вы уверены, что хотите удалить этот элемент?';
-                        $deleteTitle = 'Удалить';
-                        $deleteCssClass = 'glyphicon glyphicon-trash a-action';
-                    } else {
-                        $deleteMessage = 'Вы уверены, что хотите восстановить этот элемент';
-                        $deleteTitle = 'Восстановить';
-                        $deleteCssClass = 'glyphicon glyphicon-refresh a-action';
-                    }
                     return
                         Html::a(
                             '<span class="glyphicon glyphicon-eye-open a-action"></span>',
@@ -120,17 +104,14 @@ $this->params['breadcrumbs'][] = $this->title;
                             ['title' => 'Просмотр']
                         )
                         . Html::a(
-                            '<span class="glyphicon glyphicon-pencil a-action"></span>',
-                            ['update', 'id' => $model->id],
-                            ['title' => 'Редактировать']
+                            '<span class="glyphicon glyphicon-log-in a-action"></span>',
+                            ['incoming/create', 'device_id' => $model->id],
+                            ['title' => 'Новая приемка']
                         )
                         . Html::a(
-                            '<span class="' . $deleteCssClass . '"></span>',
-                            ['delete', 'id' => $model->id],
-                            ['title' => $deleteTitle, 'data' => [
-                                'method' => 'post',
-                                'confirm' => $deleteMessage
-                            ]]
+                            '<span class="glyphicon glyphicon-scale a-action"></span>',
+                            ['verification/create', 'device_id' => $model->id],
+                            ['title' => 'Новая поверка']
                         );
                 }
             ],

@@ -34,6 +34,10 @@ if ($model->deleted == Device::NOT_DELETED) {
 
     <p>
         <?= Html::a('Печать', ['print', 'id' => $model->id], ['class' => 'btn btn-warning']) ?>
+        <?= Html::a('Новая приемка', ['incoming/create', 'device_id' => $model->id], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Приемки', ['incoming/index', 'device_id' => $model->id], ['class' => 'btn btn-info']) ?>
+        <?= Html::a('Новая поверка', ['verification/create', 'device_id' => $model->id], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Поверки', ['verification/index', 'device_id' => $model->id], ['class' => 'btn btn-info']) ?>
         <?= Html::a('Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
         <?= Html::a($deleteTitle, ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
