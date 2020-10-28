@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
@@ -43,13 +45,33 @@ class Incoming extends ActiveRecord
         return 'incoming';
     }
 
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
+                ],
+            ],
+            [
+                'class' => BlameableBehavior::class,
+                'createdByAttribute' => 'created_by',
+                'updatedByAttribute' => 'updated_by',
+            ],
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
     public function rules()
     {
         return [
+            [['device_id'], 'required'],
             [['device_id', 'status', 'payment'], 'integer'],
+            [['status', 'payment'], 'integer', 'max' => 255],
             [['description'], 'string'],
             [['device_id'], 'exist', 'skipOnError' => true, 'targetClass' => Device::class, 'targetAttribute' => ['device_id' => 'id']],
         ];
@@ -62,7 +84,7 @@ class Incoming extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'device_id' => '№ прибора',
+            'device_id' => 'ID прибора',
             'description' => 'Описание',
             'status' => 'Статус',
             'payment' => 'Оплата',
@@ -89,7 +111,7 @@ class Incoming extends ActiveRecord
      *
      * @return ActiveQuery
      */
-    public function getCreatedBy()
+    public function getCreator()
     {
         return $this->hasOne(User::class, ['id' => 'created_by']);
     }
@@ -99,7 +121,7 @@ class Incoming extends ActiveRecord
      *
      * @return ActiveQuery
      */
-    public function getUpdatedBy()
+    public function getUpdater()
     {
         return $this->hasOne(User::class, ['id' => 'updated_by']);
     }
