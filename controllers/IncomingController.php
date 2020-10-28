@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Device;
 use Yii;
 use app\models\Incoming;
 use app\models\IncomingSearch;
@@ -47,11 +48,16 @@ class IncomingController extends Controller
 
     /**
      * Lists all Incoming models.
+     * @param int $device_id
      * @return mixed
      */
-    public function actionIndex()
+    public function actionIndex($device_id = Device::ALL)
     {
         $searchModel = new IncomingSearch();
+        if ($device_id != Device::ALL) {
+            $searchModel->device_id = $device_id;
+            $searchModel->status = Incoming::ALL;
+        }
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -76,15 +82,24 @@ class IncomingController extends Controller
     /**
      * Creates a new Incoming model.
      * If creation is successful, the browser will be redirected to the 'view' page.
+     * @param $device_id
      * @return mixed
+     * @throws NotFoundHttpException
      */
-    public function actionCreate()
+    public function actionCreate($device_id)
     {
         $model = new Incoming();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Данные сохранены');
+                return $this->redirect(['device/view', 'id' => $model->device_id]);
+            } else {
+                throw new NotFoundHttpException('Ошибка (приемка): Не удалось сохранить данные');
+            }
         }
+
+        $model->device_id = $device_id;     //  только для отображения
 
         return $this->render('create', [
             'model' => $model,
@@ -102,8 +117,14 @@ class IncomingController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+            $model->device_id = $model->getOldAttributes()['device_id'];    // device_id менять нельзя
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Данные сохранены');
+                return $this->redirect(['device/view', 'id' => $model->device_id]);
+            } else {
+                throw new NotFoundHttpException('Ошибка (приемка): Не удалось сохранить данные');
+            }
         }
 
         return $this->render('update', [
@@ -129,6 +150,8 @@ class IncomingController extends Controller
             } else {
                 Yii::$app->session->setFlash('success', 'Данные удалены');
             }
+        } else {
+            throw new NotFoundHttpException('Ошибка (приемка): Не удалось сохранить данные');
         }
 
         return $this->redirect(Yii::$app->request->referrer);
