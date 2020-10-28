@@ -1,5 +1,7 @@
 <?php
 
+use app\models\Device;
+use app\models\Incoming;
 use yii\helpers\Html;
 use yii\grid\GridView;
 
@@ -14,10 +16,6 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p>
-        <?= Html::a('Создать новую запись', ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
-
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <?= GridView::widget([
@@ -26,16 +24,87 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
-            'id',
-            'device_id',
+//            'id',
+            [
+                'attribute' => 'device_id',
+                'format' => 'html',
+                'value' => function ($model) {
+                    return Html::a(
+                        $model->device_id,
+                        ['device/view', 'id' => $model->device_id],
+                        ['title' => $model->device->name . ', № ' . $model->device->number . ($model->device->deleted == Device::DELETED ? ' (удален)' : '')]
+                    );
+                },
+            ],
             'description:ntext',
-            'status',
-            'payment',
+            [
+                'attribute' => 'status',
+                'format' => 'html',
+                'value' => function ($model) {
+                    if ($model->status == Incoming::INCOMING) {
+                        return '<span class="glyphicon glyphicon-log-in color-err" title="Принят"></span>';
+                    } elseif ($model->status == Incoming::READY) {
+                        return '<span class="glyphicon glyphicon-ok-circle color-war" title="Готов"></span>';
+                    } elseif ($model->status == Incoming::OUTGOING) {
+                        return '<span class="glyphicon glyphicon-log-out color-ok" title="Выдан"></span>';
+                    }
+                    return '';
+                },
+                'filter' => Html::activeDropDownList($searchModel, 'status', [
+                    Incoming::ALL => 'все',
+                    Incoming::INCOMING => 'принят',
+                    Incoming::READY => 'готов',
+                    Incoming::OUTGOING => 'выдан',
+                ]),
+            ],
+            [
+                'attribute' => 'payment',
+                'format' => 'html',
+                'value' => function ($model) {
+                    if ($model->payment == Incoming::PAID) {
+                        return '<span class="glyphicon glyphicon-ok-circle color-ok" title="Оплачен"></span>';
+                    }
+                    return '';
+                },
+                'filter' => Html::activeDropDownList($searchModel, 'payment', [
+                    Incoming::ALL => 'все',
+                    Incoming::NOT_PAID => 'нет',
+                    Incoming::PAID => 'да',
+
+                ]),
+            ],
+            [
+                'attribute' => 'created_at',
+                'format' => 'date',
+                'filter' => Html::activeInput('date', $searchModel, 'created_at_start')
+                    . Yii::$app->formatter->asNtext("\n")
+                    . Html::activeInput('date', $searchModel, 'created_at_end')
+            ],
+            [
+                'attribute' => 'updated_at',
+                'format' => 'date',
+                'filter' => Html::activeInput('date', $searchModel, 'updated_at_start')
+                    . Yii::$app->formatter->asNtext("\n")
+                    . Html::activeInput('date', $searchModel, 'updated_at_end')
+            ],
             //'created_by',
             //'updated_by',
-            //'created_at',
-            //'updated_at',
-            //'deleted',
+
+            [
+                'attribute' => 'deleted',
+                'format' => 'html',
+                'value' => function ($model) {
+                    if ($model->deleted == Incoming::DELETED) {
+                        return '<span class="glyphicon glyphicon-remove-sign color-err" title="Удален"></span>';
+                    }
+                    return '';
+                },
+                'filter' => Html::activeDropDownList($searchModel, 'deleted', [
+                    Incoming::NOT_DELETED => 'нет',
+                    Incoming::DELETED => 'да',
+                    Incoming::ALL => 'все'
+                ])
+            ],
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

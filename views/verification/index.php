@@ -31,7 +31,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     return Html::a(
                         $model->device_id,
                         ['device/view', 'id' => $model->device_id],
-                        ['title' => $model->device->name . ', №' . $model->device->number . ($model->device->deleted == Device::DELETED ? ' (удален)' : '')]
+                        ['title' => $model->device->name . ', № ' . $model->device->number . ($model->device->deleted == Device::DELETED ? ' (удален)' : '')]
                     );
                 },
             ],

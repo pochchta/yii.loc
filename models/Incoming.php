@@ -87,7 +87,7 @@ class Incoming extends ActiveRecord
             'device_id' => 'ID прибора',
             'description' => 'Описание',
             'status' => 'Статус',
-            'payment' => 'Оплата',
+            'payment' => 'Оплачен',
             'created_by' => 'Создал',
             'updated_by' => 'Обновил',
             'created_at' => 'Создано',

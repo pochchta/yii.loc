@@ -21,6 +21,9 @@ span.color-ok{
 span.color-err{
     color: red;
 }
+span.color-war{
+    color: #ffa500;
+}
 
 /*
 .button-as-a{
