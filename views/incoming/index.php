@@ -106,7 +106,44 @@ $this->params['breadcrumbs'][] = $this->title;
                 ])
             ],
 
-            ['class' => 'yii\grid\ActionColumn'],
+            [
+                'format' => 'raw',
+                'filter' => Html::a(
+                    '<span class="glyphicon glyphicon-remove a-action"></span>',
+                    ['index'],
+                    ['title' => 'Очистить все фильтры']
+                ),
+                'value' => function ($model) {
+                    if ($model->deleted == Incoming::NOT_DELETED) {
+                        $deleteMessage = 'Вы уверены, что хотите удалить этот элемент?';
+                        $deleteTitle = 'Удалить';
+                        $deleteCssClass = 'glyphicon glyphicon-trash a-action';
+                    } else {
+                        $deleteMessage = 'Вы уверены, что хотите восстановить этот элемент';
+                        $deleteTitle = 'Восстановить';
+                        $deleteCssClass = 'glyphicon glyphicon-refresh a-action';
+                    }
+                    return
+                        Html::a(
+                            '<span class="glyphicon glyphicon-eye-open a-action"></span>',
+                            ['view', 'id' => $model->id],
+                            ['title' => 'Просмотр']
+                        )
+                        . Html::a(
+                            '<span class="glyphicon glyphicon-pencil a-action"></span>',
+                            ['update', 'id' => $model->id],
+                            ['title' => 'Редактировать']
+                        )
+                        . Html::a(
+                            '<span class="' . $deleteCssClass . '"></span>',
+                            ['delete', 'id' => $model->id],
+                            ['title' => $deleteTitle, 'data' => [
+                                'method' => 'post',
+                                'confirm' => $deleteMessage
+                            ]]
+                        );
+                }
+            ],
         ],
     ]); ?>
 
