@@ -88,7 +88,7 @@ class Verification extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'device_id' => '№ прибора',
+            'device_id' => 'ID прибора',
             'name' => 'Имя',
             'type' => 'Тип',
             'description' => 'Описание',

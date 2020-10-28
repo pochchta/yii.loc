@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Device;
 use app\models\Verification;
 use yii\helpers\Html;
 use yii\grid\GridView;
@@ -28,9 +29,9 @@ $this->params['breadcrumbs'][] = $this->title;
                 'format' => 'html',
                 'value' => function ($model) {
                     return Html::a(
-                        $model->device->number,
+                        $model->device_id,
                         ['device/view', 'id' => $model->device_id],
-                        ['title' => $model->device->name]
+                        ['title' => $model->device->name . ', №' . $model->device->number . ($model->device->deleted == Device::DELETED ? ' (удален)' : '')]
                     );
                 },
             ],
