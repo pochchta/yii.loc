@@ -99,11 +99,11 @@ class VerificationController extends Controller
                 Yii::$app->session->setFlash('success', 'Данные сохранены');
                 return $this->redirect(['device/view', 'id' => $model->device_id]);
             } else {
-                throw new NotFoundHttpException('Ошибка (поверка): Не удалось сохранить данные поверки');
+                throw new NotFoundHttpException('Ошибка (поверка): Не удалось сохранить данные');
             }
         }
 
-        $model->device_id = $device_id;
+        $model->device_id = $device_id;     // только для отображения
         $model->last_date = (new DateTime())->getTimestamp();
         $model->period = Verification::PERIOD_BY_DEFAULT;
         return $this->render('create', [
@@ -123,7 +123,7 @@ class VerificationController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post())) {
-            $model->device_id = $model->getOldAttributes()['device_id'];
+            $model->device_id = $model->getOldAttributes()['device_id'];    // device_id менять нельзя
             if ($model->save()) {
                 if ($model->checkLastVerification() == false) {
                     throw new NotFoundHttpException('Ошибка (поверка): активная поверка не определена');
@@ -131,7 +131,7 @@ class VerificationController extends Controller
                 Yii::$app->session->setFlash('success', 'Данные сохранены');
                 return $this->redirect(['device/view', 'id' => $model->device_id]);
             } else {
-                throw new NotFoundHttpException('Ошибка (поверка): Не удалось сохранить данные поверки');
+                throw new NotFoundHttpException('Ошибка (поверка): Не удалось сохранить данные');
             }
         }
 
@@ -162,7 +162,7 @@ class VerificationController extends Controller
                 Yii::$app->session->setFlash('success', 'Данные удалены');
             }
         } else {
-            throw new NotFoundHttpException('Ошибка (поверка): Не удалось сохранить данные поверки');
+            throw new NotFoundHttpException('Ошибка (поверка): Не удалось сохранить данные');
         }
 
         return $this->redirect(Yii::$app->request->referrer);
@@ -178,22 +178,6 @@ class VerificationController extends Controller
     protected function findModel($id)
     {
         if (($model = Verification::findOne($id)) !== null) {
-            return $model;
-        }
-
-        throw new NotFoundHttpException('Запрошенная страница не существует.');
-    }
-
-    /**
-     * Finds the Device model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param string $id
-     * @return Device the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findModelDevice($id)
-    {
-        if (($model = Device::findOne($id)) !== null) {
             return $model;
         }
 
