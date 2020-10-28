@@ -3,7 +3,6 @@
 namespace app\controllers;
 
 use app\models\Verification;
-use app\models\VerificationSearch;
 use Yii;
 use app\models\Device;
 use app\models\DeviceSearch;
@@ -71,13 +70,8 @@ class DeviceController extends Controller
     {
         $model = $this->findModel($id);
 
-        $searchModel = new VerificationSearch();
-        $searchModel->device_id = $model->id;
-        $searchModel->status = -1;
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
         return $this->render('view', compact(
-           'model', 'dataProvider', 'searchModel'
+           'model'
         ));
     }
 
