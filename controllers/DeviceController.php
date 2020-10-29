@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Incoming;
 use app\models\Verification;
 use Yii;
 use app\models\Device;
@@ -127,7 +128,10 @@ class DeviceController extends Controller
         $model = $this->findModel($id);
         if ($model->deleted == Device::NOT_DELETED) {
             if (Verification::findOne(['device_id' => $model->id, 'deleted' => Verification::NOT_DELETED]) !== NULL) {
-                throw new NotFoundHttpException('Ошибка (прибор): запись нельзя удалить, т.к. она используется');
+                throw new NotFoundHttpException('Ошибка (прибор): запись нельзя удалить, т.к. она используется в поверках');
+            }
+            if (Incoming::findOne(['device_id' => $model->id, 'deleted' => Incoming::NOT_DELETED]) !== NULL) {
+                throw new NotFoundHttpException('Ошибка (прибор): запись нельзя удалить, т.к. она используется в приемках');
             }
         }
         $model->deleted == Device::NOT_DELETED ? $model->deleted = Device::DELETED :
