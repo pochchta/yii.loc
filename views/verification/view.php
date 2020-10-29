@@ -52,6 +52,18 @@ if ($model->deleted == Verification::NOT_DELETED) {
                 ),
                 'label' => 'Относится к прибору',
             ],
+            [
+                'attribute' => 'status',
+                'format' => 'html',
+                'value' => function ($model) {
+                    if ($model->status == Verification::STATUS_ON) {
+                        return '<span class="glyphicon glyphicon-ok-circle color-ok" title="Действующая поверка"></span>';
+                    } else {
+                        return '';
+                    }
+                },
+                'label' => 'Статус'
+            ],
             'name',
             'type',
             'description:ntext',

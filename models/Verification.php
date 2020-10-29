@@ -76,7 +76,7 @@ class Verification extends ActiveRecord
             [['name', 'device_id', 'last_date', 'period'], 'required'],
             [['device_id'], 'integer'],
             [['device_id'], 'exist', 'skipOnError' => true, 'targetClass' => Device::class, 'targetAttribute' => ['device_id' => 'id']],
-            [['period'], 'integer', 'max' => 255],
+            [['period'], 'integer', 'min' => 1, 'max' => 20],
             [['last_date'], 'date', 'format' => 'php:Y-m-d', 'timestampAttribute' => 'last_date'],
             [['description'], 'string'],
             [['name', 'type'], 'string', 'max' => 255],
