@@ -8,7 +8,8 @@ use yii\grid\GridView;
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\IncomingSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
-/* @var $model app\models\Device */
+/* @var $model app\models\Incoming */
+/* @var $modelDevice app\models\Device */
 
 $this->title = 'Приемки';
 $this->params['breadcrumbs'][] = $this->title;
@@ -17,12 +18,18 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <?php if ($model != NULL): ?>
+    <p>
+        <?= Html::a('Печать списка', array_merge(['print-list'], $searchModel->getAttributes()), [
+            'class' => 'btn btn-warning',
+        ]) ?>
+    </p>
+
+    <?php if ($modelDevice != NULL): ?>
     <p><?=
         'Записи относятся только к прибору: '
         . Html::a(
-            $model->name . ', №' . $model->number . ($model->deleted == Device::DELETED ? ' (удален)' : ''),
-            ['device/view', 'id' => $model->id]
+            $modelDevice->name . ', №' . $modelDevice->number . ($modelDevice->deleted == Device::DELETED ? ' (удален)' : ''),
+            ['device/view', 'id' => $modelDevice->id]
         )
     ?></p>
     <?php endif ?>

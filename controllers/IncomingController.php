@@ -33,7 +33,7 @@ class IncomingController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'view'],
+                        'actions' => ['index', 'view', 'print-list'],
                         'roles' => ['@'],
                     ],
                     [
@@ -48,21 +48,20 @@ class IncomingController extends Controller
 
     /**
      * Lists all Incoming models.
-     * @param int $device_id
      * @return mixed
      */
-    public function actionIndex($device_id = Device::ALL)
+    public function actionIndex()
     {
         $searchModel = new IncomingSearch();
-        if ($device_id != Device::ALL) {
-            $searchModel->device_id = $device_id;
-            $searchModel->status = Incoming::ALL;
-            $model = Device::findOne(['id' => $device_id]);
-        }
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
+        $device_id = $searchModel->getAttribute('device_id');
+        if ($device_id != Device::ALL) {
+            $modelDevice = Device::findOne(['id' => $device_id]);
+        }
+
         return $this->render('index', compact(
-            'searchModel','dataProvider', 'model'
+            'searchModel','dataProvider', 'modelDevice'
         ));
     }
 
@@ -155,6 +154,18 @@ class IncomingController extends Controller
         }
 
         return $this->redirect(Yii::$app->request->referrer);
+    }
+
+    public function actionPrintList()
+    {
+        $this->layout = false;
+        $searchModel = new IncomingSearch();
+        $searchModel->limit = IncomingSearch::PRINT_LIMIT_RECORDS;
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+        return $this->render('print-list', compact(
+            'searchModel','dataProvider'
+        ));
     }
 
     /**

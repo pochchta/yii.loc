@@ -11,6 +11,7 @@ use yii\data\ActiveDataProvider;
 class IncomingSearch extends Incoming
 {
     const DEFAULT_LIMIT_RECORDS = 20;
+    const PRINT_LIMIT_RECORDS = 500;
     public $limit = self::DEFAULT_LIMIT_RECORDS;
     public $created_at_start, $created_at_end, $updated_at_start, $updated_at_end;
     /**
@@ -53,6 +54,7 @@ class IncomingSearch extends Incoming
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
+        $dataProvider->pagination->pageSize = $this->limit;
 
         $this->load($params);
 
@@ -96,5 +98,9 @@ class IncomingSearch extends Incoming
         }
 
         return $dataProvider;
+    }
+
+    public function formName() {
+        return '';
     }
 }

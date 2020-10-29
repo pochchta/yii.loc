@@ -100,3 +100,6 @@ html, body{
 .print-table-device th:nth-child(1){
     width: 10mm;
 }
+.print-table-device .date{
+	width: 27mm;
+}
