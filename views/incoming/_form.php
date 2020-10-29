@@ -1,5 +1,7 @@
 <?php
 
+use app\models\Device;
+use app\models\Incoming;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
@@ -8,27 +10,34 @@ use yii\widgets\ActiveForm;
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
+<p><?=
+    'Относится к прибору: '
+    . Html::a(
+        $model->device->name . ', №' . $model->device->number . ($model->device->deleted == Device::DELETED ? ' (удален)' : ''),
+        ['device/view', 'id' => $model->device_id]
+    )
+    ?></p>
+
 <div class="incoming-form">
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'device_id')->textInput() ?>
+    <?= $form->field($model, 'device_id')->dropDownList(
+        [$model->device_id => $model->device->number]
+    ) ?>
+
+    <?= $form->field($model, 'status')->dropDownList([
+        Incoming::INCOMING => 'Принят',
+        Incoming::READY => 'Готов',
+        Incoming::OUTGOING => 'Выдан',
+    ]) ?>
+
+    <?= $form->field($model, 'payment')->dropDownList([
+        Incoming::NOT_PAID => 'Не оплачен',
+        Incoming::PAID => 'Оплачен',
+    ]) ?>
 
     <?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>
-
-    <?= $form->field($model, 'status')->textInput() ?>
-
-    <?= $form->field($model, 'payment')->textInput() ?>
-
-    <?= $form->field($model, 'created_by')->textInput() ?>
-
-    <?= $form->field($model, 'updated_by')->textInput() ?>
-
-    <?= $form->field($model, 'created_at')->textInput() ?>
-
-    <?= $form->field($model, 'updated_at')->textInput() ?>
-
-    <?= $form->field($model, 'deleted')->textInput() ?>
 
     <div class="form-group">
         <?= Html::submitButton('Сохранить', ['class' => 'btn btn-success']) ?>

@@ -22,8 +22,8 @@ use yii\db\ActiveRecord;
  * @property int $deleted
  *
  * @property Device $device
- * @property User $createdBy
- * @property User $updatedBy
+ * @property User $creator
+ * @property User $updater
  */
 class Incoming extends ActiveRecord
 {
@@ -69,7 +69,7 @@ class Incoming extends ActiveRecord
     public function rules()
     {
         return [
-            [['device_id'], 'required'],
+            [['device_id', 'status', 'payment'], 'required'],
             [['device_id', 'status', 'payment'], 'integer'],
             [['status', 'payment'], 'integer', 'max' => 255],
             [['description'], 'string'],
