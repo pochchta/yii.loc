@@ -57,13 +57,13 @@ class IncomingController extends Controller
         if ($device_id != Device::ALL) {
             $searchModel->device_id = $device_id;
             $searchModel->status = Incoming::ALL;
+            $model = Device::findOne(['id' => $device_id]);
         }
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
+        return $this->render('index', compact(
+            'searchModel','dataProvider', 'model'
+        ));
     }
 
     /**

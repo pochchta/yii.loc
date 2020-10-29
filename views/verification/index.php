@@ -8,6 +8,7 @@ use yii\grid\GridView;
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\VerificationSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
+/* @var $model app\models\Device */
 
 $this->title = 'Поверки';
 $this->params['breadcrumbs'][] = $this->title;
@@ -15,6 +16,16 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="verification-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
+
+    <?php if ($model != NULL): ?>
+    <p><?=
+        'Записи относятся только к прибору: '
+        . Html::a(
+            $model->name . ', №' . $model->number . ($model->deleted == Device::DELETED ? ' (удален)' : ''),
+            ['device/view', 'id' => $model->id]
+        )
+    ?></p>
+    <?php endif ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
