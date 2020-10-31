@@ -6,6 +6,8 @@ use yii\helpers\Html;
 /* @var $searchModel app\models\IncomingSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $model app\models\Incoming */
+/* @var $params array */
+
 $this->title = 'Печать списка приемок';
 $this->registerCssFile('@web/css/user-print.css');
 ?>
@@ -21,7 +23,7 @@ $this->registerCssFile('@web/css/user-print.css');
 
 <body>
 <div class="content print-table-device">
-    <?= Html::a('Назад', array_merge(['index'], $searchModel->getAttributes()), ['class' => 'hide']) ?>
+    <?= Html::a('Назад', array_merge(['index'], $params), ['class' => 'hide']) ?>
 
     <table>
         <thead>

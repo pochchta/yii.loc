@@ -10,6 +10,7 @@ use yii\grid\GridView;
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $model app\models\Incoming */
 /* @var $modelDevice app\models\Device */
+/* @var $params array */
 
 $this->title = 'Приемки';
 $this->params['breadcrumbs'][] = $this->title;
@@ -19,7 +20,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Печать списка', array_merge(['print-list'], $searchModel->getAttributes()), [
+        <?= Html::a('Печать списка', array_merge(['print-list'], $params), [
             'class' => 'btn btn-warning',
         ]) ?>
     </p>
@@ -52,6 +53,16 @@ $this->params['breadcrumbs'][] = $this->title;
                         ['device/view', 'id' => $model->device_id],
                         ['title' => $model->device->name . ', № ' . $model->device->number . ($model->device->deleted == Device::DELETED ? ' (удален)' : '')]
                     );
+                },
+            ],
+            [
+                'format' => 'html',
+                'label' => 'Прибор',
+                'value' => function ($model) {
+                    return
+                        '<div class="device-full-name">'
+                        . $model->device->name . ', № ' . $model->device->number
+                        . '</div>';
                 },
             ],
             'description:ntext',
