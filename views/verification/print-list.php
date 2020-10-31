@@ -23,7 +23,9 @@ $this->registerCssFile('@web/css/user-print.css');
 
 <body>
 <div class="content print-table-device">
-    <?= Html::a('Назад', array_merge(['index'], $params), ['class' => 'hide']) ?>
+    <?= Html::a('Назад', array_merge(
+        ['index'], $searchModel->getAttributes(), ['sort' => $params['sort']]
+    ), ['class' => 'hide']) ?>
 
     <table>
         <thead>

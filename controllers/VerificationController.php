@@ -58,7 +58,7 @@ class VerificationController extends Controller
 
         $device_id = $params['device_id'];
         if ($device_id != NULL) {
-            $searchModel->status = Verification::ALL;
+            $searchModel->status = Verification::ALL;   // по умолчанию, может быть перезаписано далее
             $modelDevice = Device::findOne(['id' => $device_id]);
         }
 
@@ -180,7 +180,7 @@ class VerificationController extends Controller
         $dataProvider = $searchModel->search($params);
 
         return $this->render('print-list', compact(
-            'dataProvider', 'params'
+            'dataProvider', 'searchModel', 'params'
         ));
     }
 
