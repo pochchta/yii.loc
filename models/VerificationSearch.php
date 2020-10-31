@@ -11,6 +11,7 @@ use yii\data\ActiveDataProvider;
 class VerificationSearch extends Verification
 {
     const DEFAULT_LIMIT_RECORDS = 20;
+    const PRINT_LIMIT_RECORDS = 500;
     public $limit = self::DEFAULT_LIMIT_RECORDS;
     public $last_date_start, $last_date_end, $next_date_start, $next_date_end;
 

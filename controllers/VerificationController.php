@@ -34,7 +34,7 @@ class VerificationController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'view'],
+                        'actions' => ['index', 'view', 'print-list'],
                         'roles' => ['@'],
                     ],
                     [
@@ -53,18 +53,19 @@ class VerificationController extends Controller
      */
     public function actionIndex()
     {
+        $params = Yii::$app->request->queryParams;
         $searchModel = new VerificationSearch();
 
-        $device_id = Yii::$app->request->queryParams['device_id'];
+        $device_id = $params['device_id'];
         if ($device_id != NULL) {
             $searchModel->status = Verification::ALL;
             $modelDevice = Device::findOne(['id' => $device_id]);
         }
 
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider = $searchModel->search($params);
 
         return $this->render('index', compact(
-            'searchModel','dataProvider', 'modelDevice'
+            'searchModel','dataProvider', 'params', 'modelDevice'
         ));
     }
 
@@ -167,6 +168,20 @@ class VerificationController extends Controller
         }
 
         return $this->redirect(Yii::$app->request->referrer);
+    }
+
+    public function actionPrintList()
+    {
+        $this->layout = false;
+
+        $params = Yii::$app->request->queryParams;
+        $searchModel = new VerificationSearch();
+        $searchModel->limit = VerificationSearch::PRINT_LIMIT_RECORDS;
+        $dataProvider = $searchModel->search($params);
+
+        return $this->render('print-list', compact(
+            'dataProvider', 'params'
+        ));
     }
 
     /**

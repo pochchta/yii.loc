@@ -10,6 +10,7 @@ use yii\grid\GridView;
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $model app\models\Verification */
 /* @var $modelDevice app\models\Device */
+/* @var $params array */
 
 $this->title = 'Поверки';
 $this->params['breadcrumbs'][] = $this->title;
@@ -17,6 +18,12 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="verification-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
+
+    <p>
+        <?= Html::a('Печать списка', array_merge(['print-list'], $params), [
+            'class' => 'btn btn-warning',
+        ]) ?>
+    </p>
 
     <?php if ($modelDevice != NULL): ?>
         <p><?=
