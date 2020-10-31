@@ -34,10 +34,8 @@ $this->registerCssFile('@web/css/user-print.css');
             <th>Шкала</th>
             <th>Точность</th>
             <th>Позиция</th>
-            <th>Создал</th>
-            <th>Обновил</th>
-            <th>Создано</th>
-            <th>Обновлено</th>
+            <th class="date">Создано</th>
+            <th class="date">Обновлено</th>
         </tr>
         </thead>
         <?php
@@ -53,8 +51,6 @@ $this->registerCssFile('@web/css/user-print.css');
                 <td><?= $model->scale->value ?></td>
                 <td><?= $model->accuracy ?></td>
                 <td><?= $model->position ?></td>
-                <td><?= $model->creator->username ?></td>
-                <td><?= $model->updater->username ?></td>
                 <td><?= Yii::$app->formatter->asDate($model->created_at) ?></td>
                 <td><?= Yii::$app->formatter->asDate($model->updated_at) ?></td>
             </tr>

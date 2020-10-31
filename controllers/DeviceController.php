@@ -34,7 +34,7 @@ class DeviceController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'print-list-device', 'view', 'print'],
+                        'actions' => ['index', 'print-list', 'view', 'print'],
                         'roles' => ['@'],
                     ],
                     [
@@ -162,18 +162,18 @@ class DeviceController extends Controller
         ]);
     }
 
-    public function actionPrintListDevice()
+    public function actionPrintList()
     {
         $this->layout = false;
-        $searchModel = new DeviceSearch();
-        $searchModel->limit = 500;
+
         $params = Yii::$app->request->queryParams;
+        $searchModel = new DeviceSearch();
+        $searchModel->limit = DeviceSearch::PRINT_LIMIT_RECORDS;
         $dataProvider = $searchModel->search($params);
 
-        return $this->render('print-list-device', [
-            'dataProvider' => $dataProvider,
-            'params' => $params
-        ]);
+        return $this->render('print-list', compact(
+            'dataProvider', 'params'
+        ));
     }
 
     /**

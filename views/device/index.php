@@ -9,7 +9,9 @@ use yii\grid\GridView;
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\DeviceSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
+/* @var $model app\models\Device */
 /* @var $params array */
+
 $this->title = 'Приборы';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -18,7 +20,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Печать списка', array_merge(['print-list-device'], $params), [
+        <?= Html::a('Печать списка', array_merge(['print-list'], $params), [
             'class' => 'btn btn-warning',
         ]) ?>
         <?= Html::a('Создать новую запись', ['create'], ['class' => 'btn btn-success']) ?>

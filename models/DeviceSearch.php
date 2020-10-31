@@ -11,6 +11,7 @@ use yii\data\ActiveDataProvider;
 class DeviceSearch extends Device
 {
     const DEFAULT_LIMIT_RECORDS = 20;
+    const PRINT_LIMIT_RECORDS = 500;
     public $limit = self::DEFAULT_LIMIT_RECORDS;
 
     /**
