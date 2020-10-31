@@ -52,16 +52,17 @@ class IncomingController extends Controller
      */
     public function actionIndex()
     {
+        $params = Yii::$app->request->queryParams;
         $searchModel = new IncomingSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider = $searchModel->search($params);
 
         $device_id = $searchModel->getAttribute('device_id');
-        if ($device_id != Device::ALL) {
+        if ($device_id != NULL) {
             $modelDevice = Device::findOne(['id' => $device_id]);
         }
 
         return $this->render('index', compact(
-            'searchModel','dataProvider', 'modelDevice'
+            'searchModel','dataProvider', 'params', 'modelDevice'
         ));
     }
 
@@ -159,12 +160,14 @@ class IncomingController extends Controller
     public function actionPrintList()
     {
         $this->layout = false;
+
+        $params = Yii::$app->request->queryParams;
         $searchModel = new IncomingSearch();
         $searchModel->limit = IncomingSearch::PRINT_LIMIT_RECORDS;
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider = $searchModel->search($params);
 
         return $this->render('print-list', compact(
-            'searchModel','dataProvider'
+            'dataProvider', 'params'
         ));
     }
 

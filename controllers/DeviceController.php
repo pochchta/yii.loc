@@ -56,6 +56,7 @@ class DeviceController extends Controller
         $params = Yii::$app->request->queryParams;
         $searchModel = new DeviceSearch();
         $dataProvider = $searchModel->search($params);
+
         return $this->render('index', compact(
             'searchModel', 'dataProvider', 'params'
         ));
