@@ -8,7 +8,8 @@ use yii\grid\GridView;
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\VerificationSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
-/* @var $model app\models\Device */
+/* @var $model app\models\Verification */
+/* @var $modelDevice app\models\Device */
 
 $this->title = 'Поверки';
 $this->params['breadcrumbs'][] = $this->title;
@@ -17,14 +18,14 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <?php if ($model != NULL): ?>
-    <p><?=
-        'Записи относятся только к прибору: '
-        . Html::a(
-            $model->name . ', №' . $model->number . ($model->deleted == Device::DELETED ? ' (удален)' : ''),
-            ['device/view', 'id' => $model->id]
-        )
-    ?></p>
+    <?php if ($modelDevice != NULL): ?>
+        <p><?=
+            'Записи относятся только к прибору: '
+            . Html::a(
+                $modelDevice->name . ', №' . $modelDevice->number . ($modelDevice->deleted == Device::DELETED ? ' (удален)' : ''),
+                ['device/view', 'id' => $modelDevice->id]
+            )
+        ?></p>
     <?php endif ?>
 
     <?= GridView::widget([
@@ -44,6 +45,16 @@ $this->params['breadcrumbs'][] = $this->title;
                         ['device/view', 'id' => $model->device_id],
                         ['title' => $model->device->name . ', № ' . $model->device->number . ($model->device->deleted == Device::DELETED ? ' (удален)' : '')]
                     );
+                },
+            ],
+            [
+                'format' => 'html',
+                'label' => 'Прибор',
+                'value' => function ($model) {
+                    return
+                        '<div class="device-full-name">'
+                        . $model->device->name . ', № ' . $model->device->number
+                        . '</div>';
                 },
             ],
             'name',

@@ -49,21 +49,22 @@ class VerificationController extends Controller
 
     /**
      * Lists all Verification models.
-     * @param int $device_id
      * @return mixed
      */
-    public function actionIndex($device_id = Device::ALL)
+    public function actionIndex()
     {
         $searchModel = new VerificationSearch();
-        if ($device_id != Device::ALL) {
-            $searchModel->device_id = $device_id;
+
+        $device_id = Yii::$app->request->queryParams['device_id'];
+        if ($device_id != NULL) {
             $searchModel->status = Verification::ALL;
-            $model = Device::findOne(['id' => $device_id]);
+            $modelDevice = Device::findOne(['id' => $device_id]);
         }
+
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', compact(
-            'searchModel','dataProvider', 'model'
+            'searchModel','dataProvider', 'modelDevice'
         ));
     }
 

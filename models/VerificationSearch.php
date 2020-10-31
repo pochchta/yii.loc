@@ -102,4 +102,8 @@ class VerificationSearch extends Verification
 
         return $dataProvider;
     }
+
+    public function formName() {
+        return '';
+    }
 }
