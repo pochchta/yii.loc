@@ -1,15 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 4.7.3
--- https://www.phpmyadmin.net/
+-- version 4.4.15.10
+-- https://www.phpmyadmin.net
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Окт 31 2020 г., 13:16
+-- Время создания: Ноя 10 2020 г., 04:44
 -- Версия сервера: 5.6.37
 -- Версия PHP: 7.1.7
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
-START TRANSACTION;
 SET time_zone = "+00:00";
 
 
@@ -28,10 +26,10 @@ SET time_zone = "+00:00";
 -- Структура таблицы `auth_assignment`
 --
 
-CREATE TABLE `auth_assignment` (
+CREATE TABLE IF NOT EXISTS `auth_assignment` (
   `item_name` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `user_id` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
-  `created_at` int(11) DEFAULT NULL
+  `created_at` bigint(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -50,14 +48,14 @@ INSERT INTO `auth_assignment` (`item_name`, `user_id`, `created_at`) VALUES
 -- Структура таблицы `auth_item`
 --
 
-CREATE TABLE `auth_item` (
+CREATE TABLE IF NOT EXISTS `auth_item` (
   `name` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `type` smallint(6) NOT NULL,
   `description` text COLLATE utf8_unicode_ci,
   `rule_name` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
   `data` blob,
-  `created_at` int(11) DEFAULT NULL,
-  `updated_at` int(11) DEFAULT NULL
+  `created_at` bigint(11) DEFAULT NULL,
+  `updated_at` bigint(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -81,7 +79,7 @@ INSERT INTO `auth_item` (`name`, `type`, `description`, `rule_name`, `data`, `cr
 -- Структура таблицы `auth_item_child`
 --
 
-CREATE TABLE `auth_item_child` (
+CREATE TABLE IF NOT EXISTS `auth_item_child` (
   `parent` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `child` varchar(64) COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -105,11 +103,11 @@ INSERT INTO `auth_item_child` (`parent`, `child`) VALUES
 -- Структура таблицы `auth_rule`
 --
 
-CREATE TABLE `auth_rule` (
+CREATE TABLE IF NOT EXISTS `auth_rule` (
   `name` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `data` blob,
-  `created_at` int(11) DEFAULT NULL,
-  `updated_at` int(11) DEFAULT NULL
+  `created_at` bigint(11) DEFAULT NULL,
+  `updated_at` bigint(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
@@ -118,17 +116,17 @@ CREATE TABLE `auth_rule` (
 -- Структура таблицы `department`
 --
 
-CREATE TABLE `department` (
-  `id` int(11) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `department` (
+  `id` int(11) unsigned NOT NULL,
   `name` varchar(255) DEFAULT NULL,
   `phone` varchar(255) DEFAULT NULL,
   `description` text,
-  `created_at` int(11) DEFAULT NULL,
-  `updated_at` int(11) DEFAULT NULL,
-  `created_by` int(10) UNSIGNED DEFAULT NULL,
-  `updated_by` int(10) UNSIGNED DEFAULT NULL,
-  `deleted` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `created_at` bigint(11) DEFAULT NULL,
+  `updated_at` bigint(11) DEFAULT NULL,
+  `created_by` int(10) unsigned DEFAULT NULL,
+  `updated_by` int(10) unsigned DEFAULT NULL,
+  `deleted` tinyint(1) unsigned NOT NULL DEFAULT '0'
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 --
 -- Дамп данных таблицы `department`
@@ -145,29 +143,29 @@ INSERT INTO `department` (`id`, `name`, `phone`, `description`, `created_at`, `u
 -- Структура таблицы `device`
 --
 
-CREATE TABLE `device` (
-  `id` int(11) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `device` (
+  `id` int(11) unsigned NOT NULL,
   `name` varchar(255) DEFAULT NULL,
   `number` varchar(255) DEFAULT NULL,
   `type` varchar(255) DEFAULT NULL,
   `description` text,
-  `id_department` int(11) UNSIGNED DEFAULT NULL,
-  `id_scale` int(11) UNSIGNED DEFAULT NULL,
+  `id_department` int(11) unsigned DEFAULT NULL,
+  `id_scale` int(11) unsigned DEFAULT NULL,
   `accuracy` varchar(255) DEFAULT NULL,
   `position` varchar(255) DEFAULT NULL,
-  `created_at` int(11) DEFAULT NULL,
-  `updated_at` int(11) DEFAULT NULL,
-  `created_by` int(11) UNSIGNED DEFAULT NULL,
-  `updated_by` int(11) UNSIGNED DEFAULT NULL,
-  `deleted` tinyint(1) UNSIGNED NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `created_at` bigint(11) DEFAULT NULL,
+  `updated_at` bigint(11) DEFAULT NULL,
+  `created_by` int(11) unsigned DEFAULT NULL,
+  `updated_by` int(11) unsigned DEFAULT NULL,
+  `deleted` tinyint(1) unsigned NOT NULL DEFAULT '0'
+) ENGINE=InnoDB AUTO_INCREMENT=127 DEFAULT CHARSET=utf8;
 
 --
 -- Дамп данных таблицы `device`
 --
 
 INSERT INTO `device` (`id`, `name`, `number`, `type`, `description`, `id_department`, `id_scale`, `accuracy`, `position`, `created_at`, `updated_at`, `created_by`, `updated_by`, `deleted`) VALUES
-(1, 'ЦЦЦ32', '910', 'FTFM437081', 'Прибор описание39195542575592', 2, 2, '0.55', '59', 1601012825, 1603979684, 18, 17, 0),
+(1, 'ЦЦЦ32', '910', 'FTFM437081', 'Прибор описание39195542575592', 2, 2, '0.55', '59', 2147483647, 1603979684, 18, 17, 0),
 (2, 'ЦЦЦ48', '124', 'type12392', 'klasdfkljboj kljkljklwer7147', 1, 3, '0.39', '25', 1601012825, 1603977592, 17, 17, 0),
 (3, 'ЦЦЦ29', '265', '55', '92147', 1, 2, '0.70', '36', 1601012944, 1603708273, 17, 17, 0),
 (4, 'ЦЦЦ80', '89', '54', '79482', 1, 2, '0.66', '19', 1602486911, 1603247187, 17, 17, 0),
@@ -300,125 +298,125 @@ INSERT INTO `device` (`id`, `name`, `number`, `type`, `description`, `id_departm
 -- Структура таблицы `incoming`
 --
 
-CREATE TABLE `incoming` (
-  `id` int(11) UNSIGNED NOT NULL,
-  `device_id` int(11) UNSIGNED DEFAULT NULL,
+CREATE TABLE IF NOT EXISTS `incoming` (
+  `id` int(11) unsigned NOT NULL,
+  `device_id` int(11) unsigned DEFAULT NULL,
   `description` text,
-  `status` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
-  `payment` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
-  `created_by` int(11) UNSIGNED DEFAULT NULL,
-  `updated_by` int(11) UNSIGNED DEFAULT NULL,
-  `created_at` int(11) DEFAULT NULL,
-  `updated_at` int(11) DEFAULT NULL,
-  `deleted` int(1) UNSIGNED NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `payment` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `created_at` bigint(11) DEFAULT NULL,
+  `updated_at` bigint(11) DEFAULT NULL,
+  `created_by` int(11) unsigned DEFAULT NULL,
+  `updated_by` int(11) unsigned DEFAULT NULL,
+  `deleted` tinyint(1) unsigned NOT NULL DEFAULT '0'
+) ENGINE=InnoDB AUTO_INCREMENT=102 DEFAULT CHARSET=utf8;
 
 --
 -- Дамп данных таблицы `incoming`
 --
 
-INSERT INTO `incoming` (`id`, `device_id`, `description`, `status`, `payment`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted`) VALUES
-(1, 43, '123123', 1, 1, 18, 17, 1619871515, 1603888019, 0),
-(2, 16, '91', 1, 1, 17, 17, 1597580315, 1597839515, 0),
-(3, 87, '69', 1, 0, 17, 17, 1609762715, 1621945115, 0),
-(4, 100, '20', 1, 0, 17, 17, 1587730715, 1599308315, 0),
-(5, 89, '42', 2, 1, 17, 17, 1604146715, 1634127515, 0),
-(6, 54, '93', 0, 0, 17, 17, 1595679515, 1607861915, 0),
-(7, 19, '76', 0, 0, 17, 17, 1589026715, 1602505115, 0),
-(8, 13, '24', 0, 0, 17, 17, 1595679515, 1605961115, 0),
-(9, 19, '72', 2, 1, 17, 17, 1605529115, 1634300315, 0),
-(10, 62, '31', 2, 1, 17, 17, 1587471515, 1590581915, 0),
-(11, 2, '3', 2, 1, 17, 17, 1611145115, 1603979129, 0),
-(12, 6, '56', 2, 0, 17, 17, 1601727515, 1635769115, 0),
-(13, 92, '31', 1, 1, 17, 17, 1587817115, 1614687515, 0),
-(14, 94, '92', 1, 1, 17, 17, 1604751515, 1628252315, 0),
-(15, 55, '27', 0, 1, 17, 17, 1600085915, 1634386715, 0),
-(16, 51, '23', 1, 0, 17, 17, 1593087515, 1611404315, 0),
-(17, 56, '87', 2, 0, 17, 17, 1598789915, 1627388315, 0),
-(18, 92, '77', 2, 1, 17, 17, 1604233115, 1627647515, 0),
-(19, 46, '22', 2, 0, 17, 17, 1588335515, 1611749915, 0),
-(20, 35, '42', 0, 0, 17, 17, 1616156315, 1644927515, 0),
-(21, 12, '39', 2, 1, 17, 17, 1590322715, 1591705115, 0),
-(22, 26, '39', 1, 1, 17, 17, 1616329115, 1637583515, 0),
-(23, 93, '8', 2, 0, 17, 17, 1598703515, 1631103515, 0),
-(24, 51, '66', 0, 1, 17, 17, 1594815515, 1620303515, 0),
-(25, 93, '10', 1, 0, 17, 17, 1588076315, 1613391515, 0),
-(26, 66, '57', 2, 0, 17, 17, 1590495515, 1610626715, 0),
-(27, 78, '13', 1, 0, 17, 17, 1608293915, 1638188315, 0),
-(28, 43, '60', 0, 1, 17, 17, 1620130715, 1633004315, 0),
-(29, 23, '11', 0, 1, 17, 17, 1594469915, 1617193115, 0),
-(30, 93, '76', 0, 0, 17, 17, 1592569115, 1615205915, 0),
-(31, 45, '50', 2, 1, 17, 17, 1599481115, 1602764315, 0),
-(32, 45, '93', 1, 1, 17, 17, 1614860315, 1619525915, 0),
-(33, 86, '91', 2, 1, 17, 17, 1591705115, 1591877915, 0),
-(34, 95, '14', 2, 0, 17, 17, 1615119515, 1624796315, 0),
-(35, 57, '48', 1, 0, 17, 17, 1614341915, 1645273115, 0),
-(36, 42, '10', 1, 1, 17, 17, 1606911515, 1621685915, 0),
-(37, 71, '79', 1, 0, 17, 17, 1600172315, 1630498715, 0),
-(38, 60, '67', 1, 0, 17, 17, 1599826715, 1600345115, 0),
-(39, 90, '93', 0, 0, 17, 17, 1593605915, 1606911515, 0),
-(40, 29, '36', 0, 1, 17, 17, 1612441115, 1642940315, 0),
-(41, 97, '52', 2, 1, 17, 17, 1607775515, 1613132315, 0),
-(42, 25, '69', 1, 1, 17, 17, 1617279515, 1603887802, 1),
-(43, 93, '25', 2, 0, 17, 17, 1614687515, 1628425115, 0),
-(44, 99, '65', 1, 1, 17, 17, 1593260315, 1622290715, 0),
-(45, 28, '60', 2, 0, 17, 17, 1603887515, 1632658715, 0),
-(46, 79, '81', 0, 1, 17, 17, 1594383515, 1606565915, 0),
-(47, 76, '7', 1, 1, 17, 17, 1602591515, 1609071515, 0),
-(48, 41, '41', 0, 0, 17, 17, 1586693915, 1599308315, 0),
-(49, 98, '38', 1, 1, 17, 17, 1605529115, 1636373915, 0),
-(50, 75, '51', 2, 1, 17, 17, 1587817115, 1622031515, 0),
-(51, 11, '47', 0, 0, 17, 17, 1590322715, 1603980166, 1),
-(52, 33, '48', 2, 0, 17, 17, 1619698715, 1621685915, 0),
-(53, 17, '85', 2, 0, 17, 17, 1588508316, 1600431516, 0),
-(54, 83, '53', 0, 0, 17, 17, 1611058716, 1622204316, 0),
-(55, 97, '32', 1, 0, 17, 17, 1601641116, 1613737116, 0),
-(56, 22, '91', 2, 1, 17, 17, 1612095516, 1612354716, 0),
-(57, 83, '79', 1, 0, 17, 17, 1603801116, 1635337116, 0),
-(58, 48, '56', 1, 0, 17, 17, 1601727516, 1619266716, 0),
-(59, 60, '56', 1, 0, 17, 17, 1601727516, 1633868316, 0),
-(60, 19, '22', 2, 1, 17, 17, 1595765916, 1613045916, 0),
-(61, 77, '10', 1, 0, 17, 17, 1616847516, 1641212316, 0),
-(62, 73, '85', 0, 1, 17, 17, 1607516316, 1630671516, 0),
-(63, 57, '12', 2, 1, 17, 17, 1609330716, 1640002716, 0),
-(64, 59, '48', 2, 1, 17, 17, 1596370716, 1605269916, 0),
-(65, 70, '59', 1, 0, 17, 17, 1618229916, 1652703516, 0),
-(66, 97, '74', 2, 0, 17, 17, 1605874716, 1612181916, 0),
-(67, 23, '95', 2, 0, 17, 17, 1587903516, 1591705116, 0),
-(68, 2, '87', 0, 0, 17, 17, 1604060316, 1606393116, 0),
-(69, 2, '70', 1, 1, 17, 17, 1599221916, 1617279516, 0),
-(70, 16, '46', 0, 1, 17, 17, 1619439516, 1620562716, 0),
-(71, 40, '64', 2, 0, 17, 17, 1587903516, 1609244316, 0),
-(72, 21, '27', 1, 0, 17, 17, 1596889116, 1612095516, 0),
-(73, 63, '44', 1, 0, 17, 17, 1603282716, 1609935516, 0),
-(74, 44, '80', 2, 1, 17, 17, 1616761116, 1620130716, 0),
-(75, 45, '76', 0, 1, 17, 17, 1591532316, 1609762716, 0),
-(76, 79, '94', 2, 0, 17, 17, 1599999516, 1623241116, 0),
-(77, 78, '78', 2, 0, 17, 17, 1591273116, 1595420316, 0),
-(78, 66, '7', 0, 1, 17, 17, 1618921116, 1632485916, 0),
-(79, 99, '100', 2, 0, 17, 17, 1616069916, 1622895516, 0),
-(80, 89, '82', 1, 0, 17, 17, 1590149916, 1616069916, 0),
-(81, 25, '81', 2, 1, 17, 17, 1609157916, 1619785116, 0),
-(82, 30, '98', 1, 0, 17, 17, 1589717916, 1620649116, 0),
-(83, 66, '99', 2, 1, 17, 17, 1594815516, 1629116316, 0),
-(84, 83, '24', 2, 0, 17, 17, 1613477916, 1631708316, 0),
-(85, 39, '80', 1, 0, 17, 17, 1601641116, 1620562716, 0),
-(86, 2, '64', 1, 1, 17, 17, 1597061916, 1615378716, 0),
-(87, 63, '17', 2, 1, 17, 17, 1596370716, 1614687516, 0),
-(88, 66, '66', 0, 0, 17, 17, 1613564316, 1633177116, 0),
-(89, 63, '40', 2, 1, 17, 17, 1594124316, 1611231516, 0),
-(90, 81, '76', 2, 0, 17, 17, 1610021916, 1628857116, 0),
-(91, 34, '54', 0, 0, 17, 17, 1616501916, 1619957916, 0),
-(92, 99, '34', 1, 1, 17, 17, 1597407516, 1610021916, 0),
-(93, 40, '88', 0, 0, 17, 17, 1620994716, 1642681116, 0),
-(94, 34, '57', 2, 0, 17, 17, 1594037916, 1611922716, 0),
-(95, 64, '100', 0, 1, 17, 17, 1613218716, 1636892316, 0),
-(96, 51, '79', 2, 1, 17, 17, 1588681116, 1589372316, 0),
-(97, 75, '92', 0, 1, 17, 17, 1594210716, 1602245916, 0),
-(98, 97, '14', 0, 1, 17, 17, 1588076316, 1609676316, 0),
-(99, 73, '23', 2, 1, 17, 17, 1601641116, 1607170716, 0),
-(100, 94, '69', 0, 0, 17, 17, 1619353116, 1643717916, 0),
-(101, 1, '', 0, 0, 17, 17, 1603980618, 1603980618, 0);
+INSERT INTO `incoming` (`id`, `device_id`, `description`, `status`, `payment`, `created_at`, `updated_at`, `created_by`, `updated_by`, `deleted`) VALUES
+(1, 43, '123123', 1, 1, 1619871515, 1603888019, 18, 17, 0),
+(2, 16, '91', 1, 1, 1597580315, 1597839515, 17, 17, 0),
+(3, 87, '69', 1, 0, 1609762715, 1621945115, 17, 17, 0),
+(4, 100, '20', 1, 0, 1587730715, 1599308315, 17, 17, 0),
+(5, 89, '42', 2, 1, 1604146715, 1634127515, 17, 17, 0),
+(6, 54, '93', 0, 0, 1595679515, 1607861915, 17, 17, 0),
+(7, 19, '76', 0, 0, 1589026715, 1602505115, 17, 17, 0),
+(8, 13, '24', 0, 0, 1595679515, 1605961115, 17, 17, 0),
+(9, 19, '72', 2, 1, 1605529115, 1634300315, 17, 17, 0),
+(10, 62, '31', 2, 1, 1587471515, 1590581915, 17, 17, 0),
+(11, 2, '3', 2, 1, 1611145115, 1603979129, 17, 17, 0),
+(12, 6, '56', 2, 0, 1601727515, 1635769115, 17, 17, 0),
+(13, 92, '31', 1, 1, 1587817115, 1614687515, 17, 17, 0),
+(14, 94, '92', 1, 1, 1604751515, 1628252315, 17, 17, 0),
+(15, 55, '27', 0, 1, 1600085915, 1634386715, 17, 17, 0),
+(16, 51, '23', 1, 0, 1593087515, 1611404315, 17, 17, 0),
+(17, 56, '87', 2, 0, 1598789915, 1627388315, 17, 17, 0),
+(18, 92, '77', 2, 1, 1604233115, 1627647515, 17, 17, 0),
+(19, 46, '22', 2, 0, 1588335515, 1611749915, 17, 17, 0),
+(20, 35, '42', 0, 0, 1616156315, 1644927515, 17, 17, 0),
+(21, 12, '39', 2, 1, 1590322715, 1591705115, 17, 17, 0),
+(22, 26, '39', 1, 1, 1616329115, 1637583515, 17, 17, 0),
+(23, 93, '8', 2, 0, 1598703515, 1631103515, 17, 17, 0),
+(24, 51, '66', 0, 1, 1594815515, 1620303515, 17, 17, 0),
+(25, 93, '10', 1, 0, 1588076315, 1613391515, 17, 17, 0),
+(26, 66, '57', 2, 0, 1590495515, 1610626715, 17, 17, 0),
+(27, 78, '13', 1, 0, 1608293915, 1638188315, 17, 17, 0),
+(28, 43, '60', 0, 1, 1620130715, 1633004315, 17, 17, 0),
+(29, 23, '11', 0, 1, 1594469915, 1617193115, 17, 17, 0),
+(30, 93, '76', 0, 0, 1592569115, 1615205915, 17, 17, 0),
+(31, 45, '50', 2, 1, 1599481115, 1602764315, 17, 17, 0),
+(32, 45, '93', 1, 1, 1614860315, 1619525915, 17, 17, 0),
+(33, 86, '91', 2, 1, 1591705115, 1591877915, 17, 17, 0),
+(34, 95, '14', 2, 0, 1615119515, 1624796315, 17, 17, 0),
+(35, 57, '48', 1, 0, 1614341915, 1645273115, 17, 17, 0),
+(36, 42, '10', 1, 1, 1606911515, 1621685915, 17, 17, 0),
+(37, 71, '79', 1, 0, 1600172315, 1630498715, 17, 17, 0),
+(38, 60, '67', 1, 0, 1599826715, 1600345115, 17, 17, 0),
+(39, 90, '93', 0, 0, 1593605915, 1606911515, 17, 17, 0),
+(40, 29, '36', 0, 1, 1612441115, 1642940315, 17, 17, 0),
+(41, 97, '52', 2, 1, 1607775515, 1613132315, 17, 17, 0),
+(42, 25, '69', 1, 1, 1617279515, 1603887802, 17, 17, 1),
+(43, 93, '25', 2, 0, 1614687515, 1628425115, 17, 17, 0),
+(44, 99, '65', 1, 1, 1593260315, 1622290715, 17, 17, 0),
+(45, 28, '60', 2, 0, 1603887515, 1632658715, 17, 17, 0),
+(46, 79, '81', 0, 1, 1594383515, 1606565915, 17, 17, 0),
+(47, 76, '7', 1, 1, 1602591515, 1609071515, 17, 17, 0),
+(48, 41, '41', 0, 0, 1586693915, 1599308315, 17, 17, 0),
+(49, 98, '38', 1, 1, 1605529115, 1636373915, 17, 17, 0),
+(50, 75, '51', 2, 1, 1587817115, 1622031515, 17, 17, 0),
+(51, 11, '47', 0, 0, 1590322715, 1603980166, 17, 17, 1),
+(52, 33, '48', 2, 0, 1619698715, 1621685915, 17, 17, 0),
+(53, 17, '85', 2, 0, 1588508316, 1600431516, 17, 17, 0),
+(54, 83, '53', 0, 0, 1611058716, 1622204316, 17, 17, 0),
+(55, 97, '32', 1, 0, 1601641116, 1613737116, 17, 17, 0),
+(56, 22, '91', 2, 1, 1612095516, 1612354716, 17, 17, 0),
+(57, 83, '79', 1, 0, 1603801116, 1635337116, 17, 17, 0),
+(58, 48, '56', 1, 0, 1601727516, 1619266716, 17, 17, 0),
+(59, 60, '56', 1, 0, 1601727516, 1633868316, 17, 17, 0),
+(60, 19, '22', 2, 1, 1595765916, 1613045916, 17, 17, 0),
+(61, 77, '10', 1, 0, 1616847516, 1641212316, 17, 17, 0),
+(62, 73, '85', 0, 1, 1607516316, 1630671516, 17, 17, 0),
+(63, 57, '12', 2, 1, 1609330716, 1640002716, 17, 17, 0),
+(64, 59, '48', 2, 1, 1596370716, 1605269916, 17, 17, 0),
+(65, 70, '59', 1, 0, 1618229916, 1652703516, 17, 17, 0),
+(66, 97, '74', 2, 0, 1605874716, 1612181916, 17, 17, 0),
+(67, 23, '95', 2, 0, 1587903516, 1591705116, 17, 17, 0),
+(68, 2, '87', 0, 0, 1604060316, 1606393116, 17, 17, 0),
+(69, 2, '70', 1, 1, 1599221916, 1617279516, 17, 17, 0),
+(70, 16, '46', 0, 1, 1619439516, 1620562716, 17, 17, 0),
+(71, 40, '64', 2, 0, 1587903516, 1609244316, 17, 17, 0),
+(72, 21, '27', 1, 0, 1596889116, 1612095516, 17, 17, 0),
+(73, 63, '44', 1, 0, 1603282716, 1609935516, 17, 17, 0),
+(74, 44, '80', 2, 1, 1616761116, 1620130716, 17, 17, 0),
+(75, 45, '76', 0, 1, 1591532316, 1609762716, 17, 17, 0),
+(76, 79, '94', 2, 0, 1599999516, 1623241116, 17, 17, 0),
+(77, 78, '78', 2, 0, 1591273116, 1595420316, 17, 17, 0),
+(78, 66, '7', 0, 1, 1618921116, 1632485916, 17, 17, 0),
+(79, 99, '100', 2, 0, 1616069916, 1622895516, 17, 17, 0),
+(80, 89, '82', 1, 0, 1590149916, 1616069916, 17, 17, 0),
+(81, 25, '81', 2, 1, 1609157916, 1619785116, 17, 17, 0),
+(82, 30, '98', 1, 0, 1589717916, 1620649116, 17, 17, 0),
+(83, 66, '99', 2, 1, 1594815516, 1629116316, 17, 17, 0),
+(84, 83, '24', 2, 0, 1613477916, 1631708316, 17, 17, 0),
+(85, 39, '80', 1, 0, 1601641116, 1620562716, 17, 17, 0),
+(86, 2, '64', 1, 1, 1597061916, 1615378716, 17, 17, 0),
+(87, 63, '17', 2, 1, 1596370716, 1614687516, 17, 17, 0),
+(88, 66, '66', 0, 0, 1613564316, 1633177116, 17, 17, 0),
+(89, 63, '40', 2, 1, 1594124316, 1611231516, 17, 17, 0),
+(90, 81, '76', 2, 0, 1610021916, 1628857116, 17, 17, 0),
+(91, 34, '54', 0, 0, 1616501916, 1619957916, 17, 17, 0),
+(92, 99, '34', 1, 1, 1597407516, 1610021916, 17, 17, 0),
+(93, 40, '88', 0, 0, 1620994716, 1642681116, 17, 17, 0),
+(94, 34, '57', 2, 0, 1594037916, 1611922716, 17, 17, 0),
+(95, 64, '100', 0, 1, 1613218716, 1636892316, 17, 17, 0),
+(96, 51, '79', 2, 1, 1588681116, 1589372316, 17, 17, 0),
+(97, 75, '92', 0, 1, 1594210716, 1602245916, 17, 17, 0),
+(98, 97, '14', 0, 1, 1588076316, 1609676316, 17, 17, 0),
+(99, 73, '23', 2, 1, 1601641116, 1607170716, 17, 17, 0),
+(100, 94, '69', 0, 0, 1619353116, 1643717916, 17, 17, 0),
+(101, 1, '', 0, 0, 1603980618, 1603980618, 17, 17, 0);
 
 -- --------------------------------------------------------
 
@@ -426,7 +424,7 @@ INSERT INTO `incoming` (`id`, `device_id`, `description`, `status`, `payment`, `
 -- Структура таблицы `migration`
 --
 
-CREATE TABLE `migration` (
+CREATE TABLE IF NOT EXISTS `migration` (
   `version` varchar(180) NOT NULL,
   `apply_time` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -448,16 +446,16 @@ INSERT INTO `migration` (`version`, `apply_time`) VALUES
 -- Структура таблицы `scale`
 --
 
-CREATE TABLE `scale` (
-  `id` int(10) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `scale` (
+  `id` int(10) unsigned NOT NULL,
   `value` varchar(255) DEFAULT NULL,
   `description` text,
-  `created_at` int(11) DEFAULT NULL,
-  `updated_at` int(11) DEFAULT NULL,
-  `created_by` int(10) UNSIGNED DEFAULT NULL,
-  `updated_by` int(10) UNSIGNED DEFAULT NULL,
-  `deleted` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `created_at` bigint(11) DEFAULT NULL,
+  `updated_at` bigint(11) DEFAULT NULL,
+  `created_by` int(10) unsigned DEFAULT NULL,
+  `updated_by` int(10) unsigned DEFAULT NULL,
+  `deleted` tinyint(1) unsigned NOT NULL DEFAULT '0'
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 --
 -- Дамп данных таблицы `scale`
@@ -474,19 +472,19 @@ INSERT INTO `scale` (`id`, `value`, `description`, `created_at`, `updated_at`, `
 -- Структура таблицы `user`
 --
 
-CREATE TABLE `user` (
-  `id` int(11) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `user` (
+  `id` int(11) unsigned NOT NULL,
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `auth_key` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
 
 --
 -- Дамп данных таблицы `user`
 --
 
 INSERT INTO `user` (`id`, `username`, `password`, `auth_key`) VALUES
-(17, 'superUser', '$2y$13$KZq1nUjnIUYu12scH64bze1pJfCiD/YsgiI0P7sOKKXbmDCxE6mbm', 'ngTYyFsPLbj6nfrkyYX_108ecsKCBqyy'),
+(17, 'superUser', '$2y$13$KZq1nUjnIUYu12scH64bze1pJfCiD/YsgiI0P7sOKKXbmDCxE6mbm', '6ZTUrmAgk67nmlYDNgd1759AsXYwKoUo'),
 (18, 'user', '$2y$13$ak8tzMsxX/YOmOQOgrl8qu41XJtZeWFVCLi8kJaRT9B7N.DRpuyuO', 'n-zNtvY4RwzJ_RT2ulanWrYnzOo_3ZLA'),
 (19, '123', '$2y$13$hVusrLF3xcXuqrtZeETvl.ozT4jyN/CiSvRwi6M1z3iJxV8SaI4XK', 'qBQ7yJE-a-qyrmYCpKCfDjPAIokHX1tY'),
 (22, 'newUser', '$2y$13$1zWPjekD2OTxdExwyXTxF.KylJaoA7JMYTmPjN.TdcuvZDdXyD/ei', NULL),
@@ -502,22 +500,22 @@ INSERT INTO `user` (`id`, `username`, `password`, `auth_key`) VALUES
 -- Структура таблицы `verification`
 --
 
-CREATE TABLE `verification` (
-  `id` int(11) UNSIGNED NOT NULL,
-  `device_id` int(11) UNSIGNED DEFAULT NULL,
+CREATE TABLE IF NOT EXISTS `verification` (
+  `id` int(11) unsigned NOT NULL,
+  `device_id` int(11) unsigned DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `type` varchar(255) DEFAULT NULL,
   `description` text,
-  `last_date` int(11) DEFAULT NULL,
-  `next_date` int(11) DEFAULT NULL,
-  `period` tinyint(1) UNSIGNED DEFAULT NULL,
-  `created_at` int(11) DEFAULT NULL,
-  `updated_at` int(11) DEFAULT NULL,
-  `created_by` int(11) UNSIGNED DEFAULT NULL,
-  `updated_by` int(11) UNSIGNED DEFAULT NULL,
-  `status` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
-  `deleted` tinyint(1) UNSIGNED NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `last_date` bigint(11) DEFAULT NULL,
+  `next_date` bigint(11) DEFAULT NULL,
+  `period` tinyint(1) unsigned DEFAULT NULL,
+  `created_at` bigint(11) DEFAULT NULL,
+  `updated_at` bigint(11) DEFAULT NULL,
+  `created_by` int(11) unsigned DEFAULT NULL,
+  `updated_by` int(11) unsigned DEFAULT NULL,
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `deleted` tinyint(1) unsigned NOT NULL DEFAULT '0'
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
 
 --
 -- Дамп данных таблицы `verification`
@@ -631,32 +629,32 @@ ALTER TABLE `verification`
 -- AUTO_INCREMENT для таблицы `department`
 --
 ALTER TABLE `department`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
 --
 -- AUTO_INCREMENT для таблицы `device`
 --
 ALTER TABLE `device`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=127;
+  MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=127;
 --
 -- AUTO_INCREMENT для таблицы `incoming`
 --
 ALTER TABLE `incoming`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=102;
+  MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=102;
 --
 -- AUTO_INCREMENT для таблицы `scale`
 --
 ALTER TABLE `scale`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
 --
 -- AUTO_INCREMENT для таблицы `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=28;
 --
 -- AUTO_INCREMENT для таблицы `verification`
 --
 ALTER TABLE `verification`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=17;
 --
 -- Ограничения внешнего ключа сохраненных таблиц
 --
@@ -718,7 +716,6 @@ ALTER TABLE `verification`
   ADD CONSTRAINT `verification_ibfk_1` FOREIGN KEY (`device_id`) REFERENCES `device` (`id`),
   ADD CONSTRAINT `verification_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`),
   ADD CONSTRAINT `verification_ibfk_3` FOREIGN KEY (`updated_by`) REFERENCES `user` (`id`);
-COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
