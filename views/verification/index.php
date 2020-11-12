@@ -72,14 +72,16 @@ $this->params['breadcrumbs'][] = $this->title;
                 'format' => 'date',
                 'filter' => Html::activeInput('date', $searchModel, 'last_date_start')
                     . Yii::$app->formatter->asNtext("\n")
-                    . Html::activeInput('date', $searchModel, 'last_date_end')
+                    . Html::activeInput('date', $searchModel, 'last_date_end'),
+                'filterOptions' => ['class' => 'filter-date']
             ],
             [
                 'attribute' => 'next_date',
                 'format' => 'date',
                 'filter' => Html::activeInput('date', $searchModel, 'next_date_start')
                     . Yii::$app->formatter->asNtext("\n")
-                    . Html::activeInput('date', $searchModel, 'next_date_end')
+                    . Html::activeInput('date', $searchModel, 'next_date_end'),
+                'filterOptions' => ['class' => 'filter-date']
             ],
             'period',
             //            'created_at:date',

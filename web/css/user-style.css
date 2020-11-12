@@ -17,6 +17,29 @@ table td:last-child{
 table td .device-full-name{
     width: 130px;
 }
+table td input{
+    height: 36px !important;
+}
+table .filter-date{
+    font-size: 0;
+}
+table .filter-date input:nth-child(1){
+    height: auto !important;
+    font-size: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px 4px 0 0;
+}
+table .filter-date input:nth-child(1) ~ input{
+    height: auto !important;
+    font-size: 10px;
+    border: 1px solid #ccc;
+    border-radius: 0 0 4px 4px;
+}
+table td select{
+    height: 36px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
 
 span.color-ok{
     color: green;
