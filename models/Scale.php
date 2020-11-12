@@ -85,11 +85,12 @@ class Scale extends ActiveRecord
 
     /**
      * Gets arr[id] = names of scale
+     * @param int $limit
      * @return array
      */
-    public static function getAllValues()
+    public static function getAllValues($limit = 100)
     {
-        $query = self::find()->select(['id', 'value'])->where(['deleted' => Scale::NOT_DELETED])->asArray()->all();
+        $query = self::find()->select(['id', 'value'])->where(['deleted' => Scale::NOT_DELETED])->limit($limit)->asArray()->all();
 
         $outArray = array();
         foreach ($query as $key => $item) {

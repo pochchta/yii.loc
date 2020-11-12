@@ -87,11 +87,12 @@ class Department extends ActiveRecord
 
     /**
      * Gets arr[id] = names of departments
+     * @param int $limit
      * @return array
      */
-    public static function getAllNames()
+    public static function getAllNames($limit = 100)
     {
-        $query = self::find()->select(['id', 'name'])->where(['deleted' => Department::NOT_DELETED])->asArray()->all();
+        $query = self::find()->select(['id', 'name'])->where(['deleted' => Department::NOT_DELETED])->limit($limit)->asArray()->all();
 
         $outArray = array();
         foreach ($query as $key => $item) {
