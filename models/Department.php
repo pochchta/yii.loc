@@ -74,7 +74,7 @@ class Department extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'name' => 'Название',
+            'name' => 'Цех',
             'phone' => 'Телефон',
             'description' => 'Описание',
             'created_at' => 'Создано',
