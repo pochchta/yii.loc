@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Department;
 use app\models\Device;
 use app\models\Incoming;
 use yii\helpers\Html;
@@ -54,16 +55,38 @@ $this->params['breadcrumbs'][] = $this->title;
                         ['title' => $model->device->name . ', № ' . $model->device->number . ($model->device->deleted == Device::DELETED ? ' (удален)' : '')]
                     );
                 },
+                'label' => 'ID приб.'
             ],
             [
-                'format' => 'html',
-                'label' => 'Прибор',
+                'attribute' => 'device.name',
+                'filter' => Html::activeInput(
+                    'text',
+                    $searchModel,
+                    'deviceName',
+                    ['class' => 'form-control']
+                ),
+                'label' => 'Имя приб.'
+            ],
+            [
+                'attribute' => 'device.number',
+                'filter' => Html::activeInput(
+                    'text',
+                    $searchModel,
+                    'deviceNumber',
+                    ['class' => 'form-control']
+                ),
+                'label' => '№ приб.'
+            ],
+            [
+                'attribute' => 'device.department.name',
                 'value' => function ($model) {
-                    return
-                        '<div class="device-full-name">'
-                        . $model->device->name . ', № ' . $model->device->number
-                        . '</div>';
+                    return $model->device->department->name;
                 },
+                'filter' => Html::activeDropDownList(
+                    $searchModel,
+                    'deviceIdDepartment',
+                    [Department::ALL => 'все'] + Department::getAllNames()
+                )
             ],
             'description:ntext',
             [

@@ -13,7 +13,9 @@ class IncomingSearch extends Incoming
     const DEFAULT_LIMIT_RECORDS = 20;
     const PRINT_LIMIT_RECORDS = 500;
     public $limit = self::DEFAULT_LIMIT_RECORDS;
+
     public $created_at_start, $created_at_end, $updated_at_start, $updated_at_end;
+    public $deviceName, $deviceNumber, $deviceIdDepartment;
     /**
      * {@inheritdoc}
      */
@@ -25,7 +27,9 @@ class IncomingSearch extends Incoming
             [['created_at_start', 'created_at_end', 'updated_at_start', 'updated_at_end'], 'string', 'max' => 64],
             [['status'], 'default', 'value' => Incoming::ALL],
             [['payment'], 'default', 'value' => Incoming::ALL],
-            [['deleted'], 'default', 'value' => Incoming::NOT_DELETED]
+            [['deleted'], 'default', 'value' => Incoming::NOT_DELETED],
+            [['deviceName'], 'string', 'max' => 64],
+            [['deviceNumber', 'deviceIdDepartment'], 'integer'],
         ];
     }
 
@@ -47,7 +51,7 @@ class IncomingSearch extends Incoming
      */
     public function search($params)
     {
-        $query = Incoming::find()->with('creator', 'updater', 'device');
+        $query = Incoming::find()->with('creator', 'updater', 'device.department');
 
         // add conditions that should always apply here
 
@@ -95,6 +99,25 @@ class IncomingSearch extends Incoming
         }
         if ($this->updated_at_end != '') {
             $query->andFilterWhere(['<', 'updated_at', strtotime($this->updated_at_end)]);
+        }
+
+        if ($this->deviceName != '') {
+            $query->andOnCondition(
+                'incoming.device_id IN (SELECT id FROM device WHERE device.name LIKE :name)',
+                [':name' => '%' . $this->deviceName . '%']
+            );
+        }
+        if ($this->deviceNumber != '') {
+            $query->andOnCondition(
+                'incoming.device_id IN (SELECT id FROM device WHERE device.number = :name)',
+                [':name' => $this->deviceNumber]
+            );
+        }
+        if ($this->deviceIdDepartment != '') {
+            $query->andOnCondition(
+                'incoming.device_id IN (SELECT id FROM device WHERE device.id_department = :name)',
+                [':name' => $this->deviceIdDepartment]
+            );
         }
 
         return $dataProvider;
