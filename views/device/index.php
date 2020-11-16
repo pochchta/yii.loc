@@ -40,24 +40,26 @@ $this->params['breadcrumbs'][] = $this->title;
             'type',
 //            'description:ntext',
             [
-                'attribute' => 'id_department',
+                'attribute' => 'department.name',
                 'value' => function ($model) {
                     return $model->department->name;
                 },
                 'filter' => Html::activeDropDownList(
                     $searchModel,
                     'id_department',
-                    [Department::ALL => 'все'] + Department::getAllNames())
+                    [Department::ALL => 'все'] + Department::getAllNames()
+                )
             ],
             [
-                'attribute' => 'id_scale',
+                'attribute' => 'scale.value',
                 'value' => function ($model) {
                     return $model->scale->value;
                 },
                 'filter' => Html::activeDropDownList(
                     $searchModel,
                     'id_scale',
-                    [Scale::ALL => 'все'] + Scale::getAllValues())
+                    [Scale::ALL => 'все'] + Scale::getAllValues()
+                )
             ],
             [
                 'attribute' => 'deleted',

@@ -55,6 +55,22 @@ class DeviceSearch extends Device
         ]);
         $dataProvider->pagination->pageSize = $this->limit;
 
+/*        $dataProvider->setSort([                      // нужен join
+            'attributes' => [
+                'name',
+                'number',
+                'type',
+                'department.name' => [
+                    'asc' => ['department.name' => SORT_ASC],
+                    'desc' => ['department.name' => SORT_DESC],
+                    'label' => 'Цех',
+                    'default' => SORT_ASC
+                ],
+                'id_scale',
+                'deleted'
+            ]
+        ]);*/
+
         $this->load($params);
 
         if (!$this->validate()) {
