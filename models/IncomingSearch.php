@@ -109,14 +109,14 @@ class IncomingSearch extends Incoming
         }
         if ($this->deviceNumber != '') {
             $query->andOnCondition(
-                'incoming.device_id IN (SELECT id FROM device WHERE device.number = :name)',
-                [':name' => $this->deviceNumber]
+                'incoming.device_id IN (SELECT id FROM device WHERE device.number = :number)',
+                [':number' => $this->deviceNumber]
             );
         }
-        if ($this->deviceIdDepartment != '') {
+        if ($this->deviceIdDepartment != '' && $this->deviceIdDepartment != Department::ALL) {
             $query->andOnCondition(
-                'incoming.device_id IN (SELECT id FROM device WHERE device.id_department = :name)',
-                [':name' => $this->deviceIdDepartment]
+                'incoming.device_id IN (SELECT id FROM device WHERE device.id_department = :id_dep)',
+                [':id_dep' => $this->deviceIdDepartment]
             );
         }
 
