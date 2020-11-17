@@ -103,7 +103,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'format' => 'html',
                 'value' => function ($model) {
                     if ($model->status == Verification::STATUS_ON) {
-                        return '<span class="glyphicon glyphicon-ok-circle color-ok" title="Действующая поверка"></span>';
+                        return '<span class="glyphicon glyphicon-ok-circle color-ok" title="Последняя поверка"></span>';
                     } else {
                         return '';
                     }
@@ -113,6 +113,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     Verification::STATUS_ON => 'on',
                     Verification::ALL => 'все'
                 ]),
+                'label' => 'Посл.'
             ],
             [
                 'attribute' => 'deleted',
