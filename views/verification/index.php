@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Department;
 use app\models\Device;
 use app\models\Verification;
 use yii\helpers\Html;
@@ -41,8 +42,6 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
-//            'id',
-//            'device_id',
             [
                 'attribute' => 'device_id',
                 'format' => 'html',
@@ -53,20 +52,40 @@ $this->params['breadcrumbs'][] = $this->title;
                         ['title' => $model->device->name . ', № ' . $model->device->number . ($model->device->deleted == Device::DELETED ? ' (удален)' : '')]
                     );
                 },
+                'label' => 'ID приб.'
             ],
             [
-                'format' => 'html',
-                'label' => 'Прибор',
-                'value' => function ($model) {
-                    return
-                        '<div class="device-full-name">'
-                        . $model->device->name . ', № ' . $model->device->number
-                        . '</div>';
-                },
+                'attribute' => 'device.name',
+                'filter' => Html::activeInput(
+                    'text',
+                    $searchModel,
+                    'deviceName',
+                    ['class' => 'form-control']
+                ),
+                'label' => 'Имя приб.'
             ],
-            'name',
+            [
+                'attribute' => 'device.number',
+                'filter' => Html::activeInput(
+                    'text',
+                    $searchModel,
+                    'deviceNumber',
+                    ['class' => 'form-control']
+                ),
+                'label' => '№ приб.'
+            ],
+            [
+                'attribute' => 'device.department.name',
+                'value' => function ($model) {
+                    return $model->device->department->name;
+                },
+                'filter' => Html::activeDropDownList(
+                    $searchModel,
+                    'deviceIdDepartment',
+                    [Department::ALL => 'все'] + Department::getAllNames()
+                )
+            ],
             'type',
-            //            'description',
             [
                 'attribute' => 'last_date',
                 'format' => 'date',
@@ -84,20 +103,6 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filterOptions' => ['class' => 'filter-date']
             ],
             'period',
-            //            'created_at:date',
-            //            'updated_at:date',
-            /*            [
-                            'attribute' => 'created_by',
-                            'value' => function ($model) {
-                                return $model->creator->username;
-                            }
-                        ],*/
-            /*            [
-                            'attribute' => 'updated_by',
-                            'value' => function ($model) {
-                                return $model->updater->username;
-                            }
-                        ],*/
             [
                 'attribute' => 'status',
                 'format' => 'html',

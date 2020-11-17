@@ -13,7 +13,9 @@ class VerificationSearch extends Verification
     const DEFAULT_LIMIT_RECORDS = 20;
     const PRINT_LIMIT_RECORDS = 500;
     public $limit = self::DEFAULT_LIMIT_RECORDS;
+
     public $last_date_start, $last_date_end, $next_date_start, $next_date_end;
+    public $deviceName, $deviceNumber, $deviceIdDepartment;
 
     /**
      * {@inheritdoc}
@@ -26,7 +28,9 @@ class VerificationSearch extends Verification
             [['name', 'type', 'description'], 'string', 'max' => 64],
             [['last_date_start', 'last_date_end', 'next_date_start', 'next_date_end'], 'string', 'max' => 64],
             [['status'], 'default', 'value' => Verification::STATUS_ON],
-            [['deleted'], 'default', 'value' => Verification::NOT_DELETED]
+            [['deleted'], 'default', 'value' => Verification::NOT_DELETED],
+            [['deviceName'], 'string', 'max' => 64],
+            [['deviceNumber', 'deviceIdDepartment'], 'integer'],
         ];
     }
 
@@ -48,7 +52,7 @@ class VerificationSearch extends Verification
      */
     public function search($params)
     {
-        $query = Verification::find()->with('creator', 'updater', 'device');
+        $query = Verification::find()->with('creator', 'updater', 'device.department');
 
         // add conditions that should always apply here
 
@@ -99,6 +103,25 @@ class VerificationSearch extends Verification
         }
         if ($this->next_date_end != '') {
             $query->andFilterWhere(['<', 'next_date', strtotime($this->next_date_end)]);
+        }
+
+        if ($this->deviceName != '') {
+            $query->andOnCondition(
+                'device_id IN (SELECT id FROM device WHERE device.name LIKE :name)',
+                [':name' => '%' . $this->deviceName . '%']
+            );
+        }
+        if ($this->deviceNumber != '') {
+            $query->andOnCondition(
+                'device_id IN (SELECT id FROM device WHERE device.number = :number)',
+                [':number' => $this->deviceNumber]
+            );
+        }
+        if ($this->deviceIdDepartment != '' && $this->deviceIdDepartment != Department::ALL) {
+            $query->andOnCondition(
+                'device_id IN (SELECT id FROM device WHERE device.id_department = :id_dep)',
+                [':id_dep' => $this->deviceIdDepartment]
+            );
         }
 
         return $dataProvider;
