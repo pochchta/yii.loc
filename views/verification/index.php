@@ -21,9 +21,9 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Печать списка', array_merge(
-            ['print-list'], $searchModel->getAttributes(), ['sort' => $params['sort']]
-        ), ['class' => 'btn btn-warning']) ?>
+        <?= Html::a('Печать списка', array_merge(['print-list'], $params), [
+            'class' => 'btn btn-warning',
+        ]) ?>
     </p>
 
     <?php if ($modelDevice != NULL): ?>

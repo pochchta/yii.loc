@@ -58,7 +58,10 @@ class VerificationController extends Controller
 
         $device_id = $params['device_id'];
         if ($device_id != NULL) {
-            $searchModel->status = Verification::ALL;   // по умолчанию, может быть перезаписано далее
+            $searchModel->status = Verification::ALL;     // в searchModel по умолчанию status = STATUS_ON; здесь перезаписываем ALL;
+            if ($params['status'] == '') {                // если status не пустой, то он попадет в модель дальше: $searchModel->search($params);
+                $params['status'] = Verification::ALL;    // <- это нужно ТОЛЬКО для создания ссылки фильтра для печати
+            }
             $modelDevice = Device::findOne(['id' => $device_id]);
         }
 
