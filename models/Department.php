@@ -175,12 +175,11 @@ class Department extends ActiveRecord
      */
     public static function getAllNames($type = self::ALL, $limit = self::MAX_LINES_IN_LIST)
     {
-        $query = self::find()->select(['id', 'name', 'parent_type', 'parent_id'])->where(['deleted' => Department::NOT_DELETED])->limit($limit);
+        $arrWhere = ['deleted' => Department::NOT_DELETED];
         if ($type != self::ALL) {
-            $query->where(['parent_type' => $type]);
+            $arrWhere['parent_type'] = $type;
         }
-        $query = $query->asArray()->all();
-
+        $query = self::find()->select(['id', 'name', 'parent_type', 'parent_id'])->where($arrWhere)->limit($limit)->asArray()->all();
         $outArray = array();
         if ($type == self::ALL) {                   // двухуровневый список
             foreach ($query as $key => $item) {         // сначала группы
