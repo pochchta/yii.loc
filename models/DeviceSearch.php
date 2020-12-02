@@ -92,7 +92,10 @@ class DeviceSearch extends Device
             ->andFilterWhere(['like', 'description', $this->description]);
 
         if ($this->id_department != Department::ALL) {
-            $query->andFilterWhere(['id_department' => $this->id_department]);
+            $query->andOnCondition(
+                'id_department = :id OR id_department IN (SELECT id FROM department WHERE department.parent_id = :id)',
+                [':id' => $this->id_department]
+            );
         }
         if ($this->id_scale != Scale::ALL) {
             $query->andFilterWhere(['id_scale' => $this->id_scale]);
