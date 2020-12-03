@@ -86,9 +86,14 @@ class DeviceController extends Controller
     {
         $model = new Device();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', 'Данные сохранены');
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Запись сохранена');
+                return $this->redirect(['view', 'id' => $model->id]);
+            } else {
+                $errors = $model->getFirstErrors();
+                Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
+            }
         }
 
         return $this->render('create', [
@@ -107,9 +112,14 @@ class DeviceController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', 'Данные сохранены');
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Запись сохранена');
+                return $this->redirect(['view', 'id' => $model->id]);
+            } else {
+                $errors = $model->getFirstErrors();
+                Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
+            }
         }
 
         return $this->render('update', [
@@ -127,12 +137,15 @@ class DeviceController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
+
         if ($model->deleted == Device::NOT_DELETED) {
             if (Verification::findOne(['device_id' => $model->id, 'deleted' => Verification::NOT_DELETED]) !== NULL) {
-                throw new NotFoundHttpException('Ошибка (прибор): запись нельзя удалить, т.к. она используется в поверках');
+                Yii::$app->session->setFlash('error', 'Запись не была удалена (используется в поверках)');
+                return $this->redirect(Yii::$app->request->referrer);
             }
             if (Incoming::findOne(['device_id' => $model->id, 'deleted' => Incoming::NOT_DELETED]) !== NULL) {
-                throw new NotFoundHttpException('Ошибка (прибор): запись нельзя удалить, т.к. она используется в приемках');
+                Yii::$app->session->setFlash('error', 'Запись не была удалена (используется в приемках)');
+                return $this->redirect(Yii::$app->request->referrer);
             }
         }
         $model->deleted == Device::NOT_DELETED ? $model->deleted = Device::DELETED :
@@ -143,6 +156,9 @@ class DeviceController extends Controller
             } else {
                 Yii::$app->session->setFlash('success', 'Данные удалены');
             }
+        } else {
+            $errors = $model->getFirstErrors();
+            Yii::$app->session->setFlash('error', 'Запись не была удалена (' . array_pop($errors) . ')');
         }
 
         return $this->redirect(Yii::$app->request->referrer);
