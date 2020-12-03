@@ -3,7 +3,6 @@
 namespace app\controllers;
 
 use app\models\DepartmentSearch;
-use app\models\Device;
 use Yii;
 use app\models\Department;
 use yii\filters\AccessControl;
@@ -83,9 +82,14 @@ class DepartmentController extends Controller
     {
         $model = new Department();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', 'Данные сохранены');
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Запись сохранена');
+                return $this->redirect(['view', 'id' => $model->id]);
+            } else {
+                $errors = $model->getFirstErrors();
+                Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
+            }
         }
 
         return $this->render('create', [
@@ -104,9 +108,14 @@ class DepartmentController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', 'Данные сохранены');
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Запись сохранена');
+                return $this->redirect(['view', 'id' => $model->id]);
+            } else {
+                $errors = $model->getFirstErrors();
+                Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
+            }
         }
 
         return $this->render('update', [
@@ -123,19 +132,18 @@ class DepartmentController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
-        if ($model->deleted == Department::NOT_DELETED) {
-            if (Device::findOne(['id_department' => $model->id, 'deleted' => Device::NOT_DELETED]) !== NULL) {
-                throw new NotFoundHttpException('Ошибка (цех): запись нельзя удалить, т.к. она используется');
-            }
-        }
+
         $model->deleted == Department::NOT_DELETED ? $model->deleted = Department::DELETED :
             $model->deleted = Department::NOT_DELETED;
         if ($model->save()) {
             if ($model->deleted == Department::NOT_DELETED) {
-                Yii::$app->session->setFlash('success', 'Данные восстановлены');
+                Yii::$app->session->setFlash('success', 'Запись восстановлена');
             } else {
-                Yii::$app->session->setFlash('success', 'Данные удалены');
+                Yii::$app->session->setFlash('success', 'Запись удалена');
             }
+        } else {
+            $errors = $model->getFirstErrors();
+            Yii::$app->session->setFlash('error', 'Запись не была удалена (' . array_pop($errors) . ')');
         }
 
         return $this->redirect(Yii::$app->request->referrer);
