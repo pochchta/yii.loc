@@ -74,7 +74,20 @@ class Incoming extends ActiveRecord
             [['status', 'payment'], 'integer', 'max' => 255],
             [['description'], 'string'],
             [['device_id'], 'exist', 'skipOnError' => true, 'targetClass' => Device::class, 'targetAttribute' => ['device_id' => 'id']],
+            [['device_id'], 'validateDeviceId']
         ];
+    }
+
+    public function validateDeviceId($attribute)
+    {
+        if (!$this->hasErrors()) {
+            $old_device_id = $this->getOldAttribute('device_id');
+            if ($old_device_id !== NULL) {                        // обновление записи
+                if ($this->device_id != $old_device_id) {
+                    $this->addError($attribute, 'Прибор менять нельзя');
+                }
+            }
+        }
     }
 
     /**

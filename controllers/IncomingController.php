@@ -84,7 +84,6 @@ class IncomingController extends Controller
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @param $device_id
      * @return mixed
-     * @throws NotFoundHttpException
      */
     public function actionCreate($device_id)
     {
@@ -92,10 +91,11 @@ class IncomingController extends Controller
 
         if ($model->load(Yii::$app->request->post())) {
             if ($model->save()) {
-                Yii::$app->session->setFlash('success', 'Данные сохранены');
+                Yii::$app->session->setFlash('success', 'Запись сохранена');
                 return $this->redirect(['device/view', 'id' => $model->device_id]);
             } else {
-                throw new NotFoundHttpException('Ошибка (приемка): Не удалось сохранить данные');
+                $errors = $model->getFirstErrors();
+                Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
             }
         }
 
@@ -118,12 +118,12 @@ class IncomingController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post())) {
-            $model->device_id = $model->getOldAttributes()['device_id'];    // device_id менять нельзя
             if ($model->save()) {
-                Yii::$app->session->setFlash('success', 'Данные сохранены');
+                Yii::$app->session->setFlash('success', 'Запись сохранена');
                 return $this->redirect(['device/view', 'id' => $model->device_id]);
             } else {
-                throw new NotFoundHttpException('Ошибка (приемка): Не удалось сохранить данные');
+                $errors = $model->getFirstErrors();
+                Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
             }
         }
 
@@ -151,7 +151,8 @@ class IncomingController extends Controller
                 Yii::$app->session->setFlash('success', 'Данные удалены');
             }
         } else {
-            throw new NotFoundHttpException('Ошибка (приемка): Не удалось сохранить данные');
+            $errors = $model->getFirstErrors();
+            Yii::$app->session->setFlash('error', 'Запись не была удалена (' . array_pop($errors) . ')');
         }
 
         return $this->redirect(Yii::$app->request->referrer);
