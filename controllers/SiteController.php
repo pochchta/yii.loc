@@ -124,8 +124,10 @@ class SiteController extends Controller
 
         if ($model->load(Yii::$app->request->post())) {
             if ($model->updateUser()) {
-                Yii::$app->session->setFlash('success', 'Данные сохранены');
-                return $this->refresh();
+                Yii::$app->session->setFlash('success', 'Запись сохранена');
+            } else {
+                $errors = $model->getFirstErrors();
+                Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
             }
         }
 
