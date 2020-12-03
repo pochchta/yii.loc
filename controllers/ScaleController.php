@@ -83,9 +83,14 @@ class ScaleController extends Controller
     {
         $model = new Scale();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', 'Данные сохранены');
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Запись сохранена');
+                return $this->redirect(['view', 'id' => $model->id]);
+            } else {
+                $errors = $model->getFirstErrors();
+                Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
+            }
         }
 
         return $this->render('create', [
@@ -104,9 +109,14 @@ class ScaleController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', 'Данные сохранены');
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Запись сохранена');
+                return $this->redirect(['view', 'id' => $model->id]);
+            } else {
+                $errors = $model->getFirstErrors();
+                Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
+            }
         }
 
         return $this->render('update', [
@@ -124,9 +134,10 @@ class ScaleController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
+
         if ($model->deleted == Scale::NOT_DELETED) {
             if (Device::findOne(['id_scale' => $model->id, 'deleted' => Device::NOT_DELETED]) !== NULL) {
-                throw new NotFoundHttpException('Ошибка (шкала): запись нельзя удалить, т.к. она используется');
+                Yii::$app->session->setFlash('error', 'Запись не была удалена (используется в приборах)');
             }
         }
 
@@ -134,10 +145,13 @@ class ScaleController extends Controller
             $model->deleted = Scale::NOT_DELETED;
         if ($model->save()) {
             if ($model->deleted == Scale::NOT_DELETED) {
-                Yii::$app->session->setFlash('success', 'Данные восстановлены');
+                Yii::$app->session->setFlash('success', 'Запись восстановлена');
             } else {
-                Yii::$app->session->setFlash('success', 'Данные удалены');
+                Yii::$app->session->setFlash('success', 'Запись удалена');
             }
+        } else {
+            $errors = $model->getFirstErrors();
+            Yii::$app->session->setFlash('error', 'Запись не была удалена (' . array_pop($errors) . ')');
         }
 
         return $this->redirect(Yii::$app->request->referrer);
