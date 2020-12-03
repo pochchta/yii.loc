@@ -146,9 +146,9 @@ class IncomingController extends Controller
             $model->deleted = Incoming::NOT_DELETED;
         if ($model->save()) {
             if ($model->deleted == Incoming::NOT_DELETED) {
-                Yii::$app->session->setFlash('success', 'Данные восстановлены');
+                Yii::$app->session->setFlash('success', 'Запись восстановлена');
             } else {
-                Yii::$app->session->setFlash('success', 'Данные удалены');
+                Yii::$app->session->setFlash('success', 'Запись удалена');
             }
         } else {
             $errors = $model->getFirstErrors();

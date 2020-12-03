@@ -90,7 +90,6 @@ class VerificationController extends Controller
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @param $device_id
      * @return mixed
-     * @throws NotFoundHttpException
      */
     public function actionCreate($device_id)
     {
@@ -99,12 +98,14 @@ class VerificationController extends Controller
         if ($model->load(Yii::$app->request->post())) {
             if ($model->save()) {
                 if ($model->checkLastVerification() == false) {
-                    throw new NotFoundHttpException('Ошибка (поверка): активная поверка не определена');
+                    Yii::$app->session->setFlash('error', 'Запись не была сохранена (последняя поверка не определена)');
+                } else {
+                    Yii::$app->session->setFlash('success', 'Запись сохранена');
+                    return $this->redirect(['device/view', 'id' => $model->device_id]);
                 }
-                Yii::$app->session->setFlash('success', 'Данные сохранены');
-                return $this->redirect(['device/view', 'id' => $model->device_id]);
             } else {
-                throw new NotFoundHttpException('Ошибка (поверка): Не удалось сохранить данные');
+                $errors = $model->getFirstErrors();
+                Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
             }
         }
 
@@ -128,15 +129,16 @@ class VerificationController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post())) {
-            $model->device_id = $model->getOldAttributes()['device_id'];    // device_id менять нельзя
             if ($model->save()) {
                 if ($model->checkLastVerification() == false) {
-                    throw new NotFoundHttpException('Ошибка (поверка): активная поверка не определена');
+                    Yii::$app->session->setFlash('error', 'Запись не была сохранена (последняя поверка не определена)');
+                } else {
+                    Yii::$app->session->setFlash('success', 'Запись сохранена');
+                    return $this->redirect(['device/view', 'id' => $model->device_id]);
                 }
-                Yii::$app->session->setFlash('success', 'Данные сохранены');
-                return $this->redirect(['device/view', 'id' => $model->device_id]);
             } else {
-                throw new NotFoundHttpException('Ошибка (поверка): Не удалось сохранить данные');
+                $errors = $model->getFirstErrors();
+                Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
             }
         }
 
@@ -152,22 +154,25 @@ class VerificationController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-        public function actionDelete($id)
+    public function actionDelete($id)
     {
         $model = $this->findModel($id);
+
         $model->deleted == Verification::NOT_DELETED ? $model->deleted = Verification::DELETED :
             $model->deleted = Verification::NOT_DELETED;
         if ($model->save()) {
             if ($model->checkLastVerification() == false) {
-                throw new NotFoundHttpException('Ошибка (поверка): активная поверка не определена');
-            }
-            if ($model->deleted == Verification::NOT_DELETED) {
-                Yii::$app->session->setFlash('success', 'Данные восстановлены');
+                Yii::$app->session->setFlash('error', 'Запись не была удалена (последняя поверка не определена)');
             } else {
-                Yii::$app->session->setFlash('success', 'Данные удалены');
+                if ($model->deleted == Verification::NOT_DELETED) {
+                    Yii::$app->session->setFlash('success', 'Запись восстановлена');
+                } else {
+                    Yii::$app->session->setFlash('success', 'Запись удалена');
+                }
             }
         } else {
-            throw new NotFoundHttpException('Ошибка (поверка): Не удалось сохранить данные');
+            $errors = $model->getFirstErrors();
+            Yii::$app->session->setFlash('error', 'Запись не была удалена (' . array_pop($errors) . ')');
         }
 
         return $this->redirect(Yii::$app->request->referrer);
