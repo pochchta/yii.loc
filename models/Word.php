@@ -133,7 +133,7 @@ class Word extends ActiveRecord
             $old_deleted = $this->getOldAttribute('deleted');
             if ($old_parent_type !== NULL) {                        // обновление записи
 
-                // если тип не позволяет иметь дочерние элементы, то проверяем есть ли они
+                // если новый тип не позволяет иметь дочерние элементы, то проверяем есть ли они
                 if ($this->parent_type == self::ELEMENT) {
                     $child = self::findOne(['parent_id' => $this->id, 'parent_type' => self::ELEMENT]);
                     if ($child !== NULL) {
@@ -141,54 +141,37 @@ class Word extends ActiveRecord
                     }
                 }
 
-                // если тип не позволяет иметь дочерние категории, то проверяем есть ли они
+                // если новый тип не позволяет иметь дочерние категории, то проверяем есть ли они
                 if ($this->parent_type == self::ELEMENT && $this->parent_type == self::CATEGORY_OF_ELEMENTS) {
-                    $child = self::findOne(['parent_id' => $this->id, 'parent_type' => [1,2,3]]);
+                    $child = self::findOne(['parent_id' => $this->id, 'parent_type' => [
+                        self::CATEGORY_OF_ELEMENTS, self::CATEGORY_OF_CATEGORIES, self::CATEGORY_OF_ALL
+                    ]]);
                     if ($child !== NULL) {
                         $this->addError($attribute, 'Категория уже содержит категории');
                     }
                 }
 
-                // если тип не позволяет использование в других таблицах, ищем в других таблицах
-                if ($this->parent_type == self::CATEGORY_OF_CATEGORIES) {
-
-                }
-
-
-/*                // department_parent to department_child (child не может содержать department)
-                if (
-                    (
-                        $old_parent_type != Department::ONLY_DEVICES &&         // была категория НЕ (только для приборов)
-                        $this->parent_type == Department::ONLY_DEVICES          // теперь категория (только для приборов)
-                    ) || (
-                        $old_parent_type != Department::ONLY_DEVICES &&         // была категория НЕ (только для приборов)
-                        $old_deleted == Department::NOT_DELETED &&              // попытка удаления
-                        $this->deleted == Department::DELETED
-                    )
-                ) {
-                    $child = Department::findOne(['parent_id' => $this->id]);
-                    if ($child !== NULL) {
-                        $this->addError($attribute, 'Категория содержит цеха');
+                // если новый тип не позволяет использование в других таблицах, ищем в таблице [$this->value]
+                if ($this->parent_type != self::ELEMENT) {
+                    $category = $this->value;              // раздел, который предназначен для соответствующей таблицы
+                    if ($this->parent_id != 0) {
+                        $parent = self::findOne($this->parent_id);
+                        $category = $parent->value;
+                        if ($parent->parent_id != 0) {
+                            $parentOfParent = self::findOne($parent->parent_id);
+                            $category = $parentOfParent->value;
+                        }
+                    }
+                    switch ($this->value) {
+                        case 'device': $record = Device::findOne(['parent_id' => $this->id, 'parent_type' => [
+                            self::CATEGORY_OF_ELEMENTS, self::CATEGORY_OF_CATEGORIES, self::CATEGORY_OF_ALL
+                        ]]);
+                        break;
+                    }
+                    if (isset($record)) {
+                        $this->addError($attribute, 'Элемент используется в ' . get_class($record));
                     }
                 }
-
-                // department_child to department_parent (parent не может содержать device)
-                if (
-                    (
-                        $old_parent_type == Department::ONLY_DEVICES &&         // была категория (только для приборов)
-                        $this->parent_type != Department::ONLY_DEVICES          // теперь категория НЕ (только для приборов)
-                    ) || (
-                        $old_parent_type == Department::ONLY_DEVICES &&         // была категория (только для приборов)
-                        $old_deleted == Department::NOT_DELETED &&              // попытка удаления
-                        $this->deleted == Department::DELETED
-                    )
-
-                ) {
-                    $child = Device::findOne(['id_department' => $this->id]);
-                    if ($child !== NULL) {
-                        $this->addError($attribute, 'Категория содержит приборы');
-                    }
-                }*/
             }
         }
     }
@@ -217,19 +200,19 @@ class Word extends ActiveRecord
 
     /**
      * Gets arr[id] = names
-     * @param int $type
+     * @param int $parent_type
      * @param int $parent_id
      * @param int $limit
      * @return array
      */
-    public static function getAllNames($type = self::ALL, $parent_id = self::ALL, $limit = self::MAX_LINES_IN_LIST)
+    public static function getAllNames($parent_type = self::ALL, $parent_id = self::ALL, $limit = self::MAX_LINES_IN_LIST)
     {
         $arrWhere = ['deleted' => Department::NOT_DELETED];
-        if ($type != self::ALL) {
-            if ($type == self::CATEGORY_OF_ALL) {
+        if ($parent_type != self::ALL) {
+            if ($parent_type == self::CATEGORY_OF_ALL) {
                 $arrWhere['parent_type'] = [self::CATEGORY_OF_ELEMENTS, self::CATEGORY_OF_CATEGORIES, self::CATEGORY_OF_ALL];
             } else {
-                $arrWhere['parent_type'] = $type;
+                $arrWhere['parent_type'] = $parent_type;
             }
         }
         if ($parent_id != self::ALL) {
