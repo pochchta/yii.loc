@@ -162,10 +162,8 @@ class Word extends ActiveRecord
                             $category = $parentOfParent->value;
                         }
                     }
-                    switch ($this->value) {
-                        case 'device': $record = Device::findOne(['parent_id' => $this->id, 'parent_type' => [
-                            self::CATEGORY_OF_ELEMENTS, self::CATEGORY_OF_CATEGORIES, self::CATEGORY_OF_ALL
-                        ]]);
+                    switch ($category) {
+                        case 'device': $record = Device::findOne(['word_id' => $this->id]);
                         break;
                     }
                     if (isset($record)) {
