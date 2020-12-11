@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
@@ -53,6 +52,8 @@ class Word extends ActiveRecord
         self::CATEGORY_OF_ALL => 'Категория для элементов и категорий',
     ];
 
+    public $firstCategory, $secondCategory;
+
     public static function tableName()
     {
         return 'word';
@@ -85,6 +86,7 @@ class Word extends ActiveRecord
             [['parent_type'], 'integer', 'min' => 0, 'max' => 3],
             [['parent_id'], 'validateParentId'],
             [['parent_type'], 'validateParentType'],
+            [['firstCategory', 'secondCategory'], 'safe']
         ];
     }
 
@@ -198,7 +200,7 @@ class Word extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'name' => 'Цех',
+            'name' => 'Название',
             'value' => 'Значение',
             'description' => 'Описание',
             'created_at' => 'Создано',
@@ -207,47 +209,41 @@ class Word extends ActiveRecord
             'updated_by' => 'Обновил',
             'deleted' => 'Удален',
             'parent_type' => 'Тип',
-            'parent_id' => 'Категория',
+            'parent_id' => 'Родительская категория',
+            'firstCategory' => 'Раздел',
+            'secondCategory' => 'Категория'
         ];
     }
 
     /**
      * Gets arr[id] = names
      * @param int $type
+     * @param int $parent_id
      * @param int $limit
      * @return array
      */
-    /*public static function getAllNames($type = self::ALL, $limit = self::MAX_LINES_IN_LIST)
+    public static function getAllNames($type = self::ALL, $parent_id = self::ALL, $limit = self::MAX_LINES_IN_LIST)
     {
         $arrWhere = ['deleted' => Department::NOT_DELETED];
         if ($type != self::ALL) {
-            $arrWhere['parent_type'] = $type;
+            if ($type == self::CATEGORY_OF_ALL) {
+                $arrWhere['parent_type'] = [self::CATEGORY_OF_ELEMENTS, self::CATEGORY_OF_CATEGORIES, self::CATEGORY_OF_ALL];
+            } else {
+                $arrWhere['parent_type'] = $type;
+            }
         }
+        if ($parent_id != self::ALL) {
+            $arrWhere['parent_id'] = $parent_id;
+        }
+
         $query = self::find()->select(['id', 'name', 'parent_type', 'parent_id'])->where($arrWhere)->limit($limit)->asArray()->all();
         $outArray = array();
-        if ($type == self::ALL) {                   // двухуровневый список
-            foreach ($query as $key => $item) {         // сначала группы
-                if ($item['parent_type'] == self::ONLY_DEPARTMENT) {
-                    $outArray[$item['id']] = $item['name'];
-                    foreach ($query as $keyChild => $itemChild) {
-                        if ($itemChild['parent_id'] == $item['id']) {
-                            $outArray[$itemChild['id']] = Yii::$app->formatter->asHtml('&nbsp;&nbsp;') . $itemChild['name'];
-                        }
-                    }
-                }
-            }
-            foreach ($query as $key => $item) {         // затем элементы без группы
-                if ($item['parent_type'] == self::ONLY_DEVICES && $item['parent_id'] == 0) {
-                    $outArray[$item['id']] = $item['name'];
-                }
-            }
-        } else {                                // одноуровневый список
-            foreach ($query as $key => $item) {
-                $outArray[$item['id']] = $item['name'];
-            }
+
+        foreach ($query as $key => $item) {
+            $outArray[$item['id']] = $item['name'];
         }
         return $outArray;
-    }*/
+    }
 
     /**
      * Gets query for [[Devices]].
