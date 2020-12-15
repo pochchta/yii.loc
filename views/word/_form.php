@@ -9,7 +9,6 @@ use yii\widgets\Pjax;
 /* @var $this yii\web\View */
 /* @var $model app\models\Word */
 /* @var $form yii\widgets\ActiveForm */
-/* @var $arrFirstCategory array */
 /* @var $arrSecondCategory array */
 
 ?>
@@ -18,11 +17,11 @@ use yii\widgets\Pjax;
 
     <?php Pjax::begin([
         'id' => 'my-pjax-container',
-        'timeout' => 3000,
+//        'timeout' => 1000,
     ]) ?>
     <?php $form = ActiveForm::begin([
         'id' => 'form1',
-        'options' => ['data-pjax' => true]
+//        'options' => ['data-pjax' => true]
     ]); ?>
 
     <?= $form->field($model, 'parent_type')->dropDownList(
@@ -30,7 +29,7 @@ use yii\widgets\Pjax;
     ) ?>
 
     <?= $form->field($model, 'firstCategory')->dropDownList(
-        [0 => 'нет'] + $arrFirstCategory,
+        [0 => 'нет'] + Word::getAllNames(Word::CATEGORY_OF_ALL, 0),
         [
             'onchange'=>'$.pjax.reload({
                 container: "#my-pjax-container", 

@@ -28,17 +28,12 @@ use yii\db\ActiveRecord;
  */
 class Word extends ActiveRecord
 {
-    const MAX_LINES_IN_LIST = 100;      // максимум строк в getAllNames()
+    const MAX_LINES_IN_LIST = 100;      // максимум строк по умолчанию в getAllNames()
 
     const ALL = -1;                     // для всех свойств
 
     const NOT_DELETED = 0;              // по умолчанию word->deleted
     const DELETED = 1;
-
-    const DEPARTMENT = 'department';        // word->name
-    const SCALE = 'scale';
-    const DEVICE_TYPE = 'device_type';
-    const DEVICE_NAME = 'device_name';
 
     const ELEMENT = 0;                      // word->parent_type
     const CATEGORY_OF_ELEMENTS = 1;
@@ -49,7 +44,7 @@ class Word extends ActiveRecord
         self::ELEMENT => 'Элемент',
         self::CATEGORY_OF_ELEMENTS => 'Категория элементов',
         self::CATEGORY_OF_CATEGORIES => 'Категория категорий',
-        self::CATEGORY_OF_ALL => 'Категория для элементов и категорий',
+        self::CATEGORY_OF_ALL => 'Категория для всего',
     ];
 
     public $firstCategory, $secondCategory;
@@ -84,9 +79,9 @@ class Word extends ActiveRecord
             [['description'], 'string'],
             [['name', 'value'], 'string', 'max' => 255],
             [['parent_type'], 'integer', 'min' => 0, 'max' => 3],
-            [['parent_id'], 'validateParentId'],
+            [['parent_type'], 'validateParentId'],
             [['parent_type'], 'validateParentType'],
-            [['firstCategory', 'secondCategory'], 'safe']
+            [['firstCategory', 'secondCategory'], 'integer']
         ];
     }
 
@@ -113,12 +108,12 @@ class Word extends ActiveRecord
                             $parent->parent_type == self::ELEMENT ||
                             $parent->parent_type == self::CATEGORY_OF_ELEMENTS
                         ) {
-                            $this->addError($attribute, 'Категория не подходит');
+                            $this->addError($attribute, 'Родительская категория не может иметь вложенных категорий');
                         }
                     }
                     if ($this->parent_type == self::ELEMENT) {
                         if ($parent->parent_type == self::ELEMENT) {
-                            $this->addError($attribute, 'Категория не подходит');
+                            $this->addError($attribute, 'Родительский элемент - не категория');
                         }
                     }
                 }
@@ -126,23 +121,29 @@ class Word extends ActiveRecord
         }
     }
 
-    public function validateParentType($attribute)          // проверка изменения type
+    public function validateParentType($attribute)          // проверка при изменении type или deleted, изменение названия раздела не проверяется
     {
         if (!$this->hasErrors()) {
             $old_parent_type = $this->getOldAttribute('parent_type');
             $old_deleted = $this->getOldAttribute('deleted');
-            if ($old_parent_type !== NULL) {                        // обновление записи
+            if (
+                $old_parent_type !== NULL &&                                                    // обновление записи
+                ($this->parent_type != $old_parent_type || $this->deleted != $old_deleted)      // изменение type или deleted
+            ) {
 
-                // если новый тип не позволяет иметь дочерние элементы, то проверяем есть ли они
-                if ($this->parent_type == self::ELEMENT) {
+                // если элемент не позволяет иметь дочерние элементы, то проверяем есть ли они
+                if ($this->parent_type == self::ELEMENT || $this->deleted == self::DELETED) {
                     $child = self::findOne(['parent_id' => $this->id, 'parent_type' => self::ELEMENT]);
                     if ($child !== NULL) {
                         $this->addError($attribute, 'Категория уже содержит элементы');
                     }
                 }
 
-                // если новый тип не позволяет иметь дочерние категории, то проверяем есть ли они
-                if ($this->parent_type == self::ELEMENT && $this->parent_type == self::CATEGORY_OF_ELEMENTS) {
+                // если элемент не позволяет иметь дочерние категории, то проверяем есть ли они
+                if (
+                    ($this->parent_type == self::ELEMENT && $this->parent_type == self::CATEGORY_OF_ELEMENTS) ||
+                     $this->deleted == self::DELETED
+                ) {
                     $child = self::findOne(['parent_id' => $this->id, 'parent_type' => [
                         self::CATEGORY_OF_ELEMENTS, self::CATEGORY_OF_CATEGORIES, self::CATEGORY_OF_ALL
                     ]]);
@@ -151,8 +152,8 @@ class Word extends ActiveRecord
                     }
                 }
 
-                // если новый тип не позволяет использование в других таблицах, ищем в таблице [$this->value]
-                if ($this->parent_type != self::ELEMENT) {
+                // если элемент не позволяет использование в других таблицах, ищем в таблице [$this->value]
+                if ($this->parent_type != self::ELEMENT || $this->deleted == self::DELETED) {
                     $category = $this->value;              // раздел, который предназначен для соответствующей таблицы
                     if ($this->parent_id != 0) {
                         $parent = self::findOne($this->parent_id);
@@ -226,14 +227,14 @@ class Word extends ActiveRecord
         return $outArray;
     }
 
-    /**
-     * Gets query for [[Devices]].
-     *
-     * @return ActiveQuery
-     */
-    public function getDevices()
+/*    public function getDevices()
     {
         return $this->hasMany(Device::class, ['id_department' => 'id']);
+    }*/
+
+    public function getParent()
+    {
+        return $this->hasOne(Word::class, ['id' => 'parent_id']);
     }
 
     public function getCreator()

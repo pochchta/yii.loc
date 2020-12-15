@@ -36,11 +36,20 @@ class WordController extends Controller
     public function actionIndex()
     {
         $searchModel = new WordSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $params = Yii::$app->request->queryParams;
+        if ($params['firstCategory'] == Word::ALL || $params['firstCategory'] == '') {
+            $params['secondCategory'] = 0;
+        }
+        $dataProvider = $searchModel->search($params);
+        $arrSecondCategory = [];
+        if ($searchModel->firstCategory != Word::ALL) {
+            $arrSecondCategory = Word::getAllNames(Word::CATEGORY_OF_ALL, $searchModel->firstCategory);
+        }
 
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
+            'arrSecondCategory' => $arrSecondCategory
         ]);
     }
 
@@ -87,35 +96,39 @@ class WordController extends Controller
         $model = $this->findModel($id);
         $parent = $this->findModel($model->parent_id);
 
-        $arrFirstCategory = [];
         $arrSecondCategory = [];
         if ($model->parent_id != 0) {
-            $arrFirstCategory = Word::getAllNames(Word::CATEGORY_OF_ALL, 0);
             if ($parent->parent_id == 0) {
                 $model->firstCategory = $model->parent_id;
+                $model->secondCategory = 0;
             } else {
                 $model->firstCategory = $parent->parent_id;
-                $arrSecondCategory = Word::getAllNames(Word::CATEGORY_OF_ALL, $parent->parent_id);
                 $model->secondCategory = $model->parent_id;
             }
+            $arrSecondCategory = Word::getAllNames(Word::CATEGORY_OF_ALL, $model->firstCategory);
         }
 
         if ($model->load($arrayPost = Yii::$app->request->post())) {
             $arrSecondCategory = Word::getAllNames(Word::CATEGORY_OF_ALL, $model->firstCategory);
-            $model->secondCategory = 0;
+            if ($model->secondCategory != 0) {
+                $model->parent_id = $model->secondCategory;
+            } else {
+                $model->parent_id = $model->firstCategory;
+            }
 
             if (isset($arrayPost['saveButton'])) {                     // сохранение
-
+                if ($model->save()) {
+                    Yii::$app->session->setFlash('success', 'Запись сохранена');
+                    return $this->redirect(['view', 'id' => $model->id]);
+                } else {
+                    $errors = $model->getFirstErrors();
+                    Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
+                }
             }
         }
 
-/*        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        }*/
-
-
         return $this->render('update', compact(
-            'model','arrFirstCategory', 'arrSecondCategory'
+            'model', 'arrSecondCategory'
         ));
     }
 

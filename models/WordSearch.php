@@ -18,6 +18,10 @@ class WordSearch extends Word
         return [
             [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted', 'parent_type', 'parent_id'], 'integer'],
             [['name', 'value', 'description'], 'safe'],
+            [['deleted'], 'default', 'value' => Word::NOT_DELETED],
+            [['parent_type'], 'default', 'value' => Word::ALL],
+            [['firstCategory', 'secondCategory'], 'integer'],
+            [['firstCategory', 'secondCategory'], 'default', 'value' => Word::ALL],
         ];
     }
 
@@ -39,7 +43,7 @@ class WordSearch extends Word
      */
     public function search($params)
     {
-        $query = Word::find();
+        $query = Word::find()->with('parent.parent');
 
         // add conditions that should always apply here
 
@@ -62,15 +66,40 @@ class WordSearch extends Word
             'updated_at' => $this->updated_at,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
-            'deleted' => $this->deleted,
-            'parent_type' => $this->parent_type,
-            'parent_id' => $this->parent_id,
         ]);
 
         $query->andFilterWhere(['like', 'name', $this->name])
             ->andFilterWhere(['like', 'value', $this->value])
             ->andFilterWhere(['like', 'description', $this->description]);
 
+        if ($this->firstCategory != Word::ALL) {
+            $query->andOnCondition(
+                'parent_id = :id OR parent_id IN (SELECT id FROM word WHERE word.parent_id = :id)',
+                [':id' => $this->firstCategory]
+            );
+        }
+
+        if ($this->secondCategory != Word::ALL && $this->secondCategory != '') {
+            $query->andFilterWhere(['parent_id' => $this->secondCategory]);
+        } elseif ($this->firstCategory != Word::ALL && $this->firstCategory != '') {
+            $query->andOnCondition(
+                'parent_id = :id OR parent_id IN (SELECT id FROM word WHERE word.parent_id = :id)',
+                [':id' => $this->firstCategory]
+            );
+        }
+
+        if ($this->deleted == Word::NOT_DELETED || $this->deleted == Word::DELETED) {
+            $query->andFilterWhere(['deleted' => $this->deleted]);
+        }
+
+        if ($this->parent_type != Word::ALL && $this->parent_type != '') {
+            $query->andFilterWhere(['parent_type' => $this->parent_type]);
+        }
+
         return $dataProvider;
+    }
+
+    public function formName() {
+        return '';
     }
 }
