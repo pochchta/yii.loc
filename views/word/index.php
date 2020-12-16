@@ -24,7 +24,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <?php Pjax::begin([
-        'timeout' => 5000,
+        'timeout' => Yii::$app->params['pjaxTimeout']
     ]) ?>
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -62,7 +62,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => Html::activeDropDownList(
                         $searchModel,
                         'firstCategory',
-                        [Word::ALL => 'все'] + Word::getAllNames(Word::CATEGORY_OF_ALL, 0)
+                        [Word::ALL => 'все', '0' => 'нет'] + Word::getAllNames(Word::CATEGORY_OF_ALL, 0)
                     )
             ],
             [

@@ -17,7 +17,7 @@ use yii\widgets\Pjax;
 
     <?php Pjax::begin([
         'id' => 'my-pjax-container',
-//        'timeout' => 1000,
+//        'timeout' => Yii::$app->params['pjaxTimeout']
     ]) ?>
     <?php $form = ActiveForm::begin([
         'id' => 'form1',
@@ -33,10 +33,10 @@ use yii\widgets\Pjax;
         [
             'onchange'=>'$.pjax.reload({
                 container: "#my-pjax-container", 
-                url: "'.Url::to(['', 'id' => $model->id]).'",
+                url: "' . Url::to(['', 'id' => $model->id]) . '",
                 type: "POST",
 		        data: $("#form1").serialize(),
-                timeout: 3000,
+                timeout: ' . Yii::$app->params['pjaxTimeout'] . ',
             });',
         ]
     ) ?>

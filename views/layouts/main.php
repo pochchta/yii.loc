@@ -39,6 +39,7 @@ AppAsset::register($this);
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
             ['label' => 'Ресурсы', 'items' => [
+                ['label' => 'Словарь', 'url' => '/word/index'],
                 ['label' => 'Приемки', 'url' => '/incoming/index'],
                 ['label' => 'Поверки', 'url' => '/verification/index'],
                 ['label' => 'Цеха', 'url' => '/department/index'],
