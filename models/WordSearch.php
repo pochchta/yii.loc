@@ -72,27 +72,24 @@ class WordSearch extends Word
             ->andFilterWhere(['like', 'value', $this->value])
             ->andFilterWhere(['like', 'description', $this->description]);
 
-        if ($this->firstCategory != Word::ALL) {
-            $query->andOnCondition(
-                'parent_id = :id OR parent_id IN (SELECT id FROM word WHERE word.parent_id = :id)',
-                [':id' => $this->firstCategory]
-            );
-        }
-
-        if ($this->secondCategory != Word::ALL && $this->secondCategory != '') {
+        if ($this->secondCategory != Word::ALL) {
             $query->andFilterWhere(['parent_id' => $this->secondCategory]);
-        } elseif ($this->firstCategory != Word::ALL && $this->firstCategory != '') {
-            $query->andOnCondition(
-                'parent_id = :id OR parent_id IN (SELECT id FROM word WHERE word.parent_id = :id)',
-                [':id' => $this->firstCategory]
-            );
+        } elseif ($this->firstCategory != Word::ALL) {
+            if ($this->firstCategory == '0') {
+                $query->andFilterWhere(['parent_id' => $this->firstCategory]);
+            } else {
+                $query->andOnCondition(
+                    'parent_id = :id OR parent_id IN (SELECT id FROM word WHERE word.parent_id = :id)',
+                    [':id' => $this->firstCategory]
+                );
+            }
         }
 
         if ($this->deleted == Word::NOT_DELETED || $this->deleted == Word::DELETED) {
             $query->andFilterWhere(['deleted' => $this->deleted]);
         }
 
-        if ($this->parent_type != Word::ALL && $this->parent_type != '') {
+        if ($this->parent_type != Word::ALL) {
             $query->andFilterWhere(['parent_type' => $this->parent_type]);
         }
 

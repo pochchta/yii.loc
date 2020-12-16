@@ -37,14 +37,17 @@ class WordController extends Controller
     {
         $searchModel = new WordSearch();
         $params = Yii::$app->request->queryParams;
-        if ($params['firstCategory'] == Word::ALL || $params['firstCategory'] == '') {
-            $params['secondCategory'] = 0;
+        $arrSecondCategory = [];
+
+        if ($params['firstCategory'] == Word::ALL || $params['firstCategory'] == 0) {
+            $params['secondCategory'] = Word::ALL;
+        } else {
+            $arrSecondCategory = Word::getAllNames(Word::CATEGORY_OF_ALL, $params['firstCategory']);
+            if (empty($arrSecondCategory) == false) {
+                $arrSecondCategory = [$params['firstCategory'] => 'нет'] + $arrSecondCategory;
+            }
         }
         $dataProvider = $searchModel->search($params);
-        $arrSecondCategory = [];
-        if ($searchModel->firstCategory != Word::ALL) {
-            $arrSecondCategory = Word::getAllNames(Word::CATEGORY_OF_ALL, $searchModel->firstCategory);
-        }
 
         return $this->render('index', [
             'searchModel' => $searchModel,
@@ -70,18 +73,13 @@ class WordController extends Controller
      * Creates a new Word model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
+     * @throws NotFoundHttpException
      */
     public function actionCreate()
     {
         $model = new Word();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        }
-
-        return $this->render('create', [
-            'model' => $model,
-        ]);
+        return $this->saveModel($model, 'create');
     }
 
     /**
@@ -94,7 +92,24 @@ class WordController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-        $parent = $this->findModel($model->parent_id);
+
+        return $this->saveModel($model, 'update');
+    }
+
+    /**
+     * Сохранение и загрузка массива категорий
+     * If update is successful, the browser will be redirected to the 'view' page.
+     * @param $model
+     * @param $view
+     * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function saveModel($model, $view)
+    {
+        $parent = NULL;
+        if ($model->parent_id != 0) {
+            $parent = $this->findModel($model->parent_id);
+        }
 
         $arrSecondCategory = [];
         if ($model->parent_id != 0) {
@@ -127,7 +142,7 @@ class WordController extends Controller
             }
         }
 
-        return $this->render('update', compact(
+        return $this->render($view, compact(
             'model', 'arrSecondCategory'
         ));
     }

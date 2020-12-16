@@ -4,7 +4,6 @@ namespace app\models;
 
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
-use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
@@ -81,7 +80,7 @@ class Word extends ActiveRecord
             [['parent_type'], 'integer', 'min' => 0, 'max' => 3],
             [['parent_type'], 'validateParentId'],
             [['parent_type'], 'validateParentType'],
-            [['firstCategory', 'secondCategory'], 'integer']
+            [['firstCategory', 'secondCategory', 'parent_id'], 'integer']
         ];
     }
 
@@ -100,20 +99,24 @@ class Word extends ActiveRecord
                     $this->addError($attribute, 'Элемент не может содержать категории');
                 }
                 $parent = self::findOne($this->parent_id);
+                $parentAttribute = 'firstCategory';
                 if ($parent === NULL) {
-                    $this->addError($attribute, 'Категория не найдена');
+                    $this->addError($parentAttribute, 'Родительская категория не найдена');
                 } else {
-                    if ($this->parent_type == self::CATEGORY_OF_ELEMENTS) {
-                        if (
-                            $parent->parent_type == self::ELEMENT ||
-                            $parent->parent_type == self::CATEGORY_OF_ELEMENTS
-                        ) {
-                            $this->addError($attribute, 'Родительская категория не может иметь вложенных категорий');
+                    if ($parent->parent_id != 0) {
+                        $parentAttribute = 'secondCategory';
+                    }
+                    if ($parent->parent_type == self::ELEMENT) {
+                        $this->addError($parentAttribute, 'Родительская категория - не категория');
+                    }
+                    if ($parent->parent_type == self::CATEGORY_OF_ELEMENTS) {
+                        if ($this->parent_type != self::ELEMENT) {
+                            $this->addError($parentAttribute, 'Родительская категория не может иметь вложенных категорий');
                         }
                     }
-                    if ($this->parent_type == self::ELEMENT) {
-                        if ($parent->parent_type == self::ELEMENT) {
-                            $this->addError($attribute, 'Родительский элемент - не категория');
+                    if ($parent->parent_type == self::CATEGORY_OF_CATEGORIES) {
+                        if ($this->parent_type != self::CATEGORY_OF_ELEMENTS) {
+                            $this->addError($parentAttribute, 'Родительская категория может иметь только вложенные категории');
                         }
                     }
                 }
@@ -138,7 +141,8 @@ class Word extends ActiveRecord
                         $this->addError($attribute, 'Категория уже содержит элементы');
                     }
                 }
-
+                                                                            // TODO ошибка - сделал из C -> E хотя содержит категории
+                                                                            // TODO при поиске не нужно учитывать удаленные
                 // если элемент не позволяет иметь дочерние категории, то проверяем есть ли они
                 if (
                     ($this->parent_type == self::ELEMENT && $this->parent_type == self::CATEGORY_OF_ELEMENTS) ||
