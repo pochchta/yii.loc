@@ -99,7 +99,7 @@ class WordController extends Controller
     /**
      * Сохранение и загрузка массива категорий
      * If update is successful, the browser will be redirected to the 'view' page.
-     * @param $model
+     * @param $model Word
      * @param $view
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
@@ -120,11 +120,16 @@ class WordController extends Controller
                 $model->firstCategory = $parent->parent_id;
                 $model->secondCategory = $model->parent_id;
             }
-            $arrSecondCategory = Word::getAllNames(Word::CATEGORY_OF_ALL, $model->firstCategory);
+            if ($model->firstCategory != 0) {
+                $arrSecondCategory = Word::getAllNames(Word::CATEGORY_OF_ALL, $model->firstCategory, $model->id);
+            }
         }
 
         if ($model->load($arrayPost = Yii::$app->request->post())) {
-            $arrSecondCategory = Word::getAllNames(Word::CATEGORY_OF_ALL, $model->firstCategory);
+            $arrSecondCategory = [];
+            if ($model->firstCategory != 0) {   // TODO дублирующийся запрос
+                $arrSecondCategory = Word::getAllNames(Word::CATEGORY_OF_ALL, $model->firstCategory, $model->id);
+            }
             if ($model->secondCategory != 0) {
                 $model->parent_id = $model->secondCategory;
             } else {

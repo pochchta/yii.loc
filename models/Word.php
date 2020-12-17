@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -39,6 +40,9 @@ class Word extends ActiveRecord
     const CATEGORY_OF_CATEGORIES = 2;
     const CATEGORY_OF_ALL = 3;
 
+    const DEVICE_NAME = 'device_name_id';       // названия внешних полей (разделов)
+    const DEVICE_TYPE = 'device_type_id';
+
     const LABELS_TYPE = [
         self::ELEMENT => 'Элемент',
         self::CATEGORY_OF_ELEMENTS => 'Категория элементов',
@@ -47,6 +51,8 @@ class Word extends ActiveRecord
     ];
 
     public $firstCategory, $secondCategory;
+
+    private $_parent;
 
     public static function tableName()
     {
@@ -84,6 +90,13 @@ class Word extends ActiveRecord
         ];
     }
 
+    public function getParentRecord() {                  // вспомогательный метод для валидации
+        if ($this->_parent === NULL) {
+            $this->_parent = self::findOne(['id' => $this->parent_id, 'deleted' => self::NOT_DELETED]);
+        }
+        return $this->_parent;
+    }
+
     public function validateParentId($attribute)        // проверка соответствия id, type
     {
         if (!$this->hasErrors()) {
@@ -98,13 +111,16 @@ class Word extends ActiveRecord
                 ) {
                     $this->addError($attribute, 'Элемент не может содержать категории');
                 }
-                $parent = self::findOne($this->parent_id);
+                $parent = $this->getParentRecord();
                 $parentAttribute = 'firstCategory';
                 if ($parent === NULL) {
                     $this->addError($parentAttribute, 'Родительская категория не найдена');
                 } else {
                     if ($parent->parent_id != 0) {
                         $parentAttribute = 'secondCategory';
+                    }
+                    if ($this->id == $this->parent_id) {
+                        $this->addError($parentAttribute, 'Родительская категория совпадает с редактируемой категорией');
                     }
                     if ($parent->parent_type == self::ELEMENT) {
                         $this->addError($parentAttribute, 'Родительская категория - не категория');
@@ -135,46 +151,52 @@ class Word extends ActiveRecord
             ) {
 
                 // если элемент не позволяет иметь дочерние элементы, то проверяем есть ли они
-                if ($this->parent_type == self::ELEMENT || $this->deleted == self::DELETED) {
-                    $child = self::findOne(['parent_id' => $this->id, 'parent_type' => self::ELEMENT]);
+                if (
+                    $this->parent_type == self::ELEMENT ||
+                    $this->parent_type == self::CATEGORY_OF_CATEGORIES ||
+                    $this->deleted == self::DELETED
+                ) {
+                    $child = self::findOne(['parent_id' => $this->id, 'parent_type' => self::ELEMENT, 'deleted' => self::NOT_DELETED]);
                     if ($child !== NULL) {
                         $this->addError($attribute, 'Категория уже содержит элементы');
                     }
                 }
-                                                                            // TODO ошибка - сделал из C -> E хотя содержит категории
-                                                                            // TODO при поиске не нужно учитывать удаленные
+
                 // если элемент не позволяет иметь дочерние категории, то проверяем есть ли они
                 if (
-                    ($this->parent_type == self::ELEMENT && $this->parent_type == self::CATEGORY_OF_ELEMENTS) ||
-                     $this->deleted == self::DELETED
-                ) {
-                    $child = self::findOne(['parent_id' => $this->id, 'parent_type' => [
-                        self::CATEGORY_OF_ELEMENTS, self::CATEGORY_OF_CATEGORIES, self::CATEGORY_OF_ALL
-                    ]]);
+                    $this->parent_type == self::ELEMENT ||
+                    $this->parent_type == self::CATEGORY_OF_ELEMENTS ||
+                    $this->deleted == self::DELETED
+                ) {                                                       // дочерняя категория не может содержать категории, поэтому проверяем только категорию элементов
+                    $child = self::findOne(['parent_id' => $this->id, 'parent_type' => self::CATEGORY_OF_ELEMENTS, 'deleted' => self::NOT_DELETED]);
                     if ($child !== NULL) {
                         $this->addError($attribute, 'Категория уже содержит категории');
                     }
                 }
+                // TODO закоментированный фрагмент не работает:
+                // 1) валидатор работает только при изменении типа или deleted
 
                 // если элемент не позволяет использование в других таблицах, ищем в таблице [$this->value]
-                if ($this->parent_type != self::ELEMENT || $this->deleted == self::DELETED) {
+/*                if ($this->parent_type != self::ELEMENT || $this->deleted == self::DELETED) {
                     $category = $this->value;              // раздел, который предназначен для соответствующей таблицы
                     if ($this->parent_id != 0) {
-                        $parent = self::findOne($this->parent_id);
+                        $parent = $this->getParentRecord();
                         $category = $parent->value;
                         if ($parent->parent_id != 0) {
-                            $parentOfParent = self::findOne($parent->parent_id);
+                            $parentOfParent = self::findOne(['id' => $parent->parent_id, 'deleted' => self::NOT_DELETED]);
                             $category = $parentOfParent->value;
                         }
                     }
                     switch ($category) {
-                        case 'device': $record = Device::findOne(['word_id' => $this->id]);
+                        case self::DEVICE_NAME: $record = Device::findOne([self::DEVICE_NAME => $this->id, 'deleted' => self::NOT_DELETED]);
+                        break;
+                        case self::DEVICE_TYPE: $record = Device::findOne([self::DEVICE_TYPE => $this->id, 'deleted' => self::NOT_DELETED]);
                         break;
                     }
                     if (isset($record)) {
                         $this->addError($attribute, 'Элемент используется в ' . get_class($record));
                     }
-                }
+                }*/
             }
         }
     }
@@ -205,10 +227,10 @@ class Word extends ActiveRecord
      * Gets arr[id] = names
      * @param int $parent_type
      * @param int $parent_id
-     * @param int $limit
+     * @param int $pass_id
      * @return array
      */
-    public static function getAllNames($parent_type = self::ALL, $parent_id = self::ALL, $limit = self::MAX_LINES_IN_LIST)
+    public static function getAllNames($parent_type = self::ALL, $parent_id = self::ALL, $pass_id = NULL)
     {
         $arrWhere = ['deleted' => Department::NOT_DELETED];
         if ($parent_type != self::ALL) {
@@ -222,10 +244,13 @@ class Word extends ActiveRecord
             $arrWhere['parent_id'] = $parent_id;
         }
 
-        $query = self::find()->select(['id', 'name', 'parent_type', 'parent_id'])->where($arrWhere)->limit($limit)->asArray()->all();
+        $query = self::find()->select(['id', 'name', 'parent_type', 'parent_id'])->where($arrWhere)->limit(Yii::$app->params['maxLinesView'])->asArray()->all();
         $outArray = array();
 
         foreach ($query as $key => $item) {
+            if ($item['id'] === $pass_id) {
+                continue;
+            }
             $outArray[$item['id']] = $item['name'];
         }
         return $outArray;
