@@ -40,6 +40,7 @@ AppAsset::register($this);
         'items' => [
             ['label' => 'Ресурсы', 'items' => [
                 ['label' => 'Словарь', 'url' => '/word/index'],
+                ['label' => 'Категории словаря', 'url' => '/category-word/index'],
                 ['label' => 'Приемки', 'url' => '/incoming/index'],
                 ['label' => 'Поверки', 'url' => '/verification/index'],
                 ['label' => 'Цеха', 'url' => '/department/index'],
