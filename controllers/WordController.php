@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\CategoryWord;
 use Yii;
 use app\models\Word;
 use app\models\WordSearch;
@@ -38,22 +39,31 @@ class WordController extends Controller
         $searchModel = new WordSearch();
         $params = Yii::$app->request->queryParams;
         $arrSecondCategory = [];
+        $arrThirdCategory = [];
 
-        if ($params['firstCategory'] == Word::ALL || $params['firstCategory'] == 0) {
-            $params['secondCategory'] = Word::ALL;
+        if ($params['firstCategory'] == CategoryWord::ALL || $params['firstCategory'] == 0) {
+            $params['secondCategory'] = CategoryWord::ALL;
+            $params['thirdCategory'] = CategoryWord::ALL;
         } else {
-            $arrSecondCategory = Word::getAllNames(Word::CATEGORY_OF_ALL, $params['firstCategory']);
+            $arrSecondCategory = CategoryWord::getAllNames($params['firstCategory']);
             if (empty($arrSecondCategory) == false) {
                 $arrSecondCategory = [$params['firstCategory'] => 'нет'] + $arrSecondCategory;
             }
+            if ($params['secondCategory'] == CategoryWord::ALL || $params['secondCategory'] == 0) {
+                $params['thirdCategory'] = CategoryWord::ALL;
+            } else {
+                $arrThirdCategory = CategoryWord::getAllNames($params['secondCategory']);
+                if (empty($arrThirdCategory) == false) {
+                    $arrThirdCategory = [$params['firstCategory'] => 'нет'] + $arrThirdCategory;
+                }
+            }
         }
+
         $dataProvider = $searchModel->search($params);
 
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-            'arrSecondCategory' => $arrSecondCategory
-        ]);
+        return $this->render('index', compact(
+            'searchModel', 'dataProvider', 'arrSecondCategory', 'arrThirdCategory'
+        ));
     }
 
     /**
@@ -121,14 +131,14 @@ class WordController extends Controller
                 $model->secondCategory = $model->parent_id;
             }
             if ($model->firstCategory != 0) {
-                $arrSecondCategory = Word::getAllNames(Word::CATEGORY_OF_ALL, $model->firstCategory, $model->id);
+                $arrSecondCategory = CategoryWord::getAllNames($model->firstCategory, $model->id);
             }
         }
 
         if ($model->load($arrayPost = Yii::$app->request->post())) {
             $arrSecondCategory = [];
             if ($model->firstCategory != 0) {   // TODO дублирующийся запрос
-                $arrSecondCategory = Word::getAllNames(Word::CATEGORY_OF_ALL, $model->firstCategory, $model->id);
+                $arrSecondCategory = CategoryWord::getAllNames($model->firstCategory, $model->id);
             }
             if ($model->secondCategory != 0) {
                 $model->parent_id = $model->secondCategory;

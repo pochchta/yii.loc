@@ -39,7 +39,6 @@ YiiAsset::register($this);
             'created_by',
             'updated_by',
             'deleted',
-            'parent_type',
             'parent_id',
         ],
     ]) ?>

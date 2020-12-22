@@ -1,6 +1,6 @@
 <?php
 
-use app\models\Word;
+use app\models\CategoryWord;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
@@ -24,12 +24,8 @@ use yii\widgets\Pjax;
 //        'options' => ['data-pjax' => true]
     ]); ?>
 
-    <?= $form->field($model, 'parent_type')->dropDownList(
-        Word::LABELS_TYPE
-    ) ?>
-
     <?= $form->field($model, 'firstCategory')->dropDownList(
-        [0 => 'нет'] + Word::getAllNames(Word::CATEGORY_OF_ALL, 0, $model->id),
+        [0 => 'нет'] + CategoryWord::getAllNames(0, $model->id),
         [
             'onchange'=>'$.pjax.reload({
                 container: "#my-pjax-container", 

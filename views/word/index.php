@@ -1,5 +1,6 @@
 <?php
 
+use app\models\CategoryWord;
 use app\models\Word;
 use yii\helpers\Html;
 use yii\grid\GridView;
@@ -9,6 +10,7 @@ use yii\widgets\Pjax;
 /* @var $searchModel app\models\WordSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $arrSecondCategory array */
+/* @var $arrThirdCategory array */
 
 $this->title = 'Словарь';
 $this->params['breadcrumbs'][] = $this->title;
@@ -21,11 +23,11 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= Html::a('Создать запись', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
-
     <?php Pjax::begin([
+        'id' => 'my-pjax-container',
         'timeout' => Yii::$app->params['pjaxTimeout']
     ]) ?>
+    <?php  echo $this->render('_search', ['model' => $searchModel]); ?>
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
@@ -42,17 +44,8 @@ $this->params['breadcrumbs'][] = $this->title;
             //'updated_by',
             //'deleted',
             [
+                'attribute' => 'secondCategory',
                 'format' => 'html',
-                'attribute' => 'parent_type',
-                'value' => function ($model) {
-//                    return "<span title='" . Word::LABELS_TYPE[$model->parent_type] . "'>$model->parent_type</span>";
-                    return Word::LABELS_TYPE[$model->parent_type];
-                },
-                'filter' => Html::activeDropDownList($searchModel, 'parent_type', [Word::ALL => 'все'] + Word::LABELS_TYPE)
-            ],
-            [
-                'format' => 'html',
-                'label' => 'Раздел',
                 'value' => function ($model) {
                     if ($model->parent->parent_id != 0) {
                         return $model->parent->parent->name;
@@ -61,13 +54,13 @@ $this->params['breadcrumbs'][] = $this->title;
                 },
                 'filter' => Html::activeDropDownList(
                         $searchModel,
-                        'firstCategory',
-                        [Word::ALL => 'все', '0' => 'нет'] + Word::getAllNames(Word::CATEGORY_OF_ALL, 0)
+                        'secondCategory',
+                        [CategoryWord::ALL => 'все'] + $arrSecondCategory
                     )
             ],
             [
+                'attribute' => 'thirdCategory',
                 'format' => 'html',
-                'label' => 'Категория',
                 'value' => function ($model) {
                     if ($model->parent->parent_id != 0) {
                         return $model->parent->name;
@@ -76,8 +69,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 },
                 'filter' => Html::activeDropDownList(
                     $searchModel,
-                    'secondCategory',
-                    [Word::ALL => 'все'] + $arrSecondCategory
+                    'thirdCategory',
+                    [CategoryWord::ALL => 'все'] + $arrThirdCategory
                 )
             ],
 

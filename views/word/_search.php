@@ -1,6 +1,7 @@
 <?php
 
-use yii\helpers\Html;
+use app\models\CategoryWord;
+use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
@@ -11,36 +12,24 @@ use yii\widgets\ActiveForm;
 <div class="word-search">
 
     <?php $form = ActiveForm::begin([
+        'id' => 'form1',
         'action' => ['index'],
         'method' => 'get',
+        'options' => ['data-pjax' => true]
     ]); ?>
 
-    <?= $form->field($model, 'id') ?>
-
-    <?= $form->field($model, 'name') ?>
-
-    <?= $form->field($model, 'value') ?>
-
-    <?= $form->field($model, 'description') ?>
-
-    <?= $form->field($model, 'created_at') ?>
-
-    <?php // echo $form->field($model, 'updated_at') ?>
-
-    <?php // echo $form->field($model, 'created_by') ?>
-
-    <?php // echo $form->field($model, 'updated_by') ?>
-
-    <?php // echo $form->field($model, 'deleted') ?>
-
-    <?php // echo $form->field($model, 'parent_type') ?>
-
-    <?php // echo $form->field($model, 'parent_id') ?>
-
-    <div class="form-group">
-        <?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>
-        <?= Html::resetButton('Reset', ['class' => 'btn btn-outline-secondary']) ?>
-    </div>
+    <?= $form->field($model, 'firstCategory')->dropDownList(
+        [CategoryWord::ALL => 'все', '0' => 'нет'] + CategoryWord::getAllNames(0),
+        [
+            'onchange'=>'$.pjax.reload({
+                container: "#my-pjax-container", 
+                url: "' . Url::to('index') . '",
+                type: "GET",
+		        data: $("#form1").serialize(),
+                timeout: ' . Yii::$app->params['pjaxTimeout'] . ',
+            });',
+        ]
+    ) ?>
 
     <?php ActiveForm::end(); ?>
 

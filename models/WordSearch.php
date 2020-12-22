@@ -16,12 +16,11 @@ class WordSearch extends Word
     public function rules()
     {
         return [
-            [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted', 'parent_type', 'parent_id'], 'integer'],
+            [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted', 'parent_id'], 'integer'],
             [['name', 'value', 'description'], 'safe'],
             [['deleted'], 'default', 'value' => Word::NOT_DELETED],
-            [['parent_type'], 'default', 'value' => Word::ALL],
-            [['firstCategory', 'secondCategory'], 'integer'],
-            [['firstCategory', 'secondCategory'], 'default', 'value' => Word::ALL],
+            [['firstCategory', 'secondCategory', 'thirdCategory'], 'integer'],
+            [['firstCategory', 'secondCategory', 'thirdCategory'], 'default', 'value' => CategoryWord::ALL],
         ];
     }
 
@@ -43,7 +42,7 @@ class WordSearch extends Word
      */
     public function search($params)
     {
-        $query = Word::find()->with('parent.parent');
+        $query = Word::find()->with('parent.parent.parent');
 
         // add conditions that should always apply here
 
@@ -72,25 +71,38 @@ class WordSearch extends Word
             ->andFilterWhere(['like', 'value', $this->value])
             ->andFilterWhere(['like', 'description', $this->description]);
 
-        if ($this->secondCategory != Word::ALL) {
-            $query->andFilterWhere(['parent_id' => $this->secondCategory]);
-        } elseif ($this->firstCategory != Word::ALL) {
-            if ($this->firstCategory == '0') {
-                $query->andFilterWhere(['parent_id' => $this->firstCategory]);
+        if ($this->thirdCategory != CategoryWord::ALL) {
+            $query->andFilterWhere(['parent_id' => $this->thirdCategory]);
+        } elseif ($this->secondCategory != CategoryWord::ALL) {
+            if ($this->secondCategory == '0') {         // упрощенный запрос
+                $query->andFilterWhere(['parent_id' => $this->secondCategory]);
             } else {
                 $query->andOnCondition(
-                    'parent_id = :id OR parent_id IN (SELECT id FROM word WHERE word.parent_id = :id)',
+                    'parent_id = :id OR parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id = :id)',
+                    [':id' => $this->secondCategory]
+                );
+            }
+        } elseif ($this->firstCategory != CategoryWord::ALL) {
+            if ($this->firstCategory == '0') {          // упрощенный запрос
+                $query->andOnCondition(
+                    'parent_id = :id OR parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id = :id)',
+                    [':id' => $this->firstCategory]
+                );
+            } else {
+                $query->andOnCondition(
+                    'parent_id = :id OR parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id = :id)'
+                    .'OR parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id = :id))',
                     [':id' => $this->firstCategory]
                 );
             }
         }
+        /*
+         *
+         *
+         */
 
         if ($this->deleted == Word::NOT_DELETED || $this->deleted == Word::DELETED) {
             $query->andFilterWhere(['deleted' => $this->deleted]);
-        }
-
-        if ($this->parent_type != Word::ALL) {
-            $query->andFilterWhere(['parent_type' => $this->parent_type]);
         }
 
         return $dataProvider;
