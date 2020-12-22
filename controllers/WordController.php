@@ -46,6 +46,10 @@ class WordController extends Controller
             $params['thirdCategory'] = CategoryWord::ALL;
         } else {
             $arrSecondCategory = CategoryWord::getAllNames($params['firstCategory']);
+            if ($arrSecondCategory[$params['secondCategory']] === NULL) {
+                $params['secondCategory'] = CategoryWord::ALL;
+                $params['thirdCategory'] = CategoryWord::ALL;
+            }
             if (empty($arrSecondCategory) == false) {
                 $arrSecondCategory = [$params['firstCategory'] => 'нет'] + $arrSecondCategory;
             }
@@ -53,6 +57,9 @@ class WordController extends Controller
                 $params['thirdCategory'] = CategoryWord::ALL;
             } else {
                 $arrThirdCategory = CategoryWord::getAllNames($params['secondCategory']);
+                if ($arrThirdCategory[$params['thirdCategory']] === NULL) {
+                    $params['thirdCategory'] = CategoryWord::ALL;
+                }
                 if (empty($arrThirdCategory) == false) {
                     $arrThirdCategory = [$params['firstCategory'] => 'нет'] + $arrThirdCategory;
                 }
