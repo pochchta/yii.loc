@@ -21,6 +21,7 @@ use yii\db\ActiveRecord;
  * @property int $parent_id
  *
  * @property Device[] $devices magic property
+ * @property CategoryWord $parent magic property
  * @property User|null $creator magic property
  * @property User|null $updater magic property
  */
@@ -102,30 +103,6 @@ class Word extends ActiveRecord
             'thirdCategory' => 'Папка',
         ];
     }
-
-//    /**
-//     * Gets arr[id] = names
-//     * @param int $parent_id
-//     * @param int $pass_id пропускаемый id
-//     * @return array
-//     */
-//    public static function getAllNames($parent_id = self::ALL, $pass_id = NULL)
-//    {
-//        $arrWhere = ['deleted' => Word::NOT_DELETED];
-//        if ($parent_id != self::ALL) {
-//            $arrWhere['parent_id'] = $parent_id;
-//        }
-//        $query = self::find()->select(['id', 'name', 'parent_id'])->where($arrWhere)->limit(Yii::$app->params['maxLinesView'])->asArray()->all();
-//        $outArray = array();
-//
-//        foreach ($query as $key => $item) {
-//            if ($item['id'] === $pass_id) {
-//                continue;
-//            }
-//            $outArray[$item['id']] = $item['name'];
-//        }
-//        return $outArray;
-//    }
 
 /*    public function getDevices()
     {

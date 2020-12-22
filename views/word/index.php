@@ -47,7 +47,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'firstCategory',
                 'format' => 'html',
                 'value' => function ($model) {
-                    return CategoryWord::getParentN($model);
+                    return CategoryWord::getParentName($model);
                 },
                 'filter' => Html::activeDropDownList(
                     $searchModel,
@@ -58,7 +58,7 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'secondCategory',
                 'value' => function ($model) {
-                    return CategoryWord::getParentN($model, 1);
+                    return CategoryWord::getParentName($model, 1);
                 },
                 'filter' => Html::activeDropDownList(
                     $searchModel,
@@ -69,7 +69,7 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'thirdCategory',
                 'value' => function ($model) {
-                    return CategoryWord::getParentN($model, 2);
+                    return CategoryWord::getParentName($model, 2);
                 },
                 'filter' => Html::activeDropDownList(
                     $searchModel,

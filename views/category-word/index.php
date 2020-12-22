@@ -46,19 +46,19 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'firstCategory',
                 'format' => 'html',
                 'value' => function ($model) {
-                    return CategoryWord::getParentN($model);
+                    return CategoryWord::getParentName($model);
                 },
                 'filter' => Html::activeDropDownList(
                     $searchModel,
                     'firstCategory',
-                    [CategoryWord::ALL => 'все', '0' => 'нет'] + CategoryWord::getAllNames(0)
+                    [CategoryWord::ALL => 'все', '0' => 'нет'] + CategoryWord::LABEL_FIELD_WORD
                 )
             ],
             [
                 'attribute' => 'secondCategory',
                 'format' => 'html',
                 'value' => function ($model) {
-                    return CategoryWord::getParentN($model, 1);
+                    return CategoryWord::getParentName($model, 1);
                 },
                 'filter' => Html::activeDropDownList(
                     $searchModel,

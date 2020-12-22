@@ -46,22 +46,22 @@ class WordController extends Controller
             $params['thirdCategory'] = CategoryWord::ALL;
         } else {
             $arrSecondCategory = CategoryWord::getAllNames($params['firstCategory']);
+            if (empty($arrSecondCategory) == false) {
+                $arrSecondCategory = [$params['firstCategory'] => 'нет'] + $arrSecondCategory;
+            }
             if ($arrSecondCategory[$params['secondCategory']] === NULL) {
                 $params['secondCategory'] = CategoryWord::ALL;
                 $params['thirdCategory'] = CategoryWord::ALL;
-            }
-            if (empty($arrSecondCategory) == false) {
-                $arrSecondCategory = [$params['firstCategory'] => 'нет'] + $arrSecondCategory;
             }
             if ($params['secondCategory'] == CategoryWord::ALL || $params['secondCategory'] == 0) {
                 $params['thirdCategory'] = CategoryWord::ALL;
             } else {
                 $arrThirdCategory = CategoryWord::getAllNames($params['secondCategory']);
-                if ($arrThirdCategory[$params['thirdCategory']] === NULL) {
-                    $params['thirdCategory'] = CategoryWord::ALL;
-                }
                 if (empty($arrThirdCategory) == false) {
                     $arrThirdCategory = [$params['firstCategory'] => 'нет'] + $arrThirdCategory;
+                }
+                if ($arrThirdCategory[$params['thirdCategory']] === NULL) {
+                    $params['thirdCategory'] = CategoryWord::ALL;
                 }
             }
         }
@@ -123,10 +123,7 @@ class WordController extends Controller
      */
     public function saveModel($model, $view)
     {
-        $parent = NULL;
-        if ($model->parent_id != 0) {
-            $parent = $this->findModel($model->parent_id);
-        }
+        $parent = $model->parent;
 
         $arrSecondCategory = [];
         if ($model->parent_id != 0) {

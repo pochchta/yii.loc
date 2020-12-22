@@ -22,6 +22,7 @@ use yii\db\ActiveRecord;
  * @property int $parent_id
  *
  * @property Device[] $devices magic property
+ * @property CategoryWord $parent magic property
  * @property User|null $creator magic property
  * @property User|null $updater magic property
  */
@@ -35,10 +36,16 @@ class CategoryWord extends ActiveRecord
     const MAX_NUMBER_PARENTS = 3;       // максимальный уровень вложенности
 
     const FIELD_WORD = [
-        'scale' => '-2',
-        'department' => '-3',
-        'deviceType' => '-4',
-        'deviceName' => '-5',
+        '-2' => 'scale',
+        '-3' => 'department',
+        '-4' => 'deviceType',
+        '-5' => 'deviceName',
+    ];
+    const LABEL_FIELD_WORD = [
+        '-2' => 'Шкалы',
+        '-3' => 'Цеха',
+        '-4' => 'Типы приборов',
+        '-5' => 'Названия приборов',
     ];
 
     public $firstCategory, $secondCategory;
@@ -124,15 +131,17 @@ class CategoryWord extends ActiveRecord
         return $outArray;
     }
 
-    public static function getParentN ($model, $n = 0) {
-        $parents[1] = $model->parent;
+    public static function getParentName ($model, $n = 0) {
+        $parentNames = [];
         for ($i = 1; $i <= self::MAX_NUMBER_PARENTS; $i++) {
-            if ($parents[$i]->parent_id < 0) {
+            if ($model->parent_id <= 0) {
+                $parentNames[] = CategoryWord::LABEL_FIELD_WORD[$model->parent_id];
                 break;
             }
-            $parents[$i+1] = $parents[$i]->parent;
+            $model = $model->parent;
+            $parentNames[] = $model->name;
         }
-        return $parents[count($parents) - $n]->name;
+        return $parentNames[count($parentNames) - $n - 1];
     }
 
 /*    public function getDevices()

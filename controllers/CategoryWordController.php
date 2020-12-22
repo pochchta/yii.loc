@@ -40,11 +40,11 @@ class CategoryWordController extends Controller
             $params['secondCategory'] = CategoryWord::ALL;
         } else {
             $arrSecondCategory = CategoryWord::getAllNames($params['firstCategory']);
-            if ($arrSecondCategory[$params['secondCategory']] === NULL) {
-                $params['secondCategory'] = CategoryWord::ALL;
-            }
             if (empty($arrSecondCategory) == false) {
                 $arrSecondCategory = [$params['firstCategory'] => 'нет'] + $arrSecondCategory;
+            }
+            if ($arrSecondCategory[$params['secondCategory']] === NULL) {
+                $params['secondCategory'] = CategoryWord::ALL;
             }
         }
         $dataProvider = $searchModel->search($params);
@@ -102,14 +102,10 @@ class CategoryWordController extends Controller
      * @param $model CategoryWord
      * @param $view
      * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
      */
     public function saveModel($model, $view)
     {
-        $parent = NULL;
-        if ($model->parent_id != 0) {
-            $parent = $this->findModel($model->parent_id);
-        }
+        $parent = $model->parent;
 
         $arrSecondCategory = [];
         if ($model->parent_id != 0) {
