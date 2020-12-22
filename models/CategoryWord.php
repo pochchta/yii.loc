@@ -32,8 +32,14 @@ class CategoryWord extends ActiveRecord
     const NOT_DELETED = 0;              // по умолчанию CategoryWord->deleted
     const DELETED = 1;
 
-    const DEVICE_NAME = 'device_name_id';       // названия внешних полей (разделов)
-    const DEVICE_TYPE = 'device_type_id';
+    const MAX_NUMBER_PARENTS = 3;       // максимальный уровень вложенности
+
+    const FIELD_WORD = [
+        'scale' => '-2',
+        'department' => '-3',
+        'deviceType' => '-4',
+        'deviceName' => '-5',
+    ];
 
     public $firstCategory, $secondCategory;
 
@@ -100,8 +106,10 @@ class CategoryWord extends ActiveRecord
     public static function getAllNames($parent_id = self::ALL, $pass_id = NULL)
     {
         $arrWhere = ['deleted' => CategoryWord::NOT_DELETED];
-        if ($parent_id != self::ALL) {
-            $arrWhere['parent_id'] = $parent_id;
+        if ($parent_id == 0) {
+            $arrWhere = ['and', 'deleted='.CategoryWord::NOT_DELETED, ['<', 'parent_id', 0]];     // перезапись
+        } elseif ($parent_id != self::ALL) {
+           $arrWhere['parent_id'] = $parent_id;
         }
 
         $query = self::find()->select(['id', 'name', 'parent_id'])->where($arrWhere)->limit(Yii::$app->params['maxLinesView'])->asArray()->all();
@@ -114,6 +122,17 @@ class CategoryWord extends ActiveRecord
             $outArray[$item['id']] = $item['name'];
         }
         return $outArray;
+    }
+
+    public static function getParentN ($model, $n = 0) {
+        $parents[1] = $model->parent;
+        for ($i = 1; $i <= self::MAX_NUMBER_PARENTS; $i++) {
+            if ($parents[$i]->parent_id < 0) {
+                break;
+            }
+            $parents[$i+1] = $parents[$i]->parent;
+        }
+        return $parents[count($parents) - $n]->name;
     }
 
 /*    public function getDevices()

@@ -40,6 +40,9 @@ class CategoryWordController extends Controller
             $params['secondCategory'] = CategoryWord::ALL;
         } else {
             $arrSecondCategory = CategoryWord::getAllNames($params['firstCategory']);
+            if ($arrSecondCategory[$params['secondCategory']] === NULL) {
+                $params['secondCategory'] = CategoryWord::ALL;
+            }
             if (empty($arrSecondCategory) == false) {
                 $arrSecondCategory = [$params['firstCategory'] => 'нет'] + $arrSecondCategory;
             }

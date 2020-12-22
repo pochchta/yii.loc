@@ -26,7 +26,7 @@ $this->params['breadcrumbs'][] = $this->title;
         'id' => 'my-pjax-container',
         'timeout' => Yii::$app->params['pjaxTimeout']
     ]) ?>
-    <?php  echo $this->render('_search', ['model' => $searchModel]); ?>
+<!--    --><?php // echo $this->render('_search', ['model' => $searchModel]); ?>
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
@@ -43,13 +43,22 @@ $this->params['breadcrumbs'][] = $this->title;
             //'updated_by',
             //'deleted',
             [
+                'attribute' => 'firstCategory',
                 'format' => 'html',
-                'label' => 'Категория',
                 'value' => function ($model) {
-                    if ($model->parent->parent_id != 0) {
-                        return $model->parent->name;
-                    }
-                    return NULL;
+                    return CategoryWord::getParentN($model);
+                },
+                'filter' => Html::activeDropDownList(
+                    $searchModel,
+                    'firstCategory',
+                    [CategoryWord::ALL => 'все', '0' => 'нет'] + CategoryWord::getAllNames(0)
+                )
+            ],
+            [
+                'attribute' => 'secondCategory',
+                'format' => 'html',
+                'value' => function ($model) {
+                    return CategoryWord::getParentN($model, 1);
                 },
                 'filter' => Html::activeDropDownList(
                     $searchModel,
