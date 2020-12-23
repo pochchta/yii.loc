@@ -41,7 +41,7 @@ class CategoryWordController extends Controller
         } else {
             $arrSecondCategory = CategoryWord::getAllNames($params['firstCategory']);
             if (empty($arrSecondCategory) == false) {
-                $arrSecondCategory = [$params['firstCategory'] => 'нет'] + $arrSecondCategory;
+                $arrSecondCategory = ['0' => 'нет'] + $arrSecondCategory;
             }
             if ($arrSecondCategory[$params['secondCategory']] === NULL) {
                 $params['secondCategory'] = CategoryWord::ALL;
@@ -49,11 +49,9 @@ class CategoryWordController extends Controller
         }
         $dataProvider = $searchModel->search($params);
 
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-            'arrSecondCategory' => $arrSecondCategory
-        ]);
+        return $this->render('index', compact(
+            'searchModel','dataProvider','arrSecondCategory'
+        ));
     }
 
     /**
@@ -73,7 +71,6 @@ class CategoryWordController extends Controller
      * Creates a new CategoryWord model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
-     * @throws NotFoundHttpException
      */
     public function actionCreate()
     {
@@ -107,26 +104,16 @@ class CategoryWordController extends Controller
     {
         $parent = $model->parent;
 
-        $arrSecondCategory = [];
-        if ($model->parent_id != 0) {
-            if ($parent->parent_id == 0) {
-                $model->firstCategory = $model->parent_id;
-                $model->secondCategory = 0;
-            } else {
-                $model->firstCategory = $parent->parent_id;
-                $model->secondCategory = $model->parent_id;
-            }
-            if ($model->firstCategory != 0) {
-                $arrSecondCategory = CategoryWord::getAllNames($model->firstCategory, $model->id);
-            }
+        if ($parent->parent_id <= 0) {
+            $model->firstCategory = $model->parent_id;
+            $model->secondCategory = 0;
+        } else {
+            $model->firstCategory = $parent->parent_id;
+            $model->secondCategory = $model->parent_id;
         }
 
         if ($model->load($arrayPost = Yii::$app->request->post())) {
-            $arrSecondCategory = [];
-            if ($model->firstCategory != 0) {   // TODO дублирующийся запрос
-                $arrSecondCategory = CategoryWord::getAllNames($model->firstCategory, $model->id);
-            }
-            if ($model->secondCategory != 0) {
+            if ($model->secondCategory > 0) {
                 $model->parent_id = $model->secondCategory;
             } else {
                 $model->parent_id = $model->firstCategory;
@@ -141,6 +128,11 @@ class CategoryWordController extends Controller
                     Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
                 }
             }
+        }
+
+        $arrSecondCategory = [];
+        if ($model->firstCategory != 0) {
+            $arrSecondCategory = CategoryWord::getAllNames($model->firstCategory, $model->id);
         }
 
         return $this->render($view, compact(

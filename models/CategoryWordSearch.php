@@ -71,10 +71,10 @@ class CategoryWordSearch extends CategoryWord
             ->andFilterWhere(['like', 'value', $this->value])
             ->andFilterWhere(['like', 'description', $this->description]);
 
-        if ($this->secondCategory != CategoryWord::ALL) {
+        if ($this->secondCategory != CategoryWord::ALL && $this->secondCategory != 0) {
             $query->andFilterWhere(['parent_id' => $this->secondCategory]);
         } elseif ($this->firstCategory != CategoryWord::ALL) {
-            if ($this->firstCategory == '0') {
+            if ($this->secondCategory == '0') {
                 $query->andFilterWhere(['parent_id' => $this->firstCategory]);
             } else {
                 $query->andOnCondition(
