@@ -12,6 +12,15 @@ use yii\widgets\Pjax;
 /* @var $arrSecondCategory array */
 /* @var $arrThirdCategory array */
 
+$jsOnChange = [
+    'onchange'=>'$.pjax.reload({
+                container: "#my-pjax-container", 
+                url: "' . Url::to(['', 'id' => $model->id]) . '",
+                type: "POST",
+		        data: $("#form1").serialize(),
+                timeout: ' . Yii::$app->params['pjaxTimeout'] . ',
+            });',
+]
 ?>
 
 <div class="word-form">
@@ -26,29 +35,11 @@ use yii\widgets\Pjax;
     ]); ?>
 
     <?= $form->field($model, 'firstCategory')->dropDownList(
-        [0 => 'нет'] + CategoryWord::LABEL_FIELD_WORD,
-        [
-            'onchange'=>'$.pjax.reload({
-                container: "#my-pjax-container", 
-                url: "' . Url::to(['', 'id' => $model->id]) . '",
-                type: "POST",
-		        data: $("#form1").serialize(),
-                timeout: ' . Yii::$app->params['pjaxTimeout'] . ',
-            });',
-        ]
+        [0 => 'нет'] + CategoryWord::LABEL_FIELD_WORD, $jsOnChange
     ) ?>
 
     <?= $form->field($model, 'secondCategory')->dropDownList(
-        [0 => 'нет'] + $arrSecondCategory,
-        [
-            'onchange'=>'$.pjax.reload({
-                container: "#my-pjax-container", 
-                url: "' . Url::to(['', 'id' => $model->id]) . '",
-                type: "POST",
-		        data: $("#form1").serialize(),
-                timeout: ' . Yii::$app->params['pjaxTimeout'] . ',
-            });',
-        ]
+        [0 => 'нет'] + $arrSecondCategory, $jsOnChange
     ) ?>
 
     <?= $form->field($model, 'thirdCategory')->dropDownList(

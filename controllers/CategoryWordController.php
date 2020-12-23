@@ -104,7 +104,7 @@ class CategoryWordController extends Controller
     {
         $parent = $model->parent;
 
-        if ($parent->parent_id <= 0) {
+        if ($model->parent_id <= 0) {
             $model->firstCategory = $model->parent_id;
             $model->secondCategory = 0;
         } else {

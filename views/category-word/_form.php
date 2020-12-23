@@ -25,7 +25,7 @@ use yii\widgets\Pjax;
     ]); ?>
 
     <?= $form->field($model, 'firstCategory')->dropDownList(
-        [0 => 'нет'] + CategoryWord::getAllNames(0, $model->id),
+        [0 => 'нет'] + CategoryWord::LABEL_FIELD_WORD,
         [
             'onchange'=>'$.pjax.reload({
                 container: "#my-pjax-container", 
