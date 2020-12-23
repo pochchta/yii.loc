@@ -162,9 +162,9 @@ class WordController extends Controller
         $arrSecondCategory = [];
         $arrThirdCategory = [];
         if ($model->firstCategory != 0) {
-            $arrSecondCategory = CategoryWord::getAllNames($model->firstCategory, $model->id);
+            $arrSecondCategory = CategoryWord::getAllNames($model->firstCategory);
             if ($model->secondCategory != 0 && in_array($model->secondCategory, array_keys($arrSecondCategory))) {
-                $arrThirdCategory = CategoryWord::getAllNames($model->secondCategory, $model->id);
+                $arrThirdCategory = CategoryWord::getAllNames($model->secondCategory);
             }
         }
 
