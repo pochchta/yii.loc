@@ -47,7 +47,7 @@ class WordController extends Controller
         } else {
             $arrSecondCategory = CategoryWord::getAllNames($params['firstCategory']);
             if (empty($arrSecondCategory) == false) {
-                $arrSecondCategory = [$params['firstCategory'] => 'нет'] + $arrSecondCategory;
+                $arrSecondCategory = ['0' => 'нет'] + $arrSecondCategory;
             }
             if ($arrSecondCategory[$params['secondCategory']] === NULL) {
                 $params['secondCategory'] = CategoryWord::ALL;
@@ -58,7 +58,7 @@ class WordController extends Controller
             } else {
                 $arrThirdCategory = CategoryWord::getAllNames($params['secondCategory']);
                 if (empty($arrThirdCategory) == false) {
-                    $arrThirdCategory = [$params['firstCategory'] => 'нет'] + $arrThirdCategory;
+                    $arrThirdCategory = ['0' => 'нет'] + $arrThirdCategory;
                 }
                 if ($arrThirdCategory[$params['thirdCategory']] === NULL) {
                     $params['thirdCategory'] = CategoryWord::ALL;

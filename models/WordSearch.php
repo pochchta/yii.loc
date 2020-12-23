@@ -42,7 +42,7 @@ class WordSearch extends Word
      */
     public function search($params)
     {
-        $query = Word::find()->with('parent.parent.parent');
+        $query = Word::find()->with('parent.parent');
 
         // add conditions that should always apply here
 

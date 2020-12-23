@@ -52,7 +52,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => Html::activeDropDownList(
                     $searchModel,
                     'firstCategory',
-                    [CategoryWord::ALL => 'все', '0' => 'нет'] + CategoryWord::getAllNames(0)
+                    [CategoryWord::ALL => 'все', '0' => 'нет'] + CategoryWord::LABEL_FIELD_WORD
                 )
             ],
             [
