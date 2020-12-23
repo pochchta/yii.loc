@@ -71,10 +71,10 @@ class WordSearch extends Word
             ->andFilterWhere(['like', 'value', $this->value])
             ->andFilterWhere(['like', 'description', $this->description]);
 
-        if ($this->thirdCategory != CategoryWord::ALL) {
+        if ($this->thirdCategory != CategoryWord::ALL && $this->thirdCategory != 0) {
             $query->andFilterWhere(['parent_id' => $this->thirdCategory]);
-        } elseif ($this->secondCategory != CategoryWord::ALL) {
-            if ($this->secondCategory == '0') {         // упрощенный запрос
+        } elseif ($this->secondCategory != CategoryWord::ALL && $this->secondCategory != 0) {
+            if ($this->thirdCategory == '0') {      // "все", без поиска потомков
                 $query->andFilterWhere(['parent_id' => $this->secondCategory]);
             } else {
                 $query->andOnCondition(
@@ -83,9 +83,9 @@ class WordSearch extends Word
                 );
             }
         } elseif ($this->firstCategory != CategoryWord::ALL) {
-            if ($this->firstCategory == '0') {          // упрощенный запрос
+            if ($this->secondCategory == '0') {      // "все", без поиска потомков
                 $query->andOnCondition(
-                    'parent_id = :id OR parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id = :id)',
+                    'parent_id = :id',
                     [':id' => $this->firstCategory]
                 );
             } else {
