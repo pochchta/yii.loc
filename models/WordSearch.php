@@ -96,10 +96,6 @@ class WordSearch extends Word
                 );
             }
         }
-        /*
-         *
-         *
-         */
 
         if ($this->deleted == Word::NOT_DELETED || $this->deleted == Word::DELETED) {
             $query->andFilterWhere(['deleted' => $this->deleted]);

@@ -119,32 +119,30 @@ class WordController extends Controller
      * @param $model Word
      * @param $view
      * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
      */
     public function saveModel($model, $view)
     {
         $parent = $model->parent;
+        $parentOfParent = $parent->parent;
 
-        $arrSecondCategory = [];
-        if ($model->parent_id != 0) {
-            if ($parent->parent_id == 0) {
-                $model->firstCategory = $model->parent_id;
-                $model->secondCategory = 0;
-            } else {
-                $model->firstCategory = $parent->parent_id;
-                $model->secondCategory = $model->parent_id;
-            }
-            if ($model->firstCategory != 0) {
-                $arrSecondCategory = CategoryWord::getAllNames($model->firstCategory, $model->id);
-            }
+        if ($model->parent_id <= 0) {
+            $model->firstCategory = $model->parent_id;
+            $model->secondCategory = 0;
+            $model->thirdCategory = 0;
+        } elseif ($parent->parent_id <= 0) {
+            $model->firstCategory = $parent->parent_id;
+            $model->secondCategory = $model->parent_id;
+            $model->thirdCategory = 0;
+        } else {
+            $model->firstCategory = $parentOfParent->parent_id;
+            $model->secondCategory = $parent->parent_id;
+            $model->thirdCategory = $model->parent_id;
         }
 
         if ($model->load($arrayPost = Yii::$app->request->post())) {
-            $arrSecondCategory = [];
-            if ($model->firstCategory != 0) {   // TODO дублирующийся запрос
-                $arrSecondCategory = CategoryWord::getAllNames($model->firstCategory, $model->id);
-            }
-            if ($model->secondCategory != 0) {
+            if ($model->thirdCategory > 0) {
+                $model->parent_id = $model->thirdCategory;
+            } elseif ($model->secondCategory > 0) {
                 $model->parent_id = $model->secondCategory;
             } else {
                 $model->parent_id = $model->firstCategory;
@@ -161,8 +159,17 @@ class WordController extends Controller
             }
         }
 
+        $arrSecondCategory = [];
+        $arrThirdCategory = [];
+        if ($model->firstCategory != 0) {
+            $arrSecondCategory = CategoryWord::getAllNames($model->firstCategory, $model->id);
+            if ($model->secondCategory != 0 && in_array($model->secondCategory, array_keys($arrSecondCategory))) {
+                $arrThirdCategory = CategoryWord::getAllNames($model->secondCategory, $model->id);
+            }
+        }
+
         return $this->render($view, compact(
-            'model', 'arrSecondCategory'
+            'model', 'arrSecondCategory', 'arrThirdCategory'
         ));
     }
 

@@ -10,6 +10,7 @@ use yii\widgets\Pjax;
 /* @var $model app\models\Word */
 /* @var $form yii\widgets\ActiveForm */
 /* @var $arrSecondCategory array */
+/* @var $arrThirdCategory array */
 
 ?>
 
@@ -25,7 +26,7 @@ use yii\widgets\Pjax;
     ]); ?>
 
     <?= $form->field($model, 'firstCategory')->dropDownList(
-        [0 => 'нет'] + CategoryWord::getAllNames(0, $model->id),
+        [0 => 'нет'] + CategoryWord::LABEL_FIELD_WORD,
         [
             'onchange'=>'$.pjax.reload({
                 container: "#my-pjax-container", 
@@ -38,7 +39,20 @@ use yii\widgets\Pjax;
     ) ?>
 
     <?= $form->field($model, 'secondCategory')->dropDownList(
-        [0 => 'нет'] + $arrSecondCategory
+        [0 => 'нет'] + $arrSecondCategory,
+        [
+            'onchange'=>'$.pjax.reload({
+                container: "#my-pjax-container", 
+                url: "' . Url::to(['', 'id' => $model->id]) . '",
+                type: "POST",
+		        data: $("#form1").serialize(),
+                timeout: ' . Yii::$app->params['pjaxTimeout'] . ',
+            });',
+        ]
+    ) ?>
+
+    <?= $form->field($model, 'thirdCategory')->dropDownList(
+        [0 => 'нет'] + $arrThirdCategory
     ) ?>
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
