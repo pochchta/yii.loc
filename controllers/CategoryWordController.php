@@ -121,27 +121,15 @@ class CategoryWordController extends Controller
 
             if (isset($arrayPost['saveButton'])) {                     // сохранение
                 $fileMutex = Yii::$app->mutex;              /* @var $fileMutex yii\mutex\FileMutex */
-                $arrAcquire['name'] = 'category_word_' . $model->id;
-                if ($model->parent_id > 0) {
-                    $arrAcquire['secondCategory'] = 'category_word_' . $model->parent_id;
-                }
-                $acquireResult = true;
-                foreach ($arrAcquire as $key => $item) {
-                    $result = $fileMutex->acquire($item, Yii::$app->params['mutexTimeout']);
-                    $acquireResult = $acquireResult && $result;
-                    if ($result == false) {
-                        $model->addError($key, 'Запись редактируется, попробуйте еще раз');     // если выполнить $model->save(), то ошибка затрется
-                    }
-                }
 
                 $saveResult = false;
-                if ($acquireResult) {
+                if ($fileMutex->acquire('category_word', Yii::$app->params['mutexTimeout'])) {
                     $saveResult = $model->save();
+                } else {
+                    $model->addError('name', 'Категории словаря редактируются, попробуйте еще раз');
                 }
 
-                foreach ($arrAcquire as $item) {
-                    $fileMutex->release($item);
-                }
+                $fileMutex->release('category_word');
 
                 if ($saveResult) {
                     Yii::$app->session->setFlash('success', 'Запись сохранена');

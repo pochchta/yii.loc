@@ -79,8 +79,37 @@ class CategoryWord extends ActiveRecord
             [['name', 'parent_id'], 'required'],
             [['description'], 'string'],
             [['name', 'value'], 'string', 'max' => 255],
-            [['firstCategory', 'secondCategory', 'parent_id'], 'integer']
+            [['firstCategory', 'secondCategory', 'parent_id'], 'integer'],
+            [['parent_id'], 'validateParent']
         ];
+    }
+
+    public function validateParent()
+    {
+        if (!$this->hasErrors()) {
+            $parentAttribute = 'firstCategory';
+
+            if ($this->parent_id < 0) {             // корневой раздел
+                if (in_array($this->parent_id, array_keys(CategoryWord::LABEL_FIELD_WORD)) == false) {
+                    $this->addError($parentAttribute, 'Такого корневого раздела нет');
+                }
+            } elseif ($this->parent_id > 0) {       // есть родительская категория
+                $parentAttribute = 'secondCategory';
+
+                $parent = $this->parent;
+                if ($parent === NULL) {
+                    $this->addError($parentAttribute, 'Родительская категория не найдена');
+                }
+                if (in_array($parent->parent_id, array_keys(CategoryWord::LABEL_FIELD_WORD)) == false) {
+                    $this->addError($parentAttribute, 'Родительский раздел не корневой');
+                }
+
+                $child = CategoryWord::findOne(['parent_id' => $this->id, 'deleted' => self::NOT_DELETED]);
+                if ($child !== NULL) {
+                    $this->addError($parentAttribute, 'Категория уже содержит дочерние категории');
+                }
+            }
+        }
     }
 
     /**
@@ -114,7 +143,7 @@ class CategoryWord extends ActiveRecord
     {
         $arrWhere = ['deleted' => CategoryWord::NOT_DELETED];
         if ($parent_id == 0) {
-            $arrWhere = ['and', 'deleted='.CategoryWord::NOT_DELETED, ['<', 'parent_id', 0]];     // перезапись
+            $arrWhere = ['and', 'deleted='.CategoryWord::NOT_DELETED, ['<', 'parent_id', 0]];     // перезапись условия
         } elseif ($parent_id != self::ALL) {
            $arrWhere['parent_id'] = $parent_id;
         }
@@ -151,7 +180,7 @@ class CategoryWord extends ActiveRecord
 
     public function getParent()
     {
-        return $this->hasOne(CategoryWord::class, ['id' => 'parent_id']);
+        return $this->hasOne(self::class, ['id' => 'parent_id'])->where(['deleted' => self::NOT_DELETED]);
     }
 
     public function getCreator()

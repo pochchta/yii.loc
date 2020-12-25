@@ -66,6 +66,9 @@ $config = [
             'rules' => [
             ],
         ],
+        'mutex' => [
+            'class' => 'yii\mutex\FileMutex'
+        ],
     ],
     'params' => $params,
 ];
