@@ -87,26 +87,27 @@ class CategoryWord extends ActiveRecord
     public function validateParent()
     {
         if (!$this->hasErrors()) {
-            $parentAttribute = 'firstCategory';
+            if ($this->deleted == self::NOT_DELETED) {
+                $parentAttribute = 'firstCategory';
+                if ($this->parent_id < 0) {             // корневой раздел
+                    if (in_array($this->parent_id, array_keys(CategoryWord::LABEL_FIELD_WORD)) == false) {
+                        $this->addError($parentAttribute, 'Такого корневого раздела нет');
+                    }
+                } elseif ($this->parent_id > 0) {       // есть родительская категория
+                    $parentAttribute = 'secondCategory';
 
-            if ($this->parent_id < 0) {             // корневой раздел
-                if (in_array($this->parent_id, array_keys(CategoryWord::LABEL_FIELD_WORD)) == false) {
-                    $this->addError($parentAttribute, 'Такого корневого раздела нет');
-                }
-            } elseif ($this->parent_id > 0) {       // есть родительская категория
-                $parentAttribute = 'secondCategory';
+                    $parent = $this->parent;
+                    if ($parent === NULL) {
+                        $this->addError($parentAttribute, 'Родительская категория не найдена');
+                    }
+                    if (in_array($parent->parent_id, array_keys(CategoryWord::LABEL_FIELD_WORD)) == false) {
+                        $this->addError($parentAttribute, 'Родительский раздел не корневой');
+                    }
 
-                $parent = $this->parent;
-                if ($parent === NULL) {
-                    $this->addError($parentAttribute, 'Родительская категория не найдена');
-                }
-                if (in_array($parent->parent_id, array_keys(CategoryWord::LABEL_FIELD_WORD)) == false) {
-                    $this->addError($parentAttribute, 'Родительский раздел не корневой');
-                }
-
-                $child = CategoryWord::findOne(['parent_id' => $this->id, 'deleted' => self::NOT_DELETED]);
-                if ($child !== NULL) {
-                    $this->addError($parentAttribute, 'Категория уже содержит дочерние категории');
+                    $child = CategoryWord::findOne(['parent_id' => $this->id, 'deleted' => self::NOT_DELETED]);
+                    if ($child !== NULL) {
+                        $this->addError($parentAttribute, 'Категория уже содержит дочерние категории');
+                    }
                 }
             }
         }
@@ -180,7 +181,7 @@ class CategoryWord extends ActiveRecord
 
     public function getParent()
     {
-        return $this->hasOne(self::class, ['id' => 'parent_id'])->where(['deleted' => self::NOT_DELETED]);
+        return $this->hasOne(self::class, ['id' => 'parent_id']);
     }
 
     public function getCreator()

@@ -160,9 +160,35 @@ class CategoryWordController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
 
-        return $this->redirect(['index']);
+        $model->deleted == CategoryWord::NOT_DELETED ? $model->deleted = CategoryWord::DELETED :
+            $model->deleted = CategoryWord::NOT_DELETED;
+
+        $fileMutex = Yii::$app->mutex;              /* @var $fileMutex yii\mutex\FileMutex */
+
+        $saveResult = false;
+        if ($fileMutex->acquire('category_word', Yii::$app->params['mutexTimeout'])) {
+            $saveResult = $model->save();
+        } else {
+            $model->addError('name', 'Категории словаря редактируются, попробуйте еще раз');
+        }
+
+        $fileMutex->release('category_word');
+
+        if ($saveResult) {
+            if ($model->deleted == CategoryWord::NOT_DELETED) {
+                Yii::$app->session->setFlash('success', 'Данные восстановлены');
+            } else {
+                Yii::$app->session->setFlash('success', 'Данные удалены');
+            }
+        } else {
+            $errors = $model->getFirstErrors();
+            Yii::$app->session->setFlash('error', 'Запись не была удалена (' . array_pop($errors) . ')');
+        }
+
+        return $this->redirect(Yii::$app->request->referrer);
+
     }
 
     /**
