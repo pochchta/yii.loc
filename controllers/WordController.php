@@ -185,7 +185,7 @@ class WordController extends Controller
 
         $model->deleted == $model::NOT_DELETED ? $model->deleted = $model::DELETED :
             $model->deleted = $model::NOT_DELETED;
-        if ($model->save()) {
+        if ($model->save(false)) {
             if ($model->deleted == $model::NOT_DELETED) {
                 Yii::$app->session->setFlash('success', 'Запись восстановлена');
             } else {
