@@ -95,26 +95,12 @@ class VerificationController extends Controller
     {
         $model = new Verification();
 
-        if ($model->load(Yii::$app->request->post())) {
-            if ($model->save()) {
-                if ($model->checkLastVerification() == false) {
-                    Yii::$app->session->setFlash('error', 'Запись не была сохранена (последняя поверка не определена)');
-                } else {
-                    Yii::$app->session->setFlash('success', 'Запись сохранена');
-                    return $this->redirect(['device/view', 'id' => $model->device_id]);
-                }
-            } else {
-                $errors = $model->getFirstErrors();
-                Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
-            }
-        }
-
-        $model->device_id = $device_id;     // только для отображения
+        $model->device_id = $device_id;                         // только для отображения
         $model->last_date = (new DateTime())->getTimestamp();
         $model->period = Verification::PERIOD_BY_DEFAULT;
-        return $this->render('create', [
-            'model' => $model,
-        ]);
+
+        return $this->saveModel($model, 'create');
+
     }
 
     /**
@@ -128,21 +114,39 @@ class VerificationController extends Controller
     {
         $model = $this->findModel($id);
 
+        return $this->saveModel($model, 'update');
+    }
+
+    /**
+     * Сохранение
+     * If save is successful, the browser will be redirected to the 'view' page.
+     * @param $model Verification
+     * @param $view
+     * @return mixed
+     */
+    public function saveModel($model, $view) {
         if ($model->load(Yii::$app->request->post())) {
-            if ($model->save()) {
-                if ($model->checkLastVerification() == false) {
-                    Yii::$app->session->setFlash('error', 'Запись не была сохранена (последняя поверка не определена)');
+            $fileMutex = Yii::$app->mutex;              /* @var $fileMutex yii\mutex\FileMutex */
+
+            if ($fileMutex->acquire('verification', Yii::$app->params['mutexTimeout'])) {
+                if ($model->save()) {
+                    if ($model->checkLastVerification() == false) {
+                        Yii::$app->session->setFlash('error', 'Произошла ошибка при вычислении последней поверки');
+                    } else {
+                        Yii::$app->session->setFlash('success', 'Запись сохранена');
+                        return $this->redirect(['device/view', 'id' => $model->device_id]);
+                    }
                 } else {
-                    Yii::$app->session->setFlash('success', 'Запись сохранена');
-                    return $this->redirect(['device/view', 'id' => $model->device_id]);
+                    $errors = $model->getFirstErrors();
+                    Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
                 }
+                $fileMutex->release('verification');
             } else {
-                $errors = $model->getFirstErrors();
-                Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
+                $model->addError('name', 'Поверки редактируются, попробуйте еще раз');
             }
         }
 
-        return $this->render('update', [
+        return $this->render($view, [
             'model' => $model,
         ]);
     }
@@ -160,19 +164,26 @@ class VerificationController extends Controller
 
         $model->deleted == Verification::NOT_DELETED ? $model->deleted = Verification::DELETED :
             $model->deleted = Verification::NOT_DELETED;
-        if ($model->save()) {
-            if ($model->checkLastVerification() == false) {
-                Yii::$app->session->setFlash('error', 'Запись не была удалена (последняя поверка не определена)');
-            } else {
-                if ($model->deleted == Verification::NOT_DELETED) {
-                    Yii::$app->session->setFlash('success', 'Запись восстановлена');
+        $fileMutex = Yii::$app->mutex;              /* @var $fileMutex yii\mutex\FileMutex */
+
+        if ($fileMutex->acquire('verification', Yii::$app->params['mutexTimeout'])) {
+            if ($model->save(false)) {      // validation == false, т.к. в валидаторе преобразуется дата из php:Y-m-d в TimeStamp и при удалении нечего валидировать
+                if ($model->checkLastVerification() == false) {
+                    Yii::$app->session->setFlash('error', 'Произошла ошибка при вычислении последней поверки');
                 } else {
-                    Yii::$app->session->setFlash('success', 'Запись удалена');
+                    if ($model->deleted == Verification::NOT_DELETED) {
+                        Yii::$app->session->setFlash('success', 'Запись восстановлена');
+                    } else {
+                        Yii::$app->session->setFlash('success', 'Запись удалена');
+                    }
                 }
+            } else {
+                $errors = $model->getFirstErrors();
+                Yii::$app->session->setFlash('error', 'Запись не была удалена (' . array_pop($errors) . ')');
             }
+            $fileMutex->release('verification');
         } else {
-            $errors = $model->getFirstErrors();
-            Yii::$app->session->setFlash('error', 'Запись не была удалена (' . array_pop($errors) . ')');
+            $model->addError('name', 'Поверки редактируются, попробуйте еще раз');
         }
 
         return $this->redirect(Yii::$app->request->referrer);
