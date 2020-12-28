@@ -53,7 +53,7 @@ $jsOnChange = [
     <?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>
 
     <div class="form-group">
-        <?= Html::submitButton('Save', ['class' => 'btn btn-success', 'name' => 'saveButton']) ?>
+        <?= Html::submitButton('Сохранить', ['class' => 'btn btn-success', 'name' => 'saveButton']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

@@ -77,7 +77,22 @@ $this->params['breadcrumbs'][] = $this->title;
                     [CategoryWord::ALL => 'все'] + $arrThirdCategory
                 )
             ],
-
+            [
+                'attribute' => 'deleted',
+                'format' => 'html',
+                'value' => function ($model) {
+                    if ($model->deleted == Word::NOT_DELETED) {
+                        return '';
+                    } else {
+                        return '<span class="glyphicon glyphicon-remove-sign color-err" title="Удален"></span>';
+                    }
+                },
+                'filter' => Html::activeDropDownList($searchModel, 'deleted', [
+                    Word::NOT_DELETED => 'нет',
+                    Word::DELETED => 'да',
+                    Word::ALL => 'все'
+                ])
+            ],
             [
                 'format' => 'raw',
                 'filter' => Html::a(

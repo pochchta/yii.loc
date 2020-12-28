@@ -90,7 +90,6 @@ class WordController extends Controller
      * Creates a new Word model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
-     * @throws NotFoundHttpException
      */
     public function actionCreate()
     {
@@ -182,9 +181,22 @@ class WordController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
 
-        return $this->redirect(['index']);
+        $model->deleted == $model::NOT_DELETED ? $model->deleted = $model::DELETED :
+            $model->deleted = $model::NOT_DELETED;
+        if ($model->save()) {
+            if ($model->deleted == $model::NOT_DELETED) {
+                Yii::$app->session->setFlash('success', 'Запись восстановлена');
+            } else {
+                Yii::$app->session->setFlash('success', 'Запись удалена');
+            }
+        } else {
+            $errors = $model->getFirstErrors();
+            Yii::$app->session->setFlash('error', 'Запись не была удалена (' . array_pop($errors) . ')');
+        }
+
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
     /**

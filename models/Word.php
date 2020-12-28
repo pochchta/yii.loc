@@ -71,7 +71,7 @@ class Word extends ActiveRecord
     public function validateParent()
     {
         if (!$this->hasErrors()) {
-            $parent = CategoryWord::findOne(['id' => $this->parent_id]);
+            $parent = $this->parent;
             $parentAttribute = 'firstCategory';
             if ($parent->parent_id != 0) {
                 $parentAttribute = 'secondCategory';

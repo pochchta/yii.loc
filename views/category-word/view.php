@@ -24,7 +24,7 @@ if ($model->deleted == $model::NOT_DELETED) {
 ?>
 <div class="category-word-view">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+    <h1><?= Html::encode($this->title) . $deleteText?></h1>
 
     <p>
         <?= Html::a('Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
@@ -40,14 +40,20 @@ if ($model->deleted == $model::NOT_DELETED) {
     <?= DetailView::widget([
         'model' => $model,
         'attributes' => [
-            'id',
+//            'id',
             'name',
             'value',
             'description:ntext',
             'created_at:date',
             'updated_at:date',
-            'created_by',
-            'updated_by',
+            [
+                'attribute' => 'created_by',
+                'value' => $model->creator->username
+            ],
+            [
+                'attribute' => 'created_by',
+                'value' => $model->updater->username
+            ],
             [
                 'attribute' => 'parent_id',
                 'value' => $model->parent->name
