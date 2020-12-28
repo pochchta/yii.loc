@@ -8,20 +8,30 @@ use yii\widgets\DetailView;
 /* @var $model app\models\CategoryWord */
 
 $this->title = $model->name;
-$this->params['breadcrumbs'][] = ['label' => 'Categories', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Категории словаря', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 YiiAsset::register($this);
+
+if ($model->deleted == $model::NOT_DELETED) {
+    $deleteMessage = 'Вы уверены, что хотите удалить этот элемент?';
+    $deleteTitle = 'Удалить';
+    $deleteText = '';
+} else {
+    $deleteMessage = 'Вы уверены, что хотите восстановить этот элемент';
+    $deleteTitle = 'Восстановить';
+    $deleteText = ' (удален)';
+}
 ?>
 <div class="category-word-view">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->id], [
+        <?= Html::a('Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a($deleteTitle, ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
             'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
+                'confirm' => $deleteMessage,
                 'method' => 'post',
             ],
         ]) ?>
@@ -34,13 +44,14 @@ YiiAsset::register($this);
             'name',
             'value',
             'description:ntext',
-            'created_at',
-            'updated_at',
+            'created_at:date',
+            'updated_at:date',
             'created_by',
             'updated_by',
-            'deleted',
-            'parent_type',
-            'parent_id',
+            [
+                'attribute' => 'parent_id',
+                'value' => $model->parent->name
+            ],
         ],
     ]) ?>
 

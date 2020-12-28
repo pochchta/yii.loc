@@ -66,7 +66,22 @@ $this->params['breadcrumbs'][] = $this->title;
                     [CategoryWord::ALL => 'все'] + $arrSecondCategory
                 )
             ],
-
+            [
+                'attribute' => 'deleted',
+                'format' => 'html',
+                'value' => function ($model) {
+                    if ($model->deleted == CategoryWord::NOT_DELETED) {
+                        return '';
+                    } else {
+                        return '<span class="glyphicon glyphicon-remove-sign color-err" title="Удален"></span>';
+                    }
+                },
+                'filter' => Html::activeDropDownList($searchModel, 'deleted', [
+                    CategoryWord::NOT_DELETED => 'нет',
+                    CategoryWord::DELETED => 'да',
+                    CategoryWord::ALL => 'все'
+                ])
+            ],
             [
                 'format' => 'raw',
                 'filter' => Html::a(
@@ -75,7 +90,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     ['title' => 'Очистить все фильтры']
                 ),
                 'value' => function ($model) {
-                    if ($model->deleted == CategoryWord::NOT_DELETED) {
+                    if ($model->deleted == $model::NOT_DELETED) {
                         $deleteMessage = 'Вы уверены, что хотите удалить этот элемент?';
                         $deleteTitle = 'Удалить';
                         $deleteCssClass = 'glyphicon glyphicon-trash a-action';
