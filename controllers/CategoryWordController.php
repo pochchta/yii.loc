@@ -95,7 +95,7 @@ class CategoryWordController extends Controller
 
     /**
      * Сохранение и загрузка массива категорий
-     * If update is successful, the browser will be redirected to the 'view' page.
+     * If save is successful, the browser will be redirected to the 'view' page.
      * @param $model CategoryWord
      * @param $view
      * @return mixed
@@ -125,11 +125,10 @@ class CategoryWordController extends Controller
                 $saveResult = false;
                 if ($fileMutex->acquire('category_word', Yii::$app->params['mutexTimeout'])) {
                     $saveResult = $model->save();
+                    $fileMutex->release('category_word');
                 } else {
                     $model->addError('name', 'Категории словаря редактируются, попробуйте еще раз');
                 }
-
-                $fileMutex->release('category_word');
 
                 if ($saveResult) {
                     Yii::$app->session->setFlash('success', 'Запись сохранена');
@@ -173,11 +172,10 @@ class CategoryWordController extends Controller
         $saveResult = false;
         if ($fileMutex->acquire('category_word', Yii::$app->params['mutexTimeout'])) {
             $saveResult = $model->save(false);
+            $fileMutex->release('category_word');
         } else {
             $model->addError('name', 'Категории словаря редактируются, попробуйте еще раз');
         }
-
-        $fileMutex->release('category_word');
 
         if ($saveResult) {
             if ($model->deleted == CategoryWord::NOT_DELETED) {
