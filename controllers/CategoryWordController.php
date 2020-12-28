@@ -164,12 +164,15 @@ class CategoryWordController extends Controller
 
         $model->deleted == CategoryWord::NOT_DELETED ? $model->deleted = CategoryWord::DELETED :
             $model->deleted = CategoryWord::NOT_DELETED;
+        if ($model->deleted == CategoryWord::DELETED) {
+            $model->parent_id = 0;
+        }
 
         $fileMutex = Yii::$app->mutex;              /* @var $fileMutex yii\mutex\FileMutex */
 
         $saveResult = false;
         if ($fileMutex->acquire('category_word', Yii::$app->params['mutexTimeout'])) {
-            $saveResult = $model->save();
+            $saveResult = $model->save(false);
         } else {
             $model->addError('name', 'Категории словаря редактируются, попробуйте еще раз');
         }
