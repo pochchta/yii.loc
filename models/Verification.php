@@ -119,22 +119,26 @@ class Verification extends ActiveRecord
         ];
     }
 
-    /** Вычисление next_date
+    /** Вычисление next_date при изменении period, last_date
      * @param $insert
      * @return bool
      */
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            $newDate = new DateTime();
-            $newDate->setTimestamp($this->last_date);
-            try {
-                $newDate->add(new DateInterval('P' . $this->period . 'Y'));
-            } catch (Exception $e) {
-                return false;
+            if (
+                $this->period != $this->getOldAttribute('period') ||
+                $this->last_date != $this->getOldAttribute('last_date')
+            ) {
+                $newDate = new DateTime();
+                $newDate->setTimestamp($this->last_date);
+                try {
+                    $newDate->add(new DateInterval('P' . $this->period . 'Y'));
+                } catch (Exception $e) {
+                    return false;
+                }
+                $this->next_date = $newDate->getTimestamp();
             }
-            $this->next_date = $newDate->getTimestamp();
-
             return true;
         }
         return false;
@@ -163,9 +167,9 @@ class Verification extends ActiveRecord
             if ($keyLastVerification === $key) {
                 $item->status = self::STATUS_ON;
             }
-            if ($item->getAttribute('status') !== $item->getOldAttribute('status')) {
-                if ($item->save() == false) {
-                    return false;
+            if ($item->status !== $item->getOldAttribute('status')) {
+                if ($item->save(false) == false) {        // validation == false, т.к. в валидаторе преобразуется дата из php:Y-m-d в TimeStamp и
+                    return false;                                      // вообще здесь нечего валидировать
                 }
             }
         }
