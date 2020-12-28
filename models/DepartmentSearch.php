@@ -18,7 +18,7 @@ class DepartmentSearch extends Department
         return [
             [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
             [['name', 'phone', 'description'], 'string', 'max' => 64],
-            [['deleted'], 'default', 'value' => Device::NOT_DELETED]
+            [['deleted'], 'default', 'value' => Department::NOT_DELETED]
         ];
     }
 
