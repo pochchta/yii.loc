@@ -36,16 +36,17 @@ class CategoryWord extends ActiveRecord
     const MAX_NUMBER_PARENTS = 3;       // максимальный уровень вложенности
 
     const FIELD_WORD = [
-        '-2' => 'scale',
-        '-3' => 'department',
-        '-4' => 'deviceType',
-        '-5' => 'deviceName',
+        'Scale' => '-2',
+        'Department' => '-3',
+        'Device_type' => '-4',
+        'Device_name' => '-5',
     ];
+
     const LABEL_FIELD_WORD = [
-        '-2' => 'Шкалы',
-        '-3' => 'Цеха',
-        '-4' => 'Типы приборов',
-        '-5' => 'Названия приборов',
+        self::FIELD_WORD['Scale'] => 'Шкалы',
+        self::FIELD_WORD['Department'] => 'Цеха',
+        self::FIELD_WORD['Device_type'] => 'Типы приборов',
+        self::FIELD_WORD['Device_name'] => 'Названия приборов',
     ];
 
     public $firstCategory, $secondCategory;
@@ -89,7 +90,7 @@ class CategoryWord extends ActiveRecord
         if (!$this->hasErrors()) {
             $parentAttribute = 'firstCategory';
             if ($this->parent_id < 0) {             // корневой раздел
-                if (in_array($this->parent_id, array_keys(CategoryWord::LABEL_FIELD_WORD)) == false) {
+                if (in_array($this->parent_id, array_keys(self::LABEL_FIELD_WORD)) == false) {
                     $this->addError($parentAttribute, 'Такого корневого раздела нет');
                 }
             } elseif ($this->parent_id > 0) {       // есть родительская категория
@@ -99,11 +100,11 @@ class CategoryWord extends ActiveRecord
                 if ($parent === NULL) {
                     $this->addError($parentAttribute, 'Родительская категория не найдена');
                 }
-                if (in_array($parent->parent_id, array_keys(CategoryWord::LABEL_FIELD_WORD)) == false) {
+                if (in_array($parent->parent_id, array_keys(self::LABEL_FIELD_WORD)) == false) {
                     $this->addError($parentAttribute, 'Родительский раздел не корневой');
                 }
 
-                $child = CategoryWord::findOne(['parent_id' => $this->id, 'deleted' => self::NOT_DELETED]);
+                $child = self::findOne(['parent_id' => $this->id, 'deleted' => self::NOT_DELETED]);
                 if ($child !== NULL) {
                     $this->addError($parentAttribute, 'Категория уже содержит дочерние категории');
                 }
@@ -140,9 +141,9 @@ class CategoryWord extends ActiveRecord
      */
     public static function getAllNames($parent_id = self::ALL, $pass_id = NULL)
     {
-        $arrWhere = ['deleted' => CategoryWord::NOT_DELETED];
+        $arrWhere = ['deleted' => self::NOT_DELETED];
         if ($parent_id == 0) {
-            $arrWhere = ['and', 'deleted='.CategoryWord::NOT_DELETED, ['<', 'parent_id', 0]];     // перезапись условия
+            $arrWhere = ['and', 'deleted='.self::NOT_DELETED, ['<', 'parent_id', 0]];     // перезапись условия
         } elseif ($parent_id != self::ALL) {
            $arrWhere['parent_id'] = $parent_id;
         }
@@ -159,11 +160,56 @@ class CategoryWord extends ActiveRecord
         return $outArray;
     }
 
+    public static function getArrFilters(& $params, $category)
+    {
+        $arrFirstCategory = [self::ALL => 'все', '0' => 'нет'];
+        $arrSecondCategory = [];
+        $arrThirdCategory = [];
+
+        if (in_array($category, self::FIELD_WORD)) {
+            $categoryName = array_search($category, self::FIELD_WORD);
+
+            $arrFirstCategory += self::getAllNames($category);
+
+            if ($params['first' . $categoryName] == self::ALL || $params['first' . $categoryName] == 0) {
+                $params['second' . $categoryName] = self::ALL;
+                $params['third' . $categoryName] = self::ALL;
+                $arrThirdCategory = Word::getAllNames($category, 3);
+            } else {
+                $arrSecondCategory = self::getAllNames($params['first' . $categoryName]);
+
+                if ($arrSecondCategory[$params['second' . $categoryName]] === NULL) {
+                    $params['second' . $categoryName] = self::ALL;
+                    $params['third' . $categoryName] = self::ALL;
+                }
+                if ($params['second' . $categoryName] == self::ALL || $params['second' . $categoryName] == 0) {
+                    $params['third' . $categoryName] = self::ALL;
+                    $arrThirdCategory = Word::getAllNames($params['first' . $categoryName], 2);
+                } else {
+                    $arrThirdCategory = Word::getAllNames($params['second' . $categoryName]);
+                    if ($arrThirdCategory[$params['third' . $categoryName]] === NULL) {
+                        $params['third' . $categoryName] = self::ALL;
+                    }
+                }
+            }
+        }
+        if (empty($arrSecondCategory) == false) {
+            $arrSecondCategory = ['0' => 'нет'] + $arrSecondCategory;
+        }
+        if (empty($arrThirdCategory) == false) {
+            $arrThirdCategory = ['0' => 'нет'] + $arrThirdCategory;
+        }
+        $arrSecondCategory = [self::ALL => 'все'] + $arrSecondCategory;
+        $arrThirdCategory = [self::ALL => 'все'] + $arrThirdCategory;
+
+        return compact('arrFirstCategory', 'arrSecondCategory', 'arrThirdCategory');
+    }
+
     public static function getParentName ($model, $n = 0) {
         $parentNames = [];
         for ($i = 1; $i <= self::MAX_NUMBER_PARENTS; $i++) {
             if ($model->parent_id <= 0) {
-                $parentNames[] = CategoryWord::LABEL_FIELD_WORD[$model->parent_id];
+                $parentNames[] = self::LABEL_FIELD_WORD[$model->parent_id];
                 break;
             }
             $model = $model->parent;

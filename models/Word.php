@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -80,6 +81,43 @@ class Word extends ActiveRecord
                 $this->addError($parentAttribute, 'Родительская категория не найдена');
             }
         }
+    }
+
+    /**
+     * Gets arr[id] = names
+     * @param int $parent_id
+     * @param int $depth Глубина поиска word.parent_id
+     * @return array
+     */
+    public static function getAllNames($parent_id = self::ALL, $depth = 1)
+    {
+        $query = self::find()->select(['id', 'name', 'parent_id'])->limit(Yii::$app->params['maxLinesView']);
+
+        $arrWhere = ['deleted' => self::NOT_DELETED];
+        if ($parent_id != self::ALL) {
+            if ($depth == 3) {
+                $query->andOnCondition(
+                    'parent_id = :id OR parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id = :id)'
+                    .'OR parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id = :id))',
+                    [':id' => $parent_id]
+                );
+            } elseif ($depth == 2) {
+                $query->andOnCondition(
+                    'parent_id = :id OR parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id = :id)',
+                    [':id' => $parent_id]
+                );
+            } else {
+                $arrWhere['parent_id'] = $parent_id;
+            }
+        }
+
+        $query = $query->where($arrWhere)->asArray()->all();
+        $outArray = array();
+
+        foreach ($query as $key => $item) {
+            $outArray[$item['id']] = $item['name'];
+        }
+        return $outArray;
     }
 
     /**
