@@ -14,8 +14,8 @@ use yii\db\ActiveRecord;
  * @property string|null $number
  * @property string|null $type
  * @property string|null $description
- * @property int|null $id_department
- * @property int|null $id_scale
+ * @property int|null $department_id
+ * @property int|null $scale_id
  * @property string|null $accuracy
  * @property string|null $position
  * @property int|null $created_at
@@ -26,8 +26,8 @@ use yii\db\ActiveRecord;
  *
  * @property User|null $creator magic property
  * @property User|null $updater magic property
- * @property Department|null $department magic property
- * @property Scale|null $scale magic property
+ * @property Word|null $department magic property
+ * @property Word|null $scale magic property
  * @property Verification|null $activeVerification magic property
  * @property Verification[] $verifications magic property
  */
@@ -36,6 +36,7 @@ class Device extends ActiveRecord
     const NOT_DELETED = 0;
     const DELETED = 1;
     const ALL = -1;
+
     /**
      * {@inheritdoc}
      */
@@ -68,12 +69,12 @@ class Device extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'id_department', 'id_scale'], 'required'],
+            [['name', 'department_id', 'scale_id'], 'required'],
             [['description'], 'string'],
             [['name', 'type', 'number', 'accuracy', 'position'], 'string', 'max' => 255],
-            [['id_department', 'id_scale'], 'integer'],
-            [['id_department'], 'exist', 'skipOnError' => true, 'targetClass' => Department::class, 'targetAttribute' => ['id_department' => 'id']],
-            [['id_scale'], 'exist', 'skipOnError' => true, 'targetClass' => Scale::class, 'targetAttribute' => ['id_scale' => 'id']],
+            [['department_id', 'scale_id'], 'integer'],
+            [['department_id'], 'exist', 'skipOnError' => true, 'targetClass' => Word::class, 'targetAttribute' => ['department_id' => 'id']],
+            [['scale_id'], 'exist', 'skipOnError' => true, 'targetClass' => Word::class, 'targetAttribute' => ['scale_id' => 'id']],
         ];
     }
 
@@ -88,15 +89,15 @@ class Device extends ActiveRecord
             'number' => 'Номер',
             'type' => 'Тип',
             'description' => 'Описание',
-            'id_department' => 'Цех',
-            'id_scale' => 'Шкала',
+            'department_id' => 'Цех',
+            'scale_id' => 'Шкала',
             'accuracy' => 'Класс точности',
             'position' => 'Позиция',
             'created_at' => 'Создано',
             'updated_at' => 'Обновлено',
             'created_by' => 'Создал',
             'updated_by' => 'Обновил',
-            'deleted' => 'Удален'
+            'deleted' => 'Удален',
         ];
     }
 
@@ -127,11 +128,11 @@ class Device extends ActiveRecord
 
     public function getDepartment()
     {
-        return $this->hasOne(Department::class, ['id' => 'id_department']);
+        return $this->hasOne(Word::class, ['id' => 'department_id']);
     }
 
     public function getScale()
     {
-        return $this->hasOne(Scale::class, ['id' => 'id_scale']);
+        return $this->hasOne(Word::class, ['id' => 'scale_id']);
     }
 }

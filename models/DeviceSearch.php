@@ -14,6 +14,13 @@ class DeviceSearch extends Device
     const PRINT_LIMIT_RECORDS = 500;
     public $limit = self::DEFAULT_LIMIT_RECORDS;
 
+    public $firstDepartment;
+    public $secondDepartment;
+    public $thirdDepartment;
+    public $firstScale;
+    public $secondScale;
+    public $thirdScale;
+
     /**
      * {@inheritdoc}
      */
@@ -21,11 +28,24 @@ class DeviceSearch extends Device
     public function rules()
     {
         return [
-            [['id', 'number', 'id_department', 'id_scale', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
+            [['id', 'number', 'department_id', 'scale_id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
             [['name', 'type', 'description'], 'string', 'max' => 64],
             [['deleted'], 'default', 'value' => Device::NOT_DELETED],
-            [['id_department'], 'default', 'value' => Department::ALL],
-            [['id_scale'], 'default', 'value' => Scale::ALL],
+            [['department_id'], 'default', 'value' => Word::ALL],
+            [['scale_id'], 'default', 'value' => Word::ALL],
+            [['firstDepartment', 'secondDepartment', 'thirdDepartment', 'firstScale', 'secondScale', 'thirdScale'], 'integer']
+        ];
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'firstDepartment' => 'Цеха',
+            'secondDepartment' => '->',
+            'thirdDepartment' => '->',
+            'firstScale' => 'Шкалы',
+            'secondScale' => '->',
+            'thirdScale' => '->',
         ];
     }
 
@@ -91,14 +111,14 @@ class DeviceSearch extends Device
             ->andFilterWhere(['like', 'type', $this->type])
             ->andFilterWhere(['like', 'description', $this->description]);
 
-        if ($this->id_department != Department::ALL) {
+        if ($this->department_id != Word::ALL) {
             $query->andOnCondition(
-                'id_department = :id OR id_department IN (SELECT id FROM department WHERE department.parent_id = :id)',
-                [':id' => $this->id_department]
+                'department_id = :id OR department_id IN (SELECT id FROM word WHERE word.parent_id = :id)',
+                [':id' => $this->department_id]
             );
         }
-        if ($this->id_scale != Scale::ALL) {
-            $query->andFilterWhere(['id_scale' => $this->id_scale]);
+        if ($this->scale_id != Word::ALL) {
+            $query->andFilterWhere(['scale_id' => $this->scale_id]);
         }
 
         if ($this->deleted != Device::ALL) {

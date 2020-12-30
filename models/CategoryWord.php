@@ -173,18 +173,15 @@ class CategoryWord extends ActiveRecord
 
             if ($params['first' . $categoryName] == self::ALL || $params['first' . $categoryName] == 0) {
                 $params['second' . $categoryName] = self::ALL;
-                $params['third' . $categoryName] = self::ALL;
-                $arrThirdCategory = Word::getAllNames($category, 3);
+                $arrThirdCategory = Word::getAllNames($category, $params['first' . $categoryName] === '0' ? 1 : 3);
             } else {
-                $arrSecondCategory = self::getAllNames($params['first' . $categoryName]);
+                $arrSecondCategory = ['0' => 'нет'] + self::getAllNames($params['first' . $categoryName]);
 
                 if ($arrSecondCategory[$params['second' . $categoryName]] === NULL) {
                     $params['second' . $categoryName] = self::ALL;
-                    $params['third' . $categoryName] = self::ALL;
                 }
                 if ($params['second' . $categoryName] == self::ALL || $params['second' . $categoryName] == 0) {
-                    $params['third' . $categoryName] = self::ALL;
-                    $arrThirdCategory = Word::getAllNames($params['first' . $categoryName], 2);
+                    $arrThirdCategory = Word::getAllNames($params['first' . $categoryName], $params['second' . $categoryName] === '0' ? 1 : 2);
                 } else {
                     $arrThirdCategory = Word::getAllNames($params['second' . $categoryName]);
                     if ($arrThirdCategory[$params['third' . $categoryName]] === NULL) {
@@ -192,12 +189,6 @@ class CategoryWord extends ActiveRecord
                     }
                 }
             }
-        }
-        if (empty($arrSecondCategory) == false) {
-            $arrSecondCategory = ['0' => 'нет'] + $arrSecondCategory;
-        }
-        if (empty($arrThirdCategory) == false) {
-            $arrThirdCategory = ['0' => 'нет'] + $arrThirdCategory;
         }
         $arrSecondCategory = [self::ALL => 'все'] + $arrSecondCategory;
         $arrThirdCategory = [self::ALL => 'все'] + $arrThirdCategory;

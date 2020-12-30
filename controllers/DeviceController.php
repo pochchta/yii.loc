@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\CategoryWord;
 use app\models\Incoming;
 use app\models\Verification;
 use Yii;
@@ -54,11 +55,15 @@ class DeviceController extends Controller
     public function actionIndex()
     {
         $params = Yii::$app->request->queryParams;
+
+        $arrDepartments = CategoryWord::getArrFilters($params, CategoryWord::FIELD_WORD['Department']);
+        $arrScales = CategoryWord::getArrFilters($params, CategoryWord::FIELD_WORD['Scale']);
+
         $searchModel = new DeviceSearch();
         $dataProvider = $searchModel->search($params);
 
         return $this->render('index', compact(
-            'searchModel', 'dataProvider', 'params'
+            'searchModel', 'dataProvider', 'params', 'arrDepartments', 'arrScales'
         ));
     }
 
@@ -138,7 +143,7 @@ class DeviceController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->deleted == Device::NOT_DELETED) {
+        if ($model->deleted == Device::NOT_DELETED) {   // TODO: возможно это проверять не нужно
             if (Verification::findOne(['device_id' => $model->id, 'deleted' => Verification::NOT_DELETED]) !== NULL) {
                 Yii::$app->session->setFlash('error', 'Запись не была удалена (используется в поверках)');
                 return $this->redirect(Yii::$app->request->referrer);

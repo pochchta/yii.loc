@@ -1,16 +1,17 @@
 <?php
 
-use app\models\Department;
 use app\models\Device;
-use app\models\Scale;
 use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\DeviceSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $model app\models\Device */
 /* @var $params array */
+/* @var $arrDepartments array */
+/* @var $arrScales array */
 
 $this->title = 'Приборы';
 $this->params['breadcrumbs'][] = $this->title;
@@ -26,7 +27,14 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= Html::a('Создать новую запись', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
+    <?php Pjax::begin([
+        'id' => 'my-pjax-container',
+        'timeout' => Yii::$app->params['pjaxTimeout']
+    ]) ?>
+
+    <?php  echo $this->render('_search', [
+        'model' => $searchModel, 'arrDepartments' => $arrDepartments, 'arrScales' => $arrScales
+    ]); ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -40,26 +48,28 @@ $this->params['breadcrumbs'][] = $this->title;
             'type',
 //            'description:ntext',
             [
-                'attribute' => 'department.name',
+                'attribute' => 'department_id',
                 'value' => function ($model) {
                     return $model->department->name;
                 },
-                'filter' => Html::activeDropDownList(
+                'filter' => ''
+/*                'filter' => Html::activeDropDownList(
                     $searchModel,
-                    'id_department',
-                    [Department::ALL => 'все'] + Department::getAllNames()
-                )
+                    'department_id',
+                    [Word::ALL => 'все'] + CategoryWord::getAllNames()
+                )*/
             ],
             [
-                'attribute' => 'scale.value',
+                'attribute' => 'scale_id',
                 'value' => function ($model) {
-                    return $model->scale->value;
+                    return $model->scale->name;
                 },
-                'filter' => Html::activeDropDownList(
+                'filter' => ''
+/*                'filter' => Html::activeDropDownList(
                     $searchModel,
-                    'id_scale',
-                    [Scale::ALL => 'все'] + Scale::getAllValues()
-                )
+                    'scale_id',
+                    [Word::ALL => 'все'] + CategoryWord::getAllNames()
+                )*/
             ],
             [
                 'attribute' => 'deleted',
@@ -121,5 +131,7 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
         ],
     ]); ?>
+
+    <?php Pjax::end() ?>
 
 </div>
