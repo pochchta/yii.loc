@@ -33,7 +33,7 @@ $this->params['breadcrumbs'][] = $this->title;
     ]) ?>
 
     <?php  echo $this->render('_search', [
-        'model' => $searchModel, 'arrDepartments' => $arrDepartments, 'arrScales' => $arrScales
+        'model' => $searchModel
     ]); ?>
 
     <?= GridView::widget([

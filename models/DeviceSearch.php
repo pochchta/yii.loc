@@ -14,12 +14,18 @@ class DeviceSearch extends Device
     const PRINT_LIMIT_RECORDS = 500;
     public $limit = self::DEFAULT_LIMIT_RECORDS;
 
-    public $firstDepartment;
+    public $firstDepartment;     // категории
     public $secondDepartment;
     public $thirdDepartment;
     public $firstScale;
     public $secondScale;
     public $thirdScale;
+
+    public $arrDepartment;     // массивы для фильтров
+    public $arrScale;
+
+    public $condDepartment;    // получившееся условие для фильтра
+    public $condScale;
 
     /**
      * {@inheritdoc}
@@ -75,21 +81,10 @@ class DeviceSearch extends Device
         ]);
         $dataProvider->pagination->pageSize = $this->limit;
 
-/*        $dataProvider->setSort([                      // нужен join
-            'attributes' => [
-                'name',
-                'number',
-                'type',
-                'department.name' => [
-                    'asc' => ['department.name' => SORT_ASC],
-                    'desc' => ['department.name' => SORT_DESC],
-                    'label' => 'Цех',
-                    'default' => SORT_ASC
-                ],
-                'id_scale',
-                'deleted'
-            ]
-        ]);*/
+        list('array' => $this->arrDepartment, 'condition' => $this->condDepartment) =
+            CategoryWord::getArrFilters($params, CategoryWord::FIELD_WORD['Department']);
+        list('array' => $this->arrScale, 'condition' => $this->condScale) =
+            CategoryWord::getArrFilters($params, CategoryWord::FIELD_WORD['Scale']);
 
         $this->load($params);
 
@@ -111,7 +106,7 @@ class DeviceSearch extends Device
             ->andFilterWhere(['like', 'type', $this->type])
             ->andFilterWhere(['like', 'description', $this->description]);
 
-        if ($this->department_id != Word::ALL) {
+        if ($this->department_id != Word::ALL) {    // TODO: при поиске вложенных элементов не учитываются удаленные ли они
             $query->andOnCondition(
                 'department_id = :id OR department_id IN (SELECT id FROM word WHERE word.parent_id = :id)',
                 [':id' => $this->department_id]

@@ -56,14 +56,11 @@ class DeviceController extends Controller
     {
         $params = Yii::$app->request->queryParams;
 
-        $arrDepartments = CategoryWord::getArrFilters($params, CategoryWord::FIELD_WORD['Department']);
-        $arrScales = CategoryWord::getArrFilters($params, CategoryWord::FIELD_WORD['Scale']);
-
         $searchModel = new DeviceSearch();
         $dataProvider = $searchModel->search($params);
 
         return $this->render('index', compact(
-            'searchModel', 'dataProvider', 'params', 'arrDepartments', 'arrScales'
+            'searchModel', 'dataProvider', 'params'
         ));
     }
 
