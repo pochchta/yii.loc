@@ -165,23 +165,18 @@ class CategoryWord extends ActiveRecord
         $arrFirstCategory = [self::ALL => 'все', '0' => 'нет'];
         $arrSecondCategory = [];
         $arrThirdCategory = [];
-        $condition = NULL;
-        $conditionBind = [];
 
         if (in_array($category, self::FIELD_WORD)) {
+
+            // получение массивов фильтров
             $categoryName = array_search($category, self::FIELD_WORD);
             $arrFirstCategory += self::getAllNames($category);
-// TODO: все запросы нерабочие
             if ($params['first' . $categoryName] == self::ALL || $params['first' . $categoryName] == 0) {
-                $params['second' . $categoryName] = self::ALL;
                 if ($params['first' . $categoryName] === '0') {
                     $arrThirdCategory = Word::getAllNames($category, 1);
-                    $condition = 'SELECT id FROM word WHERE parent_id = :id';
-                    $conditionBind = [':id' => $category];
-                    // запрос по category (1)
                 } else {
+                    $arrSecondCategory = self::getAllNames($categoryName);
                     $arrThirdCategory = Word::getAllNames($category, 3);
-                    // нет запроса
                 }
             } else {
                 $arrSecondCategory = ['0' => 'нет'] + self::getAllNames($params['first' . $categoryName]);
@@ -191,32 +186,60 @@ class CategoryWord extends ActiveRecord
                 if ($params['second' . $categoryName] == self::ALL || $params['second' . $categoryName] == 0) {
                     if ($params['second' . $categoryName] === '0') {
                         $arrThirdCategory = Word::getAllNames($params['first' . $categoryName], 1);
-                        $condition = 'SELECT id FROM word WHERE parent_id = :id';
-                        $conditionBind = [':id' => $category];
-                        // запрос по category (1)
                     } else {
                         $arrThirdCategory = Word::getAllNames($params['first' . $categoryName], 2);
-                        $condition = 'SELECT id FROM word WHERE parent_id = :id OR parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id = :id)'
-                            .'OR parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id = :id))';
-                        $conditionBind = [':id' => $category];
-                        // запрос по category (2)
                     }
-                    $arrThirdCategory = Word::getAllNames($params['first' . $categoryName], $params['second' . $categoryName] === '0' ? 1 : 2);
                 } else {
                     $arrThirdCategory = Word::getAllNames($params['second' . $categoryName]);
                     if ($arrThirdCategory[$params['third' . $categoryName]] === NULL) {
                         $params['third' . $categoryName] = self::ALL;
                     }
-                    // запрос по word (1)
                 }
             }
+            $arrSecondCategory = [self::ALL => 'все'] + $arrSecondCategory;
+            $arrThirdCategory = [self::ALL => 'все'] + $arrThirdCategory;
+
+            // вычисление parentId для фильтра
+            $conditionDepth = 1;
+            $conditionParentId = NULL;
+            if (isset($params['third' . $categoryName]) && $params['third' . $categoryName] != self::ALL) {
+                $conditionParentId = $params['third' . $categoryName];
+            } elseif ($params['second' . $categoryName] != self::ALL && $params['second' . $categoryName] !== NULL) {
+                if ($params['second' . $categoryName] == 0) {
+                    $conditionParentId = $params['first' . $categoryName];
+                } else {
+                    $conditionParentId = $params['second' . $categoryName];
+                    $conditionDepth = 2;
+                }
+            } else {
+                $conditionParentId = $category;
+                if ($params['first' . $categoryName] == 0) {
+
+                } else {
+                    $conditionDepth = 3;
+                }
+            }
+
+            // подготовка фильтров
+            $condition = NULL;
+            $bind = [];
+            if ($conditionDepth === 1) {
+                $condition = "SELECT id FROM word WHERE parent_id = :{$categoryName}";
+                $bind = [$categoryName => $conditionParentId];
+            } elseif($conditionDepth === 2) {
+                $condition = "SELECT id FROM word WHERE parent_id = :{$categoryName} OR parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id = :{$categoryName})";
+                $bind = [$categoryName => $conditionParentId];
+            } elseif ($conditionDepth === 3) {
+                $condition = "SELECT id FROM word WHERE parent_id = :{$categoryName} OR parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id = :{$categoryName})"
+                    ."OR parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id = :{$categoryName}))";
+                $bind = [$categoryName => $conditionParentId];
+            }
+
         }
-        $arrSecondCategory = [self::ALL => 'все'] + $arrSecondCategory;
-        $arrThirdCategory = [self::ALL => 'все'] + $arrThirdCategory;
 
         return [
             'array' => compact('arrFirstCategory', 'arrSecondCategory', 'arrThirdCategory'),
-            'condition' => compact($condition, $conditionBind)
+            'condition' => compact('condition', 'bind')
         ];
     }
 
