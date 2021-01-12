@@ -142,7 +142,7 @@ class CategoryWordController extends Controller
 
         $arrSecondCategory = [];
         if ($model->firstCategory != 0) {
-            $arrSecondCategory = CategoryWord::getAllNames($model->firstCategory, $model->id);
+            $arrSecondCategory = CategoryWord::getAllNames($model->firstCategory, 1, $model->id);
         }
 
         return $this->render($view, compact(
