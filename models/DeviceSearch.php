@@ -106,14 +106,16 @@ class DeviceSearch extends Device
             ->andFilterWhere(['like', 'type', $this->type])
             ->andFilterWhere(['like', 'description', $this->description]);
 
-        if ($this->department_id != Word::ALL) {    // TODO: при поиске вложенных элементов не учитываются удаленные ли они
+        if ($this->condDepartment['condition'] !== NULL) {
             $query->andOnCondition(
-                'department_id = :id OR department_id IN (SELECT id FROM word WHERE word.parent_id = :id)',
-                [':id' => $this->department_id]
+                $this->condDepartment['condition'], $this->condDepartment['bind']
             );
         }
-        if ($this->scale_id != Word::ALL) {
-            $query->andFilterWhere(['scale_id' => $this->scale_id]);
+
+        if ($this->condScale['condition'] !== NULL) {
+            $query->andOnCondition(
+                $this->condScale['condition'], $this->condScale['bind']
+            );
         }
 
         if ($this->deleted != Device::ALL) {
