@@ -276,11 +276,12 @@ class CategoryWord extends ActiveRecord
             $condition = NULL;
             $bind = [":{$categoryName}" => $conditionParentId, ':del' => self::NOT_DELETED];
             $columnName = strtolower($categoryName) . '_id';    // categoryName проверяется по списку self::FIELD_WORD
-            $condition1 = "{$columnName} IN (SELECT id FROM word WHERE parent_id = :{$categoryName} AND deleted = :del) AND deleted = :del";
-            $condition2 = "{$columnName} IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM category_word WHERE parent_id = :{$categoryName} AND deleted = :del) AND deleted = :del) AND deleted = :del";
-            $condition3 = "{$columnName} IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM category_word WHERE parent_id IN (SELECT id FROM category_word WHERE parent_id = :{$categoryName} AND deleted = :del) AND deleted = :del) AND deleted = :del) AND deleted = :del";
+            $condition1 = "{$columnName} IN (SELECT id FROM word WHERE parent_id = :{$categoryName} AND deleted = :del)";
+            $condition2 = "{$columnName} IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM category_word WHERE parent_id = :{$categoryName} AND deleted = :del) AND deleted = :del)";
+            $condition3 = "{$columnName} IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM category_word WHERE parent_id IN (SELECT id FROM category_word WHERE parent_id = :{$categoryName} AND deleted = :del) AND deleted = :del) AND deleted = :del)";
             if ($conditionDepth === 0) {            // word
-                $condition = "{$columnName} = :{$categoryName} AND deleted = :del";
+                $condition = "{$columnName} = :{$categoryName}";
+                $bind = [":{$categoryName}" => $conditionParentId];     // перезапись bind
             }
             elseif ($conditionDepth === 1) {        // category_word
                 $condition = $condition1;
