@@ -149,7 +149,7 @@ class CategoryWord extends ActiveRecord
         if ($parent_id == self::NOT_CATEGORY) {
             if ($depth == 3) {
                 $query->andOnCondition(
-                    'parent_id IN (SELECT id FROM category_word WHERE deleted = :del AND parent_id IN (SELECT id FROM category_word WHERE deleted = :del AND parent_id < :id))',
+                    'parent_id IN (SELECT id FROM category_word WHERE parent_id IN (SELECT id FROM category_word WHERE parent_id < :id AND deleted = :del) AND deleted = :del)',
                     [':id' => $parent_id, ':del' => self::NOT_DELETED]
                 );
             } elseif ($depth == 2) {

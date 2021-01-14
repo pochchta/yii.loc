@@ -97,14 +97,14 @@ class Word extends ActiveRecord
         if ($parent_id != self::ALL) {
             if ($depth == 3) {
                 $query->andOnCondition(
-                    'parent_id = :id OR parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id = :id)'
-                    .'OR parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id = :id))',
-                    [':id' => $parent_id]
+                    'parent_id = :id OR parent_id IN (SELECT id FROM category_word WHERE parent_id = :id AND deleted = :del)'
+                    .'OR parent_id IN (SELECT id FROM category_word WHERE parent_id IN (SELECT id FROM category_word WHERE parent_id = :id AND deleted = :del) AND deleted = :del)',
+                    [':id' => $parent_id, ':del' => self::NOT_DELETED]
                 );
             } elseif ($depth == 2) {
                 $query->andOnCondition(
-                    'parent_id = :id OR parent_id IN (SELECT id FROM category_word WHERE category_word.parent_id = :id)',
-                    [':id' => $parent_id]
+                    'parent_id = :id OR parent_id IN (SELECT id FROM category_word WHERE parent_id = :id AND deleted = :del)',
+                    [':id' => $parent_id, ':del' => self::NOT_DELETED]
                 );
             } else {
                 $arrWhere['parent_id'] = $parent_id;

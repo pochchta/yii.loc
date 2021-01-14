@@ -103,20 +103,20 @@ class IncomingSearch extends Incoming
 
         if ($this->deviceName != '') {
             $query->andOnCondition(
-                'incoming.device_id IN (SELECT id FROM device WHERE device.name LIKE :name)',
-                [':name' => '%' . $this->deviceName . '%']
+                'device_id IN (SELECT id FROM device WHERE name LIKE :name AND deleted = :del)',
+                [':name' => '%' . $this->deviceName . '%', ':del' => self::NOT_DELETED]
             );
         }
         if ($this->deviceNumber != '') {
             $query->andOnCondition(
-                'incoming.device_id IN (SELECT id FROM device WHERE device.number = :number)',
-                [':number' => $this->deviceNumber]
+                'device_id IN (SELECT id FROM device WHERE number = :number AND deleted = :del)',
+                [':number' => $this->deviceNumber, ':del' => self::NOT_DELETED]
             );
         }
         if ($this->deviceIdDepartment != '' && $this->deviceIdDepartment != Department::ALL) {
             $query->andOnCondition(
-                'incoming.device_id IN (SELECT id FROM device WHERE device.id_department = :id_dep)',
-                [':id_dep' => $this->deviceIdDepartment]
+                'device_id IN (SELECT id FROM device WHERE department_id = :id AND deleted = :del)',
+                [':id' => $this->deviceIdDepartment, ':del' => self::NOT_DELETED]
             );
         }
 
