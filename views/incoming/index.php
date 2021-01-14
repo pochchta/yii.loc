@@ -1,7 +1,7 @@
 <?php
 
-use app\models\Device;
 use app\models\Incoming;
+use app\models\Status;
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
@@ -30,7 +30,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <p><?=
         'Записи относятся только к прибору: '
         . Html::a(
-            $modelDevice->name . ', №' . $modelDevice->number . ($modelDevice->deleted == Device::DELETED ? ' (удален)' : ''),
+            $modelDevice->name . ', №' . $modelDevice->number . ($modelDevice->deleted == Status::DELETED ? ' (удален)' : ''),
             ['device/view', 'id' => $modelDevice->id]
         )
     ?></p>
@@ -57,7 +57,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     return Html::a(
                         $model->device_id,
                         ['device/view', 'id' => $model->device_id],
-                        ['title' => $model->device->name . ', № ' . $model->device->number . ($model->device->deleted == Device::DELETED ? ' (удален)' : '')]
+                        ['title' => $model->device->name . ', № ' . $model->device->number . ($model->device->deleted == Status::DELETED ? ' (удален)' : '')]
                     );
                 },
                 'label' => 'ID приб.'
@@ -111,7 +111,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     return '';
                 },
                 'filter' => Html::activeDropDownList($searchModel, 'status', [
-                    Incoming::ALL => 'все',
+                    Status::ALL => 'все',
                     Incoming::INCOMING => 'принят',
                     Incoming::READY => 'готов',
                     Incoming::OUTGOING => 'выдан',
@@ -127,7 +127,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     return '';
                 },
                 'filter' => Html::activeDropDownList($searchModel, 'payment', [
-                    Incoming::ALL => 'все',
+                    Status::ALL => 'все',
                     Incoming::NOT_PAID => 'нет',
                     Incoming::PAID => 'да',
 
@@ -156,15 +156,15 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'deleted',
                 'format' => 'html',
                 'value' => function ($model) {
-                    if ($model->deleted == Incoming::DELETED) {
+                    if ($model->deleted == Status::DELETED) {
                         return '<span class="glyphicon glyphicon-remove-sign color-err" title="Удален"></span>';
                     }
                     return '';
                 },
                 'filter' => Html::activeDropDownList($searchModel, 'deleted', [
-                    Incoming::NOT_DELETED => 'нет',
-                    Incoming::DELETED => 'да',
-                    Incoming::ALL => 'все'
+                    Status::NOT_DELETED => 'нет',
+                    Status::DELETED => 'да',
+                    Status::ALL => 'все'
                 ])
             ],
 
@@ -176,7 +176,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     ['title' => 'Очистить все фильтры']
                 ),
                 'value' => function ($model) {
-                    if ($model->deleted == Incoming::NOT_DELETED) {
+                    if ($model->deleted == Status::NOT_DELETED) {
                         $deleteMessage = 'Вы уверены, что хотите удалить этот элемент?';
                         $deleteTitle = 'Удалить';
                         $deleteCssClass = 'glyphicon glyphicon-trash a-action';

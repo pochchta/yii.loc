@@ -18,9 +18,9 @@ class CategoryWordSearch extends CategoryWord
         return [
             [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted', 'parent_id'], 'integer'],
             [['name', 'value', 'description'], 'safe'],
-            [['deleted'], 'default', 'value' => CategoryWord::NOT_DELETED],
+            [['deleted'], 'default', 'value' => Status::NOT_DELETED],
             [['firstCategory', 'secondCategory'], 'integer'],
-            [['firstCategory', 'secondCategory'], 'default', 'value' => CategoryWord::ALL],
+            [['firstCategory', 'secondCategory'], 'default', 'value' => Status::ALL],
         ];
     }
 
@@ -71,20 +71,20 @@ class CategoryWordSearch extends CategoryWord
             ->andFilterWhere(['like', 'value', $this->value])
             ->andFilterWhere(['like', 'description', $this->description]);
 
-        if ($this->secondCategory != CategoryWord::ALL && $this->secondCategory != 0) {
+        if ($this->secondCategory != Status::ALL && $this->secondCategory != 0) {
             $query->andFilterWhere(['parent_id' => $this->secondCategory]);
-        } elseif ($this->firstCategory != CategoryWord::ALL) {
+        } elseif ($this->firstCategory != Status::ALL) {
             if ($this->secondCategory == '0') {
                 $query->andFilterWhere(['parent_id' => $this->firstCategory]);
             } else {
                 $query->andOnCondition(
                     'parent_id = :id OR parent_id IN (SELECT id FROM category_word WHERE parent_id = :id AND deleted = :del)',
-                    [':id' => $this->firstCategory, ':del' => self::NOT_DELETED]
+                    [':id' => $this->firstCategory, ':del' => Status::NOT_DELETED]
                 );
             }
         }
 
-        if ($this->deleted == CategoryWord::NOT_DELETED || $this->deleted == CategoryWord::DELETED) {
+        if ($this->deleted == Status::NOT_DELETED || $this->deleted == Status::DELETED) {
             $query->andFilterWhere(['deleted' => $this->deleted]);
         }
 

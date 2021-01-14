@@ -1,6 +1,6 @@
 <?php
 
-use app\models\Device;
+use app\models\Status;
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
@@ -75,16 +75,16 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'deleted',
                 'format' => 'html',
                 'value' => function ($model) {
-                    if ($model->deleted == Device::NOT_DELETED) {
+                    if ($model->deleted == Status::NOT_DELETED) {
                         return '';
                     } else {
                         return '<span class="glyphicon glyphicon-remove-sign color-err" title="Удален"></span>';
                     }
                 },
                 'filter' => Html::activeDropDownList($searchModel, 'deleted', [
-                    Device::NOT_DELETED => 'нет',
-                    Device::DELETED => 'да',
-                    Device::ALL => 'все'
+                    Status::NOT_DELETED => 'нет',
+                    Status::DELETED => 'да',
+                    Status::ALL => 'все'
                 ])
             ],
 //            'period',

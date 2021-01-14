@@ -7,6 +7,7 @@ use DateTime;
 use Exception;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
@@ -33,10 +34,6 @@ use yii\db\ActiveRecord;
  */
 class Verification extends ActiveRecord
 {
-    const NOT_DELETED = 0;
-    const DELETED = 1;
-    const ALL = -1;
-
     const STATUS_OFF = 0;
     const STATUS_ON = 1;
 
@@ -154,7 +151,7 @@ class Verification extends ActiveRecord
         $arrDate = [];
         foreach ($arrVerifications as $key => $item) {   /** @var $item Verification */
             $item->status = self::STATUS_OFF;
-            if (empty($item->next_date) || $item->deleted != self::NOT_DELETED) {
+            if (empty($item->next_date) || $item->deleted != Status::NOT_DELETED) {
                 continue;
             }
             $arrDate[$item->next_date] = $key;
@@ -179,7 +176,7 @@ class Verification extends ActiveRecord
     /**
      * Gets query for [[Device]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getDevice()
     {

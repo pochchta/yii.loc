@@ -28,11 +28,6 @@ use yii\db\ActiveRecord;
  */
 class Word extends ActiveRecord
 {
-    const ALL = -1;                     // для всех свойств
-
-    const NOT_DELETED = 0;              // по умолчанию word->deleted
-    const DELETED = 1;
-
     public $firstCategory, $secondCategory, $thirdCategory;
 
     public static function tableName()
@@ -89,22 +84,22 @@ class Word extends ActiveRecord
      * @param int $depth Глубина поиска word.parent_id
      * @return array
      */
-    public static function getAllNames($parent_id = self::ALL, $depth = 1)
+    public static function getAllNames($parent_id = Status::ALL, $depth = 1)
     {
         $query = self::find()->select(['id', 'name', 'parent_id'])->limit(Yii::$app->params['maxLinesView']);
 
-        $arrWhere = ['deleted' => self::NOT_DELETED];
-        if ($parent_id != self::ALL) {
+        $arrWhere = ['deleted' => Status::NOT_DELETED];
+        if ($parent_id != Status::ALL) {
             if ($depth == 3) {
                 $query->andOnCondition(
                     'parent_id = :id OR parent_id IN (SELECT id FROM category_word WHERE parent_id = :id AND deleted = :del)'
                     .'OR parent_id IN (SELECT id FROM category_word WHERE parent_id IN (SELECT id FROM category_word WHERE parent_id = :id AND deleted = :del) AND deleted = :del)',
-                    [':id' => $parent_id, ':del' => self::NOT_DELETED]
+                    [':id' => $parent_id, ':del' => Status::NOT_DELETED]
                 );
             } elseif ($depth == 2) {
                 $query->andOnCondition(
                     'parent_id = :id OR parent_id IN (SELECT id FROM category_word WHERE parent_id = :id AND deleted = :del)',
-                    [':id' => $parent_id, ':del' => self::NOT_DELETED]
+                    [':id' => $parent_id, ':del' => Status::NOT_DELETED]
                 );
             } else {
                 $arrWhere['parent_id'] = $parent_id;

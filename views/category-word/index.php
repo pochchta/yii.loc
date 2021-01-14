@@ -1,6 +1,7 @@
 <?php
 
 use app\models\CategoryWord;
+use app\models\Status;
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
@@ -51,7 +52,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => Html::activeDropDownList(
                     $searchModel,
                     'firstCategory',
-                    [CategoryWord::ALL => 'все', '0' => 'нет'] + CategoryWord::LABEL_FIELD_WORD
+                    [Status::ALL => 'все', '0' => 'нет'] + CategoryWord::LABEL_FIELD_WORD
                 )
             ],
             [
@@ -63,23 +64,23 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => Html::activeDropDownList(
                     $searchModel,
                     'secondCategory',
-                    [CategoryWord::ALL => 'все'] + $arrSecondCategory
+                    [Status::ALL => 'все'] + $arrSecondCategory
                 )
             ],
             [
                 'attribute' => 'deleted',
                 'format' => 'html',
                 'value' => function ($model) {
-                    if ($model->deleted == CategoryWord::NOT_DELETED) {
+                    if ($model->deleted == Status::NOT_DELETED) {
                         return '';
                     } else {
                         return '<span class="glyphicon glyphicon-remove-sign color-err" title="Удален"></span>';
                     }
                 },
                 'filter' => Html::activeDropDownList($searchModel, 'deleted', [
-                    CategoryWord::NOT_DELETED => 'нет',
-                    CategoryWord::DELETED => 'да',
-                    CategoryWord::ALL => 'все'
+                    Status::NOT_DELETED => 'нет',
+                    Status::DELETED => 'да',
+                    Status::ALL => 'все'
                 ])
             ],
             [

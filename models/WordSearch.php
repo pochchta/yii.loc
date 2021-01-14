@@ -18,9 +18,9 @@ class WordSearch extends Word
         return [
             [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted', 'parent_id'], 'integer'],
             [['name', 'value', 'description'], 'safe'],
-            [['deleted'], 'default', 'value' => Word::NOT_DELETED],
+            [['deleted'], 'default', 'value' => Status::NOT_DELETED],
             [['firstCategory', 'secondCategory', 'thirdCategory'], 'integer'],
-            [['firstCategory', 'secondCategory', 'thirdCategory'], 'default', 'value' => CategoryWord::ALL],
+            [['firstCategory', 'secondCategory', 'thirdCategory'], 'default', 'value' => Status::ALL],
         ];
     }
 
@@ -71,18 +71,18 @@ class WordSearch extends Word
             ->andFilterWhere(['like', 'value', $this->value])
             ->andFilterWhere(['like', 'description', $this->description]);
 
-        if ($this->thirdCategory != CategoryWord::ALL && $this->thirdCategory != 0) {
+        if ($this->thirdCategory != Status::ALL && $this->thirdCategory != 0) {
             $query->andFilterWhere(['parent_id' => $this->thirdCategory]);
-        } elseif ($this->secondCategory != CategoryWord::ALL && $this->secondCategory != 0) {
+        } elseif ($this->secondCategory != Status::ALL && $this->secondCategory != 0) {
             if ($this->thirdCategory == '0') {      // "все", без поиска потомков
                 $query->andFilterWhere(['parent_id' => $this->secondCategory]);
             } else {
                 $query->andOnCondition(
                     'parent_id = :id OR parent_id IN (SELECT id FROM category_word WHERE parent_id = :id AND deleted = :del)',
-                    [':id' => $this->secondCategory, ':del' => self::NOT_DELETED]
+                    [':id' => $this->secondCategory, ':del' => Status::NOT_DELETED]
                 );
             }
-        } elseif ($this->firstCategory != CategoryWord::ALL) {
+        } elseif ($this->firstCategory != Status::ALL) {
             if ($this->secondCategory == '0') {      // "все", без поиска потомков
                 $query->andOnCondition(
                     'parent_id = :id',
@@ -92,12 +92,12 @@ class WordSearch extends Word
                 $query->andOnCondition(
                     'parent_id = :id OR parent_id IN (SELECT id FROM category_word WHERE parent_id = :id AND deleted = :del)'
                     .'OR parent_id IN (SELECT id FROM category_word WHERE parent_id IN (SELECT id FROM category_word WHERE parent_id = :id AND deleted = :del) AND deleted = :del)',
-                    [':id' => $this->firstCategory, ':del' => self::NOT_DELETED]
+                    [':id' => $this->firstCategory, ':del' => Status::NOT_DELETED]
                 );
             }
         }
 
-        if ($this->deleted == Word::NOT_DELETED || $this->deleted == Word::DELETED) {
+        if ($this->deleted == Status::NOT_DELETED || $this->deleted == Status::DELETED) {
             $query->andFilterWhere(['deleted' => $this->deleted]);
         }
 

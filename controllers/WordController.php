@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\CategoryWord;
+use app\models\Status;
 use Yii;
 use app\models\Word;
 use app\models\WordSearch;
@@ -22,7 +23,7 @@ class WordController extends Controller
     {
         return [
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['POST'],
                 ],
@@ -41,27 +42,27 @@ class WordController extends Controller
         $arrSecondCategory = [];
         $arrThirdCategory = [];
 
-        if ($params['firstCategory'] == CategoryWord::ALL || $params['firstCategory'] == 0) {
-            $params['secondCategory'] = CategoryWord::ALL;
-            $params['thirdCategory'] = CategoryWord::ALL;
+        if ($params['firstCategory'] == Status::ALL || $params['firstCategory'] == 0) {
+            $params['secondCategory'] = Status::ALL;
+            $params['thirdCategory'] = Status::ALL;
         } else {
             $arrSecondCategory = CategoryWord::getAllNames($params['firstCategory']);
             if (empty($arrSecondCategory) == false) {
                 $arrSecondCategory = ['0' => 'нет'] + $arrSecondCategory;
             }
             if ($arrSecondCategory[$params['secondCategory']] === NULL) {
-                $params['secondCategory'] = CategoryWord::ALL;
-                $params['thirdCategory'] = CategoryWord::ALL;
+                $params['secondCategory'] = Status::ALL;
+                $params['thirdCategory'] = Status::ALL;
             }
-            if ($params['secondCategory'] == CategoryWord::ALL || $params['secondCategory'] == 0) {
-                $params['thirdCategory'] = CategoryWord::ALL;
+            if ($params['secondCategory'] == Status::ALL || $params['secondCategory'] == 0) {
+                $params['thirdCategory'] = Status::ALL;
             } else {
                 $arrThirdCategory = CategoryWord::getAllNames($params['secondCategory']);
                 if (empty($arrThirdCategory) == false) {
                     $arrThirdCategory = ['0' => 'нет'] + $arrThirdCategory;
                 }
                 if ($arrThirdCategory[$params['thirdCategory']] === NULL) {
-                    $params['thirdCategory'] = CategoryWord::ALL;
+                    $params['thirdCategory'] = Status::ALL;
                 }
             }
         }
@@ -183,10 +184,10 @@ class WordController extends Controller
     {
         $model = $this->findModel($id);
 
-        $model->deleted == $model::NOT_DELETED ? $model->deleted = $model::DELETED :
-            $model->deleted = $model::NOT_DELETED;
+        $model->deleted == Status::NOT_DELETED ? $model->deleted = Status::DELETED :
+            $model->deleted = Status::NOT_DELETED;
         if ($model->save(false)) {
-            if ($model->deleted == $model::NOT_DELETED) {
+            if ($model->deleted == Status::NOT_DELETED) {
                 Yii::$app->session->setFlash('success', 'Запись восстановлена');
             } else {
                 Yii::$app->session->setFlash('success', 'Запись удалена');

@@ -1,7 +1,7 @@
 <?php
 
-use app\models\Device;
 use app\models\Incoming;
+use app\models\Status;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
@@ -13,7 +13,7 @@ use yii\widgets\ActiveForm;
 <p><?=
     'Относится к прибору: '
     . Html::a(
-        $model->device->name . ', №' . $model->device->number . ($model->device->deleted == Device::DELETED ? ' (удален)' : ''),
+        $model->device->name . ', №' . $model->device->number . ($model->device->deleted == Status::DELETED ? ' (удален)' : ''),
         ['device/view', 'id' => $model->device_id]
     )
     ?></p>

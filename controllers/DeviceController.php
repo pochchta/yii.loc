@@ -2,8 +2,8 @@
 
 namespace app\controllers;
 
-use app\models\CategoryWord;
 use app\models\Incoming;
+use app\models\Status;
 use app\models\Verification;
 use Yii;
 use app\models\Device;
@@ -140,20 +140,20 @@ class DeviceController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->deleted == Device::NOT_DELETED) {   // TODO: возможно это проверять не нужно
-            if (Verification::findOne(['device_id' => $model->id, 'deleted' => Verification::NOT_DELETED]) !== NULL) {
+        if ($model->deleted == Status::NOT_DELETED) {   // TODO: возможно это проверять не нужно
+            if (Verification::findOne(['device_id' => $model->id, 'deleted' => Status::NOT_DELETED]) !== NULL) {
                 Yii::$app->session->setFlash('error', 'Запись не была удалена (используется в поверках)');
                 return $this->redirect(Yii::$app->request->referrer);
             }
-            if (Incoming::findOne(['device_id' => $model->id, 'deleted' => Incoming::NOT_DELETED]) !== NULL) {
+            if (Incoming::findOne(['device_id' => $model->id, 'deleted' => Status::NOT_DELETED]) !== NULL) {
                 Yii::$app->session->setFlash('error', 'Запись не была удалена (используется в приемках)');
                 return $this->redirect(Yii::$app->request->referrer);
             }
         }
-        $model->deleted == Device::NOT_DELETED ? $model->deleted = Device::DELETED :
-            $model->deleted = Device::NOT_DELETED;
+        $model->deleted == Status::NOT_DELETED ? $model->deleted = Status::DELETED :
+            $model->deleted = Status::NOT_DELETED;
         if ($model->save()) {
-            if ($model->deleted == Device::NOT_DELETED) {
+            if ($model->deleted == Status::NOT_DELETED) {
                 Yii::$app->session->setFlash('success', 'Данные восстановлены');
             } else {
                 Yii::$app->session->setFlash('success', 'Данные удалены');

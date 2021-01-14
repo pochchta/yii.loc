@@ -1,7 +1,7 @@
 <?php
 
-use app\models\Device;
 use app\models\Incoming;
+use app\models\Status;
 use yii\helpers\Html;
 use yii\web\YiiAsset;
 use yii\widgets\DetailView;
@@ -14,7 +14,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Приемки', 'url' => ['index'
 $this->params['breadcrumbs'][] = $this->title;
 YiiAsset::register($this);
 
-if ($model->deleted == Incoming::NOT_DELETED) {
+if ($model->deleted == Status::NOT_DELETED) {
     $deleteMessage = 'Вы уверены, что хотите удалить этот элемент?';
     $deleteTitle = 'Удалить';
     $deleteText = '';
@@ -47,7 +47,7 @@ if ($model->deleted == Incoming::NOT_DELETED) {
             [
                 'format' => 'html',
                 'value' => Html::a(
-                    $model->device->name . ', №' . $model->device->number . ($model->device->deleted == Device::DELETED ? ' (удален)' : ''),
+                    $model->device->name . ', №' . $model->device->number . ($model->device->deleted == Status::DELETED ? ' (удален)' : ''),
                     ['device/view', 'id' => $model->device_id]
                 ),
                 'label' => 'Относится к прибору',

@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Device;
+use app\models\Status;
 use Yii;
 use app\models\Incoming;
 use app\models\IncomingSearch;
@@ -142,10 +143,10 @@ class IncomingController extends Controller
     {
         $model = $this->findModel($id);
 
-        $model->deleted == Incoming::NOT_DELETED ? $model->deleted = Incoming::DELETED :
-            $model->deleted = Incoming::NOT_DELETED;
+        $model->deleted == Status::NOT_DELETED ? $model->deleted = Status::DELETED :
+            $model->deleted = Status::NOT_DELETED;
         if ($model->save()) {
-            if ($model->deleted == Incoming::NOT_DELETED) {
+            if ($model->deleted == Status::NOT_DELETED) {
                 Yii::$app->session->setFlash('success', 'Запись восстановлена');
             } else {
                 Yii::$app->session->setFlash('success', 'Запись удалена');

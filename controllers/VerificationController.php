@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Device;
+use app\models\Status;
 use app\models\VerificationSearch;
 use DateTime;
 use Yii;
@@ -58,9 +59,9 @@ class VerificationController extends Controller
 
         $device_id = $params['device_id'];
         if ($device_id != NULL) {
-            $searchModel->status = Verification::ALL;     // в searchModel по умолчанию status = STATUS_ON; здесь перезаписываем ALL;
+            $searchModel->status = Status::ALL;     // в searchModel по умолчанию status = STATUS_ON; здесь перезаписываем ALL;
             if ($params['status'] == '') {                // если status не пустой, то он попадет в модель дальше: $searchModel->search($params);
-                $params['status'] = Verification::ALL;    // <- это нужно ТОЛЬКО для создания ссылки фильтра для печати
+                $params['status'] = Status::ALL;    // <- это нужно ТОЛЬКО для создания ссылки фильтра для печати
             }
             $modelDevice = Device::findOne(['id' => $device_id]);
         }
@@ -167,8 +168,8 @@ class VerificationController extends Controller
     {
         $model = $this->findModel($id);
 
-        $model->deleted == Verification::NOT_DELETED ? $model->deleted = Verification::DELETED :
-            $model->deleted = Verification::NOT_DELETED;
+        $model->deleted == Status::NOT_DELETED ? $model->deleted = Status::DELETED :
+            $model->deleted = Status::NOT_DELETED;
         $fileMutex = Yii::$app->mutex;              /* @var $fileMutex yii\mutex\FileMutex */
 
         $saveResult = false;
@@ -186,7 +187,7 @@ class VerificationController extends Controller
         }
 
         if ($saveResult) {
-            if ($model->deleted == $model::NOT_DELETED) {
+            if ($model->deleted == Status::NOT_DELETED) {
                 Yii::$app->session->setFlash('success', 'Запись восстановлена');
             } else {
                 Yii::$app->session->setFlash('success', 'Запись удалена');

@@ -28,13 +28,6 @@ use yii\db\ActiveRecord;
  */
 class CategoryWord extends ActiveRecord
 {
-    const ALL = -1;                     // для всех свойств
-
-    const NOT_CATEGORY = 0;
-
-    const NOT_DELETED = 0;              // по умолчанию CategoryWord->deleted
-    const DELETED = 1;
-
     const MAX_NUMBER_PARENTS = 3;       // максимальный уровень вложенности
 
     const FIELD_WORD = [
@@ -106,7 +99,7 @@ class CategoryWord extends ActiveRecord
                     $this->addError($parentAttribute, 'Родительский раздел не корневой');
                 }
 
-                $child = self::findOne(['parent_id' => $this->id, 'deleted' => self::NOT_DELETED]);
+                $child = self::findOne(['parent_id' => $this->id, 'deleted' => Status::NOT_DELETED]);
                 if ($child !== NULL) {
                     $this->addError($parentAttribute, 'Категория уже содержит дочерние категории');
                 }
@@ -142,20 +135,20 @@ class CategoryWord extends ActiveRecord
      * @param int $pass_id пропускаемый id
      * @return array
      */
-    public static function getAllNames($parent_id = self::NOT_CATEGORY, $depth = 1, $pass_id = NULL)
+    public static function getAllNames($parent_id = Status::NOT_CATEGORY, $depth = 1, $pass_id = NULL)
     {
-        $query = self::find()->select(['id', 'name', 'parent_id'])->where(['deleted' => self::NOT_DELETED])->limit(Yii::$app->params['maxLinesView']);
+        $query = self::find()->select(['id', 'name', 'parent_id'])->where(['deleted' => Status::NOT_DELETED])->limit(Yii::$app->params['maxLinesView']);
 
-        if ($parent_id == self::NOT_CATEGORY) {
+        if ($parent_id == Status::NOT_CATEGORY) {
             if ($depth == 3) {
                 $query->andOnCondition(
                     'parent_id IN (SELECT id FROM category_word WHERE parent_id IN (SELECT id FROM category_word WHERE parent_id < :id AND deleted = :del) AND deleted = :del)',
-                    [':id' => $parent_id, ':del' => self::NOT_DELETED]
+                    [':id' => $parent_id, ':del' => Status::NOT_DELETED]
                 );
             } elseif ($depth == 2) {
                 $query->andOnCondition(
                     'parent_id IN (SELECT id FROM category_word WHERE parent_id < :id AND deleted = :del)',
-                    [':id' => $parent_id, ':del' => self::NOT_DELETED]
+                    [':id' => $parent_id, ':del' => Status::NOT_DELETED]
                 );
             } else {
                 $query->andOnCondition(
@@ -167,7 +160,7 @@ class CategoryWord extends ActiveRecord
             if ($depth == 2) {
                 $query->andOnCondition(
                     'parent_id IN (SELECT id FROM category_word WHERE parent_id = :id AND deleted = :del)',
-                    [':id' => $parent_id, ':del' => self::NOT_DELETED]
+                    [':id' => $parent_id, ':del' => Status::NOT_DELETED]
                 );
             } else {
                 $query->andOnCondition(
@@ -199,7 +192,7 @@ class CategoryWord extends ActiveRecord
      */
     public static function getArrFilters(& $params, $category)
     {
-        $arrFirstCategory = [self::ALL => 'все', self::NOT_CATEGORY => 'нет'];
+        $arrFirstCategory = [Status::ALL => 'все', Status::NOT_CATEGORY => 'нет'];
         $arrSecondCategory = [];
         $arrThirdCategory = [];
 
@@ -212,25 +205,25 @@ class CategoryWord extends ActiveRecord
             $secondCategory = & $params['second' . $categoryName];
             $thirdCategory = & $params['third' . $categoryName];
 
-            $firstCategory = $firstCategory ?? self::ALL;
-            $secondCategory = $secondCategory ?? self::ALL;
-            $thirdCategory = $thirdCategory ?? self::ALL;
+            $firstCategory = $firstCategory ?? Status::ALL;
+            $secondCategory = $secondCategory ?? Status::ALL;
+            $thirdCategory = $thirdCategory ?? Status::ALL;
 
             $firstCategory = (int) $firstCategory;
             $secondCategory = (int) $secondCategory;
             $thirdCategory = (int) $thirdCategory;
 
             $arrFirstCategory += self::getAllNames($category);
-            if ($firstCategory == self::NOT_CATEGORY) {
+            if ($firstCategory == Status::NOT_CATEGORY) {
                 $arrThirdCategory = Word::getAllNames($category, 1);
-            } elseif ($firstCategory == self::ALL) {
+            } elseif ($firstCategory == Status::ALL) {
                 $arrSecondCategory = self::getAllNames($category, 2);
                 $arrThirdCategory = Word::getAllNames($category, 3);
             } else {
                 $arrSecondCategory = self::getAllNames($firstCategory);
-                if ($secondCategory == self::NOT_CATEGORY) {
+                if ($secondCategory == Status::NOT_CATEGORY) {
                     $arrThirdCategory = Word::getAllNames($firstCategory, 1);
-                } elseif ($secondCategory == self::ALL) {
+                } elseif ($secondCategory == Status::ALL) {
                     $arrThirdCategory = Word::getAllNames($firstCategory, 2);
                 } else {
                     $arrThirdCategory = Word::getAllNames($secondCategory);
@@ -238,34 +231,34 @@ class CategoryWord extends ActiveRecord
             }
 
             if (isset($arrSecondCategory[$secondCategory]) == false) {
-                $secondCategory = self::ALL;
+                $secondCategory = Status::ALL;
             }
             if (isset($arrThirdCategory[$thirdCategory]) == false) {
-                $thirdCategory = self::ALL;
+                $thirdCategory = Status::ALL;
             }
             if (empty($arrSecondCategory) == false) {
-                $arrSecondCategory = [self::NOT_CATEGORY => 'нет'] + $arrSecondCategory;
+                $arrSecondCategory = [Status::NOT_CATEGORY => 'нет'] + $arrSecondCategory;
             }
-            $arrSecondCategory = [self::ALL => 'все'] + $arrSecondCategory;
-            $arrThirdCategory = [self::ALL => 'все'] + $arrThirdCategory;
+            $arrSecondCategory = [Status::ALL => 'все'] + $arrSecondCategory;
+            $arrThirdCategory = [Status::ALL => 'все'] + $arrThirdCategory;
 
             // вычисление parentId для фильтра
             $conditionDepth = NULL;
             $conditionParentId = NULL;
-            if ($thirdCategory != self::ALL) {
+            if ($thirdCategory != Status::ALL) {
                 $conditionParentId = $thirdCategory;
                 $conditionDepth = 0;
-            } elseif ($secondCategory != self::ALL) {
-                if ($secondCategory == self::NOT_CATEGORY) {
+            } elseif ($secondCategory != Status::ALL) {
+                if ($secondCategory == Status::NOT_CATEGORY) {
                     $conditionParentId = $firstCategory;
                     $conditionDepth = 1;
                 } else {
                     $conditionParentId = $secondCategory;
                     $conditionDepth = 2;
                 }
-            } elseif ($firstCategory != self::ALL) {
+            } elseif ($firstCategory != Status::ALL) {
                 $conditionParentId = $firstCategory;
-                if ($firstCategory == self::NOT_CATEGORY) {
+                if ($firstCategory == Status::NOT_CATEGORY) {
                     $conditionDepth = 1;
                 } else {
                     $conditionDepth = 3;
@@ -274,7 +267,7 @@ class CategoryWord extends ActiveRecord
 
             // подготовка фильтров
             $condition = NULL;
-            $bind = [":{$categoryName}" => $conditionParentId, ':del' => self::NOT_DELETED];
+            $bind = [":{$categoryName}" => $conditionParentId, ':del' => Status::NOT_DELETED];
             $columnName = strtolower($categoryName) . '_id';    // categoryName проверяется по списку self::FIELD_WORD
             $condition1 = "{$columnName} IN (SELECT id FROM word WHERE parent_id = :{$categoryName} AND deleted = :del)";
             $condition2 = "{$columnName} IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM category_word WHERE parent_id = :{$categoryName} AND deleted = :del) AND deleted = :del)";

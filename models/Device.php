@@ -4,6 +4,7 @@ namespace app\models;
 
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
@@ -33,10 +34,6 @@ use yii\db\ActiveRecord;
  */
 class Device extends ActiveRecord
 {
-    const NOT_DELETED = 0;
-    const DELETED = 1;
-    const ALL = -1;
-
     /**
      * {@inheritdoc}
      */
@@ -104,7 +101,7 @@ class Device extends ActiveRecord
     /**
      * Gets query for [[Verifications]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getVerifications()
     {

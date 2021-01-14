@@ -28,7 +28,7 @@ class VerificationSearch extends Verification
             [['name', 'type', 'description'], 'string', 'max' => 64],
             [['last_date_start', 'last_date_end', 'next_date_start', 'next_date_end'], 'string', 'max' => 64],
             [['status'], 'default', 'value' => Verification::STATUS_ON],
-            [['deleted'], 'default', 'value' => Verification::NOT_DELETED],
+            [['deleted'], 'default', 'value' => Status::NOT_DELETED],
             [['deviceName'], 'string', 'max' => 64],
             [['deviceNumber', 'deviceIdDepartment'], 'integer'],
         ];
@@ -88,7 +88,7 @@ class VerificationSearch extends Verification
             $query->andFilterWhere(['status' => $this->status]);
         }
 
-        if ($this->deleted == Verification::NOT_DELETED || $this->deleted == Verification::DELETED) {
+        if ($this->deleted == Status::NOT_DELETED || $this->deleted == Status::DELETED) {
             $query->andFilterWhere(['deleted' => $this->deleted]);
         }
 
@@ -108,19 +108,19 @@ class VerificationSearch extends Verification
         if ($this->deviceName != '') {
             $query->andOnCondition(
                 'device_id IN (SELECT id FROM device WHERE name LIKE :name AND deleted = :del)',
-                [':name' => '%' . $this->deviceName . '%', ':del' => self::NOT_DELETED]
+                [':name' => '%' . $this->deviceName . '%', ':del' => Status::NOT_DELETED]
             );
         }
         if ($this->deviceNumber != '') {
             $query->andOnCondition(
                 'device_id IN (SELECT id FROM device WHERE number = :number AND deleted = :del)',
-                [':number' => $this->deviceNumber, ':del' => self::NOT_DELETED]
+                [':number' => $this->deviceNumber, ':del' => Status::NOT_DELETED]
             );
         }
-        if ($this->deviceIdDepartment != '' && $this->deviceIdDepartment != Department::ALL) {
+        if ($this->deviceIdDepartment != '' && $this->deviceIdDepartment != Status::ALL) {
             $query->andOnCondition(
                 'device_id IN (SELECT id FROM device WHERE department_id = :id AND deleted = :del)',
-                [':id' => $this->deviceIdDepartment, ':del' => self::NOT_DELETED]
+                [':id' => $this->deviceIdDepartment, ':del' => Status::NOT_DELETED]
             );
         }
 

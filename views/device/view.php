@@ -1,6 +1,6 @@
 <?php
 
-use app\models\Device;
+use app\models\Status;
 use yii\helpers\Html;
 use yii\web\YiiAsset;
 use yii\widgets\DetailView;
@@ -13,7 +13,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Приборы', 'url' => ['index'
 $this->params['breadcrumbs'][] = $this->title;
 YiiAsset::register($this);
 
-if ($model->deleted == Device::NOT_DELETED) {
+if ($model->deleted == Status::NOT_DELETED) {
     $deleteMessage = 'Вы уверены, что хотите удалить этот элемент?';
     $deleteTitle = 'Удалить';
     $deleteText = '';

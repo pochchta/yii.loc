@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Status;
 use Yii;
 use app\models\CategoryWord;
 use app\models\CategoryWordSearch;
@@ -18,7 +19,7 @@ class CategoryWordController extends Controller
     {
         return [
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['POST'],
                 ],
@@ -36,15 +37,15 @@ class CategoryWordController extends Controller
         $params = Yii::$app->request->queryParams;
         $arrSecondCategory = [];
 
-        if ($params['firstCategory'] == CategoryWord::ALL || $params['firstCategory'] == 0) {
-            $params['secondCategory'] = CategoryWord::ALL;
+        if ($params['firstCategory'] == Status::ALL || $params['firstCategory'] == 0) {
+            $params['secondCategory'] = Status::ALL;
         } else {
             $arrSecondCategory = CategoryWord::getAllNames($params['firstCategory']);
             if (empty($arrSecondCategory) == false) {
                 $arrSecondCategory = ['0' => 'нет'] + $arrSecondCategory;
             }
             if ($arrSecondCategory[$params['secondCategory']] === NULL) {
-                $params['secondCategory'] = CategoryWord::ALL;
+                $params['secondCategory'] = Status::ALL;
             }
         }
         $dataProvider = $searchModel->search($params);
@@ -161,9 +162,9 @@ class CategoryWordController extends Controller
     {
         $model = $this->findModel($id);
 
-        $model->deleted == CategoryWord::NOT_DELETED ? $model->deleted = CategoryWord::DELETED :
-            $model->deleted = CategoryWord::NOT_DELETED;
-        if ($model->deleted == CategoryWord::DELETED) {
+        $model->deleted == Status::NOT_DELETED ? $model->deleted = Status::DELETED :
+            $model->deleted = Status::NOT_DELETED;
+        if ($model->deleted == Status::DELETED) {
             $model->parent_id = 0;
         }
 
@@ -178,7 +179,7 @@ class CategoryWordController extends Controller
         }
 
         if ($saveResult) {
-            if ($model->deleted == CategoryWord::NOT_DELETED) {
+            if ($model->deleted == Status::NOT_DELETED) {
                 Yii::$app->session->setFlash('success', 'Данные восстановлены');
             } else {
                 Yii::$app->session->setFlash('success', 'Данные удалены');

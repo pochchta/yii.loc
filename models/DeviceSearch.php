@@ -36,9 +36,9 @@ class DeviceSearch extends Device
         return [
             [['id', 'number', 'department_id', 'scale_id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
             [['name', 'type', 'description'], 'string', 'max' => 64],
-            [['deleted'], 'default', 'value' => Device::NOT_DELETED],
-            [['department_id'], 'default', 'value' => Word::ALL],
-            [['scale_id'], 'default', 'value' => Word::ALL],
+            [['deleted'], 'default', 'value' => Status::NOT_DELETED],
+            [['department_id'], 'default', 'value' => Status::ALL],
+            [['scale_id'], 'default', 'value' => Status::ALL],
             [['firstDepartment', 'secondDepartment', 'thirdDepartment', 'firstScale', 'secondScale', 'thirdScale'], 'integer']
         ];
     }
@@ -118,7 +118,7 @@ class DeviceSearch extends Device
             );
         }
 
-        if ($this->deleted != Device::ALL) {
+        if ($this->deleted != Status::ALL) {
             $query->andFilterWhere(['deleted' => $this->deleted]);
         }
 

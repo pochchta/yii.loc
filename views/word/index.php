@@ -1,7 +1,7 @@
 <?php
 
 use app\models\CategoryWord;
-use app\models\Word;
+use app\models\Status;
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
@@ -52,7 +52,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => Html::activeDropDownList(
                     $searchModel,
                     'firstCategory',
-                    [CategoryWord::ALL => 'все', '0' => 'нет'] + CategoryWord::LABEL_FIELD_WORD
+                    [Status::ALL => 'все', '0' => 'нет'] + CategoryWord::LABEL_FIELD_WORD
                 )
             ],
             [
@@ -63,7 +63,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => Html::activeDropDownList(
                     $searchModel,
                     'secondCategory',
-                    [CategoryWord::ALL => 'все'] + $arrSecondCategory
+                    [Status::ALL => 'все'] + $arrSecondCategory
                 )
             ],
             [
@@ -74,23 +74,23 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => Html::activeDropDownList(
                     $searchModel,
                     'thirdCategory',
-                    [CategoryWord::ALL => 'все'] + $arrThirdCategory
+                    [Status::ALL => 'все'] + $arrThirdCategory
                 )
             ],
             [
                 'attribute' => 'deleted',
                 'format' => 'html',
                 'value' => function ($model) {
-                    if ($model->deleted == Word::NOT_DELETED) {
+                    if ($model->deleted == Status::NOT_DELETED) {
                         return '';
                     } else {
                         return '<span class="glyphicon glyphicon-remove-sign color-err" title="Удален"></span>';
                     }
                 },
                 'filter' => Html::activeDropDownList($searchModel, 'deleted', [
-                    Word::NOT_DELETED => 'нет',
-                    Word::DELETED => 'да',
-                    Word::ALL => 'все'
+                    Status::NOT_DELETED => 'нет',
+                    Status::DELETED => 'да',
+                    Status::ALL => 'все'
                 ])
             ],
             [
@@ -101,7 +101,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     ['title' => 'Очистить все фильтры']
                 ),
                 'value' => function ($model) {
-                    if ($model->deleted == Word::NOT_DELETED) {
+                    if ($model->deleted == Status::NOT_DELETED) {
                         $deleteMessage = 'Вы уверены, что хотите удалить этот элемент?';
                         $deleteTitle = 'Удалить';
                         $deleteCssClass = 'glyphicon glyphicon-trash a-action';

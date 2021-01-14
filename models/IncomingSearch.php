@@ -38,9 +38,9 @@ class IncomingSearch extends Incoming
             [['id', 'device_id', 'status', 'payment', 'created_by', 'updated_by', 'deleted'], 'integer'],
             [['description'], 'string', 'max' => 64],
             [['created_at_start', 'created_at_end', 'updated_at_start', 'updated_at_end'], 'string', 'max' => 64],
-            [['status'], 'default', 'value' => Incoming::ALL],
-            [['payment'], 'default', 'value' => Incoming::ALL],
-            [['deleted'], 'default', 'value' => Incoming::NOT_DELETED],
+            [['status'], 'default', 'value' => Status::ALL],
+            [['payment'], 'default', 'value' => Status::ALL],
+            [['deleted'], 'default', 'value' => Status::NOT_DELETED],
             [['deviceName'], 'string', 'max' => 64],
             [['deviceNumber'], 'integer'],
             [['firstDepartment', 'secondDepartment', 'thirdDepartment', 'firstScale', 'secondScale', 'thirdScale'], 'integer']
@@ -109,13 +109,13 @@ class IncomingSearch extends Incoming
 
         $query->andFilterWhere(['like', 'description', $this->description]);
 
-        if ($this->status != Incoming::ALL) {
+        if ($this->status != Status::ALL) {
             $query->andFilterWhere(['status' => $this->status]);
         }
-        if ($this->payment != Incoming::ALL) {
+        if ($this->payment != Status::ALL) {
             $query->andFilterWhere(['payment' => $this->payment]);
         }
-        if ($this->deleted != Incoming::ALL) {
+        if ($this->deleted != Status::ALL) {
             $query->andFilterWhere(['deleted' => $this->deleted]);
         }
 
@@ -135,19 +135,19 @@ class IncomingSearch extends Incoming
         if ($this->deviceName != '') {
             $query->andOnCondition(
                 'device_id IN (SELECT id FROM device WHERE name LIKE :name AND deleted = :del)',
-                [':name' => '%' . $this->deviceName . '%', ':del' => self::NOT_DELETED]
+                [':name' => '%' . $this->deviceName . '%', ':del' => Status::NOT_DELETED]
             );
         }
         if ($this->deviceNumber != '') {
             $query->andOnCondition(
                 'device_id IN (SELECT id FROM device WHERE number = :number AND deleted = :del)',
-                [':number' => $this->deviceNumber, ':del' => self::NOT_DELETED]
+                [':number' => $this->deviceNumber, ':del' => Status::NOT_DELETED]
             );
         }
 
         if ($this->condDepartment['condition'] !== NULL) {
             $bind = $this->condDepartment['bind'];
-            $bind[':del'] = Device::NOT_DELETED;
+            $bind[':del'] = Status::NOT_DELETED;
 
             $query->andOnCondition(
                 'device_id IN (SELECT id FROM device WHERE ' . $this->condDepartment['condition'] . ' AND deleted = :del)',
@@ -157,7 +157,7 @@ class IncomingSearch extends Incoming
 
         if ($this->condScale['condition'] !== NULL) {
             $bind = $this->condScale['bind'];
-            $bind[':del'] = Device::NOT_DELETED;
+            $bind[':del'] = Status::NOT_DELETED;
 
             $query->andOnCondition(
                 'device_id IN (SELECT id FROM device WHERE ' . $this->condScale['condition'] . ' AND deleted = :del)',

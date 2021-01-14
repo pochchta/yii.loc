@@ -27,10 +27,6 @@ use yii\db\ActiveRecord;
  */
 class Incoming extends ActiveRecord
 {
-    const NOT_DELETED = 0;
-    const DELETED = 1;
-    const ALL = -1;
-
     const NOT_PAID = 0;
     const PAID = 1;
 
