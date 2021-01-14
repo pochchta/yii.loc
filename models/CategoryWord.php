@@ -221,7 +221,6 @@ class CategoryWord extends ActiveRecord
             $thirdCategory = (int) $thirdCategory;
 
             $arrFirstCategory += self::getAllNames($category);
-
             if ($firstCategory == self::NOT_CATEGORY) {
                 $arrThirdCategory = Word::getAllNames($category, 1);
             } elseif ($firstCategory == self::ALL) {
@@ -229,19 +228,20 @@ class CategoryWord extends ActiveRecord
                 $arrThirdCategory = Word::getAllNames($category, 3);
             } else {
                 $arrSecondCategory = self::getAllNames($firstCategory);
-                if (isset($arrSecondCategory[$secondCategory]) == false) {
-                    $secondCategory = self::ALL;
-                }
                 if ($secondCategory == self::NOT_CATEGORY) {
                     $arrThirdCategory = Word::getAllNames($firstCategory, 1);
                 } elseif ($secondCategory == self::ALL) {
                     $arrThirdCategory = Word::getAllNames($firstCategory, 2);
                 } else {
                     $arrThirdCategory = Word::getAllNames($secondCategory);
-                    if (isset($arrThirdCategory[$thirdCategory]) == false) {
-                        $thirdCategory = self::ALL;
-                    }
                 }
+            }
+
+            if (isset($arrSecondCategory[$secondCategory]) == false) {
+                $secondCategory = self::ALL;
+            }
+            if (isset($arrThirdCategory[$thirdCategory]) == false) {
+                $thirdCategory = self::ALL;
             }
             if (empty($arrSecondCategory) == false) {
                 $arrSecondCategory = [self::NOT_CATEGORY => 'нет'] + $arrSecondCategory;
