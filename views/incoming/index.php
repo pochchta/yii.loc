@@ -1,10 +1,10 @@
 <?php
 
-use app\models\Department;
 use app\models\Device;
 use app\models\Incoming;
 use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\IncomingSearch */
@@ -36,7 +36,12 @@ $this->params['breadcrumbs'][] = $this->title;
     ?></p>
     <?php endif ?>
 
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
+    <?php Pjax::begin([
+        'id' => 'my-pjax-container',
+        'timeout' => Yii::$app->params['pjaxTimeout']
+    ]) ?>
+
+    <?php  echo $this->render('/device/_search', ['model' => $searchModel]); ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -58,6 +63,20 @@ $this->params['breadcrumbs'][] = $this->title;
                 'label' => 'ID приб.'
             ],
             [
+                'attribute' => 'device.department_id',
+                'value' => function ($model) {
+                    return $model->device->department->name;
+                },
+                'filter' => ''
+            ],
+            [
+                'attribute' => 'device.scale_id',
+                'value' => function ($model) {
+                    return $model->device->scale->name;
+                },
+                'filter' => ''
+            ],
+            [
                 'attribute' => 'device.name',
                 'filter' => Html::activeInput(
                     'text',
@@ -76,17 +95,6 @@ $this->params['breadcrumbs'][] = $this->title;
                     ['class' => 'form-control']
                 ),
                 'label' => '№ приб.'
-            ],
-            [
-                'attribute' => 'device.department.name',
-                'value' => function ($model) {
-                    return $model->device->department->name;
-                },
-                'filter' => Html::activeDropDownList(
-                    $searchModel,
-                    'deviceIdDepartment',
-                    [Department::ALL => 'все'] + Department::getAllNames()
-                )
             ],
             'description:ntext',
             [
@@ -201,5 +209,6 @@ $this->params['breadcrumbs'][] = $this->title;
         ],
     ]); ?>
 
+    <?php Pjax::end() ?>
 
 </div>

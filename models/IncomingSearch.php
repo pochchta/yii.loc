@@ -15,7 +15,20 @@ class IncomingSearch extends Incoming
     public $limit = self::DEFAULT_LIMIT_RECORDS;
 
     public $created_at_start, $created_at_end, $updated_at_start, $updated_at_end;
-    public $deviceName, $deviceNumber, $deviceIdDepartment;
+    public $deviceName, $deviceNumber;
+
+    public $firstDepartment;     // категории
+    public $secondDepartment;
+    public $thirdDepartment;
+    public $firstScale;
+    public $secondScale;
+    public $thirdScale;
+
+    public $arrDepartment;     // массивы для фильтров
+    public $arrScale;
+
+    public $condDepartment;    // получившееся условие для фильтра
+    public $condScale;
     /**
      * {@inheritdoc}
      */
@@ -29,7 +42,20 @@ class IncomingSearch extends Incoming
             [['payment'], 'default', 'value' => Incoming::ALL],
             [['deleted'], 'default', 'value' => Incoming::NOT_DELETED],
             [['deviceName'], 'string', 'max' => 64],
-            [['deviceNumber', 'deviceIdDepartment'], 'integer'],
+            [['deviceNumber'], 'integer'],
+            [['firstDepartment', 'secondDepartment', 'thirdDepartment', 'firstScale', 'secondScale', 'thirdScale'], 'integer']
+        ];
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'firstDepartment' => 'Цеха',
+            'secondDepartment' => '->',
+            'thirdDepartment' => '->',
+            'firstScale' => 'Шкалы',
+            'secondScale' => '->',
+            'thirdScale' => '->',
         ];
     }
 
@@ -51,7 +77,7 @@ class IncomingSearch extends Incoming
      */
     public function search($params)
     {
-        $query = Incoming::find()->with('creator', 'updater', 'device.department');
+        $query = Incoming::find()->with('creator', 'updater', 'device.department', 'device.scale');
 
         // add conditions that should always apply here
 
@@ -59,6 +85,11 @@ class IncomingSearch extends Incoming
             'query' => $query,
         ]);
         $dataProvider->pagination->pageSize = $this->limit;
+
+        list('array' => $this->arrDepartment, 'condition' => $this->condDepartment) =
+            CategoryWord::getArrFilters($params, CategoryWord::FIELD_WORD['Department']);
+        list('array' => $this->arrScale, 'condition' => $this->condScale) =
+            CategoryWord::getArrFilters($params, CategoryWord::FIELD_WORD['Scale']);
 
         $this->load($params);
 
@@ -113,10 +144,24 @@ class IncomingSearch extends Incoming
                 [':number' => $this->deviceNumber, ':del' => self::NOT_DELETED]
             );
         }
-        if ($this->deviceIdDepartment != '' && $this->deviceIdDepartment != Department::ALL) {
+
+        if ($this->condDepartment['condition'] !== NULL) {
+            $bind = $this->condDepartment['bind'];
+            $bind[':del'] = Device::NOT_DELETED;
+
             $query->andOnCondition(
-                'device_id IN (SELECT id FROM device WHERE department_id = :id AND deleted = :del)',
-                [':id' => $this->deviceIdDepartment, ':del' => self::NOT_DELETED]
+                'device_id IN (SELECT id FROM device WHERE ' . $this->condDepartment['condition'] . ' AND deleted = :del)',
+                $bind
+            );
+        }
+
+        if ($this->condScale['condition'] !== NULL) {
+            $bind = $this->condScale['bind'];
+            $bind[':del'] = Device::NOT_DELETED;
+
+            $query->andOnCondition(
+                'device_id IN (SELECT id FROM device WHERE ' . $this->condScale['condition'] . ' AND deleted = :del)',
+                $bind
             );
         }
 
