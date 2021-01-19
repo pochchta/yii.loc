@@ -85,7 +85,7 @@ class DeviceController extends Controller
      */
     public function actionCreate()
     {
-        return $this->saveModel(new Device(), 'update');
+        return $this->saveModel(new Device(), 'create');
     }
 
     /**

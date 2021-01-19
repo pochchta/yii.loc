@@ -300,13 +300,13 @@ class CategoryWord extends ActiveRecord
     }
 
     /**
-     * @param $params [] модифицируемые параметры запроса
-     * @param Word $model
-     * @param $category
      * заполнение параметров из модели Word
+     * @param array $params модифицируемые параметры запроса
+     * @param Word $model
+     * @param int $category значение из CategoryWord::FIELD_WORD[]
      */
-    public static function setParams(& $params, Word $model, $category) {
-        if (in_array($category, self::FIELD_WORD)) {
+    public static function setParams(& $params, $model, $category) {
+        if (in_array($category, self::FIELD_WORD) && $model !== NULL) {
             $categoryName = array_search($category, self::FIELD_WORD);
 
             $firstCategory = & $params['first' . $categoryName];
