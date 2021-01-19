@@ -216,28 +216,34 @@ class CategoryWord extends ActiveRecord
             $arrFirstCategory += self::getAllNames($category);
             if ($firstCategory == Status::NOT_CATEGORY) {
                 $arrThirdCategory = Word::getAllNames($category, 1);
-            } elseif ($firstCategory == Status::ALL) {
-                $arrSecondCategory = self::getAllNames($category, 2);
-                $arrThirdCategory = Word::getAllNames($category, 3);
+                $secondCategory = Status::ALL;
             } else {
-                $arrSecondCategory = self::getAllNames($firstCategory);
+                if ($firstCategory == Status::ALL) {
+                    $arrSecondCategory = self::getAllNames($category, 2);
+                } else {
+                    $arrSecondCategory = self::getAllNames($firstCategory);
+                    if (empty($arrSecondCategory) == false) {
+                        $arrSecondCategory = [Status::NOT_CATEGORY => 'нет'] + $arrSecondCategory;
+                    }
+                }
+                if (isset($arrSecondCategory[$secondCategory]) == false) {
+                    $secondCategory = Status::ALL;
+                }
                 if ($secondCategory == Status::NOT_CATEGORY) {
                     $arrThirdCategory = Word::getAllNames($firstCategory, 1);
                 } elseif ($secondCategory == Status::ALL) {
-                    $arrThirdCategory = Word::getAllNames($firstCategory, 2);
+                    if ($firstCategory == Status::ALL) {
+                        $arrThirdCategory = Word::getAllNames($category, 3);
+                    } else {
+                        $arrThirdCategory = Word::getAllNames($firstCategory, 2);
+                    }
                 } else {
                     $arrThirdCategory = Word::getAllNames($secondCategory);
                 }
             }
 
-            if (isset($arrSecondCategory[$secondCategory]) == false) {
-                $secondCategory = Status::ALL;
-            }
             if (isset($arrThirdCategory[$thirdCategory]) == false) {
                 $thirdCategory = Status::ALL;
-            }
-            if (empty($arrSecondCategory) == false) {
-                $arrSecondCategory = [Status::NOT_CATEGORY => 'нет'] + $arrSecondCategory;
             }
             $arrSecondCategory = [Status::ALL => 'все'] + $arrSecondCategory;
             $arrThirdCategory = [Status::ALL => 'все'] + $arrThirdCategory;
@@ -257,10 +263,11 @@ class CategoryWord extends ActiveRecord
                     $conditionDepth = 2;
                 }
             } elseif ($firstCategory != Status::ALL) {
-                $conditionParentId = $firstCategory;
                 if ($firstCategory == Status::NOT_CATEGORY) {
+                    $conditionParentId = $category;
                     $conditionDepth = 1;
                 } else {
+                    $conditionParentId = $firstCategory;
                     $conditionDepth = 3;
                 }
             }
@@ -292,6 +299,34 @@ class CategoryWord extends ActiveRecord
         ];
     }
 
+    /**
+     * @param $params [] модифицируемые параметры запроса
+     * @param Word $model
+     * @param $category
+     * заполнение параметров из модели Word
+     */
+    public static function setParams(& $params, Word $model, $category) {
+        if (in_array($category, self::FIELD_WORD)) {
+            $categoryName = array_search($category, self::FIELD_WORD);
+
+            $firstCategory = & $params['first' . $categoryName];
+            $secondCategory = & $params['second' . $categoryName];
+            $thirdCategory = & $params['third' . $categoryName];
+
+            $thirdCategory = $model->id;
+            if ($model->parent === NULL) {                                  //      /слово
+                $firstCategory  = Status::NOT_CATEGORY;
+                $secondCategory = Status::ALL;
+            } elseif ($model->parent->parent === NULL) {                    //      //слово
+                $firstCategory = $model->parent_id;
+                $secondCategory = Status::NOT_CATEGORY;
+            } else {                                                        //      ///слово
+                $firstCategory = $model->parent->parent_id;
+                $secondCategory = $model->parent_id;
+            }
+        }
+    }
+
     public static function getParentName ($model, $n = 0) {
         $parentNames = [];
         for ($i = 1; $i <= self::MAX_NUMBER_PARENTS; $i++) {
@@ -304,11 +339,6 @@ class CategoryWord extends ActiveRecord
         }
         return $parentNames[count($parentNames) - $n - 1];
     }
-
-/*    public function getDevices()
-    {
-        return $this->hasMany(Device::class, ['id_department' => 'id']);
-    }*/
 
     public function getParent()
     {

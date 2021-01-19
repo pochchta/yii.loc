@@ -26,7 +26,7 @@ $this->registerCssFile('@web/css/user-print.css');
     <table class="department">
         <tr>
             <td><?= Html::encode($model->department->name) ?></td>
-            <td><?= Html::encode($model->department->phone) ?></td>
+            <td><?= Html::encode($model->department->value) ?></td>
             <td><?= Html::encode($model->position) ?></td>
         </tr>
     </table>
@@ -47,7 +47,7 @@ $this->registerCssFile('@web/css/user-print.css');
         <tr>
             <td><?= Html::encode($model->type) ?></td>
             <td><?= Html::encode($model->number) ?></td>
-            <td><?= Html::encode($model->scale->value) ?></td>
+            <td><?= Html::encode($model->scale->name) ?></td>
             <td><?= Html::encode($model->accuracy) ?></td>
         </tr>
         <tr>

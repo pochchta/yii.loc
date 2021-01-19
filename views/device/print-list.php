@@ -48,7 +48,7 @@ $this->registerCssFile('@web/css/user-print.css');
                 <td><?= $model->number ?></td>
                 <td><?= $model->type ?></td>
                 <td><?= $model->department->name ?></td>
-                <td><?= $model->scale->value ?></td>
+                <td><?= $model->scale->name ?></td>
                 <td><?= $model->accuracy ?></td>
                 <td><?= $model->position ?></td>
                 <td><?= Yii::$app->formatter->asDate($model->created_at) ?></td>

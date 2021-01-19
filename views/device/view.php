@@ -67,12 +67,12 @@ if ($model->deleted == Status::NOT_DELETED) {
                 'label' => 'Межповерочный интервал',
             ],
             [
-                'attribute' => 'id_department',
+                'attribute' => 'department_id',
                 'value' => $model->department->name
             ],
             [
-                'attribute' => 'id_scale',
-                'value' => $model->scale->value
+                'attribute' => 'scale_id',
+                'value' => $model->scale->name
             ],
             'accuracy',
             'position',

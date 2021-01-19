@@ -137,11 +137,6 @@ class Word extends ActiveRecord
         ];
     }
 
-/*    public function getDevices()
-    {
-        return $this->hasMany(Device::class, ['id_department' => 'id']);
-    }*/
-
     public function getParent()
     {
         return $this->hasOne(CategoryWord::class, ['id' => 'parent_id']);

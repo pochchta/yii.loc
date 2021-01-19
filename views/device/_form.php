@@ -1,18 +1,20 @@
 <?php
 
-use app\models\Department;
-use app\models\Scale;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Device */
+/* @var $searchModel app\models\DeviceSearch */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
 <div class="device-form">
 
-    <?php $form = ActiveForm::begin(); ?>
+    <?php $form = ActiveForm::begin([
+        'id' => 'form1',
+    ]); ?>
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
@@ -22,13 +24,14 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>
 
-    <?= $form->field($model, 'id_department')->dropDownList(
-        [Department::ALL => 'не выбрано'] + Department::getAllNames()
-    ) ?>
-
-    <?= $form->field($model, 'id_scale')->dropDownList(
-        [Scale::ALL => 'не выбрано'] + Scale::getAllValues()
-    ) ?>
+    <?php Pjax::begin([
+        'id' => 'my-pjax-container',
+        'timeout' => Yii::$app->params['pjaxTimeout']
+    ]) ?>
+    <?php echo $this->render('_form_search', [
+        'model' => $searchModel, 'form' => $form
+    ]); ?>
+    <?php Pjax::end() ?>
 
     <?= $form->field($model, 'accuracy')->textInput(['maxlength' => true]) ?>
 

@@ -81,10 +81,7 @@ class DeviceSearch extends Device
         ]);
         $dataProvider->pagination->pageSize = $this->limit;
 
-        list('array' => $this->arrDepartment, 'condition' => $this->condDepartment) =
-            CategoryWord::getArrFilters($params, CategoryWord::FIELD_WORD['Department']);
-        list('array' => $this->arrScale, 'condition' => $this->condScale) =
-            CategoryWord::getArrFilters($params, CategoryWord::FIELD_WORD['Scale']);
+        $this->getArrFilters($params);
 
         $this->load($params);
 
@@ -123,6 +120,13 @@ class DeviceSearch extends Device
         }
 
         return $dataProvider;
+    }
+
+    public function getArrFilters (& $params) {
+        list('array' => $this->arrDepartment, 'condition' => $this->condDepartment) =
+            CategoryWord::getArrFilters($params, CategoryWord::FIELD_WORD['Department']);
+        list('array' => $this->arrScale, 'condition' => $this->condScale) =
+            CategoryWord::getArrFilters($params, CategoryWord::FIELD_WORD['Scale']);
     }
 
     public function formName() {

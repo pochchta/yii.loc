@@ -2,9 +2,8 @@
 
 namespace app\controllers;
 
-use app\models\Incoming;
+use app\models\CategoryWord;
 use app\models\Status;
-use app\models\Verification;
 use Yii;
 use app\models\Device;
 use app\models\DeviceSearch;
@@ -86,21 +85,7 @@ class DeviceController extends Controller
      */
     public function actionCreate()
     {
-        $model = new Device();
-
-        if ($model->load(Yii::$app->request->post())) {
-            if ($model->save()) {
-                Yii::$app->session->setFlash('success', 'Запись сохранена');
-                return $this->redirect(['view', 'id' => $model->id]);
-            } else {
-                $errors = $model->getFirstErrors();
-                Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
-            }
-        }
-
-        return $this->render('create', [
-            'model' => $model,
-        ]);
+        return $this->saveModel(new Device(), 'update');
     }
 
     /**
@@ -112,21 +97,43 @@ class DeviceController extends Controller
      */
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
+        return $this->saveModel($this->findModel($id), 'update');
+    }
 
-        if ($model->load(Yii::$app->request->post())) {
+    public function saveModel($model, $view)
+    {
+        $params = Yii::$app->request->post();
+        $searchModel = new DeviceSearch();
+
+        $searchModel->id = $model->id;          // для формирования url для pjax
+        if (empty($params)) {
+            CategoryWord::setParams($params, $model->department, CategoryWord::FIELD_WORD['Department']);
+            CategoryWord::setParams($params, $model->scale, CategoryWord::FIELD_WORD['Scale']);
+        }
+        $searchModel->getArrFilters($params);
+        $searchModel->load($params);
+
+        if ($model->load($params) && Yii::$app->request->isPjax == false) {
+            $model->department_id = $searchModel->thirdDepartment;
+            $model->scale_id = $searchModel->thirdScale;
             if ($model->save()) {
                 Yii::$app->session->setFlash('success', 'Запись сохранена');
                 return $this->redirect(['view', 'id' => $model->id]);
             } else {
+                if ($errorDepartment = $model->getFirstError('department_id')) {
+                    $searchModel->addError('thirdDepartment', $errorDepartment);
+                }
+                if ($errorScale = $model->getFirstError('scale_id')) {
+                    $searchModel->addError('thirdScale', $errorScale);
+                }
                 $errors = $model->getFirstErrors();
                 Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
             }
         }
 
-        return $this->render('update', [
-            'model' => $model,
-        ]);
+        return $this->render($view, compact(
+            'model', 'searchModel'
+        ));
     }
 
     /**
@@ -140,16 +147,6 @@ class DeviceController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->deleted == Status::NOT_DELETED) {   // TODO: возможно это проверять не нужно
-            if (Verification::findOne(['device_id' => $model->id, 'deleted' => Status::NOT_DELETED]) !== NULL) {
-                Yii::$app->session->setFlash('error', 'Запись не была удалена (используется в поверках)');
-                return $this->redirect(Yii::$app->request->referrer);
-            }
-            if (Incoming::findOne(['device_id' => $model->id, 'deleted' => Status::NOT_DELETED]) !== NULL) {
-                Yii::$app->session->setFlash('error', 'Запись не была удалена (используется в приемках)');
-                return $this->redirect(Yii::$app->request->referrer);
-            }
-        }
         $model->deleted == Status::NOT_DELETED ? $model->deleted = Status::DELETED :
             $model->deleted = Status::NOT_DELETED;
         if ($model->save()) {

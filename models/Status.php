@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-interface Status
+class Status
 {
     const ALL = -1;                     // для всех свойств
 
