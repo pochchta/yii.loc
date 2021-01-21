@@ -1,6 +1,6 @@
 <?php
 
-use app\models\CategoryWord;
+use app\models\Word;
 use app\models\Status;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
@@ -20,7 +20,7 @@ use yii\widgets\ActiveForm;
     ]); ?>
 
     <?= $form->field($model, 'firstCategory')->dropDownList(
-        [Status::ALL => 'все', '0' => 'нет'] + CategoryWord::getAllNames(0),
+        [Status::ALL => 'все', '0' => 'нет'] + Word::getAllNames(0),
         [
             'onchange'=>'$.pjax.reload({
                 container: "#my-pjax-container", 

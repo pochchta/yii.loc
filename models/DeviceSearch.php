@@ -124,9 +124,9 @@ class DeviceSearch extends Device
 
     public function getArrFilters (& $params) {
         list('array' => $this->arrDepartment, 'condition' => $this->condDepartment) =
-            CategoryWord::getArrFilters($params, CategoryWord::FIELD_WORD['Department']);
+            Word::getArrFilters($params, Word::FIELD_WORD['Department']);
         list('array' => $this->arrScale, 'condition' => $this->condScale) =
-            CategoryWord::getArrFilters($params, CategoryWord::FIELD_WORD['Scale']);
+            Word::getArrFilters($params, Word::FIELD_WORD['Scale']);
     }
 
     public function formName() {

@@ -31,12 +31,12 @@ class Word extends ActiveRecord
     const MAX_NUMBER_PARENTS = 3;       // максимальный уровень вложенности
 
     const FIELD_WORD = [
-        'Scale' => '-11',
-        'Department' => '-12',
-        'Device_type' => '-13',
-        'Device_name' => '-14',
-        'Position' => '-15',
-        'Accuracy' => '-16',
+        'Scale' => -11,
+        'Department' => -12,
+        'Device_type' => -13,
+        'Device_name' => -14,
+        'Position' => -15,
+        'Accuracy' => -16,
     ];
 
     const LABEL_FIELD_WORD = [
@@ -193,8 +193,9 @@ class Word extends ActiveRecord
         } else {
             $condition = $condition1;
         }
+        $condition = $condition . ' AND deleted = :del';
 
-        $query = self::find()->select(['id', 'name', 'parent_id'])->where(['deleted' => Status::NOT_DELETED])->limit(Yii::$app->params['maxLinesView'])
+        $query = self::find()->select(['id', 'name', 'parent_id'])->limit(Yii::$app->params['maxLinesView'])
             ->andOnCondition(
                 $condition,
                 [':id' => $parentId, ':del' => Status::NOT_DELETED]

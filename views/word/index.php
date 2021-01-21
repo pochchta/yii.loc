@@ -1,6 +1,6 @@
 <?php
 
-use app\models\CategoryWord;
+use app\models\Word;
 use app\models\Status;
 use yii\helpers\Html;
 use yii\grid\GridView;
@@ -47,18 +47,18 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'firstCategory',
                 'format' => 'html',
                 'value' => function ($model) {
-                    return CategoryWord::getParentName($model);
+                    return Word::getParentName($model);
                 },
                 'filter' => Html::activeDropDownList(
                     $searchModel,
                     'firstCategory',
-                    [Status::ALL => 'все', '0' => 'нет'] + CategoryWord::LABEL_FIELD_WORD
+                    [Status::ALL => 'все', '0' => 'нет'] + Word::LABEL_FIELD_WORD
                 )
             ],
             [
                 'attribute' => 'secondCategory',
                 'value' => function ($model) {
-                    return CategoryWord::getParentName($model, 1);
+                    return Word::getParentName($model, 1);
                 },
                 'filter' => Html::activeDropDownList(
                     $searchModel,
@@ -69,7 +69,7 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'thirdCategory',
                 'value' => function ($model) {
-                    return CategoryWord::getParentName($model, 2);
+                    return Word::getParentName($model, 2);
                 },
                 'filter' => Html::activeDropDownList(
                     $searchModel,

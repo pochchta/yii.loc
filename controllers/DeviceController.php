@@ -2,7 +2,7 @@
 
 namespace app\controllers;
 
-use app\models\CategoryWord;
+use app\models\Word;
 use app\models\Status;
 use Yii;
 use app\models\Device;
@@ -107,8 +107,8 @@ class DeviceController extends Controller
 
         $searchModel->id = $model->id;          // для формирования url для pjax
         if (empty($params)) {
-            CategoryWord::setParams($params, $model->department, CategoryWord::FIELD_WORD['Department']);
-            CategoryWord::setParams($params, $model->scale, CategoryWord::FIELD_WORD['Scale']);
+            Word::setParams($params, $model->department, Word::FIELD_WORD['Department']);
+            Word::setParams($params, $model->scale, Word::FIELD_WORD['Scale']);
         }
         $searchModel->getArrFilters($params);
         $searchModel->load($params);

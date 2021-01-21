@@ -57,7 +57,7 @@ if ($model->deleted == Status::NOT_DELETED) {
             ],
             [
                 'attribute' => 'parent_id',
-                'value' => $model->parent->name
+                'value' => in_array($model->parent_id, $model::FIELD_WORD) ? $model::LABEL_FIELD_WORD[$model->parent_id] : $model->parent->name
             ],
         ],
     ]) ?>

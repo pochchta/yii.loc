@@ -2,7 +2,6 @@
 
 namespace app\controllers;
 
-use app\models\CategoryWord;
 use app\models\Status;
 use Yii;
 use app\models\Word;
@@ -46,7 +45,7 @@ class WordController extends Controller
             $params['secondCategory'] = Status::ALL;
             $params['thirdCategory'] = Status::ALL;
         } else {
-            $arrSecondCategory = CategoryWord::getAllNames($params['firstCategory']);
+            $arrSecondCategory = Word::getAllNames($params['firstCategory']);
             if (empty($arrSecondCategory) == false) {
                 $arrSecondCategory = ['0' => 'нет'] + $arrSecondCategory;
             }
@@ -57,7 +56,7 @@ class WordController extends Controller
             if ($params['secondCategory'] == Status::ALL || $params['secondCategory'] == 0) {
                 $params['thirdCategory'] = Status::ALL;
             } else {
-                $arrThirdCategory = CategoryWord::getAllNames($params['secondCategory']);
+                $arrThirdCategory = Word::getAllNames($params['secondCategory']);
                 if (empty($arrThirdCategory) == false) {
                     $arrThirdCategory = ['0' => 'нет'] + $arrThirdCategory;
                 }
@@ -161,10 +160,10 @@ class WordController extends Controller
 
         $arrSecondCategory = [];
         $arrThirdCategory = [];
-        if ($model->firstCategory != 0) {
-            $arrSecondCategory = CategoryWord::getAllNames($model->firstCategory);
-            if ($model->secondCategory != 0 && in_array($model->secondCategory, array_keys($arrSecondCategory))) {
-                $arrThirdCategory = CategoryWord::getAllNames($model->secondCategory);
+        if ($model->firstCategory != Status::NOT_CATEGORY) {
+            $arrSecondCategory = Word::getAllNames($model->firstCategory, 1, false, $model->id);
+            if ($model->secondCategory != Status::NOT_CATEGORY && in_array($model->secondCategory, array_keys($arrSecondCategory))) {
+                $arrThirdCategory = Word::getAllNames($model->secondCategory, 1, false, $model->id);
             }
         }
 
