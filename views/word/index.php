@@ -35,7 +35,13 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => 'yii\grid\SerialColumn'],
 
 //            'id',
-            'name',
+            [
+                'attribute' => 'name',
+                'format' => 'html',
+                'value' => function ($model) {
+                    return Html::a($model->name, ['view', 'id' => $model->id]);
+                },
+            ],
             'value',
             'description:ntext',
 //            'created_at:date',
@@ -47,7 +53,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'firstCategory',
                 'format' => 'html',
                 'value' => function ($model) {
-                    return Word::getParentName($model);
+                    $arr = Word::getParentName($model);
+                    return $arr['id'] > 0 ? Html::a($arr['name'], ['view', 'id' => $arr['id']]) : $arr['name'];
                 },
                 'filter' => Html::activeDropDownList(
                     $searchModel,
@@ -57,8 +64,10 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             [
                 'attribute' => 'secondCategory',
+                'format' => 'html',
                 'value' => function ($model) {
-                    return Word::getParentName($model, 1);
+                    $arr = Word::getParentName($model, 1);
+                    return $arr['id'] > 0 ? Html::a($arr['name'], ['view', 'id' => $arr['id']]) : $arr['name'];
                 },
                 'filter' => Html::activeDropDownList(
                     $searchModel,
@@ -68,8 +77,10 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             [
                 'attribute' => 'thirdCategory',
+                'format' => 'html',
                 'value' => function ($model) {
-                    return Word::getParentName($model, 2);
+                    $arr = Word::getParentName($model, 2);
+                    return $arr['id'] > 0 ? Html::a($arr['name'], ['view', 'id' => $arr['id']]) : $arr['name'];
                 },
                 'filter' => Html::activeDropDownList(
                     $searchModel,
