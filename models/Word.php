@@ -170,7 +170,7 @@ class Word extends ActiveRecord
      */
     public static function getAllNames($parentId = Status::NOT_CATEGORY, $depth = 1, $withParent = false, $passId = NULL)
     {
-        if ($parentId == Status::NOT_CATEGORY) {
+        if ($parentId == Status::NOT_CATEGORY || $parentId == Status::ALL) {
             $condition1 = 'parent_id < :id';
             $condition2 = 'parent_id IN (SELECT id FROM word WHERE parent_id < :id AND deleted = :del)';
             $condition3 = 'parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id < :id AND deleted = :del) AND deleted = :del)';
@@ -183,17 +183,17 @@ class Word extends ActiveRecord
         if ($depth == 3) {
             $condition = $condition3;
             if ($withParent) {
-                $condition = $condition1 . ' AND ' . $condition2 . ' AND ' . $condition3;
+                $condition = $condition1 . ' OR ' . $condition2 . ' OR ' . $condition3;
             }
         } elseif ($depth == 2) {
             $condition = $condition2;
             if ($withParent) {
-                $condition = $condition1 . ' AND ' . $condition2;
+                $condition = $condition1 . ' OR ' . $condition2;
             }
         } else {
             $condition = $condition1;
         }
-        $condition = $condition . ' AND deleted = :del';
+        $condition = '(' . $condition . ') AND deleted = :del';
 
         $query = self::find()->select(['id', 'name', 'parent_id'])->limit(Yii::$app->params['maxLinesView'])
             ->andOnCondition(
@@ -270,7 +270,6 @@ class Word extends ActiveRecord
                     $arrThirdCategory = self::getAllNames($secondCategory);
                 }
             }
-
             if (isset($arrThirdCategory[$thirdCategory]) == false) {
                 $thirdCategory = Status::ALL;
             }
@@ -306,13 +305,13 @@ class Word extends ActiveRecord
             $bind = [":{$categoryName}" => $conditionParentId, ':del' => Status::NOT_DELETED];
             $columnName = strtolower($categoryName) . '_id';    // categoryName проверяется по списку self::FIELD_WORD
             $condition1 = "{$columnName} IN (SELECT id FROM word WHERE parent_id = :{$categoryName} AND deleted = :del)";
-            $condition2 = "{$columnName} IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM category_word WHERE parent_id = :{$categoryName} AND deleted = :del) AND deleted = :del)";
-            $condition3 = "{$columnName} IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM category_word WHERE parent_id IN (SELECT id FROM category_word WHERE parent_id = :{$categoryName} AND deleted = :del) AND deleted = :del) AND deleted = :del)";
+            $condition2 = "{$columnName} IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id = :{$categoryName} AND deleted = :del) AND deleted = :del)";
+            $condition3 = "{$columnName} IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id = :{$categoryName} AND deleted = :del) AND deleted = :del) AND deleted = :del)";
             if ($conditionDepth === 0) {            // word
                 $condition = "{$columnName} = :{$categoryName}";
                 $bind = [":{$categoryName}" => $conditionParentId];     // перезапись bind
             }
-            elseif ($conditionDepth === 1) {        // category_word
+            elseif ($conditionDepth === 1) {
                 $condition = $condition1;
             } elseif($conditionDepth === 2) {
                 $condition = $condition1 . ' OR ' . $condition2;
@@ -358,15 +357,18 @@ class Word extends ActiveRecord
 
     public static function getParentName ($model, $n = 0) {
         $parentNames = [];
+        $parentIds = [];
         for ($i = 1; $i <= self::MAX_NUMBER_PARENTS; $i++) {
             if ($model->parent_id <= 0) {
                 $parentNames[] = self::LABEL_FIELD_WORD[$model->parent_id];
+                $parentIds[] = $model->parent_id;
                 break;
             }
             $model = $model->parent;
             $parentNames[] = $model->name;
+            $parentIds[] = $model->id;
         }
-        return $parentNames[count($parentNames) - $n - 1];
+        return array('name' => $parentNames[count($parentNames) - $n - 1], 'id' => $parentIds[count($parentIds) - $n - 1]);
     }
 
     /**
