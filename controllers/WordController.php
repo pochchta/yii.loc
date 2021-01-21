@@ -136,7 +136,7 @@ class WordController extends Controller
      * @param $view
      * @return mixed
      */
-    public function saveModel($model, $view)
+    public function saveModel($model, $view)    // TODO: при возврате на create ломаются фильтры
     {
         $parent = $model->parent;
         $parentOfParent = $parent->parent;
@@ -196,7 +196,7 @@ class WordController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDelete($id)
+    public function actionDelete($id)       // TODO: mutex
     {
         $model = $this->findModel($id);
 

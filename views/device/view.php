@@ -8,7 +8,7 @@ use yii\widgets\DetailView;
 /* @var $this yii\web\View */
 /* @var $model app\models\Device */
 
-$this->title = $model->name;
+$this->title = $model->deviceName->name;
 $this->params['breadcrumbs'][] = ['label' => 'Приборы', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 YiiAsset::register($this);
@@ -47,10 +47,15 @@ if ($model->deleted == Status::NOT_DELETED) {
     <?= DetailView::widget([
         'model' => $model,
         'attributes' => [
-//            'id',
-            'name',
+            [
+                'attribute' => 'name_id',
+                'value' => $model->deviceName->name
+            ],
+            [
+                'attribute' => 'type_id',
+                'value' => $model->deviceType->name
+            ],
             'number',
-            'type',
             'description:ntext',
             [
                 'value' => $model->activeVerification->last_date,
@@ -74,8 +79,14 @@ if ($model->deleted == Status::NOT_DELETED) {
                 'attribute' => 'scale_id',
                 'value' => $model->scale->name
             ],
-            'accuracy',
-            'position',
+            [
+                'attribute' => 'position_id',
+                'value' => $model->position->name
+            ],
+            [
+                'attribute' => 'accuracy_id',
+                'value' => $model->accuracy->name
+            ],
             'created_at:date',
             'updated_at:date',
             [

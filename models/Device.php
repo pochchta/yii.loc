@@ -11,14 +11,14 @@ use yii\db\ActiveRecord;
  * This is the model class for table "device".
  *
  * @property int $id
- * @property string|null $name
+ * @property int|null $name_id                  // из словаря
+ * @property int|null $type_id                  //
+ * @property int|null $department_id            //
+ * @property int|null $scale_id                 //
+ * @property int|null $position_id              //
+ * @property string|null $accuracy_id           //
  * @property string|null $number
- * @property string|null $type
  * @property string|null $description
- * @property int|null $department_id
- * @property int|null $scale_id
- * @property string|null $accuracy
- * @property string|null $position
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null $created_by
@@ -27,8 +27,12 @@ use yii\db\ActiveRecord;
  *
  * @property User|null $creator magic property
  * @property User|null $updater magic property
+ * @property Word|null $deviceName magic property
+ * @property Word|null $deviceType magic property
  * @property Word|null $department magic property
  * @property Word|null $scale magic property
+ * @property Word|null $position magic property
+ * @property Word|null $accuracy magic property
  * @property Verification|null $activeVerification magic property
  * @property Verification[] $verifications magic property
  */
@@ -66,12 +70,10 @@ class Device extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'department_id', 'scale_id'], 'required'],
+            [['name_id', 'type_id', 'department_id', 'scale_id', 'position_id', 'accuracy_id'], 'required'],
             [['description'], 'string'],
-            [['name', 'type', 'number', 'accuracy', 'position'], 'string', 'max' => 255],
-            [['department_id', 'scale_id'], 'integer'],
-            [['department_id'], 'exist', 'skipOnError' => true, 'targetClass' => Word::class, 'targetAttribute' => ['department_id' => 'id']],
-            [['scale_id'], 'exist', 'skipOnError' => true, 'targetClass' => Word::class, 'targetAttribute' => ['scale_id' => 'id']],
+            [['number'], 'string', 'max' => 255],
+            [['name_id', 'type_id', 'department_id', 'scale_id', 'position_id', 'accuracy_id'], 'integer'],
         ];
     }
 
@@ -82,14 +84,14 @@ class Device extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'name' => 'Имя',
-            'number' => 'Номер',
-            'type' => 'Тип',
-            'description' => 'Описание',
+            'name_id' => 'Имя',
+            'type_id' => 'Тип',
             'department_id' => 'Цех',
             'scale_id' => 'Шкала',
-            'accuracy' => 'Класс точности',
-            'position' => 'Позиция',
+            'position_id' => 'Позиция',
+            'accuracy_id' => 'Класс точности',
+            'number' => 'Номер',
+            'description' => 'Описание',
             'created_at' => 'Создано',
             'updated_at' => 'Обновлено',
             'created_by' => 'Создал',
@@ -131,5 +133,24 @@ class Device extends ActiveRecord
     public function getScale()
     {
         return $this->hasOne(Word::class, ['id' => 'scale_id']);
+    }
+    public function getDeviceName()
+    {
+        return $this->hasOne(Word::class, ['id' => 'name_id']);
+    }
+
+    public function getDeviceType()
+    {
+        return $this->hasOne(Word::class, ['id' => 'type_id']);
+    }
+
+    public function getPosition()
+    {
+        return $this->hasOne(Word::class, ['id' => 'position_id']);
+    }
+
+    public function getAccuracy()
+    {
+        return $this->hasOne(Word::class, ['id' => 'accuracy_id']);
     }
 }

@@ -16,13 +16,7 @@ use yii\widgets\Pjax;
         'id' => 'form1',
     ]); ?>
 
-    <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
-
     <?= $form->field($model, 'number')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'type')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>
 
     <?php Pjax::begin([
         'id' => 'my-pjax-container',
@@ -33,9 +27,7 @@ use yii\widgets\Pjax;
     ]); ?>
     <?php Pjax::end() ?>
 
-    <?= $form->field($model, 'accuracy')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'position')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>
 
     <div class="form-group">
         <?= Html::submitButton('Сохранить', ['class' => 'btn btn-success']) ?>

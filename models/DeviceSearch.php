@@ -20,12 +20,32 @@ class DeviceSearch extends Device
     public $firstScale;
     public $secondScale;
     public $thirdScale;
+    public $firstName;
+    public $secondName;
+    public $thirdName;
+    public $firstType;
+    public $secondType;
+    public $thirdType;
+    public $firstPosition;
+    public $secondPosition;
+    public $thirdPosition;
+    public $firstAccuracy;
+    public $secondAccuracy;
+    public $thirdAccuracy;
 
     public $arrDepartment;     // массивы для фильтров
     public $arrScale;
+    public $arrName;
+    public $arrType;
+    public $arrPosition;
+    public $arrAccuracy;
 
     public $condDepartment;    // получившееся условие для фильтра
     public $condScale;
+    public $condName;
+    public $condType;
+    public $condPosition;
+    public $condAccuracy;
 
     /**
      * {@inheritdoc}
@@ -34,12 +54,13 @@ class DeviceSearch extends Device
     public function rules()
     {
         return [
-            [['id', 'number', 'department_id', 'scale_id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
-            [['name', 'type', 'description'], 'string', 'max' => 64],
+            [['id', 'name_id', 'type_id', 'number', 'department_id', 'scale_id', 'position', 'accuracy', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
+            [['description'], 'string', 'max' => 64],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
-            [['department_id'], 'default', 'value' => Status::ALL],
-            [['scale_id'], 'default', 'value' => Status::ALL],
-            [['firstDepartment', 'secondDepartment', 'thirdDepartment', 'firstScale', 'secondScale', 'thirdScale'], 'integer']
+            [['name_id', 'type_id', 'department_id', 'scale_id', 'position', 'accuracy'], 'default', 'value' => Status::ALL],
+            [['firstDepartment', 'secondDepartment', 'thirdDepartment', 'firstScale', 'secondScale', 'thirdScale'], 'integer'],
+            [['firstName', 'secondName', 'thirdName', 'firstType', 'secondType', 'thirdType'], 'integer'],
+            [['firstPosition', 'secondPosition', 'thirdPosition', 'firstAccuracy', 'secondAccuracy', 'thirdAccuracy'], 'integer'],
         ];
     }
 
@@ -52,6 +73,18 @@ class DeviceSearch extends Device
             'firstScale' => 'Шкалы',
             'secondScale' => '->',
             'thirdScale' => '->',
+            'firstName' => 'Название',
+            'secondName' => '->',
+            'thirdName' => '->',
+            'firstType' => 'Тип',
+            'secondType' => '->',
+            'thirdType' => '->',
+            'firstPosition' => 'Позиция',
+            'secondPosition' => '->',
+            'thirdPosition' => '->',
+            'firstAccuracy' => 'Класс точности',
+            'secondAccuracy' => '->',
+            'thirdAccuracy' => '->',
         ];
     }
 
@@ -99,9 +132,7 @@ class DeviceSearch extends Device
             'updated_by' => $this->updated_by,
         ]);
 
-        $query->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'type', $this->type])
-            ->andFilterWhere(['like', 'description', $this->description]);
+        $query->andFilterWhere(['like', 'description', $this->description]);
 
         if ($this->condDepartment['condition'] !== NULL) {
             $query->andOnCondition(
@@ -127,6 +158,14 @@ class DeviceSearch extends Device
             Word::getArrFilters($params, Word::FIELD_WORD['Department']);
         list('array' => $this->arrScale, 'condition' => $this->condScale) =
             Word::getArrFilters($params, Word::FIELD_WORD['Scale']);
+        list('array' => $this->arrName, 'condition' => $this->condName) =
+            Word::getArrFilters($params, Word::FIELD_WORD['Name']);
+        list('array' => $this->arrType, 'condition' => $this->condType) =
+            Word::getArrFilters($params, Word::FIELD_WORD['Type']);
+        list('array' => $this->arrPosition, 'condition' => $this->condPosition) =
+            Word::getArrFilters($params, Word::FIELD_WORD['Position']);
+        list('array' => $this->arrAccuracy, 'condition' => $this->condAccuracy) =
+            Word::getArrFilters($params, Word::FIELD_WORD['Accuracy']);
     }
 
     public function formName() {

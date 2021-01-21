@@ -5,9 +5,9 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model app\models\Device */
 
-$this->title = 'Изменение записи: ' . $model->name;
+$this->title = 'Изменение записи: ' . $model->deviceName->name;
 $this->params['breadcrumbs'][] = ['label' => 'Приборы', 'url' => ['index']];
-$this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->id]];
+$this->params['breadcrumbs'][] = ['label' => $model->deviceName->name, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = 'Изменение';
 ?>
 <div class="device-update">

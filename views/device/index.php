@@ -42,22 +42,33 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
-//            'id',
-            'name',
-            'number',
-            'type',
-//            'description:ntext',
+            [
+                'attribute' => 'name_id',
+                'value' => function ($model) {
+                    return $model->deviceName->name;
+                },
+                'filter' => ''
+            ],
+            [
+                'attribute' => 'type_id',
+                'value' => function ($model) {
+                    return $model->deviceType->name;
+                },
+                'filter' => ''
+            ],
             [
                 'attribute' => 'department_id',
                 'value' => function ($model) {
                     return $model->department->name;
                 },
                 'filter' => ''
-/*                'filter' => Html::activeDropDownList(
-                    $searchModel,
-                    'department_id',
-                    [Word::ALL => 'все'] + CategoryWord::getAllNames()
-                )*/
+            ],
+            [
+                'attribute' => 'position_id',
+                'value' => function ($model) {
+                    return $model->position->name;
+                },
+                'filter' => ''
             ],
             [
                 'attribute' => 'scale_id',
@@ -65,12 +76,16 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $model->scale->name;
                 },
                 'filter' => ''
-/*                'filter' => Html::activeDropDownList(
-                    $searchModel,
-                    'scale_id',
-                    [Word::ALL => 'все'] + CategoryWord::getAllNames()
-                )*/
             ],
+            [
+                'attribute' => 'accuracy_id',
+                'value' => function ($model) {
+                    return $model->accuracy->name;
+                },
+                'filter' => ''
+            ],
+            'number',
+//            'description:ntext',
             [
                 'attribute' => 'deleted',
                 'format' => 'html',
@@ -87,7 +102,6 @@ $this->params['breadcrumbs'][] = $this->title;
                     Status::ALL => 'все'
                 ])
             ],
-//            'period',
 //            'created_at:date',
 //            'updated_at:date',
 /*            [
