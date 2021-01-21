@@ -41,30 +41,47 @@ class WordController extends Controller
         $arrSecondCategory = [];
         $arrThirdCategory = [];
 
-        if ($params['firstCategory'] == Status::ALL || $params['firstCategory'] == 0) {
-            $params['secondCategory'] = Status::ALL;
-            $params['thirdCategory'] = Status::ALL;
+        $firstCategory = & $params['firstCategory'];
+        $secondCategory = & $params['secondCategory'];
+        $thirdCategory = & $params['thirdCategory'];
+
+        $firstCategory = $firstCategory ?? Status::ALL;
+        $secondCategory = $secondCategory ?? Status::ALL;
+        $thirdCategory = $thirdCategory ?? Status::ALL;
+
+        $firstCategory = (int) $firstCategory;
+        $secondCategory = (int) $secondCategory;
+        $thirdCategory = (int) $thirdCategory;
+
+        if ($firstCategory == Status::NOT_CATEGORY) {
+            $secondCategory = Status::ALL;
+            $thirdCategory = Status::ALL;
         } else {
-            $arrSecondCategory = Word::getAllNames($params['firstCategory']);
-            if (empty($arrSecondCategory) == false) {
-                $arrSecondCategory = ['0' => 'нет'] + $arrSecondCategory;
+            $arrSecondCategory = Word::getAllNames($firstCategory);
+            if ($firstCategory != Status::ALL && empty($arrSecondCategory) == false) {
+                $arrSecondCategory = [Status::NOT_CATEGORY => 'нет'] + $arrSecondCategory;
             }
-            if ($arrSecondCategory[$params['secondCategory']] === NULL) {
-                $params['secondCategory'] = Status::ALL;
-                $params['thirdCategory'] = Status::ALL;
+            if (isset($arrSecondCategory[$secondCategory]) == false) {
+                $secondCategory = Status::ALL;
             }
-            if ($params['secondCategory'] == Status::ALL || $params['secondCategory'] == 0) {
-                $params['thirdCategory'] = Status::ALL;
+            if ($secondCategory == Status::NOT_CATEGORY) {
+                $thirdCategory = Status::ALL;
             } else {
-                $arrThirdCategory = Word::getAllNames($params['secondCategory']);
-                if (empty($arrThirdCategory) == false) {
-                    $arrThirdCategory = ['0' => 'нет'] + $arrThirdCategory;
+                if ($secondCategory == Status::ALL) {
+                    $arrThirdCategory = Word::getAllNames($firstCategory, 2);
+                } else {
+                    $arrThirdCategory = Word::getAllNames($secondCategory);
+                    if (empty($arrThirdCategory) == false) {
+                        $arrThirdCategory = [Status::NOT_CATEGORY => 'нет'] + $arrThirdCategory;
+                    }
                 }
-                if ($arrThirdCategory[$params['thirdCategory']] === NULL) {
-                    $params['thirdCategory'] = Status::ALL;
+                if (isset($arrThirdCategory[$thirdCategory]) == false) {
+                    $thirdCategory = Status::ALL;
                 }
             }
         }
+        $arrSecondCategory = [Status::ALL => 'все'] + $arrSecondCategory;
+        $arrThirdCategory = [Status::ALL => 'все'] + $arrThirdCategory;
 
         $dataProvider = $searchModel->search($params);
 
