@@ -27,17 +27,18 @@ use yii\db\ActiveRecord;
  *
  * @property User|null $creator magic property
  * @property User|null $updater magic property
- * @property Word|null $deviceName magic property
- * @property Word|null $deviceType magic property
- * @property Word|null $department magic property
- * @property Word|null $scale magic property
- * @property Word|null $position magic property
- * @property Word|null $accuracy magic property
+ * @property Word|null $wordName magic property
+ * @property Word|null $wordType magic property
+ * @property Word|null $wordDepartment magic property
+ * @property Word|null $wordScale magic property
+ * @property Word|null $wordPosition magic property
+ * @property Word|null $wordAccuracy magic property
  * @property Verification|null $activeVerification magic property
  * @property Verification[] $verifications magic property
  */
 class Device extends ActiveRecord
 {
+    public $name, $type, $department, $scale, $position, $accuracy;
     /**
      * {@inheritdoc}
      */
@@ -70,11 +71,32 @@ class Device extends ActiveRecord
     public function rules()
     {
         return [
-            [['name_id', 'type_id', 'department_id', 'scale_id', 'position_id', 'accuracy_id'], 'required'],
+            [['name_id', 'type_id', 'department_id', 'scale_id', 'accuracy_id'], 'required'],
             [['description'], 'string'],
             [['number'], 'string', 'max' => 255],
-            [['name_id', 'type_id', 'department_id', 'scale_id', 'position_id', 'accuracy_id'], 'integer'],
+            [['name_id', 'type_id', 'department_id', 'scale_id', 'position_id', 'accuracy_id'], 'validateId'],
+            [['name', 'type', 'department', 'scale', 'position', 'accuracy'], 'string', 'max' => 255]
         ];
+    }
+
+    public function validateId($attribute)
+    {
+        if (!$this->hasErrors()) {
+            $attributeName = substr($attribute, 0, -3);    // удаление '_id' на конце
+            if ($this->$attribute > 0) {
+                $word = Word::find()->where(['id' => $this->$attribute])->one();
+                if ($this->$attributeName !== $word->name) {
+                    $words = Word::find()->where(['name' => $this->$attributeName])->limit(2)->all();
+                    if (count($words) == 1) {   // заполнение атрибута не из списка, если он один и введен точно
+                        $this->$attribute = $words[0]->id;
+                    } else {
+                        $this->addError($attributeName, 'Значение не из списка');
+                    }
+                }
+            } else {
+                $this->addError($attributeName, 'Значение не из списка');
+            }
+        }
     }
 
     /**
@@ -84,12 +106,12 @@ class Device extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'name_id' => 'Имя',
-            'type_id' => 'Тип',
-            'department_id' => 'Цех',
-            'scale_id' => 'Шкала',
-            'position_id' => 'Позиция',
-            'accuracy_id' => 'Класс точности',
+            'name_id' => 'Имя', 'name' => 'Имя',
+            'type_id' => 'Тип', 'type' => 'Тип',
+            'department_id' => 'Цех', 'department' => 'Цех',
+            'scale_id' => 'Шкала', 'scale' => 'Шкала',
+            'position_id' => 'Позиция', 'position' => 'Позиция',
+            'accuracy_id' => 'Класс точности', 'accuracy' => 'Класс точности',
             'number' => 'Номер',
             'description' => 'Описание',
             'created_at' => 'Создано',
@@ -125,31 +147,31 @@ class Device extends ActiveRecord
         return $this->hasOne(User::class, ['id' => 'updated_by']);
     }
 
-    public function getDepartment()
+    public function getWordDepartment()
     {
         return $this->hasOne(Word::class, ['id' => 'department_id']);
     }
 
-    public function getScale()
+    public function getWordScale()
     {
         return $this->hasOne(Word::class, ['id' => 'scale_id']);
     }
-    public function getDeviceName()
+    public function getWordName()
     {
         return $this->hasOne(Word::class, ['id' => 'name_id']);
     }
 
-    public function getDeviceType()
+    public function getWordType()
     {
         return $this->hasOne(Word::class, ['id' => 'type_id']);
     }
 
-    public function getPosition()
+    public function getWordPosition()
     {
         return $this->hasOne(Word::class, ['id' => 'position_id']);
     }
 
-    public function getAccuracy()
+    public function getWordAccuracy()
     {
         return $this->hasOne(Word::class, ['id' => 'accuracy_id']);
     }

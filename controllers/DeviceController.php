@@ -39,7 +39,7 @@ class DeviceController extends Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['create', 'update', 'delete'],
+                        'actions' => ['create', 'update', 'ajax-one', 'delete'],
                         'roles' => ['ChangingDevice'],
                     ],
                 ],
@@ -100,40 +100,39 @@ class DeviceController extends Controller
         return $this->saveModel($this->findModel($id), 'update');
     }
 
+    /**
+     * @param Device $model
+     * @param $view
+     * @return string|\yii\web\Response
+     */
     public function saveModel($model, $view)
     {
-        $params = Yii::$app->request->post();
-        $searchModel = new DeviceSearch();
-
-        $searchModel->id = $model->id;          // для формирования url для pjax
-        if (empty($params)) {
-            Word::setParams($params, $model->department, Word::FIELD_WORD['Department']);
-            Word::setParams($params, $model->scale, Word::FIELD_WORD['Scale']);
-        }
-        $searchModel->getArrFilters($params);
-        $searchModel->load($params);
-
-        if ($model->load($params) && Yii::$app->request->isPjax == false) {
-            $model->department_id = $searchModel->thirdDepartment;
-            $model->scale_id = $searchModel->thirdScale;
+        if ($model->load(Yii::$app->request->post())) {
             if ($model->save()) {
                 Yii::$app->session->setFlash('success', 'Запись сохранена');
                 return $this->redirect(['view', 'id' => $model->id]);
             } else {
-                if ($errorDepartment = $model->getFirstError('department_id')) {
-                    $searchModel->addError('thirdDepartment', $errorDepartment);
-                }
-                if ($errorScale = $model->getFirstError('scale_id')) {
-                    $searchModel->addError('thirdScale', $errorScale);
-                }
                 $errors = $model->getFirstErrors();
                 Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
             }
         }
 
         return $this->render($view, compact(
-            'model', 'searchModel'
+            'model'
         ));
+    }
+
+    public function actionAjaxOne()
+    {
+        $model = [];
+        if(strlen(Yii::$app->request->get('term'))){
+            $model = Word::find()
+                ->select(['name as value', 'name as label','id as id'])
+                ->where(['like', 'name', Yii::$app->request->get('term')])
+                ->limit(Yii::$app->params['maxLinesAutoComplete'])->asArray()->all();
+        }
+        echo json_encode($model);
+        die();
     }
 
     /**
@@ -202,6 +201,12 @@ class DeviceController extends Controller
     protected function findModel($id)
     {
         if (($model = Device::findOne($id)) !== null) {
+            $model->name = $model->wordName->name;
+            $model->type = $model->wordType->name;
+            $model->department = $model->wordDepartment->name;
+            $model->position = $model->wordPosition->name;
+            $model->scale = $model->wordScale->name;
+            $model->accuracy = $model->wordAccuracy->name;
             return $model;
         }
 
