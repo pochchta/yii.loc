@@ -33,8 +33,8 @@ class Word extends ActiveRecord
     const FIELD_WORD = [
         'Scale' => -11,
         'Department' => -12,
-        'Device_type' => -13,
-        'Device_name' => -14,
+        'Type' => -13,
+        'Name' => -14,
         'Position' => -15,
         'Accuracy' => -16,
     ];
@@ -42,8 +42,8 @@ class Word extends ActiveRecord
     const LABEL_FIELD_WORD = [
         self::FIELD_WORD['Scale'] => 'Шкалы',
         self::FIELD_WORD['Department'] => 'Цеха',
-        self::FIELD_WORD['Device_type'] => 'Типы приборов',
-        self::FIELD_WORD['Device_name'] => 'Названия приборов',
+        self::FIELD_WORD['Type'] => 'Типы приборов',
+        self::FIELD_WORD['Name'] => 'Названия приборов',
         self::FIELD_WORD['Position'] => 'Позиция',
         self::FIELD_WORD['Accuracy'] => 'Точность',
     ];
@@ -158,6 +158,54 @@ class Word extends ActiveRecord
                 }
             }
         }
+    }
+
+    /** Получение условия для запроса дочерних элементов по родительской категории и глубине
+     * @param $parentName
+     * @param int $depth
+     * @param bool $withParent
+     * @return array
+     */
+    public static function getCondition($parentName, $depth = 1, $withParent = false)
+    {
+        $parentName = ucfirst($parentName);
+        $condition = NULL;
+        $parentId = NULL;
+        if (isset(Word::FIELD_WORD[$parentName])) {
+            $parentId = Word::FIELD_WORD[$parentName];
+        } elseif ($parent = Word::findOne(['name' => $parentName])) {
+            $parentId = $parent->id;
+        }
+        if (isset($parentId)) {
+            if ($parentId == Status::NOT_CATEGORY || $parentId == Status::ALL) {
+                $condition1 = 'parent_id < :id';
+                $condition2 = 'parent_id IN (SELECT id FROM word WHERE parent_id < :id AND deleted = :del)';
+                $condition3 = 'parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id < :id AND deleted = :del) AND deleted = :del)';
+            } else {
+                $condition1 = 'parent_id = :id';
+                $condition2 = 'parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :del)';
+                $condition3 = 'parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :del) AND deleted = :del)';
+            }
+            if ($depth == 3) {
+                $condition = $condition3;
+                if ($withParent) {
+                    $condition = $condition1 . ' OR ' . $condition2 . ' OR ' . $condition3;
+                }
+            } elseif ($depth == 2) {
+                $condition = $condition2;
+                if ($withParent) {
+                    $condition = $condition1 . ' OR ' . $condition2;
+                }
+            } else {
+                $condition = $condition1;
+            }
+            $condition = '(' . $condition . ') AND deleted = :del';
+        }
+
+        return [
+            'condition' => $condition,
+            'bind' => [':id' => $parentId, ':del' => Status::NOT_DELETED]
+        ];
     }
 
     /**

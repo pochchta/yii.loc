@@ -106,7 +106,9 @@ class DeviceSearch extends Device
      */
     public function search($params)
     {
-        $query = Device::find()->with('creator', 'updater', 'department', 'scale');
+        $query = Device::find()->with(
+            'creator', 'updater', 'wordName', 'wordType', 'wordDepartment', 'wordPosition', 'wordScale', 'wordAccuracy'
+        );
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([

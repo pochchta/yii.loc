@@ -45,42 +45,42 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'name_id',
                 'value' => function ($model) {
-                    return $model->deviceName->name;
+                    return $model->wordName->name;
                 },
                 'filter' => ''
             ],
             [
                 'attribute' => 'type_id',
                 'value' => function ($model) {
-                    return $model->deviceType->name;
+                    return $model->wordType->name;
                 },
                 'filter' => ''
             ],
             [
                 'attribute' => 'department_id',
                 'value' => function ($model) {
-                    return $model->department->name;
+                    return $model->wordDepartment->name;
                 },
                 'filter' => ''
             ],
             [
                 'attribute' => 'position_id',
                 'value' => function ($model) {
-                    return $model->position->name;
+                    return $model->wordPosition->name;
                 },
                 'filter' => ''
             ],
             [
                 'attribute' => 'scale_id',
                 'value' => function ($model) {
-                    return $model->scale->name;
+                    return $model->wordScale->name;
                 },
                 'filter' => ''
             ],
             [
                 'attribute' => 'accuracy_id',
                 'value' => function ($model) {
-                    return $model->accuracy->name;
+                    return $model->wordAccuracy->name;
                 },
                 'filter' => ''
             ],

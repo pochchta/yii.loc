@@ -8,6 +8,7 @@ use Yii;
 use app\models\Device;
 use app\models\DeviceSearch;
 use yii\filters\AccessControl;
+use yii\validators\StringValidator;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -124,14 +125,31 @@ class DeviceController extends Controller
 
     public function actionAjaxOne()
     {
-        $model = [];
-        if(strlen(Yii::$app->request->get('term'))){
-            $model = Word::find()
-                ->select(['name as value', 'name as label','id as id'])
-                ->where(['like', 'name', Yii::$app->request->get('term')])
-                ->limit(Yii::$app->params['maxLinesAutoComplete'])->asArray()->all();
+        $data = [];
+        $validator = new StringValidator();
+        $validator->min = 1;
+        $validator->max = Yii::$app->params['maxLenGetParam'];
+        $term = Yii::$app->request->get('term');
+        $parentName = Yii::$app->request->get('parent');
+        if ($validator->validate($term, $error) && $validator->validate($parentName, $error)) {
+            $depth = 1;
+            if ($parentName == 'department') {
+                $depth = 2;
+            } elseif (isset(Word::FIELD_WORD[ucfirst($parentName)])) {
+                $depth = 3;
+            }
+            list('condition' => $condition, 'bind' => $bind) =
+                Word::getCondition($parentName, $depth, true);
+            if (isset($condition)){
+                $data = Word::find()
+                    ->select(['name as value'])
+                    ->where(['like', 'name', $term])
+                    ->andOnCondition($condition, $bind)
+                    ->orderBy('name')
+                    ->limit(Yii::$app->params['maxLinesAutoComplete'])->asArray()->all();
+            }
         }
-        echo json_encode($model);
+        echo json_encode($data);
         die();
     }
 

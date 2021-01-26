@@ -71,30 +71,43 @@ class Device extends ActiveRecord
     public function rules()
     {
         return [
-            [['name_id', 'type_id', 'department_id', 'scale_id', 'accuracy_id'], 'required'],
+            [['name', 'type', 'department', 'scale', 'accuracy'], 'required'],
             [['description'], 'string'],
             [['number'], 'string', 'max' => 255],
-            [['name_id', 'type_id', 'department_id', 'scale_id', 'position_id', 'accuracy_id'], 'validateId'],
-            [['name', 'type', 'department', 'scale', 'position', 'accuracy'], 'string', 'max' => 255]
+            [['name', 'type', 'department', 'scale', 'position', 'accuracy'], 'string', 'max' => 255],
+            [['name', 'type', 'department', 'scale', 'position', 'accuracy'], 'validateId'],
         ];
     }
 
     public function validateId($attribute)
     {
         if (!$this->hasErrors()) {
-            $attributeName = substr($attribute, 0, -3);    // удаление '_id' на конце
-            if ($this->$attribute > 0) {
-                $word = Word::find()->where(['id' => $this->$attribute])->one();
-                if ($this->$attributeName !== $word->name) {
-                    $words = Word::find()->where(['name' => $this->$attributeName])->limit(2)->all();
-                    if (count($words) == 1) {   // заполнение атрибута не из списка, если он один и введен точно
-                        $this->$attribute = $words[0]->id;
-                    } else {
-                        $this->addError($attributeName, 'Значение не из списка');
+            $attributeId = $attribute . '_id';
+            $word = Word::find()->where(['name' => $this->$attribute])->one();
+            if ($word) {
+                $this->$attributeId = $word->id;
+
+                if ($attribute == 'position') {
+                    $departmentFromModel = mb_strtolower($this->department);
+                    $departmentFromParent = mb_strtolower($word->parent->name);
+                    if (strcasecmp($departmentFromModel, $departmentFromParent) != 0) {     // позиция не принадлежит цеху
+                        $this->addError($attribute, 'Значение не из списка');
+                    }
+                } else {
+                    $wordParentId = 0;
+                    if ($word->parent_id <= 0) {
+                        $wordParentId = $word->parent_id;
+                    } elseif ($word->parent->parent_id <= 0) {
+                        $wordParentId = $word->parent->parent_id;
+                    } elseif ($word->parent->parent->parent_id <= 0) {
+                        $wordParentId = $word->parent->parent->parent_id;
+                    }
+                    if (Word::FIELD_WORD[ucfirst($attribute)] != $wordParentId) {
+                        $this->addError($attribute, 'Значение не из списка');
                     }
                 }
             } else {
-                $this->addError($attributeName, 'Значение не из списка');
+                $this->addError($attribute, 'Значение не из списка');
             }
         }
     }

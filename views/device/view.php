@@ -8,7 +8,7 @@ use yii\widgets\DetailView;
 /* @var $this yii\web\View */
 /* @var $model app\models\Device */
 
-$this->title = $model->deviceName->name;
+$this->title = $model->wordName->name;
 $this->params['breadcrumbs'][] = ['label' => 'Приборы', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 YiiAsset::register($this);
@@ -49,11 +49,11 @@ if ($model->deleted == Status::NOT_DELETED) {
         'attributes' => [
             [
                 'attribute' => 'name_id',
-                'value' => $model->deviceName->name
+                'value' => $model->wordName->name
             ],
             [
                 'attribute' => 'type_id',
-                'value' => $model->deviceType->name
+                'value' => $model->wordType->name
             ],
             'number',
             'description:ntext',
@@ -73,19 +73,19 @@ if ($model->deleted == Status::NOT_DELETED) {
             ],
             [
                 'attribute' => 'department_id',
-                'value' => $model->department->name
+                'value' => $model->wordDepartment->name
             ],
             [
                 'attribute' => 'scale_id',
-                'value' => $model->scale->name
+                'value' => $model->wordScale->name
             ],
             [
                 'attribute' => 'position_id',
-                'value' => $model->position->name
+                'value' => $model->wordPosition->name
             ],
             [
                 'attribute' => 'accuracy_id',
-                'value' => $model->accuracy->name
+                'value' => $model->wordAccuracy->name
             ],
             'created_at:date',
             'updated_at:date',
