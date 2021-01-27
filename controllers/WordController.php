@@ -165,7 +165,17 @@ class WordController extends Controller
             }
 
             if (isset($arrayPost['saveButton'])) {                     // сохранение
-                if ($model->save()) {
+                $fileMutex = Yii::$app->mutex;              /* @var $fileMutex yii\mutex\FileMutex */
+
+                $saveResult = false;
+                if ($fileMutex->acquire($mutexName = 'word', Yii::$app->params['mutexTimeout'])) {
+                    $saveResult = $model->save();
+                    $fileMutex->release($mutexName);
+                } else {    // добавляется ошибка к модели, после этого нельзя валидировать, т.к. ошибка затрется
+                    $model->addError('name', 'Словарь редактируется, попробуйте еще раз');
+                }
+
+                if ($saveResult) {
                     Yii::$app->session->setFlash('success', 'Запись сохранена');
                     return $this->redirect(['view', 'id' => $model->id]);
                 } else {
@@ -196,13 +206,24 @@ class WordController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDelete($id)       // TODO: mutex
+    public function actionDelete($id)
     {
         $model = $this->findModel($id);
 
         $model->deleted == Status::NOT_DELETED ? $model->deleted = Status::DELETED :
             $model->deleted = Status::NOT_DELETED;
-        if ($model->save(false)) {
+
+        $fileMutex = Yii::$app->mutex;              /* @var $fileMutex yii\mutex\FileMutex */
+
+        $saveResult = false;
+        if ($fileMutex->acquire($mutexName = 'word', Yii::$app->params['mutexTimeout'])) {
+            $saveResult = $model->save(false);
+            $fileMutex->release($mutexName);
+        } else {    // добавляется ошибка к модели, после этого нельзя валидировать, т.к. ошибка затрется
+            $model->addError('name', 'Словарь редактируется, попробуйте еще раз');
+        }
+
+        if ($saveResult) {
             if ($model->deleted == Status::NOT_DELETED) {
                 Yii::$app->session->setFlash('success', 'Запись восстановлена');
             } else {
