@@ -32,10 +32,6 @@ $this->params['breadcrumbs'][] = $this->title;
         'timeout' => Yii::$app->params['pjaxTimeout']
     ]) ?>
 
-    <?php  echo $this->render('_search', [
-        'model' => $searchModel
-    ]); ?>
-
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
@@ -47,42 +43,42 @@ $this->params['breadcrumbs'][] = $this->title;
                 'value' => function ($model) {
                     return $model->wordName->name;
                 },
-                'filter' => ''
+                'filter' => Html::activeInput('text', $searchModel,'name', ['class' => 'form-control']),
             ],
             [
                 'attribute' => 'type_id',
                 'value' => function ($model) {
                     return $model->wordType->name;
                 },
-                'filter' => ''
+                'filter' => Html::activeInput('text', $searchModel,'type', ['class' => 'form-control']),
             ],
             [
                 'attribute' => 'department_id',
                 'value' => function ($model) {
                     return $model->wordDepartment->name;
                 },
-                'filter' => ''
+                'filter' => Html::activeInput('text', $searchModel,'department', ['class' => 'form-control']),
             ],
             [
                 'attribute' => 'position_id',
                 'value' => function ($model) {
                     return $model->wordPosition->name;
                 },
-                'filter' => ''
+                'filter' => Html::activeInput('text', $searchModel,'position', ['class' => 'form-control']),
             ],
             [
                 'attribute' => 'scale_id',
                 'value' => function ($model) {
                     return $model->wordScale->name;
                 },
-                'filter' => ''
+                'filter' => Html::activeInput('text', $searchModel,'scale', ['class' => 'form-control']),
             ],
             [
                 'attribute' => 'accuracy_id',
                 'value' => function ($model) {
                     return $model->wordAccuracy->name;
                 },
-                'filter' => ''
+                'filter' => Html::activeInput('text', $searchModel,'accuracy', ['class' => 'form-control']),
             ],
             'number',
 //            'description:ntext',

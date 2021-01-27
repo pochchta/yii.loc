@@ -14,39 +14,6 @@ class DeviceSearch extends Device
     const PRINT_LIMIT_RECORDS = 500;
     public $limit = self::DEFAULT_LIMIT_RECORDS;
 
-    public $firstDepartment;     // категории
-    public $secondDepartment;
-    public $thirdDepartment;
-    public $firstScale;
-    public $secondScale;
-    public $thirdScale;
-    public $firstName;
-    public $secondName;
-    public $thirdName;
-    public $firstType;
-    public $secondType;
-    public $thirdType;
-    public $firstPosition;
-    public $secondPosition;
-    public $thirdPosition;
-    public $firstAccuracy;
-    public $secondAccuracy;
-    public $thirdAccuracy;
-
-    public $arrDepartment;     // массивы для фильтров
-    public $arrScale;
-    public $arrName;
-    public $arrType;
-    public $arrPosition;
-    public $arrAccuracy;
-
-    public $condDepartment;    // получившееся условие для фильтра
-    public $condScale;
-    public $condName;
-    public $condType;
-    public $condPosition;
-    public $condAccuracy;
-
     /**
      * {@inheritdoc}
      */
@@ -54,37 +21,10 @@ class DeviceSearch extends Device
     public function rules()
     {
         return [
-            [['id', 'name_id', 'type_id', 'number', 'department_id', 'scale_id', 'position', 'accuracy', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
+            [['id', 'number', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
             [['description'], 'string', 'max' => 64],
+            [['name', 'type', 'department', 'position', 'scale', 'accuracy'], 'string', 'max' => 64],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
-            [['name_id', 'type_id', 'department_id', 'scale_id', 'position', 'accuracy'], 'default', 'value' => Status::ALL],
-            [['firstDepartment', 'secondDepartment', 'thirdDepartment', 'firstScale', 'secondScale', 'thirdScale'], 'integer'],
-            [['firstName', 'secondName', 'thirdName', 'firstType', 'secondType', 'thirdType'], 'integer'],
-            [['firstPosition', 'secondPosition', 'thirdPosition', 'firstAccuracy', 'secondAccuracy', 'thirdAccuracy'], 'integer'],
-        ];
-    }
-
-    public function attributeLabels()
-    {
-        return [
-            'firstDepartment' => 'Цеха',
-            'secondDepartment' => '->',
-            'thirdDepartment' => '->',
-            'firstScale' => 'Шкалы',
-            'secondScale' => '->',
-            'thirdScale' => '->',
-            'firstName' => 'Название',
-            'secondName' => '->',
-            'thirdName' => '->',
-            'firstType' => 'Тип',
-            'secondType' => '->',
-            'thirdType' => '->',
-            'firstPosition' => 'Позиция',
-            'secondPosition' => '->',
-            'thirdPosition' => '->',
-            'firstAccuracy' => 'Класс точности',
-            'secondAccuracy' => '->',
-            'thirdAccuracy' => '->',
         ];
     }
 
@@ -116,8 +56,6 @@ class DeviceSearch extends Device
         ]);
         $dataProvider->pagination->pageSize = $this->limit;
 
-        $this->getArrFilters($params);
-
         $this->load($params);
 
         if (!$this->validate()) {
@@ -136,15 +74,57 @@ class DeviceSearch extends Device
 
         $query->andFilterWhere(['like', 'description', $this->description]);
 
-        if ($this->condDepartment['condition'] !== NULL) {
+        if (strlen($this->name)) {
             $query->andOnCondition(
-                $this->condDepartment['condition'], $this->condDepartment['bind']
+                'name_id IN (SELECT id FROM word WHERE name LIKE :name AND deleted = :del) OR '
+                . 'name_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :name AND deleted = :del) AND deleted = :del) OR '
+                . 'name_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :name AND deleted = :del) AND deleted = :del) AND deleted = :del)',
+                [':name' => '%' . $this->name . '%', ':del' => Status::NOT_DELETED]
             );
         }
 
-        if ($this->condScale['condition'] !== NULL) {
+        if (strlen($this->type)) {
             $query->andOnCondition(
-                $this->condScale['condition'], $this->condScale['bind']
+                'type_id IN (SELECT id FROM word WHERE name LIKE :type AND deleted = :del) OR '
+                . 'type_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :type AND deleted = :del) AND deleted = :del) OR '
+                . 'type_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :type AND deleted = :del) AND deleted = :del) AND deleted = :del)',
+                [':type' => '%' . $this->type . '%', ':del' => Status::NOT_DELETED]
+            );
+        }
+
+        if (strlen($this->department)) {
+            $query->andOnCondition(
+                'department_id IN (SELECT id FROM word WHERE name LIKE :department AND deleted = :del) OR '
+                . 'department_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :department AND deleted = :del) AND deleted = :del) OR '
+                . 'department_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :department AND deleted = :del) AND deleted = :del) AND deleted = :del)',
+                [':department' => '%' . $this->department . '%', ':del' => Status::NOT_DELETED]
+            );
+        }
+
+        if (strlen($this->position)) {
+            $query->andOnCondition(
+                'position_id IN (SELECT id FROM word WHERE name LIKE :position AND deleted = :del) OR '
+                . 'position_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :position AND deleted = :del) AND deleted = :del) OR '
+                . 'position_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :position AND deleted = :del) AND deleted = :del) AND deleted = :del)',
+                [':position' => '%' . $this->position . '%', ':del' => Status::NOT_DELETED]
+            );
+        }
+
+        if (strlen($this->scale)) {
+            $query->andOnCondition(
+                'scale_id IN (SELECT id FROM word WHERE name LIKE :scale AND deleted = :del) OR '
+                . 'scale_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :scale AND deleted = :del) AND deleted = :del) OR '
+                . 'scale_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :scale AND deleted = :del) AND deleted = :del) AND deleted = :del)',
+                [':scale' => '%' . $this->scale . '%', ':del' => Status::NOT_DELETED]
+            );
+        }
+
+        if (strlen($this->accuracy)) {
+            $query->andOnCondition(
+                'accuracy_id IN (SELECT id FROM word WHERE name LIKE :accuracy AND deleted = :del) OR '
+                . 'accuracy_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :accuracy AND deleted = :del) AND deleted = :del) OR '
+                . 'accuracy_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :accuracy AND deleted = :del) AND deleted = :del) AND deleted = :del)',
+                [':accuracy' => '%' . $this->accuracy . '%', ':del' => Status::NOT_DELETED]
             );
         }
 
@@ -153,21 +133,6 @@ class DeviceSearch extends Device
         }
 
         return $dataProvider;
-    }
-
-    public function getArrFilters (& $params) {
-        list('array' => $this->arrDepartment, 'condition' => $this->condDepartment) =
-            Word::getArrFilters($params, Word::FIELD_WORD['Department']);
-        list('array' => $this->arrScale, 'condition' => $this->condScale) =
-            Word::getArrFilters($params, Word::FIELD_WORD['Scale']);
-        list('array' => $this->arrName, 'condition' => $this->condName) =
-            Word::getArrFilters($params, Word::FIELD_WORD['Name']);
-        list('array' => $this->arrType, 'condition' => $this->condType) =
-            Word::getArrFilters($params, Word::FIELD_WORD['Type']);
-        list('array' => $this->arrPosition, 'condition' => $this->condPosition) =
-            Word::getArrFilters($params, Word::FIELD_WORD['Position']);
-        list('array' => $this->arrAccuracy, 'condition' => $this->condAccuracy) =
-            Word::getArrFilters($params, Word::FIELD_WORD['Accuracy']);
     }
 
     public function formName() {
