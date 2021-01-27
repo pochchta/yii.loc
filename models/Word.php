@@ -77,8 +77,9 @@ class Word extends ActiveRecord
     {
         return [
             [['name', 'parent_id'], 'required'],
-            [['description'], 'string'],
             [['name', 'value'], 'string', 'max' => 255],
+            [['name'], 'unique'],
+            [['description'], 'string'],
             [['firstCategory', 'secondCategory', 'thirdCategory', 'parent_id'], 'integer'],
             [['parent_id'], 'validateParent'],
             [['parent_id'], 'validateDepth'],
