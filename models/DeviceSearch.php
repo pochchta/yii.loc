@@ -46,10 +46,9 @@ class DeviceSearch extends Device
      */
     public function search($params)
     {
-        $query = Device::find()->with(
-            'creator', 'updater', 'wordName', 'wordType', 'wordDepartment', 'wordPosition', 'wordScale', 'wordAccuracy'
-        );
-        // add conditions that should always apply here
+        $query = Device::find()
+            ->select(['name_id', 'type_id', 'department_id', 'position_id', 'scale_id', 'accuracy_id', 'number', 'deleted'])
+            ->with('creator', 'updater', 'wordName', 'wordType', 'wordDepartment', 'wordPosition', 'wordScale', 'wordAccuracy');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -79,7 +78,7 @@ class DeviceSearch extends Device
                 'name_id IN (SELECT id FROM word WHERE name LIKE :name AND deleted = :del) OR '
                 . 'name_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :name AND deleted = :del) AND deleted = :del) OR '
                 . 'name_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :name AND deleted = :del) AND deleted = :del) AND deleted = :del)',
-                [':name' => '%' . $this->name . '%', ':del' => Status::NOT_DELETED]
+                [':name' => $this->name . '%', ':del' => Status::NOT_DELETED]
             );
         }
 
@@ -88,7 +87,7 @@ class DeviceSearch extends Device
                 'type_id IN (SELECT id FROM word WHERE name LIKE :type AND deleted = :del) OR '
                 . 'type_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :type AND deleted = :del) AND deleted = :del) OR '
                 . 'type_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :type AND deleted = :del) AND deleted = :del) AND deleted = :del)',
-                [':type' => '%' . $this->type . '%', ':del' => Status::NOT_DELETED]
+                [':type' => $this->type . '%', ':del' => Status::NOT_DELETED]
             );
         }
 
@@ -97,7 +96,7 @@ class DeviceSearch extends Device
                 'department_id IN (SELECT id FROM word WHERE name LIKE :department AND deleted = :del) OR '
                 . 'department_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :department AND deleted = :del) AND deleted = :del) OR '
                 . 'department_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :department AND deleted = :del) AND deleted = :del) AND deleted = :del)',
-                [':department' => '%' . $this->department . '%', ':del' => Status::NOT_DELETED]
+                [':department' => $this->department . '%', ':del' => Status::NOT_DELETED]
             );
         }
 
@@ -106,7 +105,7 @@ class DeviceSearch extends Device
                 'position_id IN (SELECT id FROM word WHERE name LIKE :position AND deleted = :del) OR '
                 . 'position_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :position AND deleted = :del) AND deleted = :del) OR '
                 . 'position_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :position AND deleted = :del) AND deleted = :del) AND deleted = :del)',
-                [':position' => '%' . $this->position . '%', ':del' => Status::NOT_DELETED]
+                [':position' => $this->position . '%', ':del' => Status::NOT_DELETED]
             );
         }
 
@@ -115,7 +114,7 @@ class DeviceSearch extends Device
                 'scale_id IN (SELECT id FROM word WHERE name LIKE :scale AND deleted = :del) OR '
                 . 'scale_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :scale AND deleted = :del) AND deleted = :del) OR '
                 . 'scale_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :scale AND deleted = :del) AND deleted = :del) AND deleted = :del)',
-                [':scale' => '%' . $this->scale . '%', ':del' => Status::NOT_DELETED]
+                [':scale' => $this->scale . '%', ':del' => Status::NOT_DELETED]
             );
         }
 
@@ -124,7 +123,7 @@ class DeviceSearch extends Device
                 'accuracy_id IN (SELECT id FROM word WHERE name LIKE :accuracy AND deleted = :del) OR '
                 . 'accuracy_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :accuracy AND deleted = :del) AND deleted = :del) OR '
                 . 'accuracy_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :accuracy AND deleted = :del) AND deleted = :del) AND deleted = :del)',
-                [':accuracy' => '%' . $this->accuracy . '%', ':del' => Status::NOT_DELETED]
+                [':accuracy' => $this->accuracy . '%', ':del' => Status::NOT_DELETED]
             );
         }
 
