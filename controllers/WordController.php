@@ -136,21 +136,21 @@ class WordController extends Controller
      * @param $view
      * @return mixed
      */
-    public function saveModel($model, $view)    // TODO: при возврате на create ломаются фильтры
+    public function saveModel($model, $view)
     {
         $parent = $model->parent;
         $parentOfParent = $parent->parent;
 
-        if ($model->parent_id <= 0) {
-            $model->firstCategory = $model->parent_id;
+        if ($model->parent_id <= 0) {              // <0 || NULL (если запись новая)
+            $model->firstCategory = (int)$model->parent_id;
             $model->secondCategory = 0;
             $model->thirdCategory = 0;
-        } elseif ($parent->parent_id <= 0) {
-            $model->firstCategory = $parent->parent_id;
+        } elseif ($parent->parent_id <= 0) {       // <0 || NULL (если нет родителя)
+            $model->firstCategory = (int)$parent->parent_id;
             $model->secondCategory = $model->parent_id;
             $model->thirdCategory = 0;
         } else {
-            $model->firstCategory = $parentOfParent->parent_id;
+            $model->firstCategory = (int)$parentOfParent->parent_id;
             $model->secondCategory = $parent->parent_id;
             $model->thirdCategory = $model->parent_id;
         }
