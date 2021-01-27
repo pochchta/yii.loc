@@ -6,7 +6,7 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model app\models\Device */
 
-$this->title = 'Печать паспорта ' . $model->name;
+$this->title = 'Печать паспорта ' . $model->wordName->name;
 $this->registerCssFile('@web/css/user-print.css');
 ?>
 
@@ -25,9 +25,9 @@ $this->registerCssFile('@web/css/user-print.css');
 
     <table class="department">
         <tr>
-            <td><?= Html::encode($model->department->name) ?></td>
-            <td><?= Html::encode($model->department->value) ?></td>
-            <td><?= Html::encode($model->position) ?></td>
+            <td><?= Html::encode($model->wordDepartment->name) ?></td>
+            <td><?= Html::encode($model->wordDepartment->value) ?></td>
+            <td><?= Html::encode($model->wordPosition->name) ?></td>
         </tr>
     </table>
     <div class="qr_image" style="background-image: url('<?= QRImage::getUrl() ?>')"></div>
@@ -45,10 +45,10 @@ $this->registerCssFile('@web/css/user-print.css');
             <td>Класс точности</td>
         </tr>
         <tr>
-            <td><?= Html::encode($model->type) ?></td>
+            <td><?= Html::encode($model->wordType->name) ?></td>
             <td><?= Html::encode($model->number) ?></td>
-            <td><?= Html::encode($model->scale->name) ?></td>
-            <td><?= Html::encode($model->accuracy) ?></td>
+            <td><?= Html::encode($model->wordScale->name) ?></td>
+            <td><?= Html::encode($model->wordAccuracy->name) ?></td>
         </tr>
         <tr>
             <td colspan="4">

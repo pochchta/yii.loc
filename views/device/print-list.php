@@ -44,13 +44,13 @@ $this->registerCssFile('@web/css/user-print.css');
             ?>
             <tr>
                 <td><?= $n++ ?></td>
-                <td><?= $model->name ?></td>
+                <td><?= $model->wordName->name ?></td>
                 <td><?= $model->number ?></td>
-                <td><?= $model->type ?></td>
-                <td><?= $model->department->name ?></td>
-                <td><?= $model->scale->name ?></td>
-                <td><?= $model->accuracy ?></td>
-                <td><?= $model->position ?></td>
+                <td><?= $model->wordType->name ?></td>
+                <td><?= $model->wordDepartment->name ?></td>
+                <td><?= $model->wordScale->name ?></td>
+                <td><?= $model->wordAccuracy->name ?></td>
+                <td><?= $model->wordPosition->name ?></td>
                 <td><?= Yii::$app->formatter->asDate($model->created_at) ?></td>
                 <td><?= Yii::$app->formatter->asDate($model->updated_at) ?></td>
             </tr>
