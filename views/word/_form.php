@@ -13,7 +13,22 @@ use yii\widgets\Pjax;
 /* @var $arrSecondCategory array */
 /* @var $arrThirdCategory array */
 
-$jsOnChange = ['onchange'=>'pjaxPost("' . Url::to(['', 'id' => $model->id]) . '","' . Yii::$app->params['pjaxTimeout'] . '")'];
+/**
+ * @param $model
+ * @return string[]
+ */
+function getPjaxJsOnChange($model)
+{
+    return [
+        'onchange' => '$.pjax.reload({
+            container: "#my-pjax-container", 
+            url: "' . Url::to(['', 'id' => $model->id]) . '",
+            type: "POST",
+            data: $("#form1").serialize(),
+            timeout: ' . Yii::$app->params['pjaxTimeout'] . ',
+        });',
+    ];
+}
 ?>
 
 <div class="word-form">
@@ -28,11 +43,11 @@ $jsOnChange = ['onchange'=>'pjaxPost("' . Url::to(['', 'id' => $model->id]) . '"
     ]); ?>
 
     <?= $form->field($model, 'firstCategory')->dropDownList(
-        [Status::NOT_CATEGORY => 'нет'] + Word::LABEL_FIELD_WORD, $jsOnChange
+        [Status::NOT_CATEGORY => 'нет'] + Word::LABEL_FIELD_WORD, getPjaxJsOnChange($model)
     ) ?>
 
     <?= $form->field($model, 'secondCategory')->dropDownList(
-        [Status::NOT_CATEGORY => 'нет'] + $arrSecondCategory, $jsOnChange
+        [Status::NOT_CATEGORY => 'нет'] + $arrSecondCategory, getPjaxJsOnChange($model)
     ) ?>
 
     <?= $form->field($model, 'thirdCategory')->dropDownList(

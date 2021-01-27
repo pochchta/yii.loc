@@ -12,7 +12,12 @@ use yii\widgets\ActiveForm;
 /* @var $searchModel app\models\DeviceSearch */
 /* @var $form yii\widgets\ActiveForm */
 
-function getAutoCompleteOptions($attribute) {
+/**
+ * @param $attribute
+ * @return array
+ */
+function getAutoCompleteOptions($attribute)
+{
     if ($attribute === 'position') {
         $parent = "$('#device-department').val()";
     } else {

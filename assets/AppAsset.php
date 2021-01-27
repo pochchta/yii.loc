@@ -23,9 +23,9 @@ class AppAsset extends AssetBundle
         'css/site.css',
         'css/user-style.css',
     ];
-    public $js = [
+/*    public $js = [
         'js/user-script.js'
-    ];
+    ];*/
     public $depends = [
         'yii\web\YiiAsset',
         'yii\bootstrap\BootstrapAsset',
