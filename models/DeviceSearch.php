@@ -47,7 +47,7 @@ class DeviceSearch extends Device
     public function search($params)
     {
         $query = Device::find()
-            ->select(['name_id', 'type_id', 'department_id', 'position_id', 'scale_id', 'accuracy_id', 'number', 'deleted'])
+            ->select(['id', 'name_id', 'type_id', 'department_id', 'position_id', 'scale_id', 'accuracy_id', 'number', 'deleted'])
             ->with('creator', 'updater', 'wordName', 'wordType', 'wordDepartment', 'wordPosition', 'wordScale', 'wordAccuracy');
 
         $dataProvider = new ActiveDataProvider([

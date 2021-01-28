@@ -143,10 +143,12 @@ class DeviceController extends Controller
             if (isset($condition)){
                 $data = Word::find()
                     ->select(['name as value'])
-                    ->where(['like', 'name', $term])
+                    ->where(['deleted' => Status::NOT_DELETED])
+                    ->andOnCondition('name LIKE :name', [':name' => $term . '%'])
                     ->andOnCondition($condition, $bind)
                     ->orderBy('name')
-                    ->limit(Yii::$app->params['maxLinesAutoComplete'])->asArray()->all();
+                    ->limit(Yii::$app->params['maxLinesAutoComplete'])
+                    ->asArray()->all();
             }
         }
         echo json_encode($data);

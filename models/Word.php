@@ -171,6 +171,7 @@ class Word extends ActiveRecord
     {
         $parentName = ucfirst($parentName);
         $condition = NULL;
+        $bind = [];
         $parentId = NULL;
         if (isset(Word::FIELD_WORD[$parentName])) {
             $parentId = Word::FIELD_WORD[$parentName];
@@ -200,12 +201,15 @@ class Word extends ActiveRecord
             } else {
                 $condition = $condition1;
             }
-            $condition = '(' . $condition . ') AND deleted = :del';
+            $bind = [':id' => $parentId];
+            if ($depth != 1) {
+                $bind += [':del' => Status::NOT_DELETED];
+            }
         }
 
         return [
             'condition' => $condition,
-            'bind' => [':id' => $parentId, ':del' => Status::NOT_DELETED]
+            'bind' => $bind
         ];
     }
 
