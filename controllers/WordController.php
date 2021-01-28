@@ -6,6 +6,7 @@ use app\models\Status;
 use Yii;
 use app\models\Word;
 use app\models\WordSearch;
+use yii\validators\StringValidator;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -138,32 +139,25 @@ class WordController extends Controller
      */
     public function saveModel($model, $view)
     {
-        $parent = $model->parent;
-        $parentOfParent = $parent->parent;
-
-        if ($model->parent_id <= 0) {              // <0 || NULL (если запись новая)
-            $model->firstCategory = (int)$model->parent_id;
-            $model->secondCategory = 0;
-            $model->thirdCategory = 0;
-        } elseif ($parent->parent_id <= 0) {       // <0 || NULL (если нет родителя)
-            $model->firstCategory = (int)$parent->parent_id;
-            $model->secondCategory = $model->parent_id;
-            $model->thirdCategory = 0;
+        $categoryId = 0;
+        if ($model->parent_id > 0) {
+            $parent = $model->parent;
+            $model->parentName = $parent->name;
+            if ($parent->parent_id < 0) {
+                $categoryId = $parent->parent_id;
+            } elseif ($parent->parent->parent_id < 0) {
+                $categoryId = $parent->parent->parent_id;
+            }
         } else {
-            $model->firstCategory = (int)$parentOfParent->parent_id;
-            $model->secondCategory = $parent->parent_id;
-            $model->thirdCategory = $model->parent_id;
+            $categoryId = (int)($model->parent_id);     // в новой модели parent_id = NULL
+        }
+        if ($key = array_search($categoryId, Word::FIELD_WORD)) {       // получение значения для select
+            $model->categoryName = $key;
+        } else {
+            $model->categoryName = Status::NOT_CATEGORY;
         }
 
         if ($model->load($arrayPost = Yii::$app->request->post())) {
-            if ($model->thirdCategory > 0) {
-                $model->parent_id = $model->thirdCategory;
-            } elseif ($model->secondCategory > 0) {
-                $model->parent_id = $model->secondCategory;
-            } else {
-                $model->parent_id = $model->firstCategory;
-            }
-
             if (isset($arrayPost['saveButton'])) {                     // сохранение
                 $fileMutex = Yii::$app->mutex;              /* @var $fileMutex yii\mutex\FileMutex */
 
@@ -185,18 +179,42 @@ class WordController extends Controller
             }
         }
 
-        $arrSecondCategory = [];
-        $arrThirdCategory = [];
-        if ($model->firstCategory != Status::NOT_CATEGORY) {
-            $arrSecondCategory = Word::getAllNames($model->firstCategory, 1, false, $model->id);
-            if ($model->secondCategory != Status::NOT_CATEGORY && in_array($model->secondCategory, array_keys($arrSecondCategory))) {
-                $arrThirdCategory = Word::getAllNames($model->secondCategory, 1, false, $model->id);
+        return $this->render($view, compact(
+            'model'
+        ));
+    }
+
+    public function actionAjaxOne()
+    {
+        $data = [];
+        $validator = new StringValidator();
+        $validator->min = 1;
+        $validator->max = Yii::$app->params['maxLenGetParam'];
+        $term = Yii::$app->request->get('term');
+        $categoryName = Yii::$app->request->get('parent');
+        if ($validator->validate($term, $error) && $validator->validate($categoryName, $error)) {
+            $depth = 1;
+            if ($categoryName != 'Department' && isset(Word::FIELD_WORD[$categoryName])) {
+                $depth = 2;
+                if ($categoryName == 'Position') {
+                    $categoryName = 'Department';
+                }
+            }
+            list('condition' => $condition, 'bind' => $bind) =
+                Word::getConditionByName($categoryName, $depth, true);
+            if (isset($condition)){
+                $data = Word::find()
+                    ->select(['name as value'])
+                    ->where(['deleted' => Status::NOT_DELETED])
+                    ->andOnCondition('name LIKE :name', [':name' => $term . '%'])
+                    ->andOnCondition($condition, $bind)
+                    ->orderBy('name')
+                    ->limit(Yii::$app->params['maxLinesAutoComplete'])
+                    ->asArray()->all();
             }
         }
-
-        return $this->render($view, compact(
-            'model', 'arrSecondCategory', 'arrThirdCategory'
-        ));
+        echo json_encode($data);
+        die();
     }
 
     /**

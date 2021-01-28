@@ -48,7 +48,7 @@ class Word extends ActiveRecord
         self::FIELD_WORD['Accuracy'] => 'Точность',
     ];
 
-    public $firstCategory, $secondCategory, $thirdCategory;
+    public $categoryName, $parentName;
 
     public static function tableName()
     {
@@ -76,41 +76,46 @@ class Word extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'parent_id'], 'required'],
-            [['name', 'value'], 'string', 'max' => 255],
-            [['name'], 'unique'],
+            [['name', 'categoryName'], 'required'],
+            [['name', 'value', 'categoryName', 'parentName'], 'string', 'max' => 255],
+            [['name'], 'unique', 'when' => function($model){return $model->isAttributeChanged('name');}],
             [['description'], 'string'],
-            [['firstCategory', 'secondCategory', 'thirdCategory', 'parent_id'], 'integer'],
-            [['parent_id'], 'validateParent'],
-            [['parent_id'], 'validateDepth'],
+            [['categoryName'], 'validateCategoryName'],     // сначала присваивание parent_id
+            [['parent_id'], 'validateDepth'],               // затем его валидация
         ];
     }
 
-    public function validateParent()
+    /** Валидация categoryName, parentName, присваивание parent_id
+     * @param $attribute
+     */
+    public function validateCategoryName($attribute)
     {
         if (!$this->hasErrors()) {
-            $parentAttribute = 'firstCategory';
-            if ($this->parent_id < 0) {             // есть "виртуальная" родительская категория
-                if (in_array($this->parent_id, self::FIELD_WORD) == false) {
-                    $this->addError($parentAttribute, 'Такого корневого раздела нет');
-                }
-            } elseif ($this->parent_id > 0) {       // есть родительская категория
-                $parentAttribute = 'secondCategory';
-                $parent = $this->parent;
-                if ($parent === NULL) {
-                    $this->addError($parentAttribute, 'Родительская категория не найдена');
-                }
-                if ($parent->parent_id > 0) {
-                    $parentAttribute = 'thirdCategory';
-                    $parent = $parent->parent;
-                    if ($parent === NULL) {
-                        $this->addError($parentAttribute, 'Родительская категория не найдена');
+            if (strlen($this->parentName)) {        // задан промежуточный родитель
+                $parent = self::findOne(['name' => $this->parentName]);
+                if ($parent) {
+                    $this->parent_id = $parent->id;
+                    if ($this->id == $parent->id) {
+                        $this->addError('parentName', 'Выбрана та же категория');
                     }
+                } else {
+                    $this->addError('parentName', 'Родительская категория не найдена');
+                }
+            } else {
+                if (isset(self::FIELD_WORD[$this->categoryName])) {
+                    $this->parent_id = self::FIELD_WORD[$this->categoryName];
+                } elseif ($this->categoryName == Status::NOT_CATEGORY) {
+                    $this->parent_id = Status::NOT_CATEGORY;
+                } else {
+                    $this->addError($attribute, 'Родительская категория не найдена');
                 }
             }
         }
     }
 
+    /** Не только ограничивает глубину, но и запрещает циклические назначения родителей
+     *
+     */
     public function validateDepth()
     {
         if (!$this->hasErrors()) {
@@ -450,6 +455,8 @@ class Word extends ActiveRecord
             'firstCategory' => 'Раздел',
             'secondCategory' => 'Категория',
             'thirdCategory' => 'Папка',
+            'categoryName' => 'Раздел',
+            'parentName' => 'Папка'
         ];
     }
 
@@ -468,3 +475,6 @@ class Word extends ActiveRecord
         return $this->hasOne(User::class, ['id' => 'updated_by']);
     }
 }
+/* TODO: позиция будет сохранена в какой раздел?
+field[position] не нужен?
+*/
