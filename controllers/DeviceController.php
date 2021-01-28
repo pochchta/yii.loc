@@ -139,7 +139,7 @@ class DeviceController extends Controller
                 $depth = 3;
             }
             list('condition' => $condition, 'bind' => $bind) =
-                Word::getCondition($parentName, $depth, true);
+                Word::getConditionByName($parentName, $depth, true);
             if (isset($condition)){
                 $data = Word::find()
                     ->select(['name as value'])

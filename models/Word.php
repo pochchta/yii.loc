@@ -110,12 +110,7 @@ class Word extends ActiveRecord
             }
         }
     }
-/*
- * Шкала
- * Электрич
- * Ток
- * 0-5 мА
- * */
+
     public function validateDepth()
     {
         if (!$this->hasErrors()) {
@@ -161,17 +156,15 @@ class Word extends ActiveRecord
         }
     }
 
-    /** Получение условия для запроса дочерних элементов по родительской категории и глубине
+    /** Получение условия по имени родителя для запроса дочерних элементов
      * @param $parentName
      * @param int $depth
      * @param bool $withParent
      * @return array
      */
-    public static function getCondition($parentName, $depth = 1, $withParent = false)
+    public static function getConditionByName($parentName, $depth = 1, $withParent = false)
     {
         $parentName = ucfirst($parentName);
-        $condition = NULL;
-        $bind = [];
         $parentId = NULL;
         if (isset(Word::FIELD_WORD[$parentName])) {
             $parentId = Word::FIELD_WORD[$parentName];
@@ -179,32 +172,45 @@ class Word extends ActiveRecord
             $parentId = $parent->id;
         }
         if (isset($parentId)) {
-            if ($parentId == Status::NOT_CATEGORY || $parentId == Status::ALL) {
-                $condition1 = 'parent_id < :id';
-                $condition2 = 'parent_id IN (SELECT id FROM word WHERE parent_id < :id AND deleted = :del)';
-                $condition3 = 'parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id < :id AND deleted = :del) AND deleted = :del)';
-            } else {
-                $condition1 = 'parent_id = :id';
-                $condition2 = 'parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :del)';
-                $condition3 = 'parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :del) AND deleted = :del)';
+            return self::getConditionById($parentId, $depth, $withParent);
+        }
+        return NULL;
+    }
+
+    /** Получение условия по id родителя для запроса дочерних элементов
+     * @param $parentId
+     * @param int $depth
+     * @param bool $withParent
+     * @return array
+     */
+    public static function getConditionById($parentId, $depth = 1, $withParent = false)
+    {
+        $condition = NULL;
+        if ($parentId == Status::NOT_CATEGORY || $parentId == Status::ALL) {
+            $condition1 = 'parent_id < :id';
+            $condition2 = 'parent_id IN (SELECT id FROM word WHERE parent_id < :id AND deleted = :del)';
+            $condition3 = 'parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id < :id AND deleted = :del) AND deleted = :del)';
+        } else {
+            $condition1 = 'parent_id = :id';
+            $condition2 = 'parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :del)';
+            $condition3 = 'parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :del) AND deleted = :del)';
+        }
+        if ($depth == 3) {
+            $condition = $condition3;
+            if ($withParent) {
+                $condition = $condition1 . ' OR ' . $condition2 . ' OR ' . $condition3;
             }
-            if ($depth == 3) {
-                $condition = $condition3;
-                if ($withParent) {
-                    $condition = $condition1 . ' OR ' . $condition2 . ' OR ' . $condition3;
-                }
-            } elseif ($depth == 2) {
-                $condition = $condition2;
-                if ($withParent) {
-                    $condition = $condition1 . ' OR ' . $condition2;
-                }
-            } else {
-                $condition = $condition1;
+        } elseif ($depth == 2) {
+            $condition = $condition2;
+            if ($withParent) {
+                $condition = $condition1 . ' OR ' . $condition2;
             }
-            $bind = [':id' => $parentId];
-            if ($depth != 1) {
-                $bind += [':del' => Status::NOT_DELETED];
-            }
+        } else {
+            $condition = $condition1;
+        }
+        $bind = [':id' => $parentId];
+        if ($depth != 1) {
+            $bind += [':del' => Status::NOT_DELETED];
         }
 
         return [
@@ -212,6 +218,7 @@ class Word extends ActiveRecord
             'bind' => $bind
         ];
     }
+
 
     /**
      * Получение названий дочерних элементов
