@@ -91,20 +91,17 @@ class DeviceSearch extends Device
             );
         }
 
-        if (strlen($this->department)) {
+        if (strlen($this->department)) {    // глубина 2
             $query->andOnCondition(
                 'department_id IN (SELECT id FROM word WHERE name LIKE :department AND deleted = :del) OR '
-                . 'department_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :department AND deleted = :del) AND deleted = :del) OR '
-                . 'department_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :department AND deleted = :del) AND deleted = :del) AND deleted = :del)',
+                . 'department_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :department AND deleted = :del) AND deleted = :del)',
                 [':department' => $this->department . '%', ':del' => Status::NOT_DELETED]
             );
         }
 
-        if (strlen($this->position)) {
+        if (strlen($this->position)) {      // глубина 1
             $query->andOnCondition(
-                'position_id IN (SELECT id FROM word WHERE name LIKE :position AND deleted = :del) OR '
-                . 'position_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :position AND deleted = :del) AND deleted = :del) OR '
-                . 'position_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :position AND deleted = :del) AND deleted = :del) AND deleted = :del)',
+                'position_id IN (SELECT id FROM word WHERE name LIKE :position AND deleted = :del)',
                 [':position' => $this->position . '%', ':del' => Status::NOT_DELETED]
             );
         }
