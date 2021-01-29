@@ -35,7 +35,7 @@ class Word extends ActiveRecord
         'Department' => -12,
         'Type' => -13,
         'Name' => -14,
-        'Position' => -15,
+        'Crew' => -15,
         'Accuracy' => -16,
     ];
 
@@ -44,7 +44,7 @@ class Word extends ActiveRecord
         self::FIELD_WORD['Department'] => 'Цеха',
         self::FIELD_WORD['Type'] => 'Типы приборов',
         self::FIELD_WORD['Name'] => 'Названия приборов',
-        self::FIELD_WORD['Position'] => 'Позиция',
+        self::FIELD_WORD['Crew'] => 'Бригада',
         self::FIELD_WORD['Accuracy'] => 'Точность',
     ];
 
@@ -173,7 +173,7 @@ class Word extends ActiveRecord
         $parentId = NULL;
         if (isset(Word::FIELD_WORD[$parentName])) {
             $parentId = Word::FIELD_WORD[$parentName];
-        } elseif ($parent = Word::findOne(['name' => $parentName])) {
+        } elseif ($parent = Word::findOne(['name' => $parentName, 'deleted' => Status::NOT_DELETED])) {
             $parentId = $parent->id;
         }
         if (isset($parentId)) {
@@ -235,36 +235,13 @@ class Word extends ActiveRecord
      */
     public static function getAllNames($parentId = Status::NOT_CATEGORY, $depth = 1, $withParent = false, $passId = NULL)
     {
-        if ($parentId == Status::NOT_CATEGORY || $parentId == Status::ALL) {
-            $condition1 = 'parent_id < :id';
-            $condition2 = 'parent_id IN (SELECT id FROM word WHERE parent_id < :id AND deleted = :del)';
-            $condition3 = 'parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id < :id AND deleted = :del) AND deleted = :del)';
-        } else {
-            $condition1 = 'parent_id = :id';
-            $condition2 = 'parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :del)';
-            $condition3 = 'parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :del) AND deleted = :del)';
-        }
+        list('condition' => $condition, 'bind' => $bind) =
+            Word::getConditionById($parentId, $depth, $withParent);
 
-        if ($depth == 3) {
-            $condition = $condition3;
-            if ($withParent) {
-                $condition = $condition1 . ' OR ' . $condition2 . ' OR ' . $condition3;
-            }
-        } elseif ($depth == 2) {
-            $condition = $condition2;
-            if ($withParent) {
-                $condition = $condition1 . ' OR ' . $condition2;
-            }
-        } else {
-            $condition = $condition1;
-        }
-        $condition = '(' . $condition . ') AND deleted = :del';
-
-        $query = self::find()->select(['id', 'name', 'parent_id'])->limit(Yii::$app->params['maxLinesView'])
-            ->andOnCondition(
-                $condition,
-                [':id' => $parentId, ':del' => Status::NOT_DELETED]
-            )
+        $query = self::find()->select(['id', 'name', 'parent_id'])
+            ->where(['deleted' => Status::NOT_DELETED])
+            ->andOnCondition($condition, $bind)
+            ->limit(Yii::$app->params['maxLinesView'])
             ->asArray()->all();
 
         $outArray = array();
@@ -475,6 +452,3 @@ class Word extends ActiveRecord
         return $this->hasOne(User::class, ['id' => 'updated_by']);
     }
 }
-/* TODO: позиция будет сохранена в какой раздел?
-field[position] не нужен?
-*/

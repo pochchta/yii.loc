@@ -6,6 +6,7 @@ use app\models\Status;
 use Yii;
 use app\models\Word;
 use app\models\WordSearch;
+use yii\filters\AccessControl;
 use yii\validators\StringValidator;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -26,6 +27,21 @@ class WordController extends Controller
                 'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['POST'],
+                ],
+            ],
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'view'],
+                        'roles' => ['@'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['create', 'update', 'ajax-one', 'delete'],
+                        'roles' => ['ChangingWord'],
+                    ],
                 ],
             ],
         ];
@@ -192,14 +208,12 @@ class WordController extends Controller
         $validator->max = Yii::$app->params['maxLenGetParam'];
         $term = Yii::$app->request->get('term');
         $categoryName = Yii::$app->request->get('parent');
-        if ($validator->validate($term, $error) && $validator->validate($categoryName, $error)) {
-            $depth = 1;
-            if ($categoryName != 'Department' && isset(Word::FIELD_WORD[$categoryName])) {
-                $depth = 2;
-                if ($categoryName == 'Position') {
-                    $categoryName = 'Department';
-                }
-            }
+        if (
+            $validator->validate($term, $error)
+            && $validator->validate($categoryName, $error)
+            && isset(Word::FIELD_WORD[$categoryName])
+        ) {
+            $depth = 2;
             list('condition' => $condition, 'bind' => $bind) =
                 Word::getConditionByName($categoryName, $depth, true);
             if (isset($condition)){

@@ -81,7 +81,6 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => Html::activeInput('text', $searchModel,'accuracy', ['class' => 'form-control']),
             ],
             'number',
-//            'description:ntext',
             [
                 'attribute' => 'deleted',
                 'format' => 'html',
@@ -98,21 +97,6 @@ $this->params['breadcrumbs'][] = $this->title;
                     Status::ALL => 'все'
                 ])
             ],
-//            'created_at:date',
-//            'updated_at:date',
-/*            [
-                'attribute' => 'created_by',
-                'value' => function($model) {
-                    return $model->creator->username;
-                }
-            ],*/
-/*            [
-                'attribute' => 'updated_by',
-                'value' => function($model) {
-                    return $model->updater->username;
-                }
-            ],*/
-
             [
                 'format' => 'raw',
                 'filter' => Html::a(
@@ -125,17 +109,17 @@ $this->params['breadcrumbs'][] = $this->title;
                         Html::a(
                             '<span class="glyphicon glyphicon-eye-open a-action"></span>',
                             ['view', 'id' => $model->id],
-                            ['title' => 'Просмотр']
+                            ['title' => 'Просмотр', 'data' => ['pjax' => 0]]
                         )
                         . Html::a(
                             '<span class="glyphicon glyphicon-log-in a-action"></span>',
                             ['incoming/create', 'device_id' => $model->id],
-                            ['title' => 'Новая приемка']
+                            ['title' => 'Новая приемка', 'data' => ['pjax' => 0]]
                         )
                         . Html::a(
                             '<span class="glyphicon glyphicon-scale a-action"></span>',
                             ['verification/create', 'device_id' => $model->id],
-                            ['title' => 'Новая поверка']
+                            ['title' => 'Новая поверка', 'data' => ['pjax' => 0]]
                         );
                 }
             ],

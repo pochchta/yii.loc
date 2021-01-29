@@ -4,55 +4,44 @@ use app\models\Status;
 use app\models\Word;
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\jui\AutoComplete;
+use yii\web\JsExpression;
 use yii\widgets\ActiveForm;
-use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Word */
 /* @var $form yii\widgets\ActiveForm */
 /* @var $arrSecondCategory array */
 /* @var $arrThirdCategory array */
-
-/**
- * @param $model
- * @return string[]
- */
-function getPjaxJsOnChange($model)
-{
-    return [
-        'onchange' => '$.pjax.reload({
-            container: "#my-pjax-container", 
-            url: "' . Url::to(['', 'id' => $model->id]) . '",
-            type: "POST",
-            data: $("#form1").serialize(),
-            timeout: ' . Yii::$app->params['pjaxTimeout'] . ',
-        });',
-    ];
-}
 ?>
 
 <div class="word-form">
 
-    <?php Pjax::begin([
-        'id' => 'my-pjax-container',
-//        'timeout' => Yii::$app->params['pjaxTimeout']
-    ]) ?>
     <?php $form = ActiveForm::begin([
         'id' => 'form1',
-//        'options' => ['data-pjax' => true]
     ]); ?>
 
-    <?= $form->field($model, 'firstCategory')->dropDownList(
-        [Status::NOT_CATEGORY => 'нет'] + Word::LABEL_FIELD_WORD, getPjaxJsOnChange($model)
+    <?= $form->field($model, 'categoryName')->dropDownList(
+        [Status::NOT_CATEGORY => 'нет'] + array_combine(array_keys(Word::FIELD_WORD), Word::LABEL_FIELD_WORD)
     ) ?>
 
-    <?= $form->field($model, 'secondCategory')->dropDownList(
-        [Status::NOT_CATEGORY => 'нет'] + $arrSecondCategory, getPjaxJsOnChange($model)
-    ) ?>
-
-    <?= $form->field($model, 'thirdCategory')->dropDownList(
-        [Status::NOT_CATEGORY => 'нет'] + $arrThirdCategory
-    ) ?>
+    <?= $form->field($model, 'parentName')->textInput(['maxlength' => true])->widget(
+        AutoComplete::class, [
+            'clientOptions' => [
+                'source' => new JsExpression("function(request, response) {
+                $.getJSON('" . Url::to('ajax-one') . "', {
+                term: request.term,
+                parent: $('#word-categoryname').val(),
+            }, response);
+        }"),
+                'minLength' => 3,
+                'delay' => 300
+            ],
+            'options' => [
+                'class' => 'form-control',
+            ]
+        ]
+    ); ?>
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
@@ -65,6 +54,5 @@ function getPjaxJsOnChange($model)
     </div>
 
     <?php ActiveForm::end(); ?>
-    <?php Pjax::end() ?>
 
 </div>

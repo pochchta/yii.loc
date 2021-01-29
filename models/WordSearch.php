@@ -10,6 +10,7 @@ use yii\data\ActiveDataProvider;
  */
 class WordSearch extends Word
 {
+    public $firstCategory, $secondCategory, $thirdCategory;
     /**
      * {@inheritdoc}
      */
