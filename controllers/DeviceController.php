@@ -125,21 +125,37 @@ class DeviceController extends Controller
 
     public function actionListAutoComplete()
     {
-        $search = new WordSearch();
-        $search->load(Yii::$app->request->queryParams);
-        if ($search->validate()) {
-            $depth = 1;
-            $withParent = true;
-            if ($search->parent == 'position') {
-                $search->parent = 'department';
-                $depth = 3;
-                $withParent = false;
-            } elseif ($search->parent == 'department') {
-                $depth = 2;
-            } elseif (isset(Word::FIELD_WORD[ucfirst($search->parent)])) {
-                $depth = 3;
+        $wordSearch = new WordSearch();
+        $wordSearch->load(Yii::$app->request->queryParams);
+        if (strlen($wordSearch->term)) {
+            if ($wordSearch->validate()) {
+                $depth = 1;
+                $withParent = true;
+                if ($wordSearch->parent == 'position') {
+                    $wordSearch->parent = 'department';
+                    $depth = 3;
+                    $withParent = false;
+                } elseif ($wordSearch->parent == 'department') {
+                    $depth = 2;
+                } elseif (isset(Word::FIELD_WORD[ucfirst($wordSearch->parent)])) {
+                    $depth = 3;
+                }
+                echo $wordSearch->findNames($depth, $withParent);
             }
-            echo $search->findNames($depth, $withParent);
+        } else {
+            $deviceSearch = new DeviceSearch();
+            $deviceSearch->load(Yii::$app->request->queryParams);
+            if ($deviceSearch->validate()) {
+                $data = Device::find()
+                    ->select(['number as value'])
+                    ->where(['deleted' => Status::NOT_DELETED])
+                    ->andOnCondition('number LIKE :number', [':number' => $deviceSearch->number . '%'])
+                    ->orderBy('number')
+                    ->limit(Yii::$app->params['maxLinesAutoComplete'])
+                    ->distinct()
+                    ->asArray()->all();
+                echo json_encode($data);
+            }
         }
         die();
     }

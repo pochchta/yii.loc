@@ -15,7 +15,6 @@ class DeviceSearch extends Device
     const DEFAULT_LIMIT_RECORDS = 20;
     const PRINT_LIMIT_RECORDS = 500;
     public $limit = self::DEFAULT_LIMIT_RECORDS;
-
     /**
      * {@inheritdoc}
      */
@@ -25,7 +24,7 @@ class DeviceSearch extends Device
         return [
             [['id', 'number', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
             [['description'], 'string', 'max' => 64],
-            [['name', 'type', 'department', 'position', 'scale', 'accuracy'], 'string', 'max' => 64],
+            [['name', 'type', 'department', 'position', 'scale', 'accuracy', 'number'], 'string', 'min' => 3, 'max' => 20],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
         ];
     }

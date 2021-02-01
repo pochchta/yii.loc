@@ -4,7 +4,9 @@ use app\models\DeviceSearch;
 use app\models\Status;
 use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\helpers\Url;
 use yii\jui\AutoComplete;
+use yii\web\JsExpression;
 use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
@@ -56,9 +58,9 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $model->wordType->name;
                 },
                 'filter' => AutoComplete::widget([
-                        'model' => $searchModel,
-                        'attribute' => $attribute = 'type',
-                    ] + DeviceSearch::getAutoCompleteOptions($attribute))
+                    'model' => $searchModel,
+                    'attribute' => $attribute = 'type',
+                ] + DeviceSearch::getAutoCompleteOptions($attribute))
             ],
             [
                 'attribute' => 'department_id',
@@ -66,9 +68,9 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $model->wordDepartment->name;
                 },
                 'filter' => AutoComplete::widget([
-                        'model' => $searchModel,
-                        'attribute' => $attribute = 'department',
-                    ] + DeviceSearch::getAutoCompleteOptions($attribute))
+                    'model' => $searchModel,
+                    'attribute' => $attribute = 'department',
+                ] + DeviceSearch::getAutoCompleteOptions($attribute))
             ],
             [
                 'attribute' => 'position_id',
@@ -76,9 +78,9 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $model->wordPosition->name;
                 },
                 'filter' => AutoComplete::widget([
-                        'model' => $searchModel,
-                        'attribute' => $attribute = 'position',
-                    ] + DeviceSearch::getAutoCompleteOptions($attribute))
+                    'model' => $searchModel,
+                    'attribute' => $attribute = 'position',
+                ] + DeviceSearch::getAutoCompleteOptions($attribute))
             ],
             [
                 'attribute' => 'scale_id',
@@ -86,9 +88,9 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $model->wordScale->name;
                 },
                 'filter' => AutoComplete::widget([
-                        'model' => $searchModel,
-                        'attribute' => $attribute = 'scale',
-                    ] + DeviceSearch::getAutoCompleteOptions($attribute))
+                    'model' => $searchModel,
+                    'attribute' => $attribute = 'scale',
+                ] + DeviceSearch::getAutoCompleteOptions($attribute))
             ],
             [
                 'attribute' => 'accuracy_id',
@@ -96,11 +98,32 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $model->wordAccuracy->name;
                 },
                 'filter' => AutoComplete::widget([
-                        'model' => $searchModel,
-                        'attribute' => $attribute = 'accuracy',
-                    ] + DeviceSearch::getAutoCompleteOptions($attribute))
+                    'model' => $searchModel,
+                    'attribute' => $attribute = 'accuracy',
+                ] + DeviceSearch::getAutoCompleteOptions($attribute))
             ],
-            'number',
+            [
+                'attribute' => 'number',
+                'value' => function ($model) {
+                    return $model->number;
+                },
+                'filter' => AutoComplete::widget([
+                    'model' => $searchModel,
+                    'attribute' => 'number',
+                    'clientOptions' => [
+                        'source' => new JsExpression("function(request, response) {
+                            $.getJSON('" . Url::to('list-auto-complete') . "', {
+                                number: request.term,
+                            }, response);
+                        }"),
+                        'minLength' => 3,
+                        'delay' => 300
+                    ],
+                    'options' => [
+                        'class' => 'form-control',
+                    ]
+                ])
+            ],
             [
                 'attribute' => 'deleted',
                 'format' => 'html',
