@@ -7,7 +7,6 @@ use Yii;
 use app\models\Word;
 use app\models\WordSearch;
 use yii\filters\AccessControl;
-use yii\validators\StringValidator;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -39,7 +38,7 @@ class WordController extends Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['create', 'update', 'ajax-one', 'delete'],
+                        'actions' => ['create', 'update', 'list-auto-complete', 'delete'],
                         'roles' => ['ChangingWord'],
                     ],
                 ],
@@ -200,34 +199,13 @@ class WordController extends Controller
         ));
     }
 
-    public function actionAjaxOne()
+    public function actionListAutoComplete()
     {
-        $data = [];
-        $validator = new StringValidator();
-        $validator->min = 1;
-        $validator->max = Yii::$app->params['maxLenGetParam'];
-        $term = Yii::$app->request->get('term');
-        $categoryName = Yii::$app->request->get('parent');
-        if (
-            $validator->validate($term, $error)
-            && $validator->validate($categoryName, $error)
-            && isset(Word::FIELD_WORD[$categoryName])
-        ) {
-            $depth = 2;
-            list('condition' => $condition, 'bind' => $bind) =
-                Word::getConditionByName($categoryName, $depth, true);
-            if (isset($condition)){
-                $data = Word::find()
-                    ->select(['name as value'])
-                    ->where(['deleted' => Status::NOT_DELETED])
-                    ->andOnCondition('name LIKE :name', [':name' => $term . '%'])
-                    ->andOnCondition($condition, $bind)
-                    ->orderBy('name')
-                    ->limit(Yii::$app->params['maxLinesAutoComplete'])
-                    ->asArray()->all();
-            }
+        $search = new WordSearch();
+        $search->load(Yii::$app->request->queryParams);
+        if ($search->validate() && isset(Word::FIELD_WORD[$search->parent])) {
+            echo $search->findNames(2);
         }
-        echo json_encode($data);
         die();
     }
 

@@ -4,11 +4,11 @@ namespace app\controllers;
 
 use app\models\Word;
 use app\models\Status;
+use app\models\WordSearch;
 use Yii;
 use app\models\Device;
 use app\models\DeviceSearch;
 use yii\filters\AccessControl;
-use yii\validators\StringValidator;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -40,7 +40,7 @@ class DeviceController extends Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['create', 'update', 'ajax-one', 'delete'],
+                        'actions' => ['create', 'update', 'list-auto-complete', 'delete'],
                         'roles' => ['ChangingDevice'],
                     ],
                 ],
@@ -123,35 +123,19 @@ class DeviceController extends Controller
         ));
     }
 
-    public function actionAjaxOne()
+    public function actionListAutoComplete()
     {
-        $data = [];
-        $validator = new StringValidator();
-        $validator->min = 1;
-        $validator->max = Yii::$app->params['maxLenGetParam'];
-        $term = Yii::$app->request->get('term');
-        $parentName = Yii::$app->request->get('parent');
-        if ($validator->validate($term, $error) && $validator->validate($parentName, $error)) {
+        $search = new WordSearch();
+        $search->load(Yii::$app->request->queryParams);
+        if ($search->validate()) {
             $depth = 1;
-            if ($parentName == 'department') {
+            if ($search->parent == 'department') {
                 $depth = 2;
-            } elseif (isset(Word::FIELD_WORD[ucfirst($parentName)])) {
+            } elseif (isset(Word::FIELD_WORD[ucfirst($search->parent)])) {
                 $depth = 3;
             }
-            list('condition' => $condition, 'bind' => $bind) =
-                Word::getConditionByName($parentName, $depth, true);
-            if (isset($condition)){
-                $data = Word::find()
-                    ->select(['name as value'])
-                    ->where(['deleted' => Status::NOT_DELETED])
-                    ->andOnCondition('name LIKE :name', [':name' => $term . '%'])
-                    ->andOnCondition($condition, $bind)
-                    ->orderBy('name')
-                    ->limit(Yii::$app->params['maxLinesAutoComplete'])
-                    ->asArray()->all();
-            }
+            echo $search->findNames($depth);
         }
-        echo json_encode($data);
         die();
     }
 

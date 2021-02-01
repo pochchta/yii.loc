@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 
@@ -11,6 +12,7 @@ use yii\data\ActiveDataProvider;
 class WordSearch extends Word
 {
     public $firstCategory, $secondCategory, $thirdCategory;
+    public $term, $parent;
     /**
      * {@inheritdoc}
      */
@@ -22,6 +24,7 @@ class WordSearch extends Word
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
             [['firstCategory', 'secondCategory', 'thirdCategory'], 'integer'],
             [['firstCategory', 'secondCategory', 'thirdCategory'], 'default', 'value' => Status::ALL],
+            [['term', 'parent'], 'string', 'min' => 3, 'max' => 20]
         ];
     }
 
@@ -105,7 +108,31 @@ class WordSearch extends Word
         return $dataProvider;
     }
 
-    public function formName() {
+    public function formName()
+    {
         return '';
+    }
+
+    /** Поиск по словарю для AutoComplete
+     * @param int $depth
+     * @return false|string
+     */
+    public function findNames($depth = 1)
+    {
+        $data = [];
+        list('condition' => $condition, 'bind' => $bind) =
+            Word::getConditionByName($this->parent, $depth, true);
+        if (isset($condition)){
+            $data = Word::find()
+                ->select(['name as value'])
+                ->where(['deleted' => Status::NOT_DELETED])
+                ->andOnCondition('name LIKE :name', [':name' => $this->term . '%'])
+                ->andOnCondition($condition, $bind)
+                ->orderBy('name')
+                ->limit(Yii::$app->params['maxLinesAutoComplete'])
+                ->asArray()->all();
+
+        }
+        return json_encode($data);
     }
 }
