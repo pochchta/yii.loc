@@ -4,6 +4,8 @@ namespace app\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
+use yii\helpers\Url;
+use yii\web\JsExpression;
 
 /**
  * DeviceSearch represents the model behind the search form of `app\models\Device`.
@@ -131,7 +133,36 @@ class DeviceSearch extends Device
         return $dataProvider;
     }
 
-    public function formName() {
+    public function formName()
+    {
         return '';
+    }
+
+    /**
+     * @param $attribute
+     * @return array
+     */
+    public static function getAutoCompleteOptions($attribute)
+    {
+        if ($attribute === 'position') {
+            $parent = "$('#department').val() != '' ? $('#department').val() : 'position'";
+        } else {
+            $parent = "'". (isset(Word::FIELD_WORD[ucfirst($attribute)]) ? $attribute : 0) . "'";
+        }
+        return [
+            'clientOptions' => [
+                'source' => new JsExpression("function(request, response) {
+                    $.getJSON('" . Url::to('list-auto-complete') . "', {
+                        term: request.term,
+                        parent: {$parent}
+                    }, response);
+                }"),
+                'minLength' => 3,
+                'delay' => 300
+            ],
+            'options' => [
+                'class' => 'form-control',
+            ]
+        ];
     }
 }

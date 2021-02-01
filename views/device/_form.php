@@ -1,44 +1,14 @@
 <?php
 
-use app\models\Word;
+use app\models\DeviceSearch;
 use yii\helpers\Html;
-use yii\helpers\Url;
 use yii\jui\AutoComplete;
-use yii\web\JsExpression;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Device */
 /* @var $searchModel app\models\DeviceSearch */
 /* @var $form yii\widgets\ActiveForm */
-
-/**
- * @param $attribute
- * @return array
- */
-function getAutoCompleteOptions($attribute)
-{
-    if ($attribute === 'position') {
-        $parent = "$('#device-department').val()";
-    } else {
-        $parent = "'". (isset(Word::FIELD_WORD[ucfirst($attribute)]) ? $attribute : 0) . "'";
-    }
-    return [
-        'clientOptions' => [
-            'source' => new JsExpression("function(request, response) {
-                $.getJSON('" . Url::to('list-auto-complete') . "', {
-                term: request.term,
-                parent: {$parent}
-            }, response);
-        }"),
-            'minLength' => 3,
-            'delay' => 300
-        ],
-        'options' => [
-            'class' => 'form-control',
-        ]
-    ];
-}
 ?>
 
 <div class="device-form">
@@ -46,27 +16,27 @@ function getAutoCompleteOptions($attribute)
     <?php $form = ActiveForm::begin(); ?>
 
     <?= $form->field($model, $attribute ='name')->textInput(['maxlength' => true])->widget(
-        AutoComplete::class, getAutoCompleteOptions($attribute)
+        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
     ); ?>
 
     <?= $form->field($model, $attribute ='type')->textInput(['maxlength' => true])->widget(
-        AutoComplete::class, getAutoCompleteOptions($attribute)
+        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
     ); ?>
 
     <?= $form->field($model, $attribute ='department')->textInput(['maxlength' => true])->widget(
-        AutoComplete::class, getAutoCompleteOptions($attribute)
+        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
     ); ?>
 
     <?= $form->field($model, $attribute ='position')->textInput(['maxlength' => true])->widget(
-        AutoComplete::class, getAutoCompleteOptions($attribute)
+        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
     ); ?>
 
     <?= $form->field($model, $attribute ='scale')->textInput(['maxlength' => true])->widget(
-        AutoComplete::class, getAutoCompleteOptions($attribute)
+        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
     ); ?>
 
     <?= $form->field($model, $attribute ='accuracy')->textInput(['maxlength' => true])->widget(
-        AutoComplete::class, getAutoCompleteOptions($attribute)
+        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
     ); ?>
 
     <?= $form->field($model, 'number')->textInput(['maxlength' => true]) ?>

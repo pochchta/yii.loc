@@ -188,4 +188,9 @@ class Device extends ActiveRecord
     {
         return $this->hasOne(Word::class, ['id' => 'accuracy_id']);
     }
+
+    public function formName()
+    {
+        return '';
+    }
 }

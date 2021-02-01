@@ -129,12 +129,17 @@ class DeviceController extends Controller
         $search->load(Yii::$app->request->queryParams);
         if ($search->validate()) {
             $depth = 1;
-            if ($search->parent == 'department') {
+            $withParent = true;
+            if ($search->parent == 'position') {
+                $search->parent = 'department';
+                $depth = 3;
+                $withParent = false;
+            } elseif ($search->parent == 'department') {
                 $depth = 2;
             } elseif (isset(Word::FIELD_WORD[ucfirst($search->parent)])) {
                 $depth = 3;
             }
-            echo $search->findNames($depth);
+            echo $search->findNames($depth, $withParent);
         }
         die();
     }

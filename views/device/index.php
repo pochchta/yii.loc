@@ -1,8 +1,10 @@
 <?php
 
+use app\models\DeviceSearch;
 use app\models\Status;
 use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\jui\AutoComplete;
 use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
@@ -43,42 +45,60 @@ $this->params['breadcrumbs'][] = $this->title;
                 'value' => function ($model) {
                     return $model->wordName->name;
                 },
-                'filter' => Html::activeInput('text', $searchModel,'name', ['class' => 'form-control']),
+                'filter' => AutoComplete::widget([
+                    'model' => $searchModel,
+                    'attribute' => $attribute = 'name',
+                ] + DeviceSearch::getAutoCompleteOptions($attribute))
             ],
             [
                 'attribute' => 'type_id',
                 'value' => function ($model) {
                     return $model->wordType->name;
                 },
-                'filter' => Html::activeInput('text', $searchModel,'type', ['class' => 'form-control']),
+                'filter' => AutoComplete::widget([
+                        'model' => $searchModel,
+                        'attribute' => $attribute = 'type',
+                    ] + DeviceSearch::getAutoCompleteOptions($attribute))
             ],
             [
                 'attribute' => 'department_id',
                 'value' => function ($model) {
                     return $model->wordDepartment->name;
                 },
-                'filter' => Html::activeInput('text', $searchModel,'department', ['class' => 'form-control']),
+                'filter' => AutoComplete::widget([
+                        'model' => $searchModel,
+                        'attribute' => $attribute = 'department',
+                    ] + DeviceSearch::getAutoCompleteOptions($attribute))
             ],
             [
                 'attribute' => 'position_id',
                 'value' => function ($model) {
                     return $model->wordPosition->name;
                 },
-                'filter' => Html::activeInput('text', $searchModel,'position', ['class' => 'form-control']),
+                'filter' => AutoComplete::widget([
+                        'model' => $searchModel,
+                        'attribute' => $attribute = 'position',
+                    ] + DeviceSearch::getAutoCompleteOptions($attribute))
             ],
             [
                 'attribute' => 'scale_id',
                 'value' => function ($model) {
                     return $model->wordScale->name;
                 },
-                'filter' => Html::activeInput('text', $searchModel,'scale', ['class' => 'form-control']),
+                'filter' => AutoComplete::widget([
+                        'model' => $searchModel,
+                        'attribute' => $attribute = 'scale',
+                    ] + DeviceSearch::getAutoCompleteOptions($attribute))
             ],
             [
                 'attribute' => 'accuracy_id',
                 'value' => function ($model) {
                     return $model->wordAccuracy->name;
                 },
-                'filter' => Html::activeInput('text', $searchModel,'accuracy', ['class' => 'form-control']),
+                'filter' => AutoComplete::widget([
+                        'model' => $searchModel,
+                        'attribute' => $attribute = 'accuracy',
+                    ] + DeviceSearch::getAutoCompleteOptions($attribute))
             ],
             'number',
             [

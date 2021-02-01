@@ -115,13 +115,14 @@ class WordSearch extends Word
 
     /** Поиск по словарю для AutoComplete
      * @param int $depth
+     * @param bool $withParent
      * @return false|string
      */
-    public function findNames($depth = 1)
+    public function findNames($depth = 1, $withParent = false)
     {
         $data = [];
         list('condition' => $condition, 'bind' => $bind) =
-            Word::getConditionByName($this->parent, $depth, true);
+            Word::getConditionByName($this->parent, $depth, $withParent);
         if (isset($condition)){
             $data = Word::find()
                 ->select(['name as value'])
@@ -131,7 +132,6 @@ class WordSearch extends Word
                 ->orderBy('name')
                 ->limit(Yii::$app->params['maxLinesAutoComplete'])
                 ->asArray()->all();
-
         }
         return json_encode($data);
     }

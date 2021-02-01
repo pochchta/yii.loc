@@ -204,7 +204,7 @@ class WordController extends Controller
         $search = new WordSearch();
         $search->load(Yii::$app->request->queryParams);
         if ($search->validate() && isset(Word::FIELD_WORD[$search->parent])) {
-            echo $search->findNames(2);
+            echo $search->findNames(2, true);
         }
         die();
     }
