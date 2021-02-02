@@ -16,27 +16,27 @@ use yii\widgets\ActiveForm;
     <?php $form = ActiveForm::begin(); ?>
 
     <?= $form->field($model, $attribute ='name')->textInput(['maxlength' => true])->widget(
-        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute, true)
+        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
     ); ?>
 
     <?= $form->field($model, $attribute ='type')->textInput(['maxlength' => true])->widget(
-        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute, true)
+        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
     ); ?>
 
     <?= $form->field($model, $attribute ='department')->textInput(['maxlength' => true])->widget(
-        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute, true)
+        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
     ); ?>
 
     <?= $form->field($model, $attribute ='position')->textInput(['maxlength' => true])->widget(
-        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute, true)
+        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
     ); ?>
 
     <?= $form->field($model, $attribute ='scale')->textInput(['maxlength' => true])->widget(
-        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute, true)
+        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
     ); ?>
 
     <?= $form->field($model, $attribute ='accuracy')->textInput(['maxlength' => true])->widget(
-        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute, true)
+        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
     ); ?>
 
     <?= $form->field($model, 'number')->textInput(['maxlength' => true]) ?>

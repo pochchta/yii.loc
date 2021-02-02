@@ -140,19 +140,14 @@ class DeviceSearch extends Device
 
     /**
      * @param $attribute
-     * @param bool $positionByDepartment зависимость от department
      * @return array
      */
-    public static function getAutoCompleteOptions($attribute, $positionByDepartment = false)
+    public static function getAutoCompleteOptions($attribute)
     {
         if ($attribute === 'position') {
-            if ($positionByDepartment) {
-                $parent = "$('#department').val() != '' ? $('#department').val() : 'position'";
-            } else {
-                $parent = "'position'";
-            }
+            $parent = "$('#department').val() != '' ? $('#department').val() : 'position'";
         } else {
-            $parent = "'". (isset(Word::FIELD_WORD[ucfirst($attribute)]) ? $attribute : 0) . "'";
+            $parent = "'". (isset(Word::FIELD_WORD[ucfirst($attribute)]) ? $attribute : '') . "'";
         }
         return [
             'clientOptions' => [
