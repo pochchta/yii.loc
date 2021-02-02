@@ -146,15 +146,7 @@ class DeviceController extends Controller
             $deviceSearch = new DeviceSearch();
             $deviceSearch->load(Yii::$app->request->queryParams);
             if ($deviceSearch->validate()) {
-                $data = Device::find()
-                    ->select(['number as value'])
-                    ->where(['deleted' => Status::NOT_DELETED])
-                    ->andOnCondition('number LIKE :number', [':number' => $deviceSearch->number . '%'])
-                    ->orderBy('number')
-                    ->limit(Yii::$app->params['maxLinesAutoComplete'])
-                    ->distinct()
-                    ->asArray()->all();
-                echo json_encode($data);
+                echo $deviceSearch->findNames();
             }
         }
         die();

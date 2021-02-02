@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\helpers\Url;
@@ -22,9 +23,9 @@ class DeviceSearch extends Device
     public function rules()
     {
         return [
-            [['id', 'number', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
+            [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
             [['description'], 'string', 'max' => 64],
-            [['name', 'type', 'department', 'position', 'scale', 'accuracy', 'number'], 'string', 'min' => 3, 'max' => 20],
+            [['name', 'type', 'department', 'position', 'scale', 'accuracy', 'number'], 'string', 'min' => 1, 'max' => 20],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
         ];
     }
@@ -139,12 +140,17 @@ class DeviceSearch extends Device
 
     /**
      * @param $attribute
+     * @param bool $positionByDepartment зависимость от department
      * @return array
      */
-    public static function getAutoCompleteOptions($attribute)
+    public static function getAutoCompleteOptions($attribute, $positionByDepartment = false)
     {
         if ($attribute === 'position') {
-            $parent = "$('#department').val() != '' ? $('#department').val() : 'position'";
+            if ($positionByDepartment) {
+                $parent = "$('#department').val() != '' ? $('#department').val() : 'position'";
+            } else {
+                $parent = "'position'";
+            }
         } else {
             $parent = "'". (isset(Word::FIELD_WORD[ucfirst($attribute)]) ? $attribute : 0) . "'";
         }
@@ -163,5 +169,21 @@ class DeviceSearch extends Device
                 'class' => 'form-control',
             ]
         ];
+    }
+
+    /** Поиск по номерам для AutoComplete
+     * @return false|string
+     */
+    public function findNames()
+    {
+        $data = Device::find()
+            ->select(['number as value'])
+            ->where(['deleted' => Status::NOT_DELETED])
+            ->andOnCondition('number LIKE :number', [':number' => $this->number . '%'])
+            ->orderBy('number')
+            ->limit(Yii::$app->params['maxLinesAutoComplete'])
+            ->distinct()
+            ->asArray()->all();
+        return json_encode($data);
     }
 }
