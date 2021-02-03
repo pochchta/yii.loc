@@ -138,7 +138,9 @@ class DeviceSearch extends Device
         return '';
     }
 
-    /**
+    /** Ветвление в "select" решает такую проблему. Если предыдущее значение фильтра равно значению которое пользователь ввел
+     * в поиск autoComplete (а затем выбрал предложенное), то событие "change" не происходит и его нужно вызвать принудительно.
+     * Если, конечно, выбранное значение из предложенных не равно старому значению фильтра.
      * @param $attribute
      * @return array
      */
@@ -152,10 +154,23 @@ class DeviceSearch extends Device
         return [
             'clientOptions' => [
                 'source' => new JsExpression("function(request, response) {
-                    $.getJSON('" . Url::to('list-auto-complete') . "', {
+                    $.getJSON('" . Url::to('/device/list-auto-complete') . "', {
                         term: request.term,
                         parent: {$parent}
                     }, response);
+                }"),
+                'select' => new JsExpression("function(event, ui) {
+                    searchParams = new URLSearchParams(location.search.substring(1));
+                    valueFromUrl = searchParams.get('$attribute');
+                    objectFilter = $('#{$attribute}');
+                    if (valueFromUrl === objectFilter.val()) {
+                        if (valueFromUrl !== ui.item.label) {
+                            objectFilter.val(ui.item.label);
+                            objectFilter.trigger('change');
+                        }
+                    } else {
+                        objectFilter.val(ui.item.label).blur();
+                    }
                 }"),
                 'minLength' => 3,
                 'delay' => 300
