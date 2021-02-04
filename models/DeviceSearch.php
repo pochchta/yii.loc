@@ -160,20 +160,21 @@ class DeviceSearch extends Device
                     }, response);
                 }"),
                 'select' => new JsExpression("function(event, ui) {
-                    searchParams = new URLSearchParams(location.search.substring(1));
-                    valueFromUrl = searchParams.get('$attribute');
-                    objectFilter = $('#{$attribute}');
-                    if (valueFromUrl === objectFilter.val()) {
-                        if (valueFromUrl !== ui.item.label) {
-                            objectFilter.val(ui.item.label);
-                            objectFilter.trigger('change');
+                    str = $('#grid_id').yiiGridView('data').settings.filterUrl;
+                    searchParams = new URLSearchParams(str.substring(str.indexOf('?') + 1));
+                    oldValueFilter = searchParams.get('$attribute');
+                    filterSelector = $('#{$attribute}');
+                    if (oldValueFilter === filterSelector.val()) {
+                        if (oldValueFilter !== ui.item.label) {
+                            filterSelector.val(ui.item.label);
+                            filterSelector.trigger('change');
                         }
                     } else {
-                        objectFilter.val(ui.item.label).blur();
+                        filterSelector.val(ui.item.label).blur();
                     }
                 }"),
-                'minLength' => 3,
-                'delay' => 300
+                'minLength' => Yii::$app->params['minSymbolsAutoComplete'],
+                'delay' => Yii::$app->params['delayAutoComplete']
             ],
             'options' => [
                 'class' => 'form-control',
