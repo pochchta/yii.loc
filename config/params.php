@@ -5,13 +5,18 @@ return [
     'senderEmail' => 'noreply@example.com',
     'senderName' => 'Example.com mailer',
 
-    'pjaxTimeout' => 5000,              // milliSeconds
-
     'mutexTimeout' => 1,                // seconds
 
-    'maxLenGetParam' => 20,             // максимальная длина GET параметра
+    'pjaxTimeout' => 5000,              // milliSeconds
 
+    'delayDateInput' => 1000,           // ms, задержка перед отправкой фильтра input type = date
+
+//    'maxLenGetParam' => 20,             // максимальная длина GET параметра
+
+    'delayAutoComplete' => 500,
+    'minSymbolsAutoComplete' => 3,
     'maxLinesAutoComplete' => 10,       // кол-во строк в autoComplete
+
     'maxLinesView' => 100,              // кол-во строк в списках типа dropDown
     'maxLinesPrint' => 500,             // кол-во строк при выводе на печать
 ];
