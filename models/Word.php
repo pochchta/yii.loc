@@ -165,7 +165,7 @@ class Word extends ActiveRecord
      * @param $parentName
      * @param int $depth
      * @param bool $withParent
-     * @return array
+     * @return null|array
      */
     public static function getConditionByName($parentName, $depth = 1, $withParent = false)
     {
@@ -224,6 +224,41 @@ class Word extends ActiveRecord
         ];
     }
 
+    public static function getConditionLikeName($parentName, $depth = 1, $withParent = false)
+    {
+        if (isset(Word::FIELD_WORD[ucfirst($parentName)])) {
+            $parentId = Word::FIELD_WORD[ucfirst($parentName)];
+            return self::getConditionById($parentId, $depth, $withParent);
+        } else {
+            $condition = NULL;
+            $bind = [];
+            $bindName = uniqid(':');
+            if (empty($parentName) == false) {
+                $condition1 = "parent_id IN (SELECT id FROM word WHERE name LIKE $bindName AND deleted = :del)";
+                $condition2 = "parent_id IN (SELECT id FROM word WHERE $condition1 AND deleted = :del)";
+                $condition3 = "parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE $condition1 AND deleted = :del) AND deleted = :del)";
+                if ($depth == 3) {
+                    $condition = $condition3;
+                    if ($withParent) {
+                        $condition = $condition1 . ' OR ' . $condition2 . ' OR ' . $condition3;
+                    }
+                } elseif ($depth == 2) {
+                    $condition = $condition2;
+                    if ($withParent) {
+                        $condition = $condition1 . ' OR ' . $condition2;
+                    }
+                } else {
+                    $condition = $condition1;
+                }
+                $bind = [$bindName => $parentName . '%', ':del' => Status::NOT_DELETED];
+            }
+        }
+
+        return [
+            'condition' => $condition,
+            'bind' => $bind
+        ];
+    }
 
     /**
      * Получение названий дочерних элементов
@@ -450,5 +485,10 @@ class Word extends ActiveRecord
     public function getUpdater()
     {
         return $this->hasOne(User::class, ['id' => 'updated_by']);
+    }
+
+    public function formName()
+    {
+        return '';
     }
 }

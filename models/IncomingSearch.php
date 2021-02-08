@@ -77,7 +77,7 @@ class IncomingSearch extends Incoming
      */
     public function search($params)
     {
-        $query = Incoming::find()->with('creator', 'updater', 'device.department', 'device.scale');
+        $query = Incoming::find()->with('creator', 'updater', 'device.wordDepartment', 'device.wordScale');
 
         // add conditions that should always apply here
 

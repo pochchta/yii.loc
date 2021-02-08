@@ -5,6 +5,8 @@ namespace app\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
+use yii\helpers\Url;
+use yii\web\JsExpression;
 
 /**
  * WordSearch represents the model behind the search form of `app\models\Word`.
@@ -13,6 +15,7 @@ class WordSearch extends Word
 {
     public $firstCategory, $secondCategory, $thirdCategory;
     public $term, $parent;
+
     /**
      * {@inheritdoc}
      */
@@ -20,11 +23,10 @@ class WordSearch extends Word
     {
         return [
             [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted', 'parent_id'], 'integer'],
-            [['name', 'value', 'description'], 'safe'],
+            [['name', 'value', 'description'], 'string', 'min' => 1, 'max' => 20],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
-            [['firstCategory', 'secondCategory', 'thirdCategory'], 'integer'],
-            [['firstCategory', 'secondCategory', 'thirdCategory'], 'default', 'value' => Status::ALL],
-            [['term', 'parent'], 'string', 'min' => 3, 'max' => 20]
+            [['firstCategory', 'secondCategory', 'thirdCategory'], 'string', 'min' => 1, 'max' => 20],
+            [['term', 'parent'], 'string', 'min' => 1, 'max' => 20]
         ];
     }
 
@@ -113,6 +115,26 @@ class WordSearch extends Word
         return '';
     }
 
+
+    public static function getAutoCompleteOptions($attribute)
+    {
+        return [
+            'clientOptions' => [
+                'source' => new JsExpression("function(request, response) {
+                    $.getJSON('" . Url::to('list-auto-complete') . "', {
+                        term: request.term,
+                        parent: $('#{$attribute}').val(),
+                    }, response);
+                }"),
+                'minLength' => 3,
+                'delay' => 300
+            ],
+            'options' => [
+                'class' => 'form-control',
+            ]
+        ];
+    }
+
     /** Поиск по словарю для AutoComplete
      * @param int $depth
      * @param bool $withParent
@@ -122,7 +144,7 @@ class WordSearch extends Word
     {
         $data = [];
         list('condition' => $condition, 'bind' => $bind) =
-            Word::getConditionByName($this->parent, $depth, $withParent);
+            Word::getConditionLikeName($this->parent, $depth, $withParent);
         if (isset($condition)){
             $data = Word::find()
                 ->select(['name as value'])

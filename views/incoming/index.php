@@ -1,9 +1,9 @@
 <?php
 
-use app\models\Incoming;
 use app\models\Status;
 use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\jui\AutoComplete;
 use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
@@ -41,9 +41,10 @@ $this->params['breadcrumbs'][] = $this->title;
         'timeout' => Yii::$app->params['pjaxTimeout']
     ]) ?>
 
-    <?php  echo $this->render('/device/_search', ['model' => $searchModel]); ?>
+<!--    --><?php // echo $this->render('/device/_search', ['model' => $searchModel]); ?>
 
     <?= GridView::widget([
+        'id' => 'grid_id',
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
@@ -60,9 +61,16 @@ $this->params['breadcrumbs'][] = $this->title;
                         ['title' => $model->device->name . ', № ' . $model->device->number . ($model->device->deleted == Status::DELETED ? ' (удален)' : '')]
                     );
                 },
-                'label' => 'ID приб.'
+                'label' => 'ID приб.',
+                'filter' => AutoComplete::widget([
+                    'model' => $searchModel,
+                    'attribute' => 'device_id',
+                    'clientOptions' => [
+                        'source' => ['123', '1234'],
+                    ],
+                ])
             ],
-            [
+/*            [
                 'attribute' => 'device.department_id',
                 'value' => function ($model) {
                     return $model->device->department->name;
@@ -132,7 +140,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     Incoming::PAID => 'да',
 
                 ]),
-            ],
+            ],*/
             [
                 'attribute' => 'created_at',
                 'format' => 'date',

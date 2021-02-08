@@ -2,8 +2,10 @@
 
 use app\models\Word;
 use app\models\Status;
+use app\models\WordSearch;
 use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\jui\AutoComplete;
 use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
@@ -27,7 +29,7 @@ $this->params['breadcrumbs'][] = $this->title;
         'id' => 'my-pjax-container',
         'timeout' => Yii::$app->params['pjaxTimeout']
     ]) ?>
-<!--    --><?php // echo $this->render('_search', ['model' => $searchModel]); ?>
+
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
@@ -44,17 +46,16 @@ $this->params['breadcrumbs'][] = $this->title;
             'value',
             'description:ntext',
             [
-                'attribute' => 'firstCategory',
+                'attribute' => $attribute = 'firstCategory',
                 'format' => 'html',
                 'value' => function ($model) {
                     $arr = Word::getParentName($model);
                     return $arr['id'] > 0 ? Html::a($arr['name'], ['view', 'id' => $arr['id']]) : $arr['name'];
                 },
-                'filter' => Html::activeDropDownList(
-                    $searchModel,
-                    'firstCategory',
-                    [Status::ALL => 'все', '0' => 'нет'] + Word::LABEL_FIELD_WORD
-                )
+                'filter' => AutoComplete::widget([
+                        'model' => $searchModel,
+                        'attribute' => $attribute,
+                ] + WordSearch::getAutoCompleteOptions($attribute))
             ],
             [
                 'attribute' => 'secondCategory',
