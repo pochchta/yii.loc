@@ -118,18 +118,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             }, response);
                         }"),
                         'select' => new JsExpression("function(event, ui) {
-                            str = $('#grid_id').yiiGridView('data').settings.filterUrl;
-                            searchParams = new URLSearchParams(str.substring(str.indexOf('?') + 1));
-                            oldValueFilter = searchParams.get('$attribute');
-                            filterSelector = $('#{$attribute}');
-                            if (oldValueFilter === filterSelector.val()) {
-                                if (oldValueFilter !== ui.item.label) {
-                                    filterSelector.val(ui.item.label);
-                                    filterSelector.trigger('change');
-                                }
-                            } else {
-                                filterSelector.val(ui.item.label).blur();
-                            }
+                            selectAutoComplete(event, ui, '$attribute');
                         }"),
                         'minLength' => Yii::$app->params['minSymbolsAutoComplete'],
                         'delay' => Yii::$app->params['delayAutoComplete']
