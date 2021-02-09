@@ -13,9 +13,13 @@ use yii\web\JsExpression;
  */
 class DeviceSearch extends Device
 {
+    const COLUMN_SEARCH = ['id', 'number'];
     const DEFAULT_LIMIT_RECORDS = 20;
     const PRINT_LIMIT_RECORDS = 500;
     public $limit = self::DEFAULT_LIMIT_RECORDS;
+
+    public $term, $term_name;
+
     /**
      * {@inheritdoc}
      */
@@ -24,9 +28,10 @@ class DeviceSearch extends Device
     {
         return [
             [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
-            [['description'], 'string', 'max' => 64],
-            [['name', 'type', 'department', 'position', 'scale', 'accuracy', 'number'], 'string', 'min' => 1, 'max' => 20],
+            [['description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['name', 'type', 'department', 'position', 'scale', 'accuracy', 'number'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
+            [['term', 'term_name'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']]
         ];
     }
 
@@ -68,20 +73,17 @@ class DeviceSearch extends Device
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'number' => $this->number,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
         ]);
 
         $query->andFilterWhere(['like', 'description', $this->description]);
+        $query->andFilterWhere(['like', 'number', $this->number]);
 
         if (strlen($this->name)) {
-            $query->andOnCondition(
-                'name_id IN (SELECT id FROM word WHERE name LIKE :name AND deleted = :del) OR '
-                . 'name_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :name AND deleted = :del) AND deleted = :del) OR '
-                . 'name_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :name AND deleted = :del) AND deleted = :del) AND deleted = :del)',
-                [':name' => $this->name . '%', ':del' => Status::NOT_DELETED]
-            );
+            list('condition' => $condition, 'bind' => $bind) =
+                Word::getConditionLikeName('name_id', $this->name, 3, true);
+            $query->andOnCondition($condition, $bind);
         }
 
         if (strlen($this->type)) {
@@ -138,9 +140,7 @@ class DeviceSearch extends Device
         return '';
     }
 
-    /** Ветвление в "select" решает такую проблему. Если предыдущее значение фильтра равно значению которое пользователь ввел
-     * в поиск autoComplete (а затем выбрал предложенное), то событие "change" не происходит и его нужно вызвать принудительно.
-     * Если, конечно, выбранное значение из предложенных не равно старому значению фильтра.
+    /**
      * @param $attribute
      * @return array
      */
@@ -156,7 +156,8 @@ class DeviceSearch extends Device
                 'source' => new JsExpression("function(request, response) {
                     $.getJSON('" . Url::to('/device/list-auto-complete') . "', {
                         term: request.term,
-                        parent: {$parent}
+                        term_name: '{$attribute}',                         
+                        term_parent: {$parent},
                     }, response);
                 }"),
                 'select' => new JsExpression("function(event, ui) {
@@ -176,14 +177,19 @@ class DeviceSearch extends Device
      */
     public function findNames()
     {
-        $data = Device::find()
-            ->select(['number as value'])
-            ->where(['deleted' => Status::NOT_DELETED])
-            ->andOnCondition('number LIKE :number', [':number' => $this->number . '%'])
-            ->orderBy('number')
-            ->limit(Yii::$app->params['maxLinesAutoComplete'])
-            ->distinct()
-            ->asArray()->all();
+        $data = [];
+        if (in_array($this->term_name, self::COLUMN_SEARCH)) {
+            $data = Device::find()
+                ->select(["$this->term_name as value"])
+                ->where(['deleted' => Status::NOT_DELETED])
+                ->andOnCondition("$this->term_name LIKE :term", [':term' => $this->term . '%'])
+                ->orderBy($this->term_name)
+                ->limit(Yii::$app->params['maxLinesAutoComplete'])
+                ->distinct()
+                ->asArray()->all();
+        }
         return json_encode($data);
     }
 }
+// TODO: получение запросов через помошник
+// TODO: :del перезаписывается

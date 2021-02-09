@@ -14,7 +14,7 @@ use yii\web\JsExpression;
 class WordSearch extends Word
 {
     public $firstCategory, $secondCategory, $thirdCategory;
-    public $term, $parent;
+    public $term, $term_parent;
 
     /**
      * {@inheritdoc}
@@ -23,10 +23,10 @@ class WordSearch extends Word
     {
         return [
             [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted', 'parent_id'], 'integer'],
-            [['name', 'value', 'description'], 'string', 'min' => 1, 'max' => 20],
+            [['name', 'value', 'description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
-            [['firstCategory', 'secondCategory', 'thirdCategory'], 'string', 'min' => 1, 'max' => 20],
-            [['term', 'parent'], 'string', 'min' => 1, 'max' => 20]
+            [['firstCategory', 'secondCategory', 'thirdCategory'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['term', 'term_parent'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']]
         ];
     }
 
@@ -115,7 +115,6 @@ class WordSearch extends Word
         return '';
     }
 
-
     public static function getAutoCompleteOptions($attribute)
     {
         return [
@@ -123,7 +122,7 @@ class WordSearch extends Word
                 'source' => new JsExpression("function(request, response) {
                     $.getJSON('" . Url::to('list-auto-complete') . "', {
                         term: request.term,
-                        parent: $('#{$attribute}').val(),
+                        term_parent: $('#{$attribute}').val(),
                     }, response);
                 }"),
                 'minLength' => 3,
@@ -144,7 +143,7 @@ class WordSearch extends Word
     {
         $data = [];
         list('condition' => $condition, 'bind' => $bind) =
-            Word::getConditionLikeName($this->parent, $depth, $withParent);
+            Word::getConditionLikeName('parent_id', $this->term_parent, $depth, $withParent);
         if (isset($condition)){
             $data = Word::find()
                 ->select(['name as value'])

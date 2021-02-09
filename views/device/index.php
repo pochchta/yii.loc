@@ -4,9 +4,7 @@ use app\models\DeviceSearch;
 use app\models\Status;
 use yii\helpers\Html;
 use yii\grid\GridView;
-use yii\helpers\Url;
 use yii\jui\AutoComplete;
-use yii\web\JsExpression;
 use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
@@ -111,22 +109,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
                     'attribute' => $attribute = 'number',
-                    'clientOptions' => [
-                        'source' => new JsExpression("function(request, response) {
-                            $.getJSON('" . Url::to('/device/list-auto-complete') . "', {
-                                number: request.term,
-                            }, response);
-                        }"),
-                        'select' => new JsExpression("function(event, ui) {
-                            selectAutoComplete(event, ui, '$attribute');
-                        }"),
-                        'minLength' => Yii::$app->params['minSymbolsAutoComplete'],
-                        'delay' => Yii::$app->params['delayAutoComplete']
-                    ],
-                    'options' => [
-                        'class' => 'form-control',
-                    ]
-                ])
+                ] + DeviceSearch::getAutoCompleteOptions($attribute))
             ],
             [
                 'attribute' => 'deleted',

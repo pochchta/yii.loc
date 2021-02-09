@@ -141,16 +141,16 @@ class Word extends ActiveRecord
                 }
                 if ($depth <= self::MAX_NUMBER_PARENTS) {
                     if (self::find()->andOnCondition(
-                        'parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :del) AND deleted = :del',
-                        [':id' => $this->id, ':del' => Status::NOT_DELETED]
+                        'parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :not_del) AND deleted = :not_del',
+                        [':id' => $this->id, ':not_del' => Status::NOT_DELETED]
                     )->one() !== NULL) {
                         $depth++;
                     }
                 }
                 if ($depth <= self::MAX_NUMBER_PARENTS) {
                     if (self::find()->andOnCondition(
-                        'parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :del) AND deleted = :del) AND deleted = :del',
-                        [':id' => $this->id, ':del' => Status::NOT_DELETED])->one() !== NULL) {
+                        'parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :not_del) AND deleted = :not_del) AND deleted = :not_del',
+                        [':id' => $this->id, ':not_del' => Status::NOT_DELETED])->one() !== NULL) {
                         $depth++;
                     }
                 }
@@ -177,28 +177,30 @@ class Word extends ActiveRecord
             $parentId = $parent->id;
         }
         if (isset($parentId)) {
-            return self::getConditionById($parentId, $depth, $withParent);
+            return self::getConditionById('parent_id', $parentId, $depth, $withParent);
         }
         return NULL;
     }
 
     /** Получение условия по id родителя для запроса дочерних элементов
+     * @param $columnName
      * @param $parentId
      * @param int $depth
      * @param bool $withParent
      * @return array
      */
-    public static function getConditionById($parentId, $depth = 1, $withParent = false)
+    public static function getConditionById($columnName, $parentId, $depth = 1, $withParent = false)
     {
         $condition = NULL;
+        $bindName = uniqid(':');
         if ($parentId == Status::NOT_CATEGORY || $parentId == Status::ALL) {
-            $condition1 = 'parent_id < :id';
-            $condition2 = 'parent_id IN (SELECT id FROM word WHERE parent_id < :id AND deleted = :del)';
-            $condition3 = 'parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id < :id AND deleted = :del) AND deleted = :del)';
+            $condition1 = "$columnName < $bindName";
+            $condition2 = "$columnName IN (SELECT id FROM word WHERE $condition1 AND deleted = :not_del)";
+            $condition3 = "$columnName IN (SELECT id FROM word WHERE $condition2 AND deleted = :not_del)";
         } else {
-            $condition1 = 'parent_id = :id';
-            $condition2 = 'parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :del)';
-            $condition3 = 'parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :del) AND deleted = :del)';
+            $condition1 = "$columnName = $bindName";
+            $condition2 = "$columnName IN (SELECT id FROM word WHERE $condition1 AND deleted = :not_del)";
+            $condition3 = "$columnName IN (SELECT id FROM word WHERE $condition2 AND deleted = :not_del)";
         }
         if ($depth == 3) {
             $condition = $condition3;
@@ -213,9 +215,9 @@ class Word extends ActiveRecord
         } else {
             $condition = $condition1;
         }
-        $bind = [':id' => $parentId];
+        $bind = [$bindName => $parentId];
         if ($depth != 1) {
-            $bind += [':del' => Status::NOT_DELETED];
+            $bind += [':not_del' => Status::NOT_DELETED];
         }
 
         return [
@@ -224,19 +226,19 @@ class Word extends ActiveRecord
         ];
     }
 
-    public static function getConditionLikeName($parentName, $depth = 1, $withParent = false)
+    public static function getConditionLikeName($columnName, $parentName, $depth = 1, $withParent = false)
     {
         if (isset(Word::FIELD_WORD[ucfirst($parentName)])) {
             $parentId = Word::FIELD_WORD[ucfirst($parentName)];
-            return self::getConditionById($parentId, $depth, $withParent);
+            return self::getConditionById('parent_id', $parentId, $depth, $withParent);
         } else {
             $condition = NULL;
             $bind = [];
             $bindName = uniqid(':');
             if (empty($parentName) == false) {
-                $condition1 = "parent_id IN (SELECT id FROM word WHERE name LIKE $bindName AND deleted = :del)";
-                $condition2 = "parent_id IN (SELECT id FROM word WHERE $condition1 AND deleted = :del)";
-                $condition3 = "parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE $condition1 AND deleted = :del) AND deleted = :del)";
+                $condition1 = "$columnName IN (SELECT id FROM word WHERE name LIKE $bindName AND deleted = :not_del)";
+                $condition2 = "$columnName IN (SELECT id FROM word WHERE $condition1 AND deleted = :not_del)";
+                $condition3 = "$columnName IN (SELECT id FROM word WHERE $condition2 AND deleted = :not_del)";
                 if ($depth == 3) {
                     $condition = $condition3;
                     if ($withParent) {
@@ -250,7 +252,7 @@ class Word extends ActiveRecord
                 } else {
                     $condition = $condition1;
                 }
-                $bind = [$bindName => $parentName . '%', ':del' => Status::NOT_DELETED];
+                $bind = [$bindName => $parentName . '%', ':not_del' => Status::NOT_DELETED];
             }
         }
 
@@ -271,7 +273,7 @@ class Word extends ActiveRecord
     public static function getAllNames($parentId = Status::NOT_CATEGORY, $depth = 1, $withParent = false, $passId = NULL)
     {
         list('condition' => $condition, 'bind' => $bind) =
-            Word::getConditionById($parentId, $depth, $withParent);
+            Word::getConditionById('parent_id', $parentId, $depth, $withParent);
 
         $query = self::find()->select(['id', 'name', 'parent_id'])
             ->where(['deleted' => Status::NOT_DELETED])
@@ -287,149 +289,6 @@ class Word extends ActiveRecord
             $outArray[$item['id']] = $item['name'];
         }
         return $outArray;
-    }
-
-    /**
-     * Возвращает списки для фильтров словаря и условия для фильтрации;
-     * модификация $params[firstCategoryName, ...] (приведение к int или если значения не верны)
-     * @param $params array ссылка на массив параметров запроса
-     * @param $category int корневой раздел словаря
-     * @return array ['condition' => string, 'bind' => array]
-     */
-    public static function getArrFilters(& $params, $category)
-    {
-        $arrFirstCategory = [Status::ALL => 'все', Status::NOT_CATEGORY => 'нет'];
-        $arrSecondCategory = [];
-        $arrThirdCategory = [];
-
-        if (in_array($category, self::FIELD_WORD)) {
-
-            // получение массивов фильтров
-            $categoryName = array_search($category, self::FIELD_WORD);
-
-            $firstCategory = & $params['first' . $categoryName];
-            $secondCategory = & $params['second' . $categoryName];
-            $thirdCategory = & $params['third' . $categoryName];
-
-            $firstCategory = $firstCategory ?? Status::ALL;
-            $secondCategory = $secondCategory ?? Status::ALL;
-            $thirdCategory = $thirdCategory ?? Status::ALL;
-
-            $firstCategory = (int) $firstCategory;
-            $secondCategory = (int) $secondCategory;
-            $thirdCategory = (int) $thirdCategory;
-
-            $arrFirstCategory += self::getAllNames($category);
-            if ($firstCategory == Status::NOT_CATEGORY) {
-                $arrThirdCategory = self::getAllNames($category, 1);
-                $secondCategory = Status::ALL;
-            } else {
-                if ($firstCategory == Status::ALL) {
-                    $arrSecondCategory = self::getAllNames($category, 2);
-                } else {
-                    $arrSecondCategory = self::getAllNames($firstCategory);
-                    if (empty($arrSecondCategory) == false) {
-                        $arrSecondCategory = [Status::NOT_CATEGORY => 'нет'] + $arrSecondCategory;
-                    }
-                }
-                if (isset($arrSecondCategory[$secondCategory]) == false) {
-                    $secondCategory = Status::ALL;
-                }
-                if ($secondCategory == Status::NOT_CATEGORY) {
-                    $arrThirdCategory = self::getAllNames($firstCategory, 1);
-                } elseif ($secondCategory == Status::ALL) {
-                    if ($firstCategory == Status::ALL) {
-                        $arrThirdCategory = self::getAllNames($category, 3, true);
-                    } else {
-                        $arrThirdCategory = self::getAllNames($firstCategory, 2, true);
-                    }
-                } else {
-                    $arrThirdCategory = self::getAllNames($secondCategory);
-                }
-            }
-            if (isset($arrThirdCategory[$thirdCategory]) == false) {
-                $thirdCategory = Status::ALL;
-            }
-            $arrSecondCategory = [Status::ALL => 'все'] + $arrSecondCategory;
-            $arrThirdCategory = [Status::ALL => 'все'] + $arrThirdCategory;
-
-            // вычисление parentId для фильтра
-            $conditionDepth = NULL;
-            $conditionParentId = NULL;
-            if ($thirdCategory != Status::ALL) {
-                $conditionParentId = $thirdCategory;
-                $conditionDepth = 0;
-            } elseif ($secondCategory != Status::ALL) {
-                if ($secondCategory == Status::NOT_CATEGORY) {
-                    $conditionParentId = $firstCategory;
-                    $conditionDepth = 1;
-                } else {
-                    $conditionParentId = $secondCategory;
-                    $conditionDepth = 2;
-                }
-            } elseif ($firstCategory != Status::ALL) {
-                if ($firstCategory == Status::NOT_CATEGORY) {
-                    $conditionParentId = $category;
-                    $conditionDepth = 1;
-                } else {
-                    $conditionParentId = $firstCategory;
-                    $conditionDepth = 3;
-                }
-            }
-
-            // подготовка фильтров
-            $condition = NULL;
-            $bind = [":{$categoryName}" => $conditionParentId, ':del' => Status::NOT_DELETED];
-            $columnName = strtolower($categoryName) . '_id';    // categoryName проверяется по списку self::FIELD_WORD
-            $condition1 = "{$columnName} IN (SELECT id FROM word WHERE parent_id = :{$categoryName} AND deleted = :del)";
-            $condition2 = "{$columnName} IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id = :{$categoryName} AND deleted = :del) AND deleted = :del)";
-            $condition3 = "{$columnName} IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id = :{$categoryName} AND deleted = :del) AND deleted = :del) AND deleted = :del)";
-            if ($conditionDepth === 0) {            // word
-                $condition = "{$columnName} = :{$categoryName}";
-                $bind = [":{$categoryName}" => $conditionParentId];     // перезапись bind
-            }
-            elseif ($conditionDepth === 1) {
-                $condition = $condition1;
-            } elseif($conditionDepth === 2) {
-                $condition = $condition1 . ' OR ' . $condition2;
-            } elseif ($conditionDepth === 3) {
-                $condition = $condition1 . ' OR ' . $condition2 . ' OR ' . $condition3;
-            }
-
-        }
-
-        return [
-            'array' => compact('arrFirstCategory', 'arrSecondCategory', 'arrThirdCategory'),
-            'condition' => compact('condition', 'bind')
-        ];
-    }
-
-    /**
-     * заполнение параметров из модели
-     * @param array $params модифицируемые параметры запроса
-     * @param Word $model
-     * @param int $category значение из self::FIELD_WORD[]
-     */
-    public static function setParams(& $params, $model, $category) {
-        if (in_array($category, self::FIELD_WORD) && $model !== NULL) {
-            $categoryName = array_search($category, self::FIELD_WORD);
-
-            $firstCategory = & $params['first' . $categoryName];
-            $secondCategory = & $params['second' . $categoryName];
-            $thirdCategory = & $params['third' . $categoryName];
-
-            $thirdCategory = $model->id;
-            if ($model->parent === NULL) {                                  //      /слово
-                $firstCategory  = Status::NOT_CATEGORY;
-                $secondCategory = Status::ALL;
-            } elseif ($model->parent->parent === NULL) {                    //      //слово
-                $firstCategory = $model->parent_id;
-                $secondCategory = Status::NOT_CATEGORY;
-            } else {                                                        //      ///слово
-                $firstCategory = $model->parent->parent_id;
-                $secondCategory = $model->parent_id;
-            }
-        }
     }
 
     public static function getParentName ($model, $n = 0) {

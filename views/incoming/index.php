@@ -1,5 +1,7 @@
 <?php
 
+use app\models\DeviceSearch;
+use app\models\Incoming;
 use app\models\Status;
 use yii\helpers\Html;
 use yii\grid\GridView;
@@ -41,8 +43,6 @@ $this->params['breadcrumbs'][] = $this->title;
         'timeout' => Yii::$app->params['pjaxTimeout']
     ]) ?>
 
-<!--    --><?php // echo $this->render('/device/_search', ['model' => $searchModel]); ?>
-
     <?= GridView::widget([
         'id' => 'grid_id',
         'dataProvider' => $dataProvider,
@@ -50,7 +50,6 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
-//            'id',
             [
                 'attribute' => 'device_id',
                 'format' => 'html',
@@ -64,47 +63,37 @@ $this->params['breadcrumbs'][] = $this->title;
                 'label' => 'ID приб.',
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
-                    'attribute' => 'device_id',
-                    'clientOptions' => [
-                        'source' => ['123', '1234'],
-                    ],
-                ])
-            ],
-/*            [
-                'attribute' => 'device.department_id',
-                'value' => function ($model) {
-                    return $model->device->department->name;
-                },
-                'filter' => ''
+                    'attribute' => $attribute = 'device_id',
+                ] + DeviceSearch::getAutoCompleteOptions($attribute))
             ],
             [
-                'attribute' => 'device.scale_id',
+                'attribute' => 'device.name_id',
                 'value' => function ($model) {
-                    return $model->device->scale->name;
+                    return $model->device->wordName->name;
                 },
-                'filter' => ''
-            ],
-            [
-                'attribute' => 'device.name',
-                'filter' => Html::activeInput(
-                    'text',
-                    $searchModel,
-                    'deviceName',
-                    ['class' => 'form-control']
-                ),
-                'label' => 'Имя приб.'
+                'filter' => AutoComplete::widget([
+                    'model' => $searchModel,
+                    'attribute' => 'deviceName',
+                ] + DeviceSearch::getAutoCompleteOptions('name'))
             ],
             [
                 'attribute' => 'device.number',
-                'filter' => Html::activeInput(
-                    'text',
-                    $searchModel,
-                    'deviceNumber',
-                    ['class' => 'form-control']
-                ),
+                'filter' => AutoComplete::widget([
+                    'model' => $searchModel,
+                    'attribute' => 'deviceNumber',
+                ] + DeviceSearch::getAutoCompleteOptions('number')),
                 'label' => '№ приб.'
             ],
-            'description:ntext',
+            [
+                'attribute' => 'device.department_id',
+                'value' => function ($model) {
+                    return $model->device->wordDepartment->name;
+                },
+                'filter' => AutoComplete::widget([
+                    'model' => $searchModel,
+                    'attribute' => 'deviceDepartment',
+                ] + DeviceSearch::getAutoCompleteOptions('department')),
+            ],
             [
                 'attribute' => 'status',
                 'format' => 'html',
@@ -140,7 +129,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     Incoming::PAID => 'да',
 
                 ]),
-            ],*/
+            ],
             [
                 'attribute' => 'created_at',
                 'format' => 'date',

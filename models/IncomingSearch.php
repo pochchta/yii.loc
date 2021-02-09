@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 
@@ -15,20 +16,8 @@ class IncomingSearch extends Incoming
     public $limit = self::DEFAULT_LIMIT_RECORDS;
 
     public $created_at_start, $created_at_end, $updated_at_start, $updated_at_end;
-    public $deviceName, $deviceNumber;
-
-    public $firstDepartment;     // категории
-    public $secondDepartment;
-    public $thirdDepartment;
-    public $firstScale;
-    public $secondScale;
-    public $thirdScale;
-
-    public $arrDepartment;     // массивы для фильтров
-    public $arrScale;
-
-    public $condDepartment;    // получившееся условие для фильтра
-    public $condScale;
+    public $deviceName, $deviceNumber, $deviceDepartment;
+    public $term, $term_name;
     /**
      * {@inheritdoc}
      */
@@ -36,26 +25,13 @@ class IncomingSearch extends Incoming
     {
         return [
             [['id', 'device_id', 'status', 'payment', 'created_by', 'updated_by', 'deleted'], 'integer'],
-            [['description'], 'string', 'max' => 64],
-            [['created_at_start', 'created_at_end', 'updated_at_start', 'updated_at_end'], 'string', 'max' => 64],
+            [['description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['created_at_start', 'created_at_end', 'updated_at_start', 'updated_at_end'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['status'], 'default', 'value' => Status::ALL],
             [['payment'], 'default', 'value' => Status::ALL],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
-            [['deviceName'], 'string', 'max' => 64],
-            [['deviceNumber'], 'integer'],
-            [['firstDepartment', 'secondDepartment', 'thirdDepartment', 'firstScale', 'secondScale', 'thirdScale'], 'integer']
-        ];
-    }
-
-    public function attributeLabels()
-    {
-        return [
-            'firstDepartment' => 'Цеха',
-            'secondDepartment' => '->',
-            'thirdDepartment' => '->',
-            'firstScale' => 'Шкалы',
-            'secondScale' => '->',
-            'thirdScale' => '->',
+            [['deviceName', 'deviceNumber', 'deviceDepartment'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['term', 'term_name'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']]
         ];
     }
 
@@ -85,11 +61,6 @@ class IncomingSearch extends Incoming
             'query' => $query,
         ]);
         $dataProvider->pagination->pageSize = $this->limit;
-
-        list('array' => $this->arrDepartment, 'condition' => $this->condDepartment) =
-            Word::getArrFilters($params, Word::FIELD_WORD['Department']);
-        list('array' => $this->arrScale, 'condition' => $this->condScale) =
-            Word::getArrFilters($params, Word::FIELD_WORD['Scale']);
 
         $this->load($params);
 
@@ -145,30 +116,35 @@ class IncomingSearch extends Incoming
             );
         }
 
-        if ($this->condDepartment['condition'] !== NULL) {
-            $bind = $this->condDepartment['bind'];
-            $bind[':del'] = Status::NOT_DELETED;
-
-            $query->andOnCondition(
-                'device_id IN (SELECT id FROM device WHERE ' . $this->condDepartment['condition'] . ' AND deleted = :del)',
-                $bind
-            );
-        }
-
-        if ($this->condScale['condition'] !== NULL) {
-            $bind = $this->condScale['bind'];
-            $bind[':del'] = Status::NOT_DELETED;
-
-            $query->andOnCondition(
-                'device_id IN (SELECT id FROM device WHERE ' . $this->condScale['condition'] . ' AND deleted = :del)',
-                $bind
-            );
-        }
-
         return $dataProvider;
     }
 
-    public function formName() {
+    public function formName()
+    {
         return '';
     }
+
+/*    public static function getAutoCompleteOptions($attribute)
+    {
+        $parent = "'". (isset(Word::FIELD_WORD[ucfirst($attribute)]) ? $attribute : '') . "'";
+        return [
+            'clientOptions' => [
+                'source' => new JsExpression("function(request, response) {
+                    $.getJSON('" . Url::to('/incoming/list-auto-complete') . "', {
+                        term: request.term,
+                        term_name: {$attribute},
+                        term_parent: {$parent}
+                    }, response);
+                }"),
+                'select' => new JsExpression("function(event, ui) {
+                    selectAutoComplete(event, ui, '$attribute');
+                }"),
+                'minLength' => Yii::$app->params['minSymbolsAutoComplete'],
+                'delay' => Yii::$app->params['delayAutoComplete']
+            ],
+            'options' => [
+                'class' => 'form-control',
+            ]
+        ];
+    }*/
 }

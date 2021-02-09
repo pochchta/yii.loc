@@ -11,7 +11,7 @@ return [
 
     'delayDateInput' => 1000,           // ms, задержка перед отправкой фильтра input type = date
 
-//    'maxLenGetParam' => 20,             // максимальная длина GET параметра
+    'maxLengthSearchParam' => 20,       // максимальная длина параметра поиска
 
     'delayAutoComplete' => 500,
     'minSymbolsAutoComplete' => 3,
