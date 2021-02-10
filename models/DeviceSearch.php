@@ -80,52 +80,18 @@ class DeviceSearch extends Device
         $query->andFilterWhere(['like', 'description', $this->description]);
         $query->andFilterWhere(['like', 'number', $this->number]);
 
-        if (strlen($this->name)) {
-            list('condition' => $condition, 'bind' => $bind) =
-                Word::getConditionLikeName('name_id', $this->name, 3, true);
-            $query->andOnCondition($condition, $bind);
-        }
-
-        if (strlen($this->type)) {
-            $query->andOnCondition(
-                'type_id IN (SELECT id FROM word WHERE name LIKE :type AND deleted = :del) OR '
-                . 'type_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :type AND deleted = :del) AND deleted = :del) OR '
-                . 'type_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :type AND deleted = :del) AND deleted = :del) AND deleted = :del)',
-                [':type' => $this->type . '%', ':del' => Status::NOT_DELETED]
-            );
-        }
-
-        if (strlen($this->department)) {    // глубина 2
-            $query->andOnCondition(
-                'department_id IN (SELECT id FROM word WHERE name LIKE :department AND deleted = :del) OR '
-                . 'department_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :department AND deleted = :del) AND deleted = :del)',
-                [':department' => $this->department . '%', ':del' => Status::NOT_DELETED]
-            );
-        }
-
-        if (strlen($this->position)) {      // глубина 1
-            $query->andOnCondition(
-                'position_id IN (SELECT id FROM word WHERE name LIKE :position AND deleted = :del)',
-                [':position' => $this->position . '%', ':del' => Status::NOT_DELETED]
-            );
-        }
-
-        if (strlen($this->scale)) {
-            $query->andOnCondition(
-                'scale_id IN (SELECT id FROM word WHERE name LIKE :scale AND deleted = :del) OR '
-                . 'scale_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :scale AND deleted = :del) AND deleted = :del) OR '
-                . 'scale_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :scale AND deleted = :del) AND deleted = :del) AND deleted = :del)',
-                [':scale' => $this->scale . '%', ':del' => Status::NOT_DELETED]
-            );
-        }
-
-        if (strlen($this->accuracy)) {
-            $query->andOnCondition(
-                'accuracy_id IN (SELECT id FROM word WHERE name LIKE :accuracy AND deleted = :del) OR '
-                . 'accuracy_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :accuracy AND deleted = :del) AND deleted = :del) OR '
-                . 'accuracy_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE name LIKE :accuracy AND deleted = :del) AND deleted = :del) AND deleted = :del)',
-                [':accuracy' => $this->accuracy . '%', ':del' => Status::NOT_DELETED]
-            );
+        foreach(['name', 'type', 'department', 'position', 'scale', 'accuracy'] as $item) {
+            $depth = 3;
+            if ($item == 'department') {
+                $depth = 2;
+            } elseif ($item == 'position') {
+                $depth = 1;
+            }
+            if (strlen($this->$item)) {
+                list('condition' => $condition, 'bind' => $bind) =
+                    Word::getConditionLikeName("{$item}_id", $this->$item, $depth, true);
+                $query->andOnCondition($condition, $bind);
+            }
         }
 
         if ($this->deleted != Status::ALL) {
@@ -191,5 +157,3 @@ class DeviceSearch extends Device
         return json_encode($data);
     }
 }
-// TODO: получение запросов через помошник
-// TODO: :del перезаписывается

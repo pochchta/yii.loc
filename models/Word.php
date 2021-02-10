@@ -192,16 +192,19 @@ class Word extends ActiveRecord
     public static function getConditionById($columnName, $parentId, $depth = 1, $withParent = false)
     {
         $condition = NULL;
-        $bindName = uniqid(':');
+        $bindName = ":bind_$columnName";
         if ($parentId == Status::NOT_CATEGORY || $parentId == Status::ALL) {
-            $condition1 = "$columnName < $bindName";
-            $condition2 = "$columnName IN (SELECT id FROM word WHERE $condition1 AND deleted = :not_del)";
-            $condition3 = "$columnName IN (SELECT id FROM word WHERE $condition2 AND deleted = :not_del)";
+            $condition1 = "< $bindName";
+            $condition2 = "IN (SELECT id FROM word WHERE parent_id $condition1 AND deleted = :not_del)";
+            $condition3 = "IN (SELECT id FROM word WHERE parent_id $condition2 AND deleted = :not_del)";
         } else {
-            $condition1 = "$columnName = $bindName";
-            $condition2 = "$columnName IN (SELECT id FROM word WHERE $condition1 AND deleted = :not_del)";
-            $condition3 = "$columnName IN (SELECT id FROM word WHERE $condition2 AND deleted = :not_del)";
+            $condition1 = "= $bindName";
+            $condition2 = "IN (SELECT id FROM word WHERE parent_id $condition1 AND deleted = :not_del)";
+            $condition3 = "IN (SELECT id FROM word WHERE parent_id $condition2 AND deleted = :not_del)";
         }
+        $condition1 = "$columnName $condition1";
+        $condition2 = "$columnName $condition2";
+        $condition3 = "$columnName $condition3";
         if ($depth == 3) {
             $condition = $condition3;
             if ($withParent) {
@@ -234,11 +237,14 @@ class Word extends ActiveRecord
         } else {
             $condition = NULL;
             $bind = [];
-            $bindName = uniqid(':');
+            $bindName = ":bind_$columnName";
             if (empty($parentName) == false) {
-                $condition1 = "$columnName IN (SELECT id FROM word WHERE name LIKE $bindName AND deleted = :not_del)";
-                $condition2 = "$columnName IN (SELECT id FROM word WHERE $condition1 AND deleted = :not_del)";
-                $condition3 = "$columnName IN (SELECT id FROM word WHERE $condition2 AND deleted = :not_del)";
+                $condition1 = "IN (SELECT id FROM word WHERE name LIKE $bindName AND deleted = :not_del)";
+                $condition2 = "IN (SELECT id FROM word WHERE parent_id $condition1 AND deleted = :not_del)";
+                $condition3 = "IN (SELECT id FROM word WHERE parent_id $condition2 AND deleted = :not_del)";
+                $condition1 = "$columnName $condition1";
+                $condition2 = "$columnName $condition2";
+                $condition3 = "$columnName $condition3";
                 if ($depth == 3) {
                     $condition = $condition3;
                     if ($withParent) {

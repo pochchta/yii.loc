@@ -84,8 +84,8 @@ class WordSearch extends Word
                 $query->andFilterWhere(['parent_id' => $this->secondCategory]);
             } else {
                 $query->andOnCondition(
-                    'parent_id = :id OR parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :del)',
-                    [':id' => $this->secondCategory, ':del' => Status::NOT_DELETED]
+                    'parent_id = :id OR parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :not_del)',
+                    [':id' => $this->secondCategory, ':not_del' => Status::NOT_DELETED]
                 );
             }
         } elseif ($this->firstCategory != Status::ALL) {
@@ -96,9 +96,9 @@ class WordSearch extends Word
                 );
             } else {
                 $query->andOnCondition(
-                    'parent_id = :id OR parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :del)'
-                    .'OR parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :del) AND deleted = :del)',
-                    [':id' => $this->firstCategory, ':del' => Status::NOT_DELETED]
+                    'parent_id = :id OR parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :not_del)'
+                    .'OR parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :not_del) AND deleted = :not_del)',
+                    [':id' => $this->firstCategory, ':not_del' => Status::NOT_DELETED]
                 );
             }
         }

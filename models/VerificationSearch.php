@@ -107,20 +107,20 @@ class VerificationSearch extends Verification
 
         if ($this->deviceName != '') {
             $query->andOnCondition(
-                'device_id IN (SELECT id FROM device WHERE name LIKE :name AND deleted = :del)',
-                [':name' => '%' . $this->deviceName . '%', ':del' => Status::NOT_DELETED]
+                'device_id IN (SELECT id FROM device WHERE name LIKE :name AND deleted = :not_del)',
+                [':name' => '%' . $this->deviceName . '%', ':not_del' => Status::NOT_DELETED]
             );
         }
         if ($this->deviceNumber != '') {
             $query->andOnCondition(
-                'device_id IN (SELECT id FROM device WHERE number = :number AND deleted = :del)',
-                [':number' => $this->deviceNumber, ':del' => Status::NOT_DELETED]
+                'device_id IN (SELECT id FROM device WHERE number = :number AND deleted = :not_del)',
+                [':number' => $this->deviceNumber, ':not_del' => Status::NOT_DELETED]
             );
         }
         if ($this->deviceIdDepartment != '' && $this->deviceIdDepartment != Status::ALL) {
             $query->andOnCondition(
-                'device_id IN (SELECT id FROM device WHERE department_id = :id AND deleted = :del)',
-                [':id' => $this->deviceIdDepartment, ':del' => Status::NOT_DELETED]
+                'device_id IN (SELECT id FROM device WHERE department_id = :id AND deleted = :not_del)',
+                [':id' => $this->deviceIdDepartment, ':not_del' => Status::NOT_DELETED]
             );
         }
 
