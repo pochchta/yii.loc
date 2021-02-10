@@ -30,8 +30,12 @@ $this->params['breadcrumbs'][] = $this->title;
     <p>
         <?= Html::a('Печать списка', array_merge(['print-list'], $params), [
             'class' => 'btn btn-warning',
+            'data' => ['pjax' => 0]
         ]) ?>
-        <?= Html::a('Создать новую запись', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Создать новую запись', ['create'], [
+            'class' => 'btn btn-success',
+            'data' => ['pjax' => 0]
+        ]) ?>
     </p>
 
     <?= GridView::widget([
