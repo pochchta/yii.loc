@@ -13,7 +13,7 @@ use yii\widgets\ActiveForm;
 <p><?=
     'Относится к прибору: '
     . Html::a(
-        $model->device->name . ', №' . $model->device->number . ($model->device->deleted == Status::DELETED ? ' (удален)' : ''),
+        $model->device->wordName->name . ', №' . $model->device->number . ($model->device->deleted == Status::DELETED ? ' (удален)' : ''),
         ['device/view', 'id' => $model->device_id]
     )
     ?></p>
@@ -24,7 +24,7 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'device_id')->dropDownList(
         [$model->device_id => $model->device->number]
-    ) ?>
+    )->label('№ прибора') ?>
 
     <?= $form->field($model, 'status')->dropDownList([
         Incoming::INCOMING => 'Принят',

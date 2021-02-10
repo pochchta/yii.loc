@@ -46,8 +46,8 @@ $this->registerCssFile('@web/css/user-print.css');
             ?>
             <tr>
                 <td><?= $n++ ?></td>
-                <td><?= $model->device->department->name ?></td>
-                <td><?= $model->device->name ?></td>
+                <td><?= $model->device->wordDepartment->name ?></td>
+                <td><?= $model->device->wordName->name ?></td>
                 <td><?= $model->device->number ?></td>
                 <td><?php
                     if ($model->status == Incoming::INCOMING) {

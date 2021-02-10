@@ -53,7 +53,7 @@ class IncomingSearch extends Incoming
      */
     public function search($params)
     {
-        $query = Incoming::find()->with('creator', 'updater', 'device.wordDepartment', 'device.wordScale');
+        $query = Incoming::find()->with('creator', 'updater', 'device.wordName', 'device.wordDepartment');
 
         // add conditions that should always apply here
 
@@ -103,16 +103,23 @@ class IncomingSearch extends Incoming
             $query->andFilterWhere(['<', 'updated_at', strtotime($this->updated_at_end)]);
         }
 
-        if ($this->deviceName != '') {
-            $query->andOnCondition(
-                'device_id IN (SELECT id FROM device WHERE name LIKE :name AND deleted = :not_del)',
-                [':name' => '%' . $this->deviceName . '%', ':not_del' => Status::NOT_DELETED]
-            );
+        foreach(['name', 'department'] as $item) {
+            $depth = 3;
+            if ($item == 'department') {
+                $depth = 2;
+            }
+            $field = $this->{'device' . ucfirst($item)};
+            if (strlen($field)) {
+                list('condition' => $condition, 'bind' => $bind) =
+                    Word::getConditionLikeName("{$item}_id", $field, $depth, true);
+                $query->andOnCondition("device_id IN (SELECT id FROM device WHERE $condition)", $bind);
+            }
         }
+
         if ($this->deviceNumber != '') {
             $query->andOnCondition(
-                'device_id IN (SELECT id FROM device WHERE number = :number AND deleted = :not_del)',
-                [':number' => $this->deviceNumber, ':not_del' => Status::NOT_DELETED]
+                'device_id IN (SELECT id FROM device WHERE number LIKE :number AND deleted = :not_del)',
+                [':number' => $this->deviceNumber . '%', ':not_del' => Status::NOT_DELETED]
             );
         }
 

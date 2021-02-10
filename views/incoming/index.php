@@ -22,9 +22,15 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= Html::encode($this->title) ?></h1>
 
+    <?php Pjax::begin([
+        'id' => 'my-pjax-container',
+        'timeout' => Yii::$app->params['pjaxTimeout']
+    ]) ?>
+
     <p>
         <?= Html::a('Печать списка', array_merge(['print-list'], $params), [
             'class' => 'btn btn-warning',
+            'data' => ['pjax' => 0]
         ]) ?>
     </p>
 
@@ -32,16 +38,12 @@ $this->params['breadcrumbs'][] = $this->title;
     <p><?=
         'Записи относятся только к прибору: '
         . Html::a(
-            $modelDevice->name . ', №' . $modelDevice->number . ($modelDevice->deleted == Status::DELETED ? ' (удален)' : ''),
-            ['device/view', 'id' => $modelDevice->id]
+            $modelDevice->wordName->name . ', №' . $modelDevice->number . ($modelDevice->deleted == Status::DELETED ? ' (удален)' : ''),
+            ['device/view', 'id' => $modelDevice->id],
+            ['data' => ['pjax' => 0]]
         )
     ?></p>
     <?php endif ?>
-
-    <?php Pjax::begin([
-        'id' => 'my-pjax-container',
-        'timeout' => Yii::$app->params['pjaxTimeout']
-    ]) ?>
 
     <?= GridView::widget([
         'id' => 'grid_id',
@@ -57,7 +59,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     return Html::a(
                         $model->device_id,
                         ['device/view', 'id' => $model->device_id],
-                        ['title' => $model->device->name . ', № ' . $model->device->number . ($model->device->deleted == Status::DELETED ? ' (удален)' : '')]
+                        ['title' => $model->device->wordName->name . ', № ' . $model->device->number . ($model->device->deleted == Status::DELETED ? ' (удален)' : '')]
                     );
                 },
                 'label' => 'ID приб.',

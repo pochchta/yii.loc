@@ -66,11 +66,11 @@ class Incoming extends ActiveRecord
     {
         return [
             [['device_id', 'status', 'payment'], 'required'],
-            [['device_id', 'status', 'payment'], 'integer'],
-            [['status', 'payment'], 'integer', 'max' => 255],
+            [['payment'], 'integer', 'min' => 0, 'max' => 1],
+            [['status'], 'integer', 'min' => 0, 'max' => 2],
             [['description'], 'string'],
             [['device_id'], 'exist', 'skipOnError' => true, 'targetClass' => Device::class, 'targetAttribute' => ['device_id' => 'id']],
-            [['device_id'], 'validateDeviceId']
+            [['device_id'], 'validateDeviceId'],
         ];
     }
 

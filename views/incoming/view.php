@@ -47,7 +47,7 @@ if ($model->deleted == Status::NOT_DELETED) {
             [
                 'format' => 'html',
                 'value' => Html::a(
-                    $model->device->name . ', №' . $model->device->number . ($model->device->deleted == Status::DELETED ? ' (удален)' : ''),
+                    $model->device->wordName->name . ', №' . $model->device->number . ($model->device->deleted == Status::DELETED ? ' (удален)' : ''),
                     ['device/view', 'id' => $model->device_id]
                 ),
                 'label' => 'Относится к прибору',
