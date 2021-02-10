@@ -22,17 +22,17 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= Html::encode($this->title) ?></h1>
 
+    <?php Pjax::begin([
+        'id' => 'my-pjax-container',
+        'timeout' => Yii::$app->params['pjaxTimeout'],
+    ]) ?>
+
     <p>
         <?= Html::a('Печать списка', array_merge(['print-list'], $params), [
             'class' => 'btn btn-warning',
         ]) ?>
         <?= Html::a('Создать новую запись', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
-
-    <?php Pjax::begin([
-        'id' => 'my-pjax-container',
-        'timeout' => Yii::$app->params['pjaxTimeout'],
-    ]) ?>
 
     <?= GridView::widget([
         'id' => 'grid_id',
