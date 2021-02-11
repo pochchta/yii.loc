@@ -107,10 +107,11 @@ class DeviceSearch extends Device
     }
 
     /**
-     * @param $attribute
+     * @param $attribute string
+     * @param $prefix string префикс для атрибута при поиске GET параметра и селектора
      * @return array
      */
-    public static function getAutoCompleteOptions($attribute)
+    public static function getAutoCompleteOptions($attribute, $prefix = '')
     {
         if ($attribute === 'position') {
             $parent = "$('#department').val() != '' ? $('#department').val() : 'position'";
@@ -122,12 +123,12 @@ class DeviceSearch extends Device
                 'source' => new JsExpression("function(request, response) {
                     $.getJSON('" . Url::to('/device/list-auto-complete') . "', {
                         term: request.term,
-                        term_name: '{$attribute}',                         
+                        term_name: '{$attribute}',
                         term_parent: {$parent},
                     }, response);
                 }"),
                 'select' => new JsExpression("function(event, ui) {
-                    selectAutoComplete(event, ui, '$attribute');
+                    selectAutoComplete(event, ui, '{$prefix}_{$attribute}');
                 }"),
                 'minLength' => Yii::$app->params['minSymbolsAutoComplete'],
                 'delay' => Yii::$app->params['delayAutoComplete']
