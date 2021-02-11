@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 
@@ -15,7 +16,8 @@ class VerificationSearch extends Verification
     public $limit = self::DEFAULT_LIMIT_RECORDS;
 
     public $last_date_start, $last_date_end, $next_date_start, $next_date_end;
-    public $deviceName, $deviceNumber, $deviceIdDepartment;
+    public $device_name, $device_number, $device_department;
+    public $term, $term_name;
 
     /**
      * {@inheritdoc}
@@ -25,12 +27,12 @@ class VerificationSearch extends Verification
     {
         return [
             [['id', 'device_id', 'period', 'created_at', 'updated_at', 'created_by', 'updated_by', 'status', 'deleted'], 'integer'],
-            [['name', 'type', 'description'], 'string', 'max' => 64],
-            [['last_date_start', 'last_date_end', 'next_date_start', 'next_date_end'], 'string', 'max' => 64],
+            [['name', 'type', 'description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['last_date_start', 'last_date_end', 'next_date_start', 'next_date_end'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['status'], 'default', 'value' => Verification::STATUS_ON],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
-            [['deviceName'], 'string', 'max' => 64],
-            [['deviceNumber', 'deviceIdDepartment'], 'integer'],
+            [['device_name', 'device_number', 'device_department'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['term', 'term_name'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']]
         ];
     }
 
@@ -52,7 +54,7 @@ class VerificationSearch extends Verification
      */
     public function search($params)
     {
-        $query = Verification::find()->with('creator', 'updater', 'device.department');
+        $query = Verification::find()->with('creator', 'updater', 'device.wordName', 'device.wordDepartment');
 
         // add conditions that should always apply here
 
@@ -65,7 +67,7 @@ class VerificationSearch extends Verification
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
+            $query->where('0=1');
             return $dataProvider;
         }
 
@@ -74,8 +76,6 @@ class VerificationSearch extends Verification
             'id' => $this->id,
             'device_id' => $this->device_id,
             'period' => $this->period,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
         ]);
@@ -105,22 +105,23 @@ class VerificationSearch extends Verification
             $query->andFilterWhere(['<', 'next_date', strtotime($this->next_date_end)]);
         }
 
-        if ($this->deviceName != '') {
-            $query->andOnCondition(
-                'device_id IN (SELECT id FROM device WHERE name LIKE :name AND deleted = :not_del)',
-                [':name' => '%' . $this->deviceName . '%', ':not_del' => Status::NOT_DELETED]
-            );
+        foreach(['name', 'department'] as $item) {
+            $depth = 3;
+            if ($item == 'department') {
+                $depth = 2;
+            }
+            $field = $this->{'device_' . $item};
+            if (strlen($field)) {
+                list('condition' => $condition, 'bind' => $bind) =
+                    Word::getConditionLikeName("{$item}_id", $field, $depth, true);
+                $query->andOnCondition("device_id IN (SELECT id FROM device WHERE $condition)", $bind);
+            }
         }
-        if ($this->deviceNumber != '') {
+
+        if ($this->device_number != '') {
             $query->andOnCondition(
-                'device_id IN (SELECT id FROM device WHERE number = :number AND deleted = :not_del)',
-                [':number' => $this->deviceNumber, ':not_del' => Status::NOT_DELETED]
-            );
-        }
-        if ($this->deviceIdDepartment != '' && $this->deviceIdDepartment != Status::ALL) {
-            $query->andOnCondition(
-                'device_id IN (SELECT id FROM device WHERE department_id = :id AND deleted = :not_del)',
-                [':id' => $this->deviceIdDepartment, ':not_del' => Status::NOT_DELETED]
+                'device_id IN (SELECT id FROM device WHERE number LIKE :number AND deleted = :not_del)',
+                [':number' => $this->device_number . '%', ':not_del' => Status::NOT_DELETED]
             );
         }
 

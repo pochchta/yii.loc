@@ -1,9 +1,12 @@
 <?php
 
+use app\models\DeviceSearch;
 use app\models\Status;
 use app\models\Verification;
 use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\jui\AutoComplete;
+use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\VerificationSearch */
@@ -19,9 +22,15 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= Html::encode($this->title) ?></h1>
 
+    <?php Pjax::begin([
+        'id' => 'my-pjax-container',
+        'timeout' => Yii::$app->params['pjaxTimeout']
+    ]) ?>
+
     <p>
         <?= Html::a('Печать списка', array_merge(['print-list'], $params), [
             'class' => 'btn btn-warning',
+            'data' => ['pjax' => 0]
         ]) ?>
     </p>
 
@@ -29,13 +38,15 @@ $this->params['breadcrumbs'][] = $this->title;
         <p><?=
             'Записи относятся только к прибору: '
             . Html::a(
-                $modelDevice->name . ', №' . $modelDevice->number . ($modelDevice->deleted == Status::DELETED ? ' (удален)' : ''),
-                ['device/view', 'id' => $modelDevice->id]
+                $modelDevice->wordName->name . ', №' . $modelDevice->number . ($modelDevice->deleted == Status::DELETED ? ' (удален)' : ''),
+                ['device/view', 'id' => $modelDevice->id],
+                ['data' => ['pjax' => 0]]
             )
-        ?></p>
+            ?></p>
     <?php endif ?>
 
     <?= GridView::widget([
+        'id' => 'grid_id',
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
@@ -48,41 +59,42 @@ $this->params['breadcrumbs'][] = $this->title;
                     return Html::a(
                         $model->device_id,
                         ['device/view', 'id' => $model->device_id],
-                        ['title' => $model->device->name . ', № ' . $model->device->number . ($model->device->deleted == Status::DELETED ? ' (удален)' : '')]
+                        ['title' => $model->device->wordName->name . ', № ' . $model->device->number . ($model->device->deleted == Status::DELETED ? ' (удален)' : '')]
                     );
                 },
-                'label' => 'ID приб.'
+                'label' => 'ID приб.',
+                'filter' => AutoComplete::widget([
+                        'model' => $searchModel,
+                        'attribute' => 'device_id',
+                    ] + DeviceSearch::getAutoCompleteOptions('id', 'device'))
             ],
             [
-                'attribute' => 'device.name',
-                'filter' => Html::activeInput(
-                    'text',
-                    $searchModel,
-                    'deviceName',
-                    ['class' => 'form-control']
-                ),
-                'label' => 'Имя приб.'
+                'attribute' => 'device.name_id',
+                'value' => function ($model) {
+                    return $model->device->wordName->name;
+                },
+                'filter' => AutoComplete::widget([
+                        'model' => $searchModel,
+                        'attribute' => 'device_name',
+                    ] + DeviceSearch::getAutoCompleteOptions('name', 'device'))
             ],
             [
                 'attribute' => 'device.number',
-                'filter' => Html::activeInput(
-                    'text',
-                    $searchModel,
-                    'deviceNumber',
-                    ['class' => 'form-control']
-                ),
+                'filter' => AutoComplete::widget([
+                        'model' => $searchModel,
+                        'attribute' => 'device_number',
+                    ] + DeviceSearch::getAutoCompleteOptions('number', 'device')),
                 'label' => '№ приб.'
             ],
             [
-                'attribute' => 'device.department.name',
+                'attribute' => 'device.department_id',
                 'value' => function ($model) {
-                    return $model->device->department->name;
+                    return $model->device->wordDepartment->name;
                 },
-/*                'filter' => Html::activeDropDownList(
-                    $searchModel,
-                    'deviceIdDepartment',
-                    [Status::ALL => 'все'] + Department::getAllNames()
-                )*/
+                'filter' => AutoComplete::widget([
+                        'model' => $searchModel,
+                        'attribute' => 'device_department',
+                    ] + DeviceSearch::getAutoCompleteOptions('department', 'device')),
             ],
             'type',
             [
@@ -176,5 +188,7 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
         ],
     ]); ?>
+
+    <?php Pjax::end() ?>
 
 </div>
