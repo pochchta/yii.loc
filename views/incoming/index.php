@@ -65,8 +65,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 'label' => 'ID приб.',
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
-                    'attribute' => $attribute = 'device_id',
-                ] + DeviceSearch::getAutoCompleteOptions($attribute))
+                    'attribute' => 'device_id',
+                ] + DeviceSearch::getAutoCompleteOptions('id'))
             ],
             [
                 'attribute' => 'device.name_id',
