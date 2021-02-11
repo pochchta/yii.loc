@@ -40,7 +40,7 @@ class VerificationController extends Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['create', 'update', 'delete'],
+                        'actions' => ['create', 'update', 'list-auto-complete', 'delete'],
                         'roles' => ['ChangingVerification'],
                     ],
                 ],
@@ -155,6 +155,16 @@ class VerificationController extends Controller
         return $this->render($view, [
             'model' => $model,
         ]);
+    }
+
+    public function actionListAutoComplete()
+    {
+        $modelSearch = new VerificationSearch();
+        $modelSearch->load(Yii::$app->request->queryParams);
+        if ($modelSearch->validate()) {
+            echo $modelSearch->findNames();
+        }
+        die();
     }
 
     /**

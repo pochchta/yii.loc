@@ -5,12 +5,15 @@ namespace app\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
+use yii\helpers\Url;
+use yii\web\JsExpression;
 
 /**
  * VerificationSearch represents the model behind the search form of `app\models\Verification`.
  */
 class VerificationSearch extends Verification
 {
+    const COLUMN_SEARCH = ['id', 'name', 'type'];
     const DEFAULT_LIMIT_RECORDS = 20;
     const PRINT_LIMIT_RECORDS = 500;
     public $limit = self::DEFAULT_LIMIT_RECORDS;
@@ -131,4 +134,46 @@ class VerificationSearch extends Verification
     public function formName() {
         return '';
     }
+
+    public static function getAutoCompleteOptions($attribute)
+    {
+        return [
+            'clientOptions' => [
+                'source' => new JsExpression("function(request, response) {
+                    $.getJSON('" . Url::to('/verification/list-auto-complete') . "', {
+                        term: request.term,
+                        term_name: '{$attribute}',
+                    }, response);
+                }"),
+                'select' => new JsExpression("function(event, ui) {
+                    selectAutoComplete(event, ui, '$attribute');
+                }"),
+                'minLength' => Yii::$app->params['minSymbolsAutoComplete'],
+                'delay' => Yii::$app->params['delayAutoComplete']
+            ],
+            'options' => [
+                'class' => 'form-control',
+            ]
+        ];
+    }
+
+    /** Поиск по номерам для AutoComplete
+     * @return false|string
+     */
+    public function findNames()
+    {
+        $data = [];
+        if (in_array($this->term_name, self::COLUMN_SEARCH)) {
+            $data = Verification::find()
+                ->select(["$this->term_name as value"])
+                ->where(['deleted' => Status::NOT_DELETED])
+                ->andOnCondition("$this->term_name LIKE :term", [':term' => $this->term . '%'])
+                ->orderBy($this->term_name)
+                ->limit(Yii::$app->params['maxLinesAutoComplete'])
+                ->distinct()
+                ->asArray()->all();
+        }
+        return json_encode($data);
+    }
+
 }
