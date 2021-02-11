@@ -66,7 +66,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
                     'attribute' => 'device_id',
-                ] + DeviceSearch::getAutoCompleteOptions('id'))
+                ] + DeviceSearch::getAutoCompleteOptions('id', 'device'))
             ],
             [
                 'attribute' => 'device.name_id',
@@ -75,15 +75,15 @@ $this->params['breadcrumbs'][] = $this->title;
                 },
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
-                    'attribute' => 'deviceName',
-                ] + DeviceSearch::getAutoCompleteOptions('name'))
+                    'attribute' => 'device_name',
+                ] + DeviceSearch::getAutoCompleteOptions('name', 'device'))
             ],
             [
                 'attribute' => 'device.number',
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
-                    'attribute' => 'deviceNumber',
-                ] + DeviceSearch::getAutoCompleteOptions('number')),
+                    'attribute' => 'device_number',
+                ] + DeviceSearch::getAutoCompleteOptions('number', 'device')),
                 'label' => '№ приб.'
             ],
             [
@@ -93,8 +93,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 },
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
-                    'attribute' => 'deviceDepartment',
-                ] + DeviceSearch::getAutoCompleteOptions('department')),
+                    'attribute' => 'device_department',
+                ] + DeviceSearch::getAutoCompleteOptions('department', 'device')),
             ],
             [
                 'attribute' => 'status',

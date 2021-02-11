@@ -64,9 +64,9 @@ $this->params['breadcrumbs'][] = $this->title;
                 },
                 'label' => 'ID приб.',
                 'filter' => AutoComplete::widget([
-                        'model' => $searchModel,
-                        'attribute' => 'device_id',
-                    ] + DeviceSearch::getAutoCompleteOptions('id', 'device'))
+                    'model' => $searchModel,
+                    'attribute' => 'device_id',
+                ] + DeviceSearch::getAutoCompleteOptions('id', 'device'))
             ],
             [
                 'attribute' => 'device.name_id',
@@ -74,16 +74,16 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $model->device->wordName->name;
                 },
                 'filter' => AutoComplete::widget([
-                        'model' => $searchModel,
-                        'attribute' => 'device_name',
-                    ] + DeviceSearch::getAutoCompleteOptions('name', 'device'))
+                    'model' => $searchModel,
+                    'attribute' => 'device_name',
+                ] + DeviceSearch::getAutoCompleteOptions('name', 'device'))
             ],
             [
                 'attribute' => 'device.number',
                 'filter' => AutoComplete::widget([
-                        'model' => $searchModel,
-                        'attribute' => 'device_number',
-                    ] + DeviceSearch::getAutoCompleteOptions('number', 'device')),
+                    'model' => $searchModel,
+                    'attribute' => 'device_number',
+                ] + DeviceSearch::getAutoCompleteOptions('number', 'device')),
                 'label' => '№ приб.'
             ],
             [
@@ -92,9 +92,9 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $model->device->wordDepartment->name;
                 },
                 'filter' => AutoComplete::widget([
-                        'model' => $searchModel,
-                        'attribute' => 'device_department',
-                    ] + DeviceSearch::getAutoCompleteOptions('department', 'device')),
+                    'model' => $searchModel,
+                    'attribute' => 'device_department',
+                ] + DeviceSearch::getAutoCompleteOptions('department', 'device')),
             ],
             'type',
             [

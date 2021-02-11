@@ -16,7 +16,7 @@ class IncomingSearch extends Incoming
     public $limit = self::DEFAULT_LIMIT_RECORDS;
 
     public $created_at_start, $created_at_end, $updated_at_start, $updated_at_end;
-    public $deviceName, $deviceNumber, $deviceDepartment;
+    public $device_name, $device_number, $device_department;
     public $term, $term_name;
     /**
      * {@inheritdoc}
@@ -30,7 +30,7 @@ class IncomingSearch extends Incoming
             [['status'], 'default', 'value' => Status::ALL],
             [['payment'], 'default', 'value' => Status::ALL],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
-            [['deviceName', 'deviceNumber', 'deviceDepartment'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['device_name', 'device_number', 'device_department'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['term', 'term_name'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']]
         ];
     }
@@ -66,7 +66,7 @@ class IncomingSearch extends Incoming
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
+            $query->where('0=1');
             return $dataProvider;
         }
 
@@ -108,7 +108,7 @@ class IncomingSearch extends Incoming
             if ($item == 'department') {
                 $depth = 2;
             }
-            $field = $this->{'device' . ucfirst($item)};
+            $field = $this->{'device_' . $item};
             if (strlen($field)) {
                 list('condition' => $condition, 'bind' => $bind) =
                     Word::getConditionLikeName("{$item}_id", $field, $depth, true);
@@ -116,10 +116,10 @@ class IncomingSearch extends Incoming
             }
         }
 
-        if ($this->deviceNumber != '') {
+        if ($this->device_number != '') {
             $query->andOnCondition(
                 'device_id IN (SELECT id FROM device WHERE number LIKE :number AND deleted = :not_del)',
-                [':number' => $this->deviceNumber . '%', ':not_del' => Status::NOT_DELETED]
+                [':number' => $this->device_number . '%', ':not_del' => Status::NOT_DELETED]
             );
         }
 
@@ -131,27 +131,4 @@ class IncomingSearch extends Incoming
         return '';
     }
 
-/*    public static function getAutoCompleteOptions($attribute)
-    {
-        $parent = "'". (isset(Word::FIELD_WORD[ucfirst($attribute)]) ? $attribute : '') . "'";
-        return [
-            'clientOptions' => [
-                'source' => new JsExpression("function(request, response) {
-                    $.getJSON('" . Url::to('/incoming/list-auto-complete') . "', {
-                        term: request.term,
-                        term_name: {$attribute},
-                        term_parent: {$parent}
-                    }, response);
-                }"),
-                'select' => new JsExpression("function(event, ui) {
-                    selectAutoComplete(event, ui, '$attribute');
-                }"),
-                'minLength' => Yii::$app->params['minSymbolsAutoComplete'],
-                'delay' => Yii::$app->params['delayAutoComplete']
-            ],
-            'options' => [
-                'class' => 'form-control',
-            ]
-        ];
-    }*/
 }
