@@ -10,7 +10,7 @@ use yii\widgets\DetailView;
 /* @var $model app\models\Verification */
 
 $this->title = $model->name;
-$this->params['breadcrumbs'][] = ['label' => $model->device->name, 'url' => ['device/view', 'id' => $model->device_id]];
+$this->params['breadcrumbs'][] = ['label' => $model->device->wordName->name, 'url' => ['device/view', 'id' => $model->device_id]];
 $this->params['breadcrumbs'][] = $this->title;
 YiiAsset::register($this);
 
@@ -47,7 +47,7 @@ if ($model->deleted == Status::NOT_DELETED) {
             [
                 'format' => 'html',
                 'value' => Html::a(
-                    $model->device->name . ', №' . $model->device->number . ($model->device->deleted == Status::DELETED ? ' (удален)' : ''),
+                    $model->device->wordName->name . ', №' . $model->device->number . ($model->device->deleted == Status::DELETED ? ' (удален)' : ''),
                     ['device/view', 'id' => $model->device_id]
                 ),
                 'label' => 'Относится к прибору',

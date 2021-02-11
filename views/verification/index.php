@@ -175,20 +175,21 @@ $this->params['breadcrumbs'][] = $this->title;
                     return
                         Html::a(
                             '<span class="glyphicon glyphicon-eye-open a-action"></span>',
-                            ['verification/view', 'id' => $model->id],
-                            ['title' => 'Просмотр']
+                            ['view', 'id' => $model->id],
+                            ['title' => 'Просмотр', 'data' => ['pjax' => 0]]
                         )
                         . Html::a(
                             '<span class="glyphicon glyphicon-pencil a-action"></span>',
-                            ['verification/update', 'id' => $model->id],
-                            ['title' => 'Редактировать']
+                            ['update', 'id' => $model->id],
+                            ['title' => 'Редактировать', 'data' => ['pjax' => 0]]
                         )
                         . Html::a(
                             '<span class="' . $deleteCssClass . '"></span>',
-                            ['verification/delete', 'id' => $model->id],
+                            ['delete', 'id' => $model->id],
                             ['title' => $deleteTitle, 'data' => [
                                 'method' => 'post',
-                                'confirm' => $deleteMessage
+                                'confirm' => $deleteMessage,
+                                'pjax' => 0
                             ]]
                         );
                 }

@@ -6,7 +6,7 @@ use yii\helpers\Html;
 /* @var $model app\models\Verification */
 
 $this->title = 'Изменение записи: ' . $model->name;
-$this->params['breadcrumbs'][] = ['label' => $model->device->name, 'url' => ['device/view', 'id' => $model->device_id]];
+$this->params['breadcrumbs'][] = ['label' => $model->device->wordName->name, 'url' => ['device/view', 'id' => $model->device_id]];
 $this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = 'Изменение';
 ?>
