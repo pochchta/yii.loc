@@ -11,8 +11,6 @@ use yii\widgets\Pjax;
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\WordSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
-/* @var $arrSecondCategory array */
-/* @var $arrThirdCategory array */
 
 $this->title = 'Словарь';
 $this->params['breadcrumbs'][] = $this->title;
@@ -31,57 +29,67 @@ $this->params['breadcrumbs'][] = $this->title;
     ]) ?>
 
     <?= GridView::widget([
+        'id' => 'grid_id',
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
             [
-                'attribute' => 'name',
+                'attribute' => $attribute = 'name',
                 'format' => 'html',
                 'value' => function ($model) {
                     return Html::a($model->name, ['view', 'id' => $model->id]);
                 },
+                'filter' => AutoComplete::widget([
+                    'model' => $searchModel,
+                    'attribute' => $attribute,
+                ] + WordSearch::getAutoCompleteOptions($attribute))
             ],
-            'value',
-            'description:ntext',
             [
-                'attribute' => $attribute = 'firstCategory',
+                'attribute' => $attribute = 'value',
+                'filter' => AutoComplete::widget([
+                    'model' => $searchModel,
+                    'attribute' => $attribute,
+                ] + WordSearch::getAutoCompleteOptions($attribute))
+            ],
+//            'description:ntext',
+            [
+                'attribute' => $attribute = 'first_category',
                 'format' => 'html',
                 'value' => function ($model) {
                     $arr = Word::getParentName($model);
                     return $arr['id'] > 0 ? Html::a($arr['name'], ['view', 'id' => $arr['id']]) : $arr['name'];
                 },
-                'filter' => AutoComplete::widget([
-                        'model' => $searchModel,
-                        'attribute' => $attribute,
-                ] + WordSearch::getAutoCompleteOptions($attribute))
+                'filter' => Html::activeDropDownList(
+                    $searchModel,
+                    $attribute,
+                    [Status::ALL => 'все'] + array_combine(array_keys(Word::FIELD_WORD), Word::LABEL_FIELD_WORD)
+                )
             ],
             [
-                'attribute' => 'secondCategory',
+                'attribute' => $attribute = 'second_category',
                 'format' => 'html',
                 'value' => function ($model) {
                     $arr = Word::getParentName($model, 1);
                     return $arr['id'] > 0 ? Html::a($arr['name'], ['view', 'id' => $arr['id']]) : $arr['name'];
                 },
-                'filter' => Html::activeDropDownList(
-                    $searchModel,
-                    'secondCategory',
-                    [Status::ALL => 'все'] + $arrSecondCategory
-                )
+                'filter' => AutoComplete::widget([
+                    'model' => $searchModel,
+                    'attribute' => $attribute,
+                ] + WordSearch::getAutoCompleteOptions($attribute))
             ],
             [
-                'attribute' => 'thirdCategory',
+                'attribute' => $attribute = 'third_category',
                 'format' => 'html',
                 'value' => function ($model) {
                     $arr = Word::getParentName($model, 2);
                     return $arr['id'] > 0 ? Html::a($arr['name'], ['view', 'id' => $arr['id']]) : $arr['name'];
                 },
-                'filter' => Html::activeDropDownList(
-                    $searchModel,
-                    'thirdCategory',
-                    [Status::ALL => 'все'] + $arrThirdCategory
-                )
+                'filter' => AutoComplete::widget([
+                    'model' => $searchModel,
+                    'attribute' => $attribute,
+                ] + WordSearch::getAutoCompleteOptions($attribute))
             ],
             [
                 'attribute' => 'deleted',

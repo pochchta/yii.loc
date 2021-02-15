@@ -31,6 +31,7 @@ class Word extends ActiveRecord
     const MAX_NUMBER_PARENTS = 3;       // максимальный уровень вложенности
 
     const FIELD_WORD = [
+        'Not' => 0,
         'Scale' => -11,
         'Department' => -12,
         'Type' => -13,
@@ -40,6 +41,7 @@ class Word extends ActiveRecord
     ];
 
     const LABEL_FIELD_WORD = [
+        self::FIELD_WORD['Not'] => 'нет',
         self::FIELD_WORD['Scale'] => 'Шкалы',
         self::FIELD_WORD['Department'] => 'Цеха',
         self::FIELD_WORD['Type'] => 'Типы приборов',
@@ -103,7 +105,7 @@ class Word extends ActiveRecord
                 }
             } else {
                 if (isset(self::FIELD_WORD[$this->categoryName])) {
-                    $this->parent_id = self::FIELD_WORD[$this->categoryName];
+                    $this->parent_id = self::FIELD_WORD[$this->categoryName];   // TODO not_category добавлен в массив
                 } elseif ($this->categoryName == Status::NOT_CATEGORY) {
                     $this->parent_id = Status::NOT_CATEGORY;
                 } else {
@@ -161,27 +163,6 @@ class Word extends ActiveRecord
         }
     }
 
-    /** Получение условия по имени родителя для запроса дочерних элементов
-     * @param $parentName
-     * @param int $depth
-     * @param bool $withParent
-     * @return null|array
-     */
-    public static function getConditionByName($parentName, $depth = 1, $withParent = false)
-    {
-        $parentName = ucfirst($parentName);
-        $parentId = NULL;
-        if (isset(Word::FIELD_WORD[$parentName])) {
-            $parentId = Word::FIELD_WORD[$parentName];
-        } elseif ($parent = Word::findOne(['name' => $parentName, 'deleted' => Status::NOT_DELETED])) {
-            $parentId = $parent->id;
-        }
-        if (isset($parentId)) {
-            return self::getConditionById('parent_id', $parentId, $depth, $withParent);
-        }
-        return NULL;
-    }
-
     /** Получение условия по id родителя для запроса дочерних элементов
      * @param $columnName
      * @param $parentId
@@ -192,9 +173,10 @@ class Word extends ActiveRecord
     public static function getConditionById($columnName, $parentId, $depth = 1, $withParent = false)
     {
         $condition = NULL;
-        $bindName = ":bind_$columnName";
-        if ($parentId == Status::NOT_CATEGORY || $parentId == Status::ALL) {
-            $condition1 = "< $bindName";
+        $bindName = ':' . $columnName . (int)$depth;
+        if ($parentId == Status::ALL) {
+            $parentId = 0;
+            $condition1 = "<= $bindName";
             $condition2 = "IN (SELECT id FROM word WHERE parent_id $condition1 AND deleted = :not_del)";
             $condition3 = "IN (SELECT id FROM word WHERE parent_id $condition2 AND deleted = :not_del)";
         } else {
@@ -237,7 +219,7 @@ class Word extends ActiveRecord
         } else {
             $condition = NULL;
             $bind = [];
-            $bindName = ":bind_$columnName";
+            $bindName = ':' . $columnName . (int)$depth;
             if (empty($parentName) == false) {
                 $condition1 = "IN (SELECT id FROM word WHERE name LIKE $bindName AND deleted = :not_del)";
                 $condition2 = "IN (SELECT id FROM word WHERE parent_id $condition1 AND deleted = :not_del)";
@@ -329,9 +311,9 @@ class Word extends ActiveRecord
             'updated_by' => 'Обновил',
             'deleted' => 'Удален',
             'parent_id' => 'Родительская категория',
-            'firstCategory' => 'Раздел',
-            'secondCategory' => 'Категория',
-            'thirdCategory' => 'Папка',
+            'first_category' => 'Раздел',
+            'second_category' => 'Категория',
+            'third_category' => 'Папка',
             'categoryName' => 'Раздел',
             'parentName' => 'Папка'
         ];

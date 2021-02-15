@@ -54,55 +54,11 @@ class WordController extends Controller
     {
         $searchModel = new WordSearch();
         $params = Yii::$app->request->queryParams;
-        $arrSecondCategory = [];
-        $arrThirdCategory = [];
-
-        $firstCategory = & $params['firstCategory'];
-        $secondCategory = & $params['secondCategory'];
-        $thirdCategory = & $params['thirdCategory'];
-
-        $firstCategory = $firstCategory ?? Status::ALL;
-        $secondCategory = $secondCategory ?? Status::ALL;
-        $thirdCategory = $thirdCategory ?? Status::ALL;
-
-        $firstCategory = (int) $firstCategory;
-        $secondCategory = (int) $secondCategory;
-        $thirdCategory = (int) $thirdCategory;
-
-        if ($firstCategory == Status::NOT_CATEGORY) {
-            $secondCategory = Status::ALL;
-            $thirdCategory = Status::ALL;
-        } else {
-            $arrSecondCategory = Word::getAllNames($firstCategory);
-            if ($firstCategory != Status::ALL && empty($arrSecondCategory) == false) {
-                $arrSecondCategory = [Status::NOT_CATEGORY => 'нет'] + $arrSecondCategory;
-            }
-            if (isset($arrSecondCategory[$secondCategory]) == false) {
-                $secondCategory = Status::ALL;
-            }
-            if ($secondCategory == Status::NOT_CATEGORY) {
-                $thirdCategory = Status::ALL;
-            } else {
-                if ($secondCategory == Status::ALL) {
-                    $arrThirdCategory = Word::getAllNames($firstCategory, 2);
-                } else {
-                    $arrThirdCategory = Word::getAllNames($secondCategory);
-                    if (empty($arrThirdCategory) == false) {
-                        $arrThirdCategory = [Status::NOT_CATEGORY => 'нет'] + $arrThirdCategory;
-                    }
-                }
-                if (isset($arrThirdCategory[$thirdCategory]) == false) {
-                    $thirdCategory = Status::ALL;
-                }
-            }
-        }
-        $arrSecondCategory = [Status::ALL => 'все'] + $arrSecondCategory;
-        $arrThirdCategory = [Status::ALL => 'все'] + $arrThirdCategory;
 
         $dataProvider = $searchModel->search($params);
 
         return $this->render('index', compact(
-            'searchModel', 'dataProvider', 'arrSecondCategory', 'arrThirdCategory'
+            'searchModel', 'dataProvider'
         ));
     }
 
@@ -201,10 +157,19 @@ class WordController extends Controller
 
     public function actionListAutoComplete()
     {
-        $search = new WordSearch();
-        $search->load(Yii::$app->request->queryParams);
-        if ($search->validate() && isset(Word::FIELD_WORD[$search->parent])) {
-            echo $search->findNames(2, true);
+        $modelSearch = new WordSearch();
+        $modelSearch->load(Yii::$app->request->queryParams);
+        if ($modelSearch->validate()) {
+            $depth = 0;
+            if ($modelSearch->term_name == 'second_category') {
+                $depth = 1;
+            } elseif ($modelSearch->term_name == 'third_category') {
+                $depth = 2;
+                if (strlen($modelSearch->term_parent)) {
+                    $depth = 1;
+                }
+            }
+            echo $modelSearch->findNames($depth, false);
         }
         die();
     }
