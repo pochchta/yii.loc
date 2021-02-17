@@ -14,6 +14,7 @@ window.onload = function() {
                 $(document)
                     .off("change.yiiGridView keydown.yiiGridView", filter_selector);
                 keyCode = 0;
+                enterPressed = false;
             })
             .on("change keydown", filter_text_and_select, function(event, valueChanged) {
                 if (event.type === "keydown" || valueChanged === true) {
