@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -50,7 +49,7 @@ class Word extends ActiveRecord
         self::FIELD_WORD['Accuracy'] => 'Точность',
     ];
 
-    public $categoryName, $parentName;
+    public $category_name, $parent_name;
 
     public static function tableName()
     {
@@ -78,35 +77,35 @@ class Word extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'categoryName'], 'required'],
-            [['name', 'value', 'categoryName', 'parentName'], 'string', 'max' => 255],
+            [['name', 'category_name'], 'required'],
+            [['name', 'value', 'category_name', 'parent_name'], 'string', 'max' => 20],
             [['name'], 'unique', 'when' => function($model){return $model->isAttributeChanged('name');}],
             [['description'], 'string'],
-            [['categoryName'], 'validateCategoryName'],     // сначала присваивание parent_id
+            [['category_name'], 'validateCategoryName'],     // сначала присваивание parent_id
             [['parent_id'], 'validateDepth'],               // затем его валидация
         ];
     }
 
-    /** Валидация categoryName, parentName, присваивание parent_id
+    /** Валидация category_name, parent_name, присваивание parent_id
      * @param $attribute
      */
     public function validateCategoryName($attribute)
     {
-        if (!$this->hasErrors()) {
-            if (strlen($this->parentName)) {        // задан промежуточный родитель
-                $parent = self::findOne(['name' => $this->parentName]);
+        if (!$this->hasErrors()) {      // TODO не проверяется category_name если есть parent_name
+            if (strlen($this->parent_name)) {        // задан промежуточный родитель
+                $parent = self::findOne(['name' => $this->parent_name]);
                 if ($parent) {
                     $this->parent_id = $parent->id;
                     if ($this->id == $parent->id) {
-                        $this->addError('parentName', 'Выбрана та же категория');
+                        $this->addError('parent_name', 'Выбрана та же категория');
                     }
                 } else {
-                    $this->addError('parentName', 'Родительская категория не найдена');
+                    $this->addError('parent_name', 'Родительская категория не найдена');
                 }
             } else {
-                if (isset(self::FIELD_WORD[$this->categoryName])) {
-                    $this->parent_id = self::FIELD_WORD[$this->categoryName];   // TODO not_category добавлен в массив
-                } elseif ($this->categoryName == Status::NOT_CATEGORY) {
+                if (isset(self::FIELD_WORD[$this->category_name])) {
+                    $this->parent_id = self::FIELD_WORD[$this->category_name];    // TODO not_category добавлен в массив
+                } elseif ($this->category_name == Status::NOT_CATEGORY) {
                     $this->parent_id = Status::NOT_CATEGORY;
                 } else {
                     $this->addError($attribute, 'Родительская категория не найдена');
@@ -250,35 +249,6 @@ class Word extends ActiveRecord
         ];
     }
 
-    /**
-     * Получение названий дочерних элементов
-     * @param int $parentId Id родителя
-     * @param int $depth Глубина поиска
-     * @param bool $withParent Поиск только на указанной глубине (false) или включая всех родителей (true)
-     * @param null $passId Пропуск определенного id
-     * @return array
-     */
-    public static function getAllNames($parentId = Status::NOT_CATEGORY, $depth = 1, $withParent = false, $passId = NULL)
-    {
-        list('condition' => $condition, 'bind' => $bind) =
-            Word::getConditionById('parent_id', $parentId, $depth, $withParent);
-
-        $query = self::find()->select(['id', 'name', 'parent_id'])
-            ->where(['deleted' => Status::NOT_DELETED])
-            ->andOnCondition($condition, $bind)
-            ->limit(Yii::$app->params['maxLinesView'])
-            ->asArray()->all();
-
-        $outArray = array();
-        foreach ($query as $key => $item) {
-            if ($item['id'] === $passId) {
-                continue;
-            }
-            $outArray[$item['id']] = $item['name'];
-        }
-        return $outArray;
-    }
-
     public static function getParentName ($model, $n = 0) {
         $parentNames = [];
         $parentIds = [];
@@ -314,8 +284,8 @@ class Word extends ActiveRecord
             'first_category' => 'Раздел',
             'second_category' => 'Категория',
             'third_category' => 'Папка',
-            'categoryName' => 'Раздел',
-            'parentName' => 'Папка'
+            'category_name' => 'Раздел',
+            'parent_name' => 'Папка'
         ];
     }
 
