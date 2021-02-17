@@ -113,6 +113,9 @@ class DeviceSearch extends Device
      */
     public static function getAutoCompleteOptions($attribute, $prefix = '')
     {
+        if (strlen($prefix)) {
+            $prefix = $prefix . '_';
+        }
         if ($attribute === 'position') {
             $parent = "$('#department').val() != '' ? $('#department').val() : 'position'";
         } else {
@@ -128,7 +131,7 @@ class DeviceSearch extends Device
                     }, response);
                 }"),
                 'select' => new JsExpression("function(event, ui) {
-                    selectAutoComplete(event, ui, '{$prefix}_{$attribute}');
+                    selectAutoComplete(event, ui, '{$prefix}{$attribute}');
                 }"),
                 'minLength' => Yii::$app->params['minSymbolsAutoComplete'],
                 'delay' => Yii::$app->params['delayAutoComplete']
