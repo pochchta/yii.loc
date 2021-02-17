@@ -91,25 +91,30 @@ class Word extends ActiveRecord
      */
     public function validateCategoryName($attribute)
     {
-        if (!$this->hasErrors()) {      // TODO не проверяется category_name если есть parent_name
+        if (!$this->hasErrors()) {
+            if (isset(self::FIELD_WORD[$this->category_name]) == false) {
+                $this->addError($attribute, 'Категория не найдена');
+                return;
+            }
             if (strlen($this->parent_name)) {        // задан промежуточный родитель
                 $parent = self::findOne(['name' => $this->parent_name]);
                 if ($parent) {
-                    $this->parent_id = $parent->id;
-                    if ($this->id == $parent->id) {
+                    if (
+                        $parent->parent_id !== self::FIELD_WORD[$this->category_name] &&
+                        $parent->parent->parent_id !== self::FIELD_WORD[$this->category_name]
+                    ) {
+                        $this->addError('parent_name', 'Категория не принадлежит разделу');
+                    }
+                    if ($this->id !== $parent->id) {
+                        $this->parent_id = $parent->id;
+                    } else {
                         $this->addError('parent_name', 'Выбрана та же категория');
                     }
                 } else {
                     $this->addError('parent_name', 'Родительская категория не найдена');
                 }
             } else {
-                if (isset(self::FIELD_WORD[$this->category_name])) {
-                    $this->parent_id = self::FIELD_WORD[$this->category_name];    // TODO not_category добавлен в массив
-                } elseif ($this->category_name == Status::NOT_CATEGORY) {
-                    $this->parent_id = Status::NOT_CATEGORY;
-                } else {
-                    $this->addError($attribute, 'Родительская категория не найдена');
-                }
+                $this->parent_id = self::FIELD_WORD[$this->category_name];
             }
         }
     }
