@@ -77,8 +77,8 @@ class DeviceSearch extends Device
             'updated_by' => $this->updated_by,
         ]);
 
-        $query->andFilterWhere(['like', 'description', $this->description]);
-        $query->andFilterWhere(['like', 'number', $this->number]);
+        $query->andFilterWhere(['like', 'description', $this->description . '%', false]);
+        $query->andFilterWhere(['like', 'number', $this->number . '%', false]);
 
         foreach(['name', 'type', 'department', 'position', 'scale', 'accuracy'] as $item) {
             $depth = 3;

@@ -83,9 +83,9 @@ class VerificationSearch extends Verification
             'updated_by' => $this->updated_by,
         ]);
 
-        $query->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'type', $this->type])
-            ->andFilterWhere(['like', 'description', $this->description]);
+        $query->andFilterWhere(['like', 'name', $this->name . '%', false])
+            ->andFilterWhere(['like', 'type', $this->type . '%', false])
+            ->andFilterWhere(['like', 'description', $this->description . '%', false]);
 
         if ($this->status == Verification::STATUS_OFF || $this->status == Verification::STATUS_ON) {
             $query->andFilterWhere(['status' => $this->status]);
