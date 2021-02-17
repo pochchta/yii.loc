@@ -1,6 +1,5 @@
 <?php
 
-use app\models\Status;
 use app\models\Word;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -21,21 +20,20 @@ use yii\widgets\ActiveForm;
         'id' => 'form1',
     ]); ?>
 
-    <?= $form->field($model, 'categoryName')->dropDownList(
-        [Status::NOT_CATEGORY => 'нет'] + array_combine(array_keys(Word::FIELD_WORD), Word::LABEL_FIELD_WORD)
+    <?= $form->field($model, 'category_name')->dropDownList(
+        array_combine(array_keys(Word::FIELD_WORD), Word::LABEL_FIELD_WORD)
     ) ?>
-
-    <?= $form->field($model, 'parentName')->textInput(['maxlength' => true])->widget(
+    <?= $form->field($model, 'parent_name')->textInput(['maxlength' => true])->widget(
         AutoComplete::class, [
             'clientOptions' => [
                 'source' => new JsExpression("function(request, response) {
-                $.getJSON('" . Url::to('/device/list-auto-complete') . "', {
-                term: request.term,
-                parent: $('#categoryname').val(),
-            }, response);
-        }"),
-                'minLength' => 3,
-                'delay' => 300
+                    $.getJSON('" . Url::to('/device/list-auto-complete') . "', {
+                        term: request.term,
+                        term_parent: $('#category_name').val(),
+                    }, response);
+                }"),
+                'minLength' => Yii::$app->params['minSymbolsAutoComplete'],
+                'delay' => Yii::$app->params['delayAutoComplete']
             ],
             'options' => [
                 'class' => 'form-control',

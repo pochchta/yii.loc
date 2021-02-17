@@ -276,7 +276,7 @@ class WordSearch extends Word
     {
         $data = [];
         if ($depth) {               // поиск по полю name
-            if ($this->term_parent) {
+            if (strlen($this->term_parent)) {
                 list('condition' => $condition, 'bind' => $bind) =
                     Word::getConditionLikeName('parent_id', $this->term_parent, $depth, $withParent);
             } else {
@@ -311,11 +311,5 @@ class WordSearch extends Word
         }
 
         return json_encode($data);
-
     }
 }
-// TODO  $condition == ?? в других поисках
-// TODO andFilterWhere % x % и в других тоже
-// TODO findNames использовалась в word/form, device/index и была изменена
-// TODO bind_name опять не уникальный
-// TODO js категория - enter , раздел переключаем в селекте и ничего не происходит

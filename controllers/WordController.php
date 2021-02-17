@@ -113,7 +113,7 @@ class WordController extends Controller
         $categoryId = 0;
         if ($model->parent_id > 0) {
             $parent = $model->parent;
-            $model->parentName = $parent->name;
+            $model->parent_name = $parent->name;
             if ($parent->parent_id < 0) {
                 $categoryId = $parent->parent_id;
             } elseif ($parent->parent->parent_id < 0) {
@@ -123,9 +123,9 @@ class WordController extends Controller
             $categoryId = (int)($model->parent_id);     // в новой модели parent_id = NULL
         }
         if ($key = array_search($categoryId, Word::FIELD_WORD)) {       // получение значения для select
-            $model->categoryName = $key;
+            $model->category_name = $key;
         } else {
-            $model->categoryName = Status::NOT_CATEGORY;
+            $model->category_name = Status::NOT_CATEGORY;
         }
 
         if ($model->load($arrayPost = Yii::$app->request->post())) {
