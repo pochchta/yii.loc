@@ -103,7 +103,7 @@ class Word extends ActiveRecord
                         $parent->parent_id !== self::FIELD_WORD[$this->category_name] &&
                         $parent->parent->parent_id !== self::FIELD_WORD[$this->category_name]
                     ) {
-                        $this->addError('parent_name', 'Категория не принадлежит разделу');
+                        $this->addError('parent_name', 'Категория не принадлежит разделу или превышена вложенность');
                     }
                     if ($this->id !== $parent->id) {
                         $this->parent_id = $parent->id;

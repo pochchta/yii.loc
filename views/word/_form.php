@@ -27,7 +27,7 @@ use yii\widgets\ActiveForm;
         AutoComplete::class, [
             'clientOptions' => [
                 'source' => new JsExpression("function(request, response) {
-                    $.getJSON('" . Url::to('/device/list-auto-complete') . "', {
+                    $.getJSON('" . Url::to('/word/list-auto-complete') . "', {
                         term: request.term,
                         term_parent: $('#category_name').val(),
                     }, response);

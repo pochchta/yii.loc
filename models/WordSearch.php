@@ -169,6 +169,10 @@ class WordSearch extends Word
         return '';
     }
 
+    /** Если $attribute != first_category || second_category, то term_parent = ''
+     * @param $attribute
+     * @return array
+     */
     public static function getAutoCompleteOptions($attribute)
     {
         $parent = "''";
