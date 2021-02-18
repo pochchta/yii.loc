@@ -160,16 +160,13 @@ class WordController extends Controller
         $modelSearch = new WordSearch();
         $modelSearch->load(Yii::$app->request->queryParams);
         if ($modelSearch->validate()) {
-            $depth = 0;
             if ($modelSearch->term_name == 'second_category') {
-                $depth = 1;
+                echo $modelSearch->findNames();
             } elseif ($modelSearch->term_name == 'third_category') {
-                $depth = 2;
-                if (strlen($modelSearch->term_parent)) {
-                    $depth = 1;
-                }
+                echo $modelSearch->findNamesByTwoCategory();
+            } else {
+                echo $modelSearch->findNamesByFieldName();
             }
-            echo $modelSearch->findNames($depth, false);
         }
         die();
     }

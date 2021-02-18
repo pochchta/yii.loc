@@ -15,7 +15,7 @@ class WordSearch extends Word
 {
     const COLUMN_SEARCH = ['id', 'name', 'value'];
     public $first_category, $second_category, $third_category;
-    public $term, $term_name, $term_parent;
+    public $term, $term_name, $term_parent, $term_category;
 
     /**
      * {@inheritdoc}
@@ -27,7 +27,7 @@ class WordSearch extends Word
             [['name', 'value', 'description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
             [['first_category', 'second_category', 'third_category'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
-            [['term', 'term_name', 'term_parent'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['term', 'term_name', 'term_parent', 'term_category'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['first_category'], 'default', 'value' => Status::ALL],
             [['first_category'], 'validateCategoryName'],
         ];
@@ -173,20 +173,18 @@ class WordSearch extends Word
     {
         $parent = "''";
         if ($attribute === 'second_category') {
-            $status = Status::ALL;
-            $parent = "$('#first_category').val()!= $status ? $('#first_category').val() : ''";
+            $parent = "$('#first_category').val()";
         } elseif ($attribute === 'third_category') {
-            $status = Status::ALL;
-            $parent = "$('#first_category').val()!= $status ? $('#first_category').val() : ''";
-            $parent = "$('#second_category').val()!= '' ? $('#second_category').val() : $parent";
+            $parent = "$('#second_category').val()";
         }
         return [
             'clientOptions' => [
                 'source' => new JsExpression("function(request, response) {
-                    $.getJSON('" . Url::to('list-auto-complete') . "', {
+                    $.getJSON('" . Url::to('/word/list-auto-complete') . "', {
                         term: request.term,
                         term_name: '{$attribute}',
                         term_parent: {$parent},
+                        term_category: $('#first_category').val(),
                     }, response);
                 }"),
                 'select' => new JsExpression("function(event, ui) {
@@ -201,50 +199,87 @@ class WordSearch extends Word
         ];
     }
 
-    /** Поиск по словарю для AutoComplete
+    /** Поиск по родителю для AutoComplete
      * @param int $depth
      * @param bool $withParent
      * @return false|string
      */
-    public function findNames($depth = 0, $withParent = false)
+    public function findNames($depth = 1, $withParent = false)
     {
         $data = [];
-        if ($depth) {               // поиск по полю name
-            if (strlen($this->term_parent)) {
-                list('condition' => $condition, 'bind' => $bind) =
-                    Word::getConditionLikeName('parent_id', $this->term_parent, $depth, $withParent);
-            } else {
-                list('condition' => $condition, 'bind' => $bind) =
-                    Word::getConditionById('parent_id', Status::ALL, $depth, $withParent);
-            }
-
-            if (isset($condition)) {
-                $data = Word::find()
-                    ->select(['name as value'])
-                    ->where(['deleted' => Status::NOT_DELETED])
-                    ->andFilterWhere(['like', 'name', $this->term . '%', false])
-                    ->andOnCondition($condition, $bind)
-                    ->orderBy('name')
-                    ->limit(Yii::$app->params['maxLinesAutoComplete'])
-                    ->distinct()
-                    ->asArray()
-                    ->all();
-            }
-        } else {                    // поиск по произвольному полю
-            if (in_array($this->term_name, self::COLUMN_SEARCH)) {
-                $data = Word::find()
-                    ->select(["$this->term_name as value"])
-                    ->where(['deleted' => Status::NOT_DELETED])
-                    ->andFilterWhere(['like', $this->term_name, $this->term . '%', false])
-                    ->orderBy($this->term_name)
-                    ->limit(Yii::$app->params['maxLinesAutoComplete'])
-                    ->distinct()
-                    ->asArray()
-                    ->all();
-            }
+        if ($this->term_parent == Status::ALL) {
+            list('condition' => $condition, 'bind' => $bind) =
+                Word::getConditionById('parent_id', Status::ALL, $depth, $withParent);
+        } else {
+            list('condition' => $condition, 'bind' => $bind) =
+                Word::getConditionLikeName('parent_id', $this->term_parent, $depth, $withParent);
         }
 
+        if (isset($condition)) {
+            $data = Word::find()
+                ->select(['name as value'])
+                ->where(['deleted' => Status::NOT_DELETED])
+                ->andFilterWhere(['like', 'name', $this->term . '%', false])
+                ->andOnCondition($condition, $bind)
+                ->orderBy('name')
+                ->limit(Yii::$app->params['maxLinesAutoComplete'])
+                ->distinct()
+                ->asArray()
+                ->all();
+        }
+        return json_encode($data);
+    }
+
+    /** Поиск по значению и названию поля из массива self::COLUMN_SEARCH
+     * @return false|string
+     */
+    public function findNamesByFieldName()
+    {
+        $data = [];
+        if (in_array($this->term_name, self::COLUMN_SEARCH)) {
+            $data = Word::find()
+                ->select(["$this->term_name as value"])
+                ->where(['deleted' => Status::NOT_DELETED])
+                ->andFilterWhere(['like', $this->term_name, $this->term . '%', false])
+                ->orderBy($this->term_name)
+                ->limit(Yii::$app->params['maxLinesAutoComplete'])
+                ->distinct()
+                ->asArray()
+                ->all();
+        }
+        return json_encode($data);
+    }
+
+    /** Поиск по двум родительским категориям
+     * @return false|string
+     */
+    public function findNamesByTwoCategory()
+    {
+        $bind = [':not_del' => Status::NOT_DELETED];
+        $condition1 = 'parent_id < 0';
+        $condition2 = '';
+
+        if (isset(Word::FIELD_WORD[$this->term_category])) {
+            $this->term_category = Word::FIELD_WORD[$this->term_category];
+            $condition1 = 'parent_id = :category';
+            $bind[':category'] = $this->term_category;
+        }
+        if (strlen($this->parent_name)) {
+            $condition2 = 'name LIKE :parent AND';
+            $bind[':parent'] = $this->term_parent . '%';
+        }
+
+        $condition = "parent_id IN (SELECT id FROM word WHERE $condition2 $condition1 AND deleted = :not_del)";
+        $data = Word::find()
+            ->select(['name as value'])
+            ->where(['deleted' => Status::NOT_DELETED])
+            ->andFilterWhere(['like', 'name', $this->term . '%', false])
+            ->andOnCondition($condition, $bind)
+            ->orderBy('name')
+            ->limit(Yii::$app->params['maxLinesAutoComplete'])
+            ->distinct()
+            ->asArray()
+            ->all();
         return json_encode($data);
     }
 }
-// TODO не работает autoComplete шкалы - '' - ток
