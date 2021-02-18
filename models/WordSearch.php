@@ -28,99 +28,31 @@ class WordSearch extends Word
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
             [['first_category', 'second_category', 'third_category'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['term', 'term_name', 'term_parent'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
-            [['first_category'], 'validateCategoryName']
+            [['first_category'], 'default', 'value' => Status::ALL],
+            [['first_category'], 'validateCategoryName'],
         ];
     }
 
     public function validateCategoryName($attribute)
     {
         if (!$this->hasErrors()) {
-            $not = array_search(Status::NOT_CATEGORY, Word::FIELD_WORD);
             if ($this->first_category != Status::ALL) {
                 if (isset(Word::FIELD_WORD[$this->first_category]) == false) {
                     $this->addError($attribute, 'Первая категория не найдена');
                     return;
                 }
             }
+
+            $not = array_search(Status::NOT_CATEGORY, Word::FIELD_WORD);
             if (ucfirst($this->first_category) == $not) {
-                if (strlen($this->second_category) || strlen($this->third_category)) {
-                    $this->addError($attribute, '"Нет категории" уже выбрано');
-                    return;
-                }
+                $this->first_category = $not;
             }
             if (ucfirst($this->second_category) == $not) {
-                if (strlen($this->third_category)) {
-                    $this->addError($attribute, '"Нет категории" уже выбрано');
-                    return;
-                }
+                $this->second_category = $not;
             }
-
-            $query = Word::find()->andFilterWhere(['deleted' => Status::NOT_DELETED]);
-            if (ucfirst($this->first_category) != $not) {
-                if ($this->first_category != Status::ALL) {
-                    if (ucfirst($this->second_category) != $not) {
-                        if (strlen($this->second_category)) {
-                            if (ucfirst($this->third_category) != $not) {
-                                if (strlen($this->third_category)) {
-                                    // 111
-                                    $word = $query->andFilterWhere(['like', 'name', $this->third_category . '%', false])
-                                        ->andOnCondition(
-                                            'parent_id IN (SELECT id FROM word WHERE name LIKE :second AND deleted = :not_del AND parent_id = :first)',
-                                            [':first' => Word::FIELD_WORD[$this->first_category], ':second' => $this->second_category . '%', ':not_del' => Status::NOT_DELETED]
-                                        )
-                                        ->one();
-                                    if ($word === NULL) {
-                                        $this->addError($attribute, 'Третья категория не найдена');
-                                    }
-                                } else {
-                                    // 110
-                                    $word = $query->andFilterWhere(['like', 'name', $this->second_category . '%', false])
-                                        ->andFilterWhere(['parent_id' => Word::FIELD_WORD[$this->first_category]])
-                                        ->one();
-                                    if ($word === NULL) {
-                                        $this->addError($attribute, 'Вторая категория не найдена');
-                                    }
-                                }
-                            }
-                        } else {
-                            if (ucfirst($this->third_category) != $not) {
-                                if (strlen($this->third_category)) {
-                                    // 101
-                                    $word = $query->andFilterWhere(['like', 'name', $this->third_category . '%', false])
-                                        ->andOnCondition(
-                                            'parent_id IN (SELECT id FROM word WHERE deleted = :not_del AND parent_id = :first)',
-                                            [':first' => Word::FIELD_WORD[$this->first_category], ':not_del' => Status::NOT_DELETED]
-                                        )
-                                        ->one();
-                                    if ($word === NULL) {
-                                        $this->addError($attribute, 'Третья категория не найдена');
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    if (ucfirst($this->second_category) != $not) {
-                        if (strlen($this->second_category)) {
-                            if (ucfirst($this->third_category) != $not) {
-                                if (strlen($this->third_category)) {
-                                    // 011
-                                    $word = $query->andFilterWhere(['like', 'name', $this->third_category . '%', false])
-                                        ->andOnCondition(
-                                            'parent_id IN (SELECT id FROM word WHERE name LIKE :second AND deleted = :not_del)',
-                                            [':second' => $this->second_category . '%', 'not_del' => Status::NOT_DELETED]
-                                        )
-                                        ->one();
-                                    if ($word === NULL) {
-                                        $this->addError($attribute, 'Третья категория не найдена');
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+            if (ucfirst($this->third_category) == $not) {
+                $this->third_category = $not;
             }
-
         }
     }
 
@@ -176,57 +108,59 @@ class WordSearch extends Word
             $query->andFilterWhere(['deleted' => $this->deleted]);
         }
 
-        $not = array_search(Status::NOT_CATEGORY, Word::FIELD_WORD);
-        if (strlen($this->third_category)) {
-            if (ucfirst($this->third_category) == $not) {
-                if (strlen($this->second_category)) {
-                    $depth = 1;
-                    $findName = $this->second_category;
-                } else {
-                    if ($this->first_category == Status::ALL) {
-                        $depth = 2;
-                        $findId = Status::ALL;
+        if ($this->first_category != Status::ALL || strlen($this->second_category) || strlen($this->third_category)) {
+            $not = array_search(Status::NOT_CATEGORY, Word::FIELD_WORD);
+            if ($this->first_category == Status::ALL) {
+                $first = 'parent_id < 0';
+            } else {
+                $first = 'parent_id = :first';
+            }
+            $second = '';
+            if (strlen($this->second_category)) {
+                $second = 'name LIKE :second AND';
+            }
+            $third = '';
+            if (strlen($this->third_category)) {
+                $third = 'name LIKE :third AND';
+            }
+            $condition1 = $first;
+            $condition2 = "parent_id IN (SELECT id FROM word WHERE $second $first AND deleted = :not_del)";
+            $condition3 = "parent_id IN (SELECT id FROM word WHERE $third parent_id IN (SELECT id FROM word WHERE $second $first AND deleted = :not_del) AND deleted = :not_del)";
+
+            $condition = $condition1;
+
+            if ($this->second_category != $not) {
+                if ($this->third_category != $not) {
+                    $condition = $condition3;
+                    if (strlen($this->second_category) == 0) {
+                        if (strlen($this->third_category) == 0) {
+                            $condition = $condition1 . ' OR ' . $condition2 . ' OR ' . $condition3;
+                        }
                     } else {
-                        $depth = 2;
-                        $findName = $this->first_category;
+                        if (strlen($this->third_category) == 0) {
+                            $condition = $condition2 . ' OR ' . $condition3;
+                        }
                     }
-                }
-            } else {
-                $depth = 1;
-                $findName = $this->third_category;
-            }
-        } elseif (strlen($this->second_category)) {
-            if (ucfirst($this->second_category) == $not) {
-                if ($this->first_category == Status::ALL) {
-                    $depth = 1;
-                    $findId = Status::ALL;
                 } else {
-                    $depth = 1;
-                    $findName = $this->first_category;
+                    $condition = $condition2;
                 }
-            } else {
-                $depth = 2;
-                $findName = $this->second_category;
             }
-        } elseif ($this->first_category != Status::ALL) {
-            $depth = 3;
-            $findName = $this->first_category;
-            if (ucfirst($this->first_category) == $not) {
-                $depth = 1;
+            $bind = [];
+            if (strpos($condition, ':first') !== false) {
+                $bind[':first'] = Word::FIELD_WORD[$this->first_category];
             }
-        }
+            if (strpos($condition, ':second') !== false) {
+                $bind[':second'] = $this->second_category . '%';
+            }
+            if (strpos($condition, ':third') !== false) {
+                $bind[':third'] = $this->third_category . '%';
+            }
+            if (strpos($condition, ':not_del') !== false) {
+                $bind[':not_del'] = Status::NOT_DELETED;
+            }
 
-        if (isset($findId)) {
-            list('condition' => $condition, 'bind' => $bind) =
-                Word::getConditionById('parent_id', $findId, $depth, true);
-            $query->andOnCondition($condition, $bind);
-
-        } elseif(isset($findName)) {
-            list('condition' => $condition, 'bind' => $bind) =
-                Word::getConditionLikeName('parent_id', $findName, $depth, true);
             $query->andOnCondition($condition, $bind);
         }
-
         return $dataProvider;
     }
 
@@ -313,3 +247,4 @@ class WordSearch extends Word
         return json_encode($data);
     }
 }
+// TODO не работает autoComplete шкалы - '' - ток
