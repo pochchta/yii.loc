@@ -76,18 +76,20 @@ class DeviceSearch extends Device
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
         ]);
-
-        $query->andFilterWhere(['like', 'description', $this->description . '%', false]);
-        $query->andFilterWhere(['like', 'number', $this->number . '%', false]);
+        if (strlen($this->number)) {
+            $query->andFilterWhere(['like', 'number', $this->number . '%', false]);
+        }
 
         foreach(['name', 'type', 'department', 'position', 'scale', 'accuracy'] as $item) {
-            $depth = 3;
-            if ($item == 'department') {
-                $depth = 2;
-            } elseif ($item == 'position') {
-                $depth = 1;
-            }
             if (strlen($this->$item)) {
+                $depth = 3;
+                if (ucfirst($this->$item) == array_search(Status::NOT_CATEGORY, Word::FIELD_WORD)) {
+                    $depth = 1;
+                } elseif ($item == 'department') {
+                    $depth = 2;
+                } elseif ($item == 'position') {
+                    $depth = 1;
+                }
                 list('condition' => $condition, 'bind' => $bind) =
                     Word::getConditionLikeName("{$item}_id", $this->$item, $depth, true);
                 $query->andOnCondition($condition, $bind);
@@ -109,9 +111,10 @@ class DeviceSearch extends Device
     /**
      * @param $attribute string
      * @param $prefix string префикс для атрибута при поиске GET параметра и селектора
+     * @param bool $autoSend
      * @return array
      */
-    public static function getAutoCompleteOptions($attribute, $prefix = '')
+    public static function getAutoCompleteOptions($attribute, $prefix = '', $autoSend = false)
     {
         if (strlen($prefix)) {
             $prefix = $prefix . '_';
@@ -120,6 +123,12 @@ class DeviceSearch extends Device
             $parent = "$('#department').val() != '' ? $('#department').val() : 'position'";
         } else {
             $parent = "'". (isset(Word::FIELD_WORD[ucfirst($attribute)]) ? $attribute : '') . "'";
+        }
+        $select = '';
+        if ($autoSend) {
+            $select = new JsExpression("function(event, ui) {
+                selectAutoComplete(event, ui, '{$prefix}{$attribute}');
+            }");
         }
         return [
             'clientOptions' => [
@@ -130,9 +139,7 @@ class DeviceSearch extends Device
                         term_parent: {$parent},
                     }, response);
                 }"),
-                'select' => new JsExpression("function(event, ui) {
-                    selectAutoComplete(event, ui, '{$prefix}{$attribute}');
-                }"),
+                'select' => $select,
                 'minLength' => Yii::$app->params['minSymbolsAutoComplete'],
                 'delay' => Yii::$app->params['delayAutoComplete']
             ],
