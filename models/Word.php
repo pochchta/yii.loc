@@ -219,7 +219,7 @@ class Word extends ActiveRecord
     {
         if (isset(Word::FIELD_WORD[ucfirst($parentName)])) {
             $parentId = Word::FIELD_WORD[ucfirst($parentName)];
-            return self::getConditionById('parent_id', $parentId, $depth, $withParent);
+            return self::getConditionById($columnName, $parentId, $depth, $withParent);
         } else {
             $condition = NULL;
             $bind = [];

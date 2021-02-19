@@ -53,7 +53,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
                     'attribute' => $attribute = 'name',
-                ] + DeviceSearch::getAutoCompleteOptions($attribute))
+                ] + DeviceSearch::getAutoCompleteOptions($attribute, '', true))
             ],
             [
                 'attribute' => 'type_id',
@@ -63,7 +63,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
                     'attribute' => $attribute = 'type',
-                ] + DeviceSearch::getAutoCompleteOptions($attribute))
+                ] + DeviceSearch::getAutoCompleteOptions($attribute, '', true))
             ],
             [
                 'attribute' => 'department_id',
@@ -73,7 +73,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
                     'attribute' => $attribute = 'department',
-                ] + DeviceSearch::getAutoCompleteOptions($attribute))
+                ] + DeviceSearch::getAutoCompleteOptions($attribute, '', true))
             ],
             [
                 'attribute' => 'position_id',
@@ -83,7 +83,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
                     'attribute' => $attribute = 'position',
-                ] + DeviceSearch::getAutoCompleteOptions($attribute))
+                ] + DeviceSearch::getAutoCompleteOptions($attribute, '', true))
             ],
             [
                 'attribute' => 'scale_id',
@@ -93,7 +93,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
                     'attribute' => $attribute = 'scale',
-                ] + DeviceSearch::getAutoCompleteOptions($attribute))
+                ] + DeviceSearch::getAutoCompleteOptions($attribute, '', true))
             ],
             [
                 'attribute' => 'accuracy_id',
@@ -103,7 +103,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
                     'attribute' => $attribute = 'accuracy',
-                ] + DeviceSearch::getAutoCompleteOptions($attribute))
+                ] + DeviceSearch::getAutoCompleteOptions($attribute, '', true))
             ],
             [
                 'attribute' => 'number',
@@ -113,7 +113,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
                     'attribute' => $attribute = 'number',
-                ] + DeviceSearch::getAutoCompleteOptions($attribute))
+                ] + DeviceSearch::getAutoCompleteOptions($attribute, '', true))
             ],
             [
                 'attribute' => 'deleted',

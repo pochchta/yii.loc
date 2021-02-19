@@ -78,8 +78,6 @@ class IncomingSearch extends Incoming
             'updated_by' => $this->updated_by,
         ]);
 
-        $query->andFilterWhere(['like', 'description', $this->description . '%', false]);
-
         if ($this->status != Status::ALL) {
             $query->andFilterWhere(['status' => $this->status]);
         }
