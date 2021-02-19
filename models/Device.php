@@ -73,17 +73,24 @@ class Device extends ActiveRecord
         return [
             [['name', 'type', 'department', 'scale', 'accuracy'], 'required'],
             [['description'], 'string'],
-            [['number'], 'string', 'max' => 255],
-            [['name', 'type', 'department', 'scale', 'position', 'accuracy'], 'string', 'max' => 255],
-            [['name', 'type', 'department', 'scale', 'position', 'accuracy'], 'validateId'],
+            [['number'], 'string', 'max' => 30],
+            [['name', 'type', 'department', 'scale', 'position', 'accuracy'], 'string', 'max' => 20],
+            [['name', 'type', 'department', 'scale', 'position', 'accuracy'], 'validateId', 'skipOnEmpty' => false],
         ];
     }
 
     public function validateId($attribute)
     {
         if (!$this->hasErrors()) {
+            if ($attribute == 'position') {
+                if (strlen($this->position) == 0) {     // position можно оставить пустым
+                    $this->position_id = 0;
+                    return;
+                }
+            }
+
             $attributeId = $attribute . '_id';
-            $word = Word::find()->where(['name' => $this->$attribute])->one();
+            $word = Word::findOne(['name' => $this->$attribute]);
             if ($word) {
                 $this->$attributeId = $word->id;
 
