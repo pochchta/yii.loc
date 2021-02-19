@@ -42,17 +42,6 @@ class WordSearch extends Word
                     return;
                 }
             }
-
-            $not = array_search(Status::NOT_CATEGORY, Word::FIELD_WORD);
-            if (ucfirst($this->first_category) == $not) {
-                $this->first_category = $not;
-            }
-            if (ucfirst($this->second_category) == $not) {
-                $this->second_category = $not;
-            }
-            if (ucfirst($this->third_category) == $not) {
-                $this->third_category = $not;
-            }
         }
     }
 
@@ -129,8 +118,8 @@ class WordSearch extends Word
 
             $condition = $condition1;
 
-            if ($this->second_category != $not) {
-                if ($this->third_category != $not) {
+            if (ucfirst($this->second_category) != $not) {
+                if (ucfirst($this->third_category) != $not) {
                     $condition = $condition3;
                     if (strlen($this->second_category) == 0) {
                         if (strlen($this->third_category) == 0) {
@@ -169,7 +158,7 @@ class WordSearch extends Word
         return '';
     }
 
-    /** Если $attribute != first_category || second_category, то term_parent = ''
+    /** Если $attribute != (first_category || second_category), то term_parent = ''
      * @param $attribute
      * @return array
      */
