@@ -3,7 +3,6 @@
 use app\models\DeviceSearch;
 use app\models\Status;
 use app\models\Verification;
-use app\models\VerificationSearch;
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\jui\AutoComplete;
@@ -99,10 +98,12 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             [
                 'attribute' => 'type',
-                'filter' => AutoComplete::widget([
-                    'model' => $searchModel,
-                    'attribute' => $attribute = 'type',
-                ] + VerificationSearch::getAutoCompleteOptions($attribute)),
+                'value' => function ($model) {
+                    return isset(Verification::TYPE_LABEL[$model->type]) ? Verification::TYPE_LABEL[$model->type] : NULL;
+                },
+                'filter' => Html::activeDropDownList($searchModel, 'type',
+                    [Status::ALL => 'все'] + Verification::TYPE_LABEL
+                ),
             ],
             [
                 'attribute' => 'last_date',

@@ -63,8 +63,10 @@ if ($model->deleted == Status::NOT_DELETED) {
                     }
                 },
             ],
-            'name',
-            'type',
+            [
+                'attribute' => 'type',
+                'value' => isset(Verification::TYPE_LABEL[$model->type]) ? Verification::TYPE_LABEL[$model->type] : NULL
+            ],
             'description:ntext',
             'last_date:date',
             'next_date:date',

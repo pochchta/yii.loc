@@ -148,7 +148,7 @@ class VerificationController extends Controller
                 return $this->redirect(['device/view', 'id' => $model->device_id]);
             } else {
                 $errors = $model->getFirstErrors();
-                Yii::$app->session->setFlash('error', 'Запись не была удалена (' . array_pop($errors) . ')');
+                Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
             }
         }
 

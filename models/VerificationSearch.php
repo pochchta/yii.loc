@@ -29,9 +29,10 @@ class VerificationSearch extends Verification
     public function rules()
     {
         return [
-            [['id', 'device_id', 'period', 'created_at', 'updated_at', 'created_by', 'updated_by', 'status', 'deleted'], 'integer'],
-            [['name', 'type', 'description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['id', 'device_id', 'period', 'created_at', 'updated_at', 'created_by', 'updated_by', 'type', 'status', 'deleted'], 'integer'],
+            [['name', 'description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['last_date_start', 'last_date_end', 'next_date_start', 'next_date_end'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['type'], 'default', 'value' => Status::ALL],
             [['status'], 'default', 'value' => Verification::STATUS_ON],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
             [['device_name', 'device_number', 'device_department'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
@@ -86,8 +87,9 @@ class VerificationSearch extends Verification
         if (strlen($this->name)) {
             $query->andFilterWhere(['like', 'name', $this->name . '%', false]);
         }
-        if (strlen($this->type)) {
-            $query->andFilterWhere(['like', 'type', $this->type . '%', false]);
+
+        if ($this->type == Verification::TYPE_VALUE['Default'] || $this->type == Verification::TYPE_VALUE['Gos']) {
+            $query->andFilterWhere(['type' => $this->type]);
         }
 
         if ($this->status == Verification::STATUS_OFF || $this->status == Verification::STATUS_ON) {

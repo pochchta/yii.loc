@@ -1,6 +1,7 @@
 <?php
 
 use app\models\Status;
+use app\models\Verification;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
@@ -25,9 +26,7 @@ use yii\widgets\ActiveForm;
         [$model->device_id => $model->device->number]
     ) ?>
 
-    <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'type')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'type')->dropDownList(Verification::TYPE_LABEL) ?>
 
     <?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>
 

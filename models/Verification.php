@@ -16,7 +16,7 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property int $device_id
  * @property string|null $name
- * @property string|null $type
+ * @property int $type
  * @property string|null $description
  * @property int|null $last_date
  * @property int|null $next_date
@@ -34,13 +34,19 @@ use yii\db\ActiveRecord;
  */
 class Verification extends ActiveRecord
 {
+    const TYPE_VALUE = [
+        'Default' => 0,
+        'Gos' => 1
+    ];
+    const TYPE_LABEL = [
+        self::TYPE_VALUE['Default'] => 'Обычная',
+        self::TYPE_VALUE['Gos'] => 'Гос',
+    ];
     const STATUS_OFF = 0;
     const STATUS_ON = 1;
 
     const PERIOD_BY_DEFAULT = '1';
-    /**
-     * {@inheritdoc}
-     */
+
     public static function tableName()
     {
         return 'verification';
@@ -70,17 +76,20 @@ class Verification extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'device_id', 'last_date', 'period'], 'required'],
+            [['type', 'device_id', 'last_date', 'period'], 'required'],
+            [['type'], 'integer', 'min' => 0, 'max' => 1],
+            [['description'], 'string'],
             [['device_id'], 'integer'],
-            [['device_id'], 'exist', 'skipOnError' => true, 'targetClass' => Device::class, 'targetAttribute' => ['device_id' => 'id']],
             [['device_id'], 'validateDeviceId'],
+            [['device_id'], 'exist', 'skipOnError' => true, 'targetClass' => Device::class, 'targetAttribute' => ['device_id' => 'id']],
             [['period'], 'integer', 'min' => 1, 'max' => 20],
             [['last_date'], 'date', 'format' => 'php:Y-m-d', 'timestampAttribute' => 'last_date'],
-            [['description'], 'string'],
-            [['name', 'type'], 'string', 'max' => 255],
         ];
     }
 
+    /** Проверка: device_id нельзя менять
+     * @param $attribute
+     */
     public function validateDeviceId($attribute)
     {
         if (!$this->hasErrors()) {
@@ -100,7 +109,7 @@ class Verification extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'device_id' => 'ID прибора',
+            'device_id' => '№ прибора',
             'name' => 'Имя',
             'type' => 'Тип',
             'description' => 'Описание',
