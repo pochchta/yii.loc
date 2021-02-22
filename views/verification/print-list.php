@@ -35,7 +35,7 @@ $this->registerCssFile('@web/css/user-print.css');
             <th>Статус</th>
             <th class="date">Дата пов.</th>
             <th class="date">Дата сл. пов.</th>
-            <th>П-д</th>
+            <th>Тип</th>
             <th>Создал</th>
             <th>Обновил</th>
         </tr>
@@ -51,12 +51,12 @@ $this->registerCssFile('@web/css/user-print.css');
                 <td><?= $model->device->number ?></td>
                 <td><?php
                     if ($model->status == Verification::STATUS_ON) {
-                        print 'Действующая';
+                        print 'Действ.';
                     }
                 ?></td>
                 <td><?= Yii::$app->formatter->asDate($model->last_date) ?></td>
                 <td><?= Yii::$app->formatter->asDate($model->next_date) ?></td>
-                <td><?= $model->period ?></td>
+                <td><?= isset(Verification::TYPE_LABEL[$model->type]) ? Verification::TYPE_LABEL[$model->type] : NULL; ?></td>
                 <td><?= $model->creator->username ?></td>
                 <td><?= $model->updater->username ?></td>
 

@@ -9,8 +9,8 @@ use yii\widgets\DetailView;
 /* @var $this yii\web\View */
 /* @var $model app\models\Verification */
 
-$this->title = $model->name;
-$this->params['breadcrumbs'][] = ['label' => $model->device->wordName->name, 'url' => ['device/view', 'id' => $model->device_id]];
+$this->title = $model->id;
+$this->params['breadcrumbs'][] = ['label' => 'Поверки', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 YiiAsset::register($this);
 

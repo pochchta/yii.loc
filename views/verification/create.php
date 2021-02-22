@@ -6,7 +6,7 @@ use yii\helpers\Html;
 /* @var $model app\models\Verification */
 
 $this->title = 'Создать новую запись';
-$this->params['breadcrumbs'][] = ['label' => $model->device->wordName->name, 'url' => ['device/view', 'id' => $model->device_id]];
+$this->params['breadcrumbs'][] = ['label' => 'Поверки', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="verification-create">
