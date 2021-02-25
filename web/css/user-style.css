@@ -14,10 +14,10 @@
 table td:last-child{
     white-space: nowrap;
 }
-table td .device-full-name{
-    width: 130px;
-}
-table td input{
+/*table td .device-full-name{*/
+/*    width: 130px;*/
+/*}*/
+table td input[type="text"]{
     height: 36px !important;
 }
 table .filter-date{

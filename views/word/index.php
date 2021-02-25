@@ -74,10 +74,15 @@ $this->params['breadcrumbs'][] = $this->title;
                     $arr = Word::getParentName($model, 1);
                     return $arr['id'] > 0 ? Html::a($arr['name'], ['view', 'id' => $arr['id']]) : $arr['name'];
                 },
-                'filter' => AutoComplete::widget([
+                'filter' => '<div class="input-group">'
+                . AutoComplete::widget([
                     'model' => $searchModel,
                     'attribute' => $attribute,
                 ] + WordSearch::getAutoCompleteOptions($attribute))
+                . '<span class="input-group-addon">
+                        <input type="checkbox" name="with_child" title="Включая дочерние категории">
+                    </span>
+                </div>',
             ],
             [
                 'attribute' => $attribute = 'third_category',
