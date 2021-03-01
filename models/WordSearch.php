@@ -199,7 +199,6 @@ class WordSearch extends Word
      */
     public function findNames($depth = 1, $withParent = false)
     {
-        $data = [];
         if ($this->term_parent == Status::ALL) {
             list('condition' => $condition, 'bind' => $bind) =
                 Word::getConditionById('parent_id', Status::ALL, $depth, $withParent);
@@ -208,18 +207,17 @@ class WordSearch extends Word
                 Word::getConditionLikeName('parent_id', $this->term_parent, $depth, $withParent);
         }
 
-        if (isset($condition)) {
-            $data = Word::find()
-                ->select(['name as value'])
-                ->where(['deleted' => Status::NOT_DELETED])
-                ->andFilterWhere(['like', 'name', $this->term . '%', false])
-                ->andOnCondition($condition, $bind)
-                ->orderBy('name')
-                ->limit(Yii::$app->params['maxLinesAutoComplete'])
-                ->distinct()
-                ->asArray()
-                ->all();
-        }
+        $data = Word::find()
+            ->select(['name as value'])
+            ->where(['deleted' => Status::NOT_DELETED])
+            ->andFilterWhere(['like', 'name', $this->term . '%', false])
+            ->andOnCondition($condition, $bind)
+            ->orderBy('name')
+            ->limit(Yii::$app->params['maxLinesAutoComplete'])
+            ->distinct()
+            ->asArray()
+            ->all();
+
         return json_encode($data);
     }
 
@@ -273,6 +271,7 @@ class WordSearch extends Word
             ->distinct()
             ->asArray()
             ->all();
+
         return json_encode($data);
     }
 }
