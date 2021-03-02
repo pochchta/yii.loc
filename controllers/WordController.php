@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Status;
+use app\models\WordAutoComplete;
 use Yii;
 use app\models\Word;
 use app\models\WordSearch;
@@ -157,20 +158,24 @@ class WordController extends Controller
 
     public function actionListAutoComplete()
     {
-        $modelSearch = new WordSearch();
-        $modelSearch->load(Yii::$app->request->queryParams);
-        if ($modelSearch->validate()) {
-            if (strlen($modelSearch->term_parent)) {
-                if ($modelSearch->term_name == 'second_category') {
-                    echo $modelSearch->findNames();
-                } elseif ($modelSearch->term_name == 'third_category') {
-                    echo $modelSearch->findNamesByTwoCategory();
-                } else {
-                    echo $modelSearch->findNames(2, true);
+        $model = new WordAutoComplete();
+        $model->load(Yii::$app->request->queryParams);
+        if ($model->validate()) {
+            if (strlen($model->term_parent)) {
+                if ($model->term_name == 'second_category') {
+                    if ($model->term_parent == Status::ALL) {
+                        $model->addConditionByParentId();
+                    } else {
+                        $model->addConditionByParentName();
+                    }
+                    $model->addConditionByName();
+                } elseif ($model->term_name == 'third_category') {
+//                    $model->findNamesByTwoCategory();
                 }
             } else {
-                echo $modelSearch->findNamesByFieldName();
+                $model->addConditionByColumnName();
             }
+            echo $model->getJsonList();
         }
         die();
     }
