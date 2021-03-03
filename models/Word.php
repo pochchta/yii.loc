@@ -224,6 +224,76 @@ class Word extends ActiveRecord
         }
     }
 
+    public static function getConditionByParent($params = [])
+    {
+        $conditionError = '0=1';
+        if (
+            is_array($params['parents'])
+                || empty($params['parents']
+                || empty($params['columnName']))
+        ) {
+            return [
+                'condition' => $conditionError
+            ];
+        }
+
+        $columnName = $parents = NULL;
+        $depth = 1;
+        $withParent = false;
+
+        $arrayCondition = [];
+        $bindNames = [];
+
+        foreach(['columnName', 'parents', 'depth', 'withParent'] as $item) {
+            if (isset($params['item'])) {
+                $$item = $params['item'];
+            }
+        }
+
+        if (isset($parents[1]) && isset(Word::FIELD_WORD[$parents[1]])) {   // поиск по категории Word::FIELD_WORD
+            $parents[0] = Word::FIELD_WORD[$parents[1]];
+            unset($parents[1]);
+        }
+
+        foreach ($parents as $key => $item) {   // дальше возможно $parents[0] = 0, но $bindNames[0] останется прежним
+            $bindNames[$key] = ':' . md5($key . $item . $columnName . $depth);
+        }
+
+        if (strlen($parents[0])) {
+            $arrayCondition[0] = "= $bindNames[0]";
+            if ($parents[0] == Status::ALL) {
+                $parents[0] = 0;
+                $arrayCondition[0] = "<= $bindNames[0]";
+            }
+        }
+        if (strlen($parents[1])) {
+            if (isset($arrayCondition[0]) && strlen($arrayCondition[0])) {
+                $arrayCondition[0] = "parent_id = {$arrayCondition[0]} AND";
+            }
+            $arrayCondition[0] = "IN (SELECT id FROM word WHERE {$arrayCondition[0]} name LIKE $bindNames[1] AND deleted = :not_del)";
+        }
+        for ($i = 1; $i < $depth; $i++) {
+            $arrayCondition[] = "IN (SELECT id FROM word WHERE parent_id {$arrayCondition[$i-1]} AND name LIKE {$bindNames[$i+1]} AND deleted = :not_del)";
+        }
+        foreach ($arrayCondition as &$item) {
+            $item = "$columnName $item";
+        }
+        $condition = $withParent ? implode(' OR ', $arrayCondition) : end($arrayCondition);
+
+        if (strpos($condition, ':not_del') !== false) {
+            $bindNames[':not_del'] = Status::NOT_DELETED;
+        }
+
+        if (strlen($condition) == 0) {
+            return ['condition' => $conditionError];
+        }
+
+        return [
+            'condition' => $condition,
+            'bind' => $bindNames
+        ];
+    }
+
     public static function getParentName ($model, $n = 0) {
         $parentNames = [];
         $parentIds = [];
