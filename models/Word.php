@@ -228,9 +228,9 @@ class Word extends ActiveRecord
     {
         $conditionError = '0=1';
         if (
-            is_array($params['parents'])
-                || empty($params['parents']
-                || empty($params['columnName']))
+            is_array($params['parents']) == false
+                || empty($params['parents'])
+                || empty($params['columnName'])
         ) {
             return [
                 'condition' => $conditionError
@@ -243,12 +243,17 @@ class Word extends ActiveRecord
 
         $arrayCondition = [];
         $bindNames = [];
+        $bindValues = [];
 
         foreach(['columnName', 'parents', 'depth', 'withParent'] as $item) {
-            if (isset($params['item'])) {
-                $$item = $params['item'];
+            if (isset($params[$item])) {
+                $$item = $params[$item];
             }
         }
+
+        ksort($parents);
+        $lastKeyParents = array_key_last($parents);
+        $lastKeyParents < 1 ? $lastKeyParents = 1 : NULL;
 
         if (isset($parents[1]) && isset(Word::FIELD_WORD[$parents[1]])) {   // поиск по категории Word::FIELD_WORD
             $parents[0] = Word::FIELD_WORD[$parents[1]];
@@ -268,29 +273,45 @@ class Word extends ActiveRecord
         }
         if (strlen($parents[1])) {
             if (isset($arrayCondition[0]) && strlen($arrayCondition[0])) {
-                $arrayCondition[0] = "parent_id = {$arrayCondition[0]} AND";
+                $arrayCondition[0] = "parent_id {$arrayCondition[0]} AND";
             }
             $arrayCondition[0] = "IN (SELECT id FROM word WHERE {$arrayCondition[0]} name LIKE $bindNames[1] AND deleted = :not_del)";
         }
-        for ($i = 1; $i < $depth; $i++) {
-            $arrayCondition[] = "IN (SELECT id FROM word WHERE parent_id {$arrayCondition[$i-1]} AND name LIKE {$bindNames[$i+1]} AND deleted = :not_del)";
+        for ($i = 1; $i < $depth + $lastKeyParents - 1; $i++) {
+            $likeExpression = isset($parents[$i+1]) ? "AND name LIKE {$bindNames[$i+1]}" : '';
+            $arrayCondition[] = "IN (SELECT id FROM word WHERE parent_id {$arrayCondition[$i-1]} $likeExpression AND deleted = :not_del)";
+        }   // TODO: parent[0,2] работает не верно
+        foreach ($arrayCondition as $key => $item) {
+            $arrayCondition[$key] = "$columnName $item";
         }
-        foreach ($arrayCondition as &$item) {
-            $item = "$columnName $item";
-        }
-        $condition = $withParent ? implode(' OR ', $arrayCondition) : end($arrayCondition);
-
-        if (strpos($condition, ':not_del') !== false) {
-            $bindNames[':not_del'] = Status::NOT_DELETED;
+        $condition = end($arrayCondition);
+        if ($withParent) {
+            $countArrayCondition = count($arrayCondition);
+            foreach($arrayCondition as $key => $item) {
+                if ($countArrayCondition - $key > $depth) {
+                    unset($arrayCondition[$key]);    // удаление "лишних" родительских категорий
+                }
+            }
+            $condition = implode(' OR ', $arrayCondition);
         }
 
         if (strlen($condition) == 0) {
             return ['condition' => $conditionError];
         }
 
+        foreach ($bindNames as $key => $item) {
+            $bindValues[$item] = $parents[$key];
+            if ($key > 0) {
+                $bindValues[$item] .= '%';
+            }
+        }
+        if (strpos($condition, ':not_del') !== false) {
+            $bindValues[':not_del'] = Status::NOT_DELETED;
+        }
+
         return [
             'condition' => $condition,
-            'bind' => $bindNames
+            'bind' => $bindValues
         ];
     }
 
