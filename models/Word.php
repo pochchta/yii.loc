@@ -228,8 +228,7 @@ class Word extends ActiveRecord
     {
         $conditionError = '0=1';
         if (
-            is_array($params['parents']) == false
-                || empty($params['parents'])
+            (isset($params['parents'][0]) || isset($params['parents'][1])) == false
                 || empty($params['columnName'])
         ) {
             return [
@@ -253,34 +252,31 @@ class Word extends ActiveRecord
 
         ksort($parents);
         $lastKeyParents = array_key_last($parents);
-        $lastKeyParents < 1 ? $lastKeyParents = 1 : NULL;
 
-        if (isset($parents[1]) && isset(Word::FIELD_WORD[$parents[1]])) {   // поиск по категории Word::FIELD_WORD
-            $parents[0] = Word::FIELD_WORD[$parents[1]];
-            unset($parents[1]);
+        if (isset($parents[0]) && isset(Word::FIELD_WORD[$parents[0]])) {   // поиск по категории Word::FIELD_WORD
+            $parents[0] = Word::FIELD_WORD[$parents[0]];
         }
 
-        foreach ($parents as $key => $item) {   // дальше возможно $parents[0] = 0, но $bindNames[0] останется прежним
+        foreach ($parents as $key => $item) {   // дальше возможно изменение $parents[0] = 0, но $bindNames[0] останется прежним
             $bindNames[$key] = ':' . md5($key . $item . $columnName . $depth);
         }
 
-        if (strlen($parents[0])) {
+        if (isset($parents[0])) {
             $arrayCondition[0] = "= $bindNames[0]";
             if ($parents[0] == Status::ALL) {
                 $parents[0] = 0;
                 $arrayCondition[0] = "<= $bindNames[0]";
             }
         }
-        if (strlen($parents[1])) {
-            if (isset($arrayCondition[0]) && strlen($arrayCondition[0])) {
-                $arrayCondition[0] = "parent_id {$arrayCondition[0]} AND";
+
+        for ($i = 1; $i < $depth + $lastKeyParents; $i++) {
+            $parentExpression = strlen($arrayCondition[$i-1]) ? "parent_id {$arrayCondition[$i-1]}" : '';
+            $likeExpression = isset($parents[$i]) ? "name LIKE {$bindNames[$i]}" : '';
+            if ($parentExpression && $likeExpression) {
+                $parentExpression .= ' AND ';
             }
-            $arrayCondition[0] = "IN (SELECT id FROM word WHERE {$arrayCondition[0]} name LIKE $bindNames[1] AND deleted = :not_del)";
+            $arrayCondition[$i] = "IN (SELECT id FROM word WHERE $parentExpression $likeExpression AND deleted = :not_del)";
         }
-        for ($i = 1; $i < $depth + $lastKeyParents - 1; $i++) {
-            $likeExpression = isset($parents[$i+1]) ? "AND name LIKE {$bindNames[$i+1]}" : '';
-            $arrayCondition[] = "IN (SELECT id FROM word WHERE parent_id {$arrayCondition[$i-1]} $likeExpression AND deleted = :not_del)";
-        }   // TODO: parent[0,2] работает не верно
         foreach ($arrayCondition as $key => $item) {
             $arrayCondition[$key] = "$columnName $item";
         }
