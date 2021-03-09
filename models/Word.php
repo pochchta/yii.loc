@@ -224,19 +224,14 @@ class Word extends ActiveRecord
         }
     }
 
+    /**
+     * @param array $params array parents, str columnName = parent_id, int depth = 1, bool withParent = false
+     * @return array|string[]
+     */
     public static function getConditionByParent($params = [])
     {
-        $conditionError = '0=1';
-        if (
-            (isset($params['parents'][0]) || isset($params['parents'][1])) == false
-                || empty($params['columnName'])
-        ) {
-            return [
-                'condition' => $conditionError
-            ];
-        }
-
-        $columnName = $parents = NULL;
+        $parents = NULL;
+        $columnName = 'parent_id';
         $depth = 1;
         $withParent = false;
 
@@ -244,10 +239,23 @@ class Word extends ActiveRecord
         $bindNames = [];
         $bindValues = [];
 
-        foreach(['columnName', 'parents', 'depth', 'withParent'] as $item) {
+        foreach (['columnName', 'parents', 'depth', 'withParent'] as $item) {
             if (isset($params[$item])) {
                 $$item = $params[$item];
             }
+        }
+
+        foreach ($parents as $key => $item) {   // удаление пустых parents[$key]
+            if (strlen($item) == 0) {
+                unset($parents[$key]);
+            }
+        }
+
+        $conditionError = '0=1';
+        if ((isset($parents[0]) || isset($parents[1])) == false || empty($columnName)) {
+            return [
+                'condition' => $conditionError
+            ];
         }
 
         ksort($parents);
@@ -258,7 +266,7 @@ class Word extends ActiveRecord
         }
 
         foreach ($parents as $key => $item) {   // дальше возможно изменение $parents[0] = 0, но $bindNames[0] останется прежним
-            $bindNames[$key] = ':' . md5($key . $item . $columnName . $depth);
+            $bindNames[$key] = ':' . md5($key . $item . $columnName . $depth);      // генерация имен для подстановки
         }
 
         if (isset($parents[0])) {
@@ -306,7 +314,7 @@ class Word extends ActiveRecord
         }
 
         return [
-            'condition' => $condition,
+            'condition' => preg_replace('/[\s]+/', ' ', $condition),
             'bind' => $bindValues
         ];
     }
