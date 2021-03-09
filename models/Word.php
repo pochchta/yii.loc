@@ -254,7 +254,13 @@ class Word extends ActiveRecord
         }
         $depth += (isset($parents[0]) ? 0 : 1);     // если не задана не абсолютная категория, то увеличиваем глубину
 
-        $parentsKeyLast = array_key_last($parents);     // ключ последнего значащего родителя
+        $parentsKeyLast = 0;     // ключ последнего значащего родителя
+        foreach ($parents as $key => $item) {
+            if ($key >= $depth) {
+                break;
+            }
+            $parentsKeyLast = $key;
+        }
         $previousKey = 0;                               // если $item == 'not', то $previousKey - ключ последнего значащего родителя
         foreach ($parents as $key => $item) {
             if (ucfirst($item) == array_search(Status::NOT_CATEGORY, Word::FIELD_WORD)) {    // =='not'
