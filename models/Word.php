@@ -259,7 +259,6 @@ class Word extends ActiveRecord
         }
 
         ksort($parents);
-        $lastKeyParents = array_key_last($parents);
 
         if (isset($parents[0]) && isset(Word::FIELD_WORD[$parents[0]])) {   // поиск по категории Word::FIELD_WORD
             $parents[0] = Word::FIELD_WORD[$parents[0]];
@@ -277,7 +276,7 @@ class Word extends ActiveRecord
             }
         }
 
-        for ($i = 1; $i < $depth + $lastKeyParents; $i++) {
+        for ($i = 1; $i < $depth + (isset($parents[0]) ? 0 : 1); $i++) {
             $parentExpression = strlen($arrayCondition[$i-1]) ? "parent_id {$arrayCondition[$i-1]}" : '';
             $likeExpression = isset($parents[$i]) ? "name LIKE {$bindNames[$i]}" : '';
             if ($parentExpression && $likeExpression) {
@@ -290,12 +289,6 @@ class Word extends ActiveRecord
         }
         $condition = end($arrayCondition);
         if ($withParent) {
-            $countArrayCondition = count($arrayCondition);
-            foreach($arrayCondition as $key => $item) {
-                if ($countArrayCondition - $key > $depth) {
-                    unset($arrayCondition[$key]);    // удаление "лишних" родительских категорий
-                }
-            }
             $condition = implode(' OR ', $arrayCondition);
         }
 
@@ -304,9 +297,11 @@ class Word extends ActiveRecord
         }
 
         foreach ($bindNames as $key => $item) {
-            $bindValues[$item] = $parents[$key];
-            if ($key > 0) {
-                $bindValues[$item] .= '%';
+            if ($key < $depth + (isset($parents[0]) ? 0 : 1)) {
+                $bindValues[$item] = $parents[$key];
+                if ($key > 0) {
+                    $bindValues[$item] .= '%';
+                }
             }
         }
         if (strpos($condition, ':not_del') !== false) {
