@@ -239,26 +239,36 @@ class Word extends ActiveRecord
         $bindNames = [];
         $bindValues = [];
 
-        foreach (['columnName', 'parents', 'depth', 'withParent'] as $item) {
+        $withParent = isset($params['withParent']) ? filter_var($params['withParent'], FILTER_VALIDATE_BOOLEAN) : $withParent;
+        foreach (['columnName', 'parents', 'depth'] as $item) {
             if (isset($params[$item])) {
                 $$item = $params[$item];
             }
         }
 
-        foreach ($parents as $key => $item) {   // удаление пустых parents[$key]
+        ksort($parents);
+        foreach ($parents as $key => $item) {
             if (strlen($item) == 0) {
-                unset($parents[$key]);
+                unset($parents[$key]);   // удаление пустых parents[$key]
             }
         }
+        $depth += (isset($parents[0]) ? 0 : 1);     // если не задана не абсолютная категория, то увеличиваем глубину
 
-        $conditionError = '0=1';
-        if ((isset($parents[0]) || isset($parents[1])) == false || empty($columnName)) {
-            return [
-                'condition' => $conditionError
-            ];
+        $parentsKeyLast = array_key_last($parents);     // ключ последнего значащего родителя
+        $previousKey = 0;                               // если $item == 'not', то $previousKey - ключ последнего значащего родителя
+        foreach ($parents as $key => $item) {
+            if (ucfirst($item) == array_search(Status::NOT_CATEGORY, Word::FIELD_WORD)) {    // =='not'
+                if ($key > 0 && $depth > $key) {
+                    $depth = $key;      // ограничение глубины для NOT_CATEGORY
+                    $parentsKeyLast = $previousKey;
+                }
+            }
+            $previousKey = $key;
         }
-
-        ksort($parents);
+        $conditionError = ['condition' => '0=1', 'bind' => []];
+        if ((isset($parents[0]) || isset($parents[1])) == false || empty($columnName)) {
+            return $conditionError;
+        }
 
         if (isset($parents[0]) && isset(Word::FIELD_WORD[$parents[0]])) {   // поиск по категории Word::FIELD_WORD
             $parents[0] = Word::FIELD_WORD[$parents[0]];
@@ -276,7 +286,7 @@ class Word extends ActiveRecord
             }
         }
 
-        for ($i = 1; $i < $depth + (isset($parents[0]) ? 0 : 1); $i++) {
+        for ($i = 1; $i < $depth; $i++) {   // составление вложенных запросов
             $parentExpression = strlen($arrayCondition[$i-1]) ? "parent_id {$arrayCondition[$i-1]}" : '';
             $likeExpression = isset($parents[$i]) ? "name LIKE {$bindNames[$i]}" : '';
             if ($parentExpression && $likeExpression) {
@@ -284,20 +294,27 @@ class Word extends ActiveRecord
             }
             $arrayCondition[$i] = "IN (SELECT id FROM word WHERE $parentExpression $likeExpression AND deleted = :not_del)";
         }
-        foreach ($arrayCondition as $key => $item) {
+
+        foreach ($arrayCondition as $key => $item) {    // присоединение columnName к запросам
             $arrayCondition[$key] = "$columnName $item";
         }
+
         $condition = end($arrayCondition);
         if ($withParent) {
+            foreach($arrayCondition as $key => $item) {
+                if ($key < $parentsKeyLast) {
+                    unset($arrayCondition[$key]);    // удаление "лишних" родительских категорий
+                }
+            }
             $condition = implode(' OR ', $arrayCondition);
         }
 
-        if (strlen($condition) == 0) {
-            return ['condition' => $conditionError];
+        if (strlen($condition) == 0) {  // # parents[0] = NULL, parents[1] = 'not'
+            return $conditionError;
         }
 
-        foreach ($bindNames as $key => $item) {
-            if ($key < $depth + (isset($parents[0]) ? 0 : 1)) {
+        foreach ($bindNames as $key => $item) {     // формирование значений для подстановки
+            if ($key < $depth) {
                 $bindValues[$item] = $parents[$key];
                 if ($key > 0) {
                     $bindValues[$item] .= '%';
