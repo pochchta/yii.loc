@@ -276,8 +276,8 @@ class Word extends ActiveRecord
             return $conditionError;
         }
 
-        if (isset($parents[0]) && isset(Word::FIELD_WORD[$parents[0]])) {   // поиск по категории Word::FIELD_WORD
-            $parents[0] = Word::FIELD_WORD[$parents[0]];
+        if (isset($parents[0]) && isset(Word::FIELD_WORD[ucfirst($parents[0])])) {   // поиск по категории Word::FIELD_WORD
+            $parents[0] = Word::FIELD_WORD[ucfirst($parents[0])];
         }
 
         foreach ($parents as $key => $item) {   // дальше возможно изменение $parents[0] = 0, но $bindNames[0] останется прежним
