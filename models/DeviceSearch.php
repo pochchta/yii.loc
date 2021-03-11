@@ -15,7 +15,7 @@ class DeviceSearch extends Device
 {
     const COLUMN_SEARCH = ['id', 'number'];
     const DEFAULT_LIMIT_RECORDS = 20;
-    const PRINT_LIMIT_RECORDS = 500;
+    const PRINT_LIMIT_RECORDS = 500;    // TODO: в параметры приложения? есть ли такие в других моделях?
     public $limit = self::DEFAULT_LIMIT_RECORDS;
 
     public $term, $term_name;
@@ -90,8 +90,14 @@ class DeviceSearch extends Device
                 } elseif ($item == 'position') {
                     $depth = 1;
                 }
-                list('condition' => $condition, 'bind' => $bind) =
-                    Word::getConditionLikeName("{$item}_id", $this->$item, $depth, true);
+//                list('condition' => $condition, 'bind' => $bind) =
+//                    Word::getConditionLikeName("{$item}_id", $this->$item, $depth, true);
+                list('condition' => $condition, 'bind' => $bind) = Word::getConditionByParent([
+                    'parents' => [1 => $this->$item],
+                    'depth' => $depth,
+                    'withParent' => true,
+                    'columnName' => "{$item}_id"
+                ]);
                 $query->andOnCondition($condition, $bind);
             }
         }
@@ -119,10 +125,10 @@ class DeviceSearch extends Device
         if (strlen($prefix)) {
             $prefix = $prefix . '_';
         }
+        $term_name = in_array($attribute, self::COLUMN_SEARCH) ? $attribute : '';
+        $parent = "''";
         if ($attribute === 'position') {
-            $parent = "$('#department').val() != '' ? $('#department').val() : 'position'";
-        } else {
-            $parent = "'". (isset(Word::FIELD_WORD[ucfirst($attribute)]) ? $attribute : '') . "'";
+            $parent = "$('#department').val()";
         }
         $select = '';
         if ($autoSend) {
@@ -135,8 +141,9 @@ class DeviceSearch extends Device
                 'source' => new JsExpression("function(request, response) {
                     $.getJSON('" . Url::to('/device/list-auto-complete') . "', {
                         term: request.term,
-                        term_name: '{$attribute}',
-                        term_parent: {$parent},
+                        term_name: '{$term_name}',
+                        term_p1: '{$attribute}',
+                        term_p2: {$parent},
                     }, response);
                 }"),
                 'select' => $select,

@@ -29,7 +29,7 @@ use yii\widgets\ActiveForm;
                 'source' => new JsExpression("function(request, response) {
                     $.getJSON('" . Url::to('/word/list-auto-complete') . "', {
                         term: request.term,
-                        term_parent: $('#category_name').val(),
+                        term_p1: $('#category_name').val(),
                     }, response);
                 }"),
                 'minLength' => Yii::$app->params['minSymbolsAutoComplete'],

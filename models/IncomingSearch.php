@@ -108,8 +108,12 @@ class IncomingSearch extends Incoming
             }
             $field = $this->{'device_' . $item};
             if (strlen($field)) {
-                list('condition' => $condition, 'bind' => $bind) =
-                    Word::getConditionLikeName("{$item}_id", $field, $depth, true);
+                list('condition' => $condition, 'bind' => $bind) = Word::getConditionByParent([
+                    'parents' => [1 => $field],
+                    'columnName' => "{$item}_id",
+                    'depth' => $depth,
+                    'withParent' => true
+                ]);
                 $query->andOnCondition("device_id IN (SELECT id FROM device WHERE $condition)", $bind);
             }
         }

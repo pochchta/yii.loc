@@ -15,7 +15,7 @@ class WordSearch extends Word
 {
     const COLUMN_SEARCH = ['id', 'name', 'value'];
     public $first_category, $second_category, $third_category;
-    public $term, $term_name, $term_parent, $term_category;
+    public $term, $term_name, $term_p1, $term_p2, $term_p3;
 
     /**
      * {@inheritdoc}
@@ -27,7 +27,7 @@ class WordSearch extends Word
             [['name', 'value', 'description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
             [['first_category', 'second_category', 'third_category'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
-            [['term', 'term_name', 'term_parent', 'term_category'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['term', 'term_name', 'term_p1', 'term_p2', 'term_p3'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['first_category'], 'default', 'value' => Status::ALL],
             [['first_category'], 'validateCategoryName'],
         ];
@@ -98,56 +98,11 @@ class WordSearch extends Word
         }
 
         if ($this->first_category != Status::ALL || strlen($this->second_category) || strlen($this->third_category)) {
-            $not = array_search(Status::NOT_CATEGORY, Word::FIELD_WORD);
-            if ($this->first_category == Status::ALL) {
-                $first = 'parent_id < 0';
-            } else {
-                $first = 'parent_id = :first';
-            }
-            $second = '';
-            if (strlen($this->second_category)) {
-                $second = 'name LIKE :second AND';
-            }
-            $third = '';
-            if (strlen($this->third_category)) {
-                $third = 'name LIKE :third AND';
-            }
-            $condition1 = $first;
-            $condition2 = "parent_id IN (SELECT id FROM word WHERE $second $first AND deleted = :not_del)";
-            $condition3 = "parent_id IN (SELECT id FROM word WHERE $third parent_id IN (SELECT id FROM word WHERE $second $first AND deleted = :not_del) AND deleted = :not_del)";
-
-            $condition = $condition1;
-
-            if (ucfirst($this->second_category) != $not) {
-                if (ucfirst($this->third_category) != $not) {
-                    $condition = $condition3;
-                    if (strlen($this->second_category) == 0) {
-                        if (strlen($this->third_category) == 0) {
-                            $condition = $condition1 . ' OR ' . $condition2 . ' OR ' . $condition3;
-                        }
-                    } else {
-                        if (strlen($this->third_category) == 0) {
-                            $condition = $condition2 . ' OR ' . $condition3;
-                        }
-                    }
-                } else {
-                    $condition = $condition2;
-                }
-            }
-            $bind = [];
-            if (strpos($condition, ':first') !== false) {
-                $bind[':first'] = Word::FIELD_WORD[$this->first_category];
-            }
-            if (strpos($condition, ':second') !== false) {
-                $bind[':second'] = $this->second_category . '%';
-            }
-            if (strpos($condition, ':third') !== false) {
-                $bind[':third'] = $this->third_category . '%';
-            }
-            if (strpos($condition, ':not_del') !== false) {
-                $bind[':not_del'] = Status::NOT_DELETED;
-            }
-
+            list('condition' => $condition, 'bind' => $bind) = Word::getConditionByParent([
+                'parents' => [$this->first_category, $this->second_category, $this->third_category],
+                'depth' => '3',
+                'withParent' => true
+            ]);
             $query->andOnCondition($condition, $bind);
         }
         return $dataProvider;
@@ -158,26 +113,28 @@ class WordSearch extends Word
         return '';
     }
 
-    /** Если $attribute != (first_category || second_category), то term_parent = ''
+    /** Если $attribute != (first_category || second_category), то second_category = ''
      * @param $attribute
      * @return array
      */
     public static function getAutoCompleteOptions($attribute)
     {
+        $term_name = in_array($attribute, self::COLUMN_SEARCH) ? $attribute : '';
         $parent = "''";
         if ($attribute === 'second_category') {
             $parent = "$('#first_category').val()";
         } elseif ($attribute === 'third_category') {
             $parent = "$('#second_category').val()";
         }
+
         return [
             'clientOptions' => [
                 'source' => new JsExpression("function(request, response) {
                     $.getJSON('" . Url::to('/word/list-auto-complete') . "', {
                         term: request.term,
-                        term_name: '{$attribute}',
-                        term_parent: {$parent},
-                        term_category: $('#first_category').val(),
+                        term_name: '{$term_name}',
+                        term_p1: $('#first_category').val(),
+                        term_p2: {$parent},
                     }, response);
                 }"),
                 'select' => new JsExpression("function(event, ui) {
@@ -192,33 +149,27 @@ class WordSearch extends Word
         ];
     }
 
-    /** Поиск по родителю для AutoComplete
-     * @param int $depth
-     * @param bool $withParent
+    /**
+     * @param array $params Массив массивов параметров для Word::getConditionByParent
      * @return false|string
      */
-    public function findNames($depth = 1, $withParent = false)
+    public function findNamesByParents($params)
     {
-        if ($this->term_parent == Status::ALL) {
-            list('condition' => $condition, 'bind' => $bind) =
-                Word::getConditionById('parent_id', Status::ALL, $depth, $withParent);
-        } else {
-            list('condition' => $condition, 'bind' => $bind) =
-                Word::getConditionLikeName('parent_id', $this->term_parent, $depth, $withParent);
-        }
-
-        $data = Word::find()
+        $query = Word::find()
             ->select(['name as value'])
             ->where(['deleted' => Status::NOT_DELETED])
             ->andFilterWhere(['like', 'name', $this->term . '%', false])
-            ->andOnCondition($condition, $bind)
             ->orderBy('name')
             ->limit(Yii::$app->params['maxLinesAutoComplete'])
-            ->distinct()
-            ->asArray()
-            ->all();
+//            ->distinct()
+            ->asArray();
 
-        return json_encode($data);
+        foreach ($params as $item) {
+            list('condition' => $condition, 'bind' => $bind) = Word::getConditionByParent($item);
+            $query->andOnCondition($condition, $bind);
+        }
+
+        return json_encode($query->all());
     }
 
     /** Поиск по значению и названию поля из массива self::COLUMN_SEARCH
@@ -234,43 +185,10 @@ class WordSearch extends Word
                 ->andFilterWhere(['like', $this->term_name, $this->term . '%', false])
                 ->orderBy($this->term_name)
                 ->limit(Yii::$app->params['maxLinesAutoComplete'])
-                ->distinct()
+//                ->distinct()
                 ->asArray()
                 ->all();
         }
-        return json_encode($data);
-    }
-
-    /** Поиск по двум родительским категориям
-     * @return false|string
-     */
-    public function findNamesByTwoCategory()
-    {
-        $bind = [':not_del' => Status::NOT_DELETED];
-        $condition1 = 'parent_id < 0';
-        $condition2 = '';
-
-        if (isset(Word::FIELD_WORD[$this->term_category])) {
-            $this->term_category = Word::FIELD_WORD[$this->term_category];
-            $condition1 = 'parent_id = :category';
-            $bind[':category'] = $this->term_category;
-        }
-        if (strlen($this->parent_name)) {
-            $condition2 = 'name LIKE :parent AND';
-            $bind[':parent'] = $this->term_parent . '%';
-        }
-
-        $condition = "parent_id IN (SELECT id FROM word WHERE $condition2 $condition1 AND deleted = :not_del)";
-        $data = Word::find()
-            ->select(['name as value'])
-            ->where(['deleted' => Status::NOT_DELETED])
-            ->andFilterWhere(['like', 'name', $this->term . '%', false])
-            ->andOnCondition($condition, $bind)
-            ->orderBy('name')
-            ->limit(Yii::$app->params['maxLinesAutoComplete'])
-            ->distinct()
-            ->asArray()
-            ->all();
 
         return json_encode($data);
     }

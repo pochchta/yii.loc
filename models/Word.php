@@ -167,63 +167,6 @@ class Word extends ActiveRecord
         }
     }
 
-    /** Получение условия по id родителя для запроса дочерних элементов
-     * @param $columnName
-     * @param $parentId
-     * @param int $depth
-     * @param bool $withParent
-     * @return array
-     */
-    public static function getConditionById($columnName, $parentId, $depth = 1, $withParent = false)
-    {
-        $bindName = ':' . $columnName . (int)$depth;
-
-        if ($parentId == Status::ALL) {
-            $parentId = 0;
-            $arrayCondition[0] = "<= $bindName";
-        } else {
-            $arrayCondition[0] = "= $bindName";
-        }
-        for ($i = 1; $i < $depth; $i++) {
-            $arrayCondition[] = "IN (SELECT id FROM word WHERE parent_id {$arrayCondition[$i-1]} AND deleted = :not_del)";
-        }
-        foreach ($arrayCondition as &$item) {
-            $item = "$columnName $item";
-        }
-
-        $bind = [$bindName => $parentId];
-        if ($depth > 1) {
-            $bind += [':not_del' => Status::NOT_DELETED];
-        }
-
-        return [
-            'condition' => $withParent ? implode(' OR ', $arrayCondition) : end($arrayCondition),
-            'bind' => $bind
-        ];
-    }
-
-    public static function getConditionLikeName($columnName, $parentName, $depth = 1, $withParent = false)
-    {
-        if (isset(Word::FIELD_WORD[ucfirst($parentName)])) {
-            $parentId = Word::FIELD_WORD[ucfirst($parentName)];
-            return self::getConditionById($columnName, $parentId, $depth, $withParent);
-        } else {
-            $bindName = ':' . $columnName . (int)$depth;
-            $arrayCondition[0] = "IN (SELECT id FROM word WHERE name LIKE $bindName AND deleted = :not_del)";
-            for ($i = 1; $i < $depth; $i++) {
-                $arrayCondition[] = "IN (SELECT id FROM word WHERE parent_id {$arrayCondition[$i-1]} AND deleted = :not_del)";
-            }
-            foreach ($arrayCondition as &$item) {
-                $item = "$columnName $item";
-            }
-
-            return [
-                'condition' => $withParent ? implode(' OR ', $arrayCondition) : end($arrayCondition),
-                'bind' => [$bindName => $parentName . '%', ':not_del' => Status::NOT_DELETED]
-            ];
-        }
-    }
-
     /**
      * @param array $params array parents, str columnName = parent_id, int depth = 1, bool withParent = false
      * @return array|string[]

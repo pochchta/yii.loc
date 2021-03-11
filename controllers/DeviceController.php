@@ -125,28 +125,42 @@ class DeviceController extends Controller
 
     public function actionListAutoComplete()
     {
-        $wordSearch = new WordSearch();
-        $wordSearch->load(Yii::$app->request->queryParams);
-        if (strlen($wordSearch->term_parent)) {
-            if ($wordSearch->validate()) {
-                $depth = 1;
-                $withParent = true;
-                if ($wordSearch->term_parent == 'position') {
-                    $wordSearch->term_parent = 'department';
-                    $depth = 3;
-                    $withParent = false;
-                } elseif ($wordSearch->term_parent == 'department') {
-                    $depth = 2;
-                } elseif (isset(Word::FIELD_WORD[ucfirst($wordSearch->term_parent)])) {
-                    $depth = 3;
-                }
-                echo $wordSearch->findNames($depth, $withParent);
-            }
-        } else {
-            $deviceSearch = new DeviceSearch();
-            $deviceSearch->load(Yii::$app->request->queryParams);
+        $deviceSearch = new DeviceSearch();
+        $deviceSearch->load(Yii::$app->request->queryParams);
+        if (in_array($deviceSearch->term_name, DeviceSearch::COLUMN_SEARCH)) {
             if ($deviceSearch->validate()) {
                 echo $deviceSearch->findNames();
+            }
+        } else {
+            $wordSearch = new WordSearch();
+            $wordSearch->load(Yii::$app->request->queryParams);
+            if ($wordSearch->validate()) {
+                $secondCondition = NULL;
+                $depth = 1;
+                $withParent = true;
+                if ($wordSearch->term_p1 == 'position') {
+                    $wordSearch->term_p1 = 'department';
+                    $depth = 3;
+                    $withParent = false;
+                    if (strlen($wordSearch->term_p2)) {
+                        $secondCondition = [
+                            'parents' => [1 => $wordSearch->term_p2],
+                            'depth' => 2,
+                            'withParent' => true
+                        ];
+                    }
+                } elseif ($wordSearch->term_p1 == 'department') {
+                    $depth = 2;
+                } elseif (isset(Word::FIELD_WORD[ucfirst($wordSearch->term_p1)])) {
+                    $depth = 3;
+                }
+                $arrayCondition[] = [
+                    'parents' => [$wordSearch->term_p1],
+                    'depth' => $depth,
+                    'withParent' => $withParent
+                ];
+                is_array($secondCondition) ? $arrayCondition[] = $secondCondition : NULL;
+                echo $wordSearch->findNamesByParents($arrayCondition);
             }
         }
         die();

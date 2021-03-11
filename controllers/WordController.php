@@ -3,7 +3,6 @@
 namespace app\controllers;
 
 use app\models\Status;
-use app\models\WordAutoComplete;
 use Yii;
 use app\models\Word;
 use app\models\WordSearch;
@@ -158,24 +157,33 @@ class WordController extends Controller
 
     public function actionListAutoComplete()
     {
-        $model = new WordAutoComplete();
-        $model->load(Yii::$app->request->queryParams);
-        if ($model->validate()) {
-            if (strlen($model->term_parent)) {
-                if ($model->term_name == 'second_category') {
-                    if ($model->term_parent == Status::ALL) {
-                        $model->addConditionByParentId();
-                    } else {
-                        $model->addConditionByParentName();
-                    }
-                    $model->addConditionByName();
-                } elseif ($model->term_name == 'third_category') {
-//                    $model->findNamesByTwoCategory();
-                }
+        $wordSearch = new WordSearch();
+        $wordSearch->load(Yii::$app->request->queryParams);
+        if ($wordSearch->validate()) {
+            if (in_array($wordSearch->term_name, WordSearch::COLUMN_SEARCH)) {
+                echo $wordSearch->findNamesByFieldName();
             } else {
-                $model->addConditionByColumnName();
+                if ($wordSearch->term_name == 'second_category') {
+                    $arrayCondition[] = [
+                        'parents' => [$wordSearch->term_p1],
+                        'depth' => 1,
+                        'withParent' => false
+                    ];
+                } elseif ($wordSearch->term_name == 'third_category') {
+                    $arrayCondition[] = [
+                        'parents' => [$wordSearch->term_p1, $wordSearch->term_p2],
+                        'depth' => 2,
+                        'withParent' => false
+                    ];
+                } else {
+                    $arrayCondition[] = [
+                        'parents' => [$wordSearch->term_p1],
+                        'depth' => 2,
+                        'withParent' => true
+                    ];
+                }
+                echo $wordSearch->findNamesByParents($arrayCondition);
             }
-            echo $model->getJsonList();
         }
         die();
     }
