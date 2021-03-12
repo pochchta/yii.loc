@@ -3,7 +3,7 @@ window.onload = function() {
         const TIME_FOR_FILTER = 3000;
 
         let filter_selector = "#grid_id-filters input, #grid_id-filters select";
-        let filter_text_checkbox_select = "#grid_id-filters :text, #grid_id-filters :checkbox, #grid_id-filters select";
+        let filter_text_and_select = "#grid_id-filters :text, #grid_id-filters select";
         let filter_date = "#grid_id-filters input[type=date]";
         let timerFilter = new timerForFilter(TIME_FOR_FILTER, applyFilter);
         let keyCode = 0;
@@ -16,7 +16,7 @@ window.onload = function() {
                 keyCode = 0;
                 enterPressed = false;
             })
-            .on("change keydown", filter_text_checkbox_select, function(event, valueChanged) {
+            .on("change keydown", filter_text_and_select, function(event, valueChanged) {
                 if (event.type === "keydown" || valueChanged === true) {
                     keyCode = event.keyCode;
                     if (keyCode !== 13 && valueChanged !== true) {
