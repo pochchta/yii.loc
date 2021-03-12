@@ -27,7 +27,7 @@ use yii\db\ActiveRecord;
  */
 class Word extends ActiveRecord
 {
-    const MAX_NUMBER_PARENTS = 3;       // максимальный уровень вложенности
+    const MAX_NUMBER_PARENTS = 4;       // максимальный уровень вложенности
 
     const FIELD_WORD = [
         'Not' => 0,
@@ -99,10 +99,7 @@ class Word extends ActiveRecord
             if (strlen($this->parent_name)) {        // задан промежуточный родитель
                 $parent = self::findOne(['name' => $this->parent_name]);
                 if ($parent) {
-                    if (
-                        $parent->parent_id !== self::FIELD_WORD[$this->category_name] &&
-                        $parent->parent->parent_id !== self::FIELD_WORD[$this->category_name]
-                    ) {
+                    if (Word::getParentByLevel($parent, 0, 3)->id !== self::FIELD_WORD[$this->category_name]) {
                         $this->addError('parent_name', 'Категория не принадлежит разделу или превышена вложенность');
                     }
                     if ($this->id !== $parent->id) {
@@ -126,42 +123,23 @@ class Word extends ActiveRecord
     {
         if (!$this->hasErrors()) {
             if ($this->deleted == Status::NOT_DELETED) {
-                $depthAttribute = 'firstCategory';
-                $depth = 1;             // вложена в "виртуальную" категорию
-                $parent = $this->parent;
-                if (isset($parent) && $parent->deleted == Status::NOT_DELETED) {
-                    $depth = 2;
-                    $parent = $parent->parent;
-                    if (isset($parent) && $parent->deleted == Status::NOT_DELETED) {
-                        $depth = 3;
-                        if ($parent->parent_id > 0) {
-                            $depth = 4;
+                $depth = Word::getDepth($this);
+                for ($i = 1; $i <= self::MAX_NUMBER_PARENTS; $i++) {
+                    if ($depth <= self::MAX_NUMBER_PARENTS) {
+                        list('condition' => $condition, 'bind' => $bind) = Word::getConditionByParent([
+                            'parents' => [$this->id],
+                            'depth' => $depth,
+                        ]);
+                        if (self::find()->andOnCondition($condition, $bind)->andFilterWhere(['deleted' => Status::NOT_DELETED])->one() !== NULL) {
+                            $depth++;
                         }
+                    } else {
+                        break;
                     }
                 }
 
-                if ($depth <= self::MAX_NUMBER_PARENTS) {
-                    if (self::find()->where(['parent_id' => $this->id, 'deleted' => Status::NOT_DELETED])->one() !== NULL) {
-                        $depth++;
-                    }
-                }
-                if ($depth <= self::MAX_NUMBER_PARENTS) {
-                    if (self::find()->andOnCondition(
-                        'parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :not_del) AND deleted = :not_del',
-                        [':id' => $this->id, ':not_del' => Status::NOT_DELETED]
-                    )->one() !== NULL) {
-                        $depth++;
-                    }
-                }
-                if ($depth <= self::MAX_NUMBER_PARENTS) {
-                    if (self::find()->andOnCondition(
-                        'parent_id IN (SELECT id FROM word WHERE parent_id IN (SELECT id FROM word WHERE parent_id = :id AND deleted = :not_del) AND deleted = :not_del) AND deleted = :not_del',
-                        [':id' => $this->id, ':not_del' => Status::NOT_DELETED])->one() !== NULL) {
-                        $depth++;
-                    }
-                }
                 if ($depth > self::MAX_NUMBER_PARENTS) {
-                    $this->addError($depthAttribute, 'Превышена глубина вложенности');
+                    $this->addError('parent_name', 'Превышена глубина вложенности');
                 }
             }
         }
@@ -297,6 +275,77 @@ class Word extends ActiveRecord
     }
 
     /**
+     * @param Word $model
+     * @return bool|int 1 ... 1 + MAX_NUMBER_PARENTS
+     */
+    public static function getDepth($model)
+    {
+        for ($i = 1; $i <= 1 + self::MAX_NUMBER_PARENTS; $i++) {
+            if (isset($model)) {
+                if ($model->parent_id <= 0) {
+                    return $i;
+                }
+                $model = $model->parent;
+            } else {
+                break;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param Word $model
+     * @param $level = Status::ALL
+     * @param int $maxNumberParents = self::MAX_NUMBER_PARENTS
+     * @return Word|Word[]|null
+     */
+    public static function getParentByLevel($model, $level = Status::ALL, $maxNumberParents = self::MAX_NUMBER_PARENTS)
+    {
+        $parents = [];
+        for ($i = 1; $i <= $maxNumberParents; $i++) {
+            if ((int)$model->parent_id <= 0) {   // || parent_id == NULL
+                $category = new Word();
+                $category->id = (int)$model->parent_id;
+                if (isset(self::LABEL_FIELD_WORD[$category->id])) {
+                    $category->name = self::LABEL_FIELD_WORD[$category->id];
+                }
+                $parents[] = $category;
+                break;
+            }
+            $model = $model->parent;
+            $parents[] = $model;
+        }
+        if ($level == Status::ALL) {
+            return $parents;
+        }
+        return isset($parents[count($parents) - $level - 1]) ? $parents[count($parents) - $level - 1] : NULL;
+    }
+
+    /**
+     * @param Word $model
+     * @param Word $parent
+     * @param int $maxNumberParents = self::MAX_NUMBER_PARENTS - 1
+     * @return bool
+     */
+    public static function checkIsParent($model, $parent, $maxNumberParents = self::MAX_NUMBER_PARENTS - 1)
+    {
+        if (isset($model)) {
+            $currentParent = $model->parent;
+            for ($i = 1; $i <= $maxNumberParents; $i++) {
+                if (isset($currentParent)) {
+                    if ($currentParent->id === $parent->id) {
+                        return true;
+                    }
+                    $currentParent = $currentParent->parent;
+                } else {
+                    break;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function attributeLabels()
@@ -312,9 +361,10 @@ class Word extends ActiveRecord
             'updated_by' => 'Обновил',
             'deleted' => 'Удален',
             'parent_id' => 'Родительская категория',
-            'first_category' => 'Раздел',
-            'second_category' => 'Категория',
-            'third_category' => 'Папка',
+            'category1' => 'Раздел',
+            'category2' => 'Папка 1',
+            'category3' => 'Папка 2',
+            'category4' => 'Папка 3',
             'category_name' => 'Раздел',
             'parent_name' => 'Папка'
         ];
