@@ -108,20 +108,10 @@ class WordController extends Controller
      * @param $view
      * @return mixed
      */
-    public function saveModel($model, $view)
+    private function saveModel($model, $view)
     {
-        $categoryId = 0;
-        if ($model->parent_id > 0) {
-            $parent = $model->parent;
-            $model->parent_name = $parent->name;
-            if ($parent->parent_id < 0) {
-                $categoryId = $parent->parent_id;
-            } elseif ($parent->parent->parent_id < 0) {
-                $categoryId = $parent->parent->parent_id;
-            }
-        } else {
-            $categoryId = (int)($model->parent_id);     // в новой модели parent_id = NULL
-        }
+        $model->parent_name = $model->parent->name;
+        $categoryId = Word::getParentByLevel($model, 0)->id;
         if ($key = array_search($categoryId, Word::FIELD_WORD)) {       // получение значения для select
             $model->category_name = $key;
         } else {
@@ -163,22 +153,28 @@ class WordController extends Controller
             if (in_array($wordSearch->term_name, WordSearch::COLUMN_SEARCH)) {
                 echo $wordSearch->findNamesByFieldName();
             } else {
-                if ($wordSearch->term_name == 'second_category') {
+                if ($wordSearch->term_name == 'category2') {
                     $arrayCondition[] = [
                         'parents' => [$wordSearch->term_p1],
                         'depth' => 1,
                         'withParent' => false
                     ];
-                } elseif ($wordSearch->term_name == 'third_category') {
+                } elseif ($wordSearch->term_name == 'category3') {
                     $arrayCondition[] = [
                         'parents' => [$wordSearch->term_p1, $wordSearch->term_p2],
                         'depth' => 2,
                         'withParent' => false
                     ];
+                } elseif ($wordSearch->term_name == 'category4') {
+                    $arrayCondition[] = [
+                        'parents' => [$wordSearch->term_p1, $wordSearch->term_p2, $wordSearch->term_p3],
+                        'depth' => 3,
+                        'withParent' => false
+                    ];
                 } else {
                     $arrayCondition[] = [
                         'parents' => [$wordSearch->term_p1],
-                        'depth' => 2,
+                        'depth' => 3,
                         'withParent' => true
                     ];
                 }

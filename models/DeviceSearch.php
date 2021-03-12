@@ -125,7 +125,6 @@ class DeviceSearch extends Device
         if (strlen($prefix)) {
             $prefix = $prefix . '_';
         }
-        $term_name = in_array($attribute, self::COLUMN_SEARCH) ? $attribute : '';
         $parent = "''";
         if ($attribute === 'position') {
             $parent = "$('#department').val()";
@@ -141,7 +140,7 @@ class DeviceSearch extends Device
                 'source' => new JsExpression("function(request, response) {
                     $.getJSON('" . Url::to('/device/list-auto-complete') . "', {
                         term: request.term,
-                        term_name: '{$term_name}',
+                        term_name: '{$attribute}',
                         term_p1: '{$attribute}',
                         term_p2: {$parent},
                     }, response);

@@ -106,7 +106,7 @@ class DeviceController extends Controller
      * @param $view
      * @return string|\yii\web\Response
      */
-    public function saveModel($model, $view)
+    private function saveModel($model, $view)
     {
         if ($model->load(Yii::$app->request->post())) {
             if ($model->save()) {
@@ -140,19 +140,19 @@ class DeviceController extends Controller
                 $withParent = true;
                 if ($wordSearch->term_p1 == 'position') {
                     $wordSearch->term_p1 = 'department';
-                    $depth = 3;
+                    $depth = 4;
                     $withParent = false;
                     if (strlen($wordSearch->term_p2)) {
                         $secondCondition = [
                             'parents' => [1 => $wordSearch->term_p2],
-                            'depth' => 2,
+                            'depth' => 3,
                             'withParent' => true
                         ];
                     }
                 } elseif ($wordSearch->term_p1 == 'department') {
-                    $depth = 2;
-                } elseif (isset(Word::FIELD_WORD[ucfirst($wordSearch->term_p1)])) {
                     $depth = 3;
+                } elseif (isset(Word::FIELD_WORD[ucfirst($wordSearch->term_p1)])) {
+                    $depth = 4;
                 }
                 $arrayCondition[] = [
                     'parents' => [$wordSearch->term_p1],

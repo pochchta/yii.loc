@@ -14,7 +14,7 @@ use yii\web\JsExpression;
 class WordSearch extends Word
 {
     const COLUMN_SEARCH = ['id', 'name', 'value'];
-    public $first_category, $second_category, $third_category;
+    public $category1, $category2, $category3, $category4;
     public $term, $term_name, $term_p1, $term_p2, $term_p3;
 
     /**
@@ -26,18 +26,18 @@ class WordSearch extends Word
             [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted', 'parent_id'], 'integer'],
             [['name', 'value', 'description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
-            [['first_category', 'second_category', 'third_category'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['category1', 'category2', 'category3', 'category4'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['term', 'term_name', 'term_p1', 'term_p2', 'term_p3'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
-            [['first_category'], 'default', 'value' => Status::ALL],
-            [['first_category'], 'validateCategoryName'],
+            [['category1'], 'default', 'value' => Status::ALL],
+            [['category1'], 'validateCategoryName'],
         ];
     }
 
     public function validateCategoryName($attribute)
     {
         if (!$this->hasErrors()) {
-            if ($this->first_category != Status::ALL) {
-                if (isset(Word::FIELD_WORD[$this->first_category]) == false) {
+            if ($this->category1 != Status::ALL) {
+                if (isset(Word::FIELD_WORD[$this->category1]) == false) {
                     $this->addError($attribute, 'Первая категория не найдена');
                     return;
                 }
@@ -97,10 +97,10 @@ class WordSearch extends Word
             $query->andFilterWhere(['deleted' => $this->deleted]);
         }
 
-        if ($this->first_category != Status::ALL || strlen($this->second_category) || strlen($this->third_category)) {
+        if ($this->category1 != Status::ALL || strlen($this->category2) || strlen($this->category3) || strlen($this->category4)) {
             list('condition' => $condition, 'bind' => $bind) = Word::getConditionByParent([
-                'parents' => [$this->first_category, $this->second_category, $this->third_category],
-                'depth' => '3',
+                'parents' => [$this->category1, $this->category2, $this->category3, $this->category4],
+                'depth' => '4',
                 'withParent' => true
             ]);
             $query->andOnCondition($condition, $bind);
@@ -113,28 +113,21 @@ class WordSearch extends Word
         return '';
     }
 
-    /** Если $attribute != (first_category || second_category), то second_category = ''
+    /** Если $attribute != (category1 || category2), то category2 = ''
      * @param $attribute
      * @return array
      */
     public static function getAutoCompleteOptions($attribute)
     {
-        $term_name = in_array($attribute, self::COLUMN_SEARCH) ? $attribute : '';
-        $parent = "''";
-        if ($attribute === 'second_category') {
-            $parent = "$('#first_category').val()";
-        } elseif ($attribute === 'third_category') {
-            $parent = "$('#second_category').val()";
-        }
-
         return [
             'clientOptions' => [
                 'source' => new JsExpression("function(request, response) {
                     $.getJSON('" . Url::to('/word/list-auto-complete') . "', {
                         term: request.term,
-                        term_name: '{$term_name}',
-                        term_p1: $('#first_category').val(),
-                        term_p2: {$parent},
+                        term_name: '{$attribute}',
+                        term_p1: $('#category1').val(),
+                        term_p2: $('#category2').val(),
+                        term_p3: $('#category3').val(),
                     }, response);
                 }"),
                 'select' => new JsExpression("function(event, ui) {

@@ -55,11 +55,11 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
 //            'description:ntext',
             [
-                'attribute' => $attribute = 'first_category',
+                'attribute' => $attribute = 'category1',
                 'format' => 'html',
                 'value' => function ($model) {
-                    $arr = Word::getParentName($model);
-                    return $arr['id'] > 0 ? Html::a($arr['name'], ['view', 'id' => $arr['id']]) : $arr['name'];
+                    $parent = Word::getParentByLevel($model, 0);
+                    return $parent->name;
                 },
                 'filter' => Html::activeDropDownList(
                     $searchModel,
@@ -68,28 +68,41 @@ $this->params['breadcrumbs'][] = $this->title;
                 )
             ],
             [
-                'attribute' => $attribute = 'second_category',
+                'attribute' => $attribute = 'category2',
                 'format' => 'html',
                 'value' => function ($model) {
-                    $arr = Word::getParentName($model, 1);
-                    return $arr['id'] > 0 ? Html::a($arr['name'], ['view', 'id' => $arr['id']]) : $arr['name'];
+                    if ($parent = Word::getParentByLevel($model, 1)) {
+                        return Html::a($parent->name, ['view', 'id' => $parent->id]);
+                    }
+                    return NULL;
                 },
-                'filter' => '<div class="input-group">'
-                . AutoComplete::widget([
+                'filter' => AutoComplete::widget([
                     'model' => $searchModel,
                     'attribute' => $attribute,
                 ] + WordSearch::getAutoCompleteOptions($attribute))
-                . '<span class="input-group-addon">
-                        <input type="checkbox" name="with_child" title="Включая дочерние категории">
-                    </span>
-                </div>',
             ],
             [
-                'attribute' => $attribute = 'third_category',
+                'attribute' => $attribute = 'category3',
                 'format' => 'html',
                 'value' => function ($model) {
-                    $arr = Word::getParentName($model, 2);
-                    return $arr['id'] > 0 ? Html::a($arr['name'], ['view', 'id' => $arr['id']]) : $arr['name'];
+                    if ($parent = Word::getParentByLevel($model, 2)) {
+                        return Html::a($parent->name, ['view', 'id' => $parent->id]);
+                    }
+                    return NULL;
+                },
+                'filter' => AutoComplete::widget([
+                    'model' => $searchModel,
+                    'attribute' => $attribute,
+                ] + WordSearch::getAutoCompleteOptions($attribute))
+            ],
+            [
+                'attribute' => $attribute = 'category4',
+                'format' => 'html',
+                'value' => function ($model) {
+                    if ($parent = Word::getParentByLevel($model, 3)) {
+                        return Html::a($parent->name, ['view', 'id' => $parent->id]);
+                    }
+                    return NULL;
                 },
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
