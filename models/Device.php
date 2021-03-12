@@ -95,21 +95,16 @@ class Device extends ActiveRecord
                 $this->$attributeId = $word->id;
 
                 if ($attribute == 'position') {
-                    $departmentFromModel = mb_strtolower($this->department);
-                    $departmentFromParent = mb_strtolower($word->parent->name);
-                    if (strcasecmp($departmentFromModel, $departmentFromParent) != 0) {     // позиция не принадлежит цеху
-                        $this->addError($attribute, 'Значение не из списка');
+                    if (Word::getDepth($word) !== Word::MAX_NUMBER_PARENTS) {
+                        $this->addError($attribute, 'Позиция должна быть на максимальной вложенности');   // позиция не принадлежит цеху
+                        return;
+                    }
+                    $modelDepartment = Word::findOne(['name' => $this->department]);
+                    if (Word::checkIsParent($word, $modelDepartment) == false) {
+                        $this->addError($attribute, 'Значение не из списка');   // позиция не принадлежит цеху
                     }
                 } else {
-                    $wordParentId = 0;
-                    if ($word->parent_id <= 0) {
-                        $wordParentId = $word->parent_id;
-                    } elseif ($word->parent->parent_id <= 0) {
-                        $wordParentId = $word->parent->parent_id;
-                    } elseif ($word->parent->parent->parent_id <= 0) {
-                        $wordParentId = $word->parent->parent->parent_id;
-                    }
-                    if (Word::FIELD_WORD[ucfirst($attribute)] != $wordParentId) {
+                    if (Word::FIELD_WORD[ucfirst($attribute)] !== Word::getParentByLevel($word, 0)->id) {
                         $this->addError($attribute, 'Значение не из списка');
                     }
                 }
