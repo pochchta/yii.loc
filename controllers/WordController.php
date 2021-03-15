@@ -171,10 +171,10 @@ class WordController extends Controller
                         'depth' => 3,
                         'withParent' => false
                     ];
-                } else {
+                } else {                                    // word/_form
                     $arrayCondition[] = [
                         'parents' => [$wordSearch->term_p1],
-                        'depth' => 3,
+                        'depth' => Word::MAX_NUMBER_PARENTS - 1,
                         'withParent' => true
                     ];
                 }

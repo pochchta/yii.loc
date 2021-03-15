@@ -117,9 +117,9 @@ class VerificationSearch extends Verification
         }
 
         foreach(['name', 'department'] as $item) {
-            $depth = 3;
+            $depth = Word::MAX_NUMBER_PARENTS;
             if ($item == 'department') {
-                $depth = 2;
+                $depth = Word::MAX_NUMBER_PARENTS - 1;
             }
             $field = $this->{'device_' . $item};
             if (strlen($field)) {

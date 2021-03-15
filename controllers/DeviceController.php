@@ -140,19 +140,19 @@ class DeviceController extends Controller
                 $withParent = true;
                 if ($wordSearch->term_p1 == 'position') {
                     $wordSearch->term_p1 = 'department';
-                    $depth = 4;
+                    $depth = Word::MAX_NUMBER_PARENTS;
                     $withParent = false;
                     if (strlen($wordSearch->term_p2)) {
                         $secondCondition = [
                             'parents' => [1 => $wordSearch->term_p2],
-                            'depth' => 3,
+                            'depth' => Word::MAX_NUMBER_PARENTS - 1,
                             'withParent' => true
                         ];
                     }
                 } elseif ($wordSearch->term_p1 == 'department') {
-                    $depth = 3;
+                    $depth = Word::MAX_NUMBER_PARENTS - 1;
                 } elseif (isset(Word::FIELD_WORD[ucfirst($wordSearch->term_p1)])) {
-                    $depth = 4;
+                    $depth = Word::MAX_NUMBER_PARENTS;
                 }
                 $arrayCondition[] = [
                     'parents' => [$wordSearch->term_p1],

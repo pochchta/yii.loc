@@ -108,7 +108,7 @@ class WordSearch extends Word
         if ($this->category1 != Status::ALL || strlen($this->category2) || strlen($this->category3) || strlen($this->category4)) {
             list('condition' => $condition, 'bind' => $bind) = Word::getConditionByParent([
                 'parents' => [$this->category1, $this->category2, $this->category3, $this->category4],
-                'depth' => '4',
+                'depth' => Word::MAX_NUMBER_PARENTS,
                 'withParent' => true
             ]);
             $query->andOnCondition($condition, $bind);
@@ -121,7 +121,7 @@ class WordSearch extends Word
         return '';
     }
 
-    /** Если $attribute != (category1 || category2), то category2 = ''
+    /**
      * @param $attribute
      * @return array
      */

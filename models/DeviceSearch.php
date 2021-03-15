@@ -85,11 +85,11 @@ class DeviceSearch extends Device
 
         foreach(['name', 'type', 'department', 'position', 'scale', 'accuracy'] as $item) {
             if (strlen($this->$item)) {
-                $depth = 3;
+                $depth = Word::MAX_NUMBER_PARENTS;
                 if (ucfirst($this->$item) == array_search(Status::NOT_CATEGORY, Word::FIELD_WORD)) {
                     $depth = 1;
                 } elseif ($item == 'department') {
-                    $depth = 2;
+                    $depth = Word::MAX_NUMBER_PARENTS - 1;
                 } elseif ($item == 'position') {
                     $depth = 1;
                 }
