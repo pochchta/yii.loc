@@ -11,10 +11,7 @@ use yii\data\ActiveDataProvider;
  */
 class IncomingSearch extends Incoming
 {
-    const DEFAULT_LIMIT_RECORDS = 20;
-    const PRINT_LIMIT_RECORDS = 500;
-    public $limit = self::DEFAULT_LIMIT_RECORDS;
-
+    public $limit;
     public $created_at_start, $created_at_end, $updated_at_start, $updated_at_end;
     public $device_name, $device_number, $device_department;
     public $term, $term_name;
@@ -42,6 +39,12 @@ class IncomingSearch extends Incoming
     {
         // bypass scenarios() implementation in the parent class
         return Model::scenarios();
+    }
+
+    public function __construct($config = [])
+    {
+        parent::__construct($config);
+        $this->limit = Yii::$app->params['maxLinesIndex'];
     }
 
     /**

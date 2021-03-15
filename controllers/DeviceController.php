@@ -214,7 +214,7 @@ class DeviceController extends Controller
 
         $params = Yii::$app->request->queryParams;
         $searchModel = new DeviceSearch();
-        $searchModel->limit = DeviceSearch::PRINT_LIMIT_RECORDS;
+        $searchModel->limit = Yii::$app->params['maxLinesPrint'];
         $dataProvider = $searchModel->search($params);
 
         return $this->render('print-list', compact(

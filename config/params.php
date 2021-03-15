@@ -17,6 +17,6 @@ return [
     'minSymbolsAutoComplete' => 3,
     'maxLinesAutoComplete' => 10,       // кол-во строк в autoComplete
 
-    'maxLinesView' => 100,              // кол-во строк в списках типа dropDown
+    'maxLinesIndex' => 20,              // кол-во строк при выводе в index
     'maxLinesPrint' => 500,             // кол-во строк при выводе на печать
 ];

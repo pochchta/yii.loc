@@ -14,10 +14,7 @@ use yii\web\JsExpression;
 class DeviceSearch extends Device
 {
     const COLUMN_SEARCH = ['id', 'number'];
-    const DEFAULT_LIMIT_RECORDS = 20;
-    const PRINT_LIMIT_RECORDS = 500;    // TODO: в параметры приложения? есть ли такие в других моделях?
-    public $limit = self::DEFAULT_LIMIT_RECORDS;
-
+    public $limit;
     public $term, $term_name;
 
     /**
@@ -42,6 +39,12 @@ class DeviceSearch extends Device
     {
         // bypass scenarios() implementation in the parent class
         return Model::scenarios();
+    }
+
+    public function __construct($config = [])
+    {
+        parent::__construct($config);
+        $this->limit = Yii::$app->params['maxLinesIndex'];
     }
 
     /**

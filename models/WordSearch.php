@@ -14,6 +14,7 @@ use yii\web\JsExpression;
 class WordSearch extends Word
 {
     const COLUMN_SEARCH = ['id', 'name', 'value'];
+    public $limit;
     public $category1, $category2, $category3, $category4;
     public $term, $term_name, $term_p1, $term_p2, $term_p3;
 
@@ -54,6 +55,12 @@ class WordSearch extends Word
         return Model::scenarios();
     }
 
+    public function __construct($config = [])
+    {
+        parent::__construct($config);
+        $this->limit = Yii::$app->params['maxLinesIndex'];
+    }
+
     /**
      * Creates data provider instance with search query applied
      *
@@ -70,6 +77,7 @@ class WordSearch extends Word
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
+        $dataProvider->pagination->pageSize = $this->limit;
 
         $this->load($params);
 

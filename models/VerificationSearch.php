@@ -14,10 +14,7 @@ use yii\web\JsExpression;
 class VerificationSearch extends Verification
 {
     const COLUMN_SEARCH = ['id', 'name', 'type'];
-    const DEFAULT_LIMIT_RECORDS = 20;
-    const PRINT_LIMIT_RECORDS = 500;
-    public $limit = self::DEFAULT_LIMIT_RECORDS;
-
+    public $limit;
     public $last_date_start, $last_date_end, $next_date_start, $next_date_end;
     public $device_name, $device_number, $device_department;
     public $term, $term_name;
@@ -47,6 +44,12 @@ class VerificationSearch extends Verification
     {
         // bypass scenarios() implementation in the parent class
         return Model::scenarios();
+    }
+
+    public function __construct($config = [])
+    {
+        parent::__construct($config);
+        $this->limit = Yii::$app->params['maxLinesIndex'];
     }
 
     /**
