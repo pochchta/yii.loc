@@ -27,7 +27,7 @@ $this->registerCssFile('@web/css/user-print.css');
         <tr>
             <td><?= Html::encode($model->wordDepartment->name) ?></td>
             <td><?= Html::encode($model->wordDepartment->value) ?></td>
-            <td><?= Html::encode($model->wordPosition->name) ?></td>
+            <td><?= Html::encode($model->name) ?></td>
         </tr>
     </table>
     <div class="qr_image" style="background-image: url('<?= QRImage::getUrl() ?>')"></div>
@@ -47,8 +47,8 @@ $this->registerCssFile('@web/css/user-print.css');
         <tr>
             <td><?= Html::encode($model->wordType->name) ?></td>
             <td><?= Html::encode($model->number) ?></td>
-            <td><?= Html::encode($model->wordScale->name) ?></td>
-            <td><?= Html::encode($model->wordAccuracy->name) ?></td>
+            <td><?= /*Html::encode($model->wordScale->name)*/'scale' ?></td>
+            <td><?= /*Html::encode($model->wordAccuracy->name)*/'accuracy' ?></td>
         </tr>
         <tr>
             <td colspan="4">

@@ -76,16 +76,12 @@ if ($model->deleted == Status::NOT_DELETED) {
                 'value' => $model->wordDepartment->name
             ],
             [
-                'attribute' => 'scale_id',
-                'value' => $model->wordScale->name
+                'attribute' => 'position',
+                'value' => $model->position
             ],
             [
-                'attribute' => 'position_id',
-                'value' => $model->wordPosition->name
-            ],
-            [
-                'attribute' => 'accuracy_id',
-                'value' => $model->wordAccuracy->name
+                'attribute' => 'crew',
+                'value' => $model->wordCrew->name
             ],
             'created_at:date',
             'updated_at:date',

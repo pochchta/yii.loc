@@ -186,7 +186,7 @@ class WordSearch extends Word
                 ->andFilterWhere(['like', $this->term_name, $this->term . '%', false])
                 ->orderBy($this->term_name)
                 ->limit(Yii::$app->params['maxLinesAutoComplete'])
-//                ->distinct()
+                ->distinct()    // value может быть неуникальным
                 ->asArray()
                 ->all();
         }

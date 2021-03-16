@@ -27,15 +27,9 @@ use yii\widgets\ActiveForm;
         AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
     ); ?>
 
-    <?= $form->field($model, $attribute ='position')->textInput(['maxlength' => true])->widget(
-        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
-    ); ?>
+    <?= $form->field($model, $attribute ='position')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, $attribute ='scale')->textInput(['maxlength' => true])->widget(
-        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
-    ); ?>
-
-    <?= $form->field($model, $attribute ='accuracy')->textInput(['maxlength' => true])->widget(
+    <?= $form->field($model, $attribute ='crew')->textInput(['maxlength' => true])->widget(
         AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
     ); ?>
 

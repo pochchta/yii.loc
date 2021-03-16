@@ -13,7 +13,7 @@ use yii\web\JsExpression;
  */
 class DeviceSearch extends Device
 {
-    const COLUMN_SEARCH = ['id', 'number'];
+    const COLUMN_SEARCH = ['id', 'number', 'position'];
     public $limit;
     public $term, $term_name;
 
@@ -26,7 +26,7 @@ class DeviceSearch extends Device
         return [
             [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
             [['description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
-            [['name', 'type', 'department', 'position', 'scale', 'accuracy', 'number'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['name', 'type', 'department', 'crew', 'position', 'number'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
             [['term', 'term_name'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']]
         ];
@@ -57,8 +57,8 @@ class DeviceSearch extends Device
     public function search($params)
     {
         $query = Device::find()
-            ->select(['id', 'name_id', 'type_id', 'department_id', 'position_id', 'scale_id', 'accuracy_id', 'number', 'deleted', 'created_at', 'updated_at'])
-            ->with('creator', 'updater', 'wordName', 'wordType', 'wordDepartment', 'wordPosition', 'wordScale', 'wordAccuracy');
+//            ->select(['id', 'name_id', 'type_id', 'department_id', 'crew_id, 'position', 'number', 'deleted', 'created_at', 'updated_at'])
+            ->with('creator', 'updater', 'wordName', 'wordType', 'wordDepartment', 'wordCrew');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -82,19 +82,16 @@ class DeviceSearch extends Device
         if (strlen($this->number)) {
             $query->andFilterWhere(['like', 'number', $this->number . '%', false]);
         }
+        if (strlen($this->position)) {
+            $query->andFilterWhere(['like', 'number', $this->position . '%', false]);
+        }
 
-        foreach(['name', 'type', 'department', 'position', 'scale', 'accuracy'] as $item) {
+        foreach(['name', 'type', 'department', 'crew'] as $item) {
             if (strlen($this->$item)) {
                 $depth = Word::MAX_NUMBER_PARENTS;
-                if (ucfirst($this->$item) == array_search(Status::NOT_CATEGORY, Word::FIELD_WORD)) {
-                    $depth = 1;
-                } elseif ($item == 'department') {
-                    $depth = Word::MAX_NUMBER_PARENTS - 1;
-                } elseif ($item == 'position') {
+                if (ucfirst($this->$item) == array_search(Status::NOT_CATEGORY, Word::FIELD_WORD)) {    // == 'not'
                     $depth = 1;
                 }
-//                list('condition' => $condition, 'bind' => $bind) =
-//                    Word::getConditionLikeName("{$item}_id", $this->$item, $depth, true);
                 list('condition' => $condition, 'bind' => $bind) = Word::getConditionByParent([
                     'parents' => [1 => $this->$item],
                     'depth' => $depth,
@@ -128,10 +125,6 @@ class DeviceSearch extends Device
         if (strlen($prefix)) {
             $prefix = $prefix . '_';
         }
-        $parent = "''";
-        if ($attribute === 'position') {
-            $parent = "$('#department').val()";
-        }
         $select = '';
         if ($autoSend) {
             $select = new JsExpression("function(event, ui) {
@@ -144,8 +137,6 @@ class DeviceSearch extends Device
                     $.getJSON('" . Url::to('/device/list-auto-complete') . "', {
                         term: request.term,
                         term_name: '{$attribute}',
-                        term_p1: '{$attribute}',
-                        term_p2: {$parent},
                     }, response);
                 }"),
                 'select' => $select,

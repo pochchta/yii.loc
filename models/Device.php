@@ -14,9 +14,8 @@ use yii\db\ActiveRecord;
  * @property int|null $name_id                  // из словаря
  * @property int|null $type_id                  //
  * @property int|null $department_id            //
- * @property int|null $scale_id                 //
- * @property int|null $position_id              //
- * @property string|null $accuracy_id           //
+ * @property int|null $crew_id                  //
+ * @property string|null $position
  * @property string|null $number
  * @property string|null $description
  * @property int|null $created_at
@@ -30,15 +29,13 @@ use yii\db\ActiveRecord;
  * @property Word|null $wordName magic property
  * @property Word|null $wordType magic property
  * @property Word|null $wordDepartment magic property
- * @property Word|null $wordScale magic property
- * @property Word|null $wordPosition magic property
- * @property Word|null $wordAccuracy magic property
+ * @property Word|null $wordCrew magic property
  * @property Verification|null $activeVerification magic property
  * @property Verification[] $verifications magic property
  */
 class Device extends ActiveRecord
 {
-    public $name, $type, $department, $scale, $position, $accuracy;
+    public $name, $type, $department, $crew;
     /**
      * {@inheritdoc}
      */
@@ -71,42 +68,23 @@ class Device extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'type', 'department', 'scale', 'accuracy'], 'required'],
+            [['name', 'type', 'department', 'crew'], 'required'],
             [['description'], 'string'],
             [['number'], 'string', 'max' => 30],
-            [['name', 'type', 'department', 'scale', 'position', 'accuracy'], 'string', 'max' => 20],
-            [['name', 'type', 'department', 'scale', 'position', 'accuracy'], 'validateId', 'skipOnEmpty' => false],
+            [['name', 'type', 'department', 'crew', 'position'], 'string', 'max' => 30],
+            [['name', 'type', 'department', 'crew'], 'validateId', 'skipOnEmpty' => false],
         ];
     }
 
     public function validateId($attribute)
     {
         if (!$this->hasErrors()) {
-            if ($attribute == 'position') {
-                if (strlen($this->position) == 0) {     // position можно оставить пустым
-                    $this->position_id = 0;
-                    return;
-                }
-            }
-
             $attributeId = $attribute . '_id';
             $word = Word::findOne(['name' => $this->$attribute]);
-            if ($word) {
+            if (isset($word)) {
                 $this->$attributeId = $word->id;
-
-                if ($attribute == 'position') {
-                    if (Word::getDepth($word) !== Word::MAX_NUMBER_PARENTS) {
-                        $this->addError($attribute, 'Позиция должна быть на максимальной вложенности');   // позиция не принадлежит цеху
-                        return;
-                    }
-                    $modelDepartment = Word::findOne(['name' => $this->department]);
-                    if (Word::checkIsParent($word, $modelDepartment) == false) {
-                        $this->addError($attribute, 'Значение не из списка');   // позиция не принадлежит цеху
-                    }
-                } else {
-                    if (Word::FIELD_WORD[ucfirst($attribute)] !== Word::getParentByLevel($word, 0)->id) {
-                        $this->addError($attribute, 'Значение не из списка');
-                    }
+                if (Word::FIELD_WORD[ucfirst($attribute)] !== Word::getParentByLevel($word, 0)->id) {
+                    $this->addError($attribute, 'Значение не из списка');
                 }
             } else {
                 $this->addError($attribute, 'Значение не из списка');
@@ -124,9 +102,8 @@ class Device extends ActiveRecord
             'name_id' => 'Имя', 'name' => 'Имя',
             'type_id' => 'Тип', 'type' => 'Тип',
             'department_id' => 'Цех', 'department' => 'Цех',
-            'scale_id' => 'Шкала', 'scale' => 'Шкала',
-            'position_id' => 'Позиция', 'position' => 'Позиция',
-            'accuracy_id' => 'Класс точности', 'accuracy' => 'Класс точности',
+            'crew_id' => 'Бригада', 'crew' => 'Бригада',
+            'position' => 'Позиция',
             'number' => 'Номер',
             'description' => 'Описание',
             'created_at' => 'Создано',
@@ -162,15 +139,6 @@ class Device extends ActiveRecord
         return $this->hasOne(User::class, ['id' => 'updated_by']);
     }
 
-    public function getWordDepartment()
-    {
-        return $this->hasOne(Word::class, ['id' => 'department_id']);
-    }
-
-    public function getWordScale()
-    {
-        return $this->hasOne(Word::class, ['id' => 'scale_id']);
-    }
     public function getWordName()
     {
         return $this->hasOne(Word::class, ['id' => 'name_id']);
@@ -181,14 +149,14 @@ class Device extends ActiveRecord
         return $this->hasOne(Word::class, ['id' => 'type_id']);
     }
 
-    public function getWordPosition()
+    public function getWordDepartment()
     {
-        return $this->hasOne(Word::class, ['id' => 'position_id']);
+        return $this->hasOne(Word::class, ['id' => 'department_id']);
     }
 
-    public function getWordAccuracy()
+    public function getWordCrew()
     {
-        return $this->hasOne(Word::class, ['id' => 'accuracy_id']);
+        return $this->hasOne(Word::class, ['id' => 'crew_id']);
     }
 
     public function formName()

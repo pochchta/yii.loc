@@ -31,8 +31,6 @@ $this->registerCssFile('@web/css/user-print.css');
             <th>Номер</th>
             <th>Тип</th>
             <th>Цех</th>
-            <th>Шкала</th>
-            <th>Точность</th>
             <th>Позиция</th>
             <th class="date">Создано</th>
             <th class="date">Обновлено</th>
@@ -48,9 +46,7 @@ $this->registerCssFile('@web/css/user-print.css');
                 <td><?= $model->number ?></td>
                 <td><?= $model->wordType->name ?></td>
                 <td><?= $model->wordDepartment->name ?></td>
-                <td><?= $model->wordScale->name ?></td>
-                <td><?= $model->wordAccuracy->name ?></td>
-                <td><?= $model->wordPosition->name ?></td>
+                <td><?= $model->name ?></td>
                 <td><?= Yii::$app->formatter->asDate($model->created_at) ?></td>
                 <td><?= Yii::$app->formatter->asDate($model->updated_at) ?></td>
             </tr>

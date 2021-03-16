@@ -12,8 +12,6 @@ use yii\widgets\Pjax;
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $model app\models\Device */
 /* @var $params array */
-/* @var $arrDepartments array */
-/* @var $arrScales array */
 
 $this->title = 'Приборы';
 $this->params['breadcrumbs'][] = $this->title;
@@ -76,43 +74,33 @@ $this->params['breadcrumbs'][] = $this->title;
                 ] + DeviceSearch::getAutoCompleteOptions($attribute, '', true))
             ],
             [
-                'attribute' => 'position_id',
+                'attribute' => $attribute = 'position',
                 'value' => function ($model) {
-                    return $model->wordPosition->name;
+                    return $model->position;
                 },
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
-                    'attribute' => $attribute = 'position',
+                    'attribute' => $attribute,
                 ] + DeviceSearch::getAutoCompleteOptions($attribute, '', true))
             ],
             [
-                'attribute' => 'scale_id',
+                'attribute' => ($attribute = 'crew') . '_id',
                 'value' => function ($model) {
-                    return $model->wordScale->name;
+                    return $model->wordCrew->name;
                 },
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
-                    'attribute' => $attribute = 'scale',
+                    'attribute' => $attribute,
                 ] + DeviceSearch::getAutoCompleteOptions($attribute, '', true))
             ],
             [
-                'attribute' => 'accuracy_id',
-                'value' => function ($model) {
-                    return $model->wordAccuracy->name;
-                },
-                'filter' => AutoComplete::widget([
-                    'model' => $searchModel,
-                    'attribute' => $attribute = 'accuracy',
-                ] + DeviceSearch::getAutoCompleteOptions($attribute, '', true))
-            ],
-            [
-                'attribute' => 'number',
+                'attribute' => $attribute = 'number',
                 'value' => function ($model) {
                     return $model->number;
                 },
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
-                    'attribute' => $attribute = 'number',
+                    'attribute' => $attribute,
                 ] + DeviceSearch::getAutoCompleteOptions($attribute, '', true))
             ],
             [

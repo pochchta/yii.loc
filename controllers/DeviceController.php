@@ -135,31 +135,15 @@ class DeviceController extends Controller
             $wordSearch = new WordSearch();
             $wordSearch->load(Yii::$app->request->queryParams);
             if ($wordSearch->validate()) {
-                $secondCondition = NULL;
                 $depth = 1;
-                $withParent = true;
-                if ($wordSearch->term_p1 == 'position') {
-                    $wordSearch->term_p1 = 'department';
-                    $depth = Word::MAX_NUMBER_PARENTS;
-                    $withParent = false;
-                    if (strlen($wordSearch->term_p2)) {
-                        $secondCondition = [
-                            'parents' => [1 => $wordSearch->term_p2],
-                            'depth' => Word::MAX_NUMBER_PARENTS - 1,
-                            'withParent' => true
-                        ];
-                    }
-                } elseif ($wordSearch->term_p1 == 'department') {
-                    $depth = Word::MAX_NUMBER_PARENTS - 1;
-                } elseif (isset(Word::FIELD_WORD[ucfirst($wordSearch->term_p1)])) {
+                if (isset(Word::FIELD_WORD[ucfirst($wordSearch->term_name)])) {
                     $depth = Word::MAX_NUMBER_PARENTS;
                 }
                 $arrayCondition[] = [
-                    'parents' => [$wordSearch->term_p1],
+                    'parents' => [$wordSearch->term_name],
                     'depth' => $depth,
-                    'withParent' => $withParent
+                    'withParent' => true
                 ];
-                is_array($secondCondition) ? $arrayCondition[] = $secondCondition : NULL;
                 echo $wordSearch->findNamesByParents($arrayCondition);
             }
         }
@@ -235,9 +219,7 @@ class DeviceController extends Controller
             $model->name = $model->wordName->name;
             $model->type = $model->wordType->name;
             $model->department = $model->wordDepartment->name;
-            $model->position = $model->wordPosition->name;
-            $model->scale = $model->wordScale->name;
-            $model->accuracy = $model->wordAccuracy->name;
+            $model->crew = $model->wordCrew->name;
             return $model;
         }
 
