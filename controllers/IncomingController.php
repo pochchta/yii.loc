@@ -136,15 +136,12 @@ class IncomingController extends Controller
 
         $model->deleted == Status::NOT_DELETED ? $model->deleted = Status::DELETED :
             $model->deleted = Status::NOT_DELETED;
-        if ($model->save()) {
-            if ($model->deleted == Status::NOT_DELETED) {
-                Yii::$app->session->setFlash('success', 'Запись восстановлена');
-            } else {
-                Yii::$app->session->setFlash('success', 'Запись удалена');
-            }
+        $textMessage = $model->deleted == Status::NOT_DELETED ? 'восстановлена' : 'удалена';
+        if ($model->save(false)) {
+            Yii::$app->session->setFlash('success', "Запись $textMessage");
         } else {
             $errors = $model->getFirstErrors();
-            Yii::$app->session->setFlash('error', 'Запись не была удалена (' . array_pop($errors) . ')');
+            Yii::$app->session->setFlash('error', "Запись не была $textMessage (" . array_pop($errors) . ')');
         }
 
         return $this->redirect(Yii::$app->request->referrer);

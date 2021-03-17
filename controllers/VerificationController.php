@@ -187,15 +187,12 @@ class VerificationController extends Controller
             $model->addError('name', 'Поверки редактируются, попробуйте еще раз');
         }
 
+        $textMessage = $model->deleted == Status::NOT_DELETED ? 'восстановлена' : 'удалена';
         if ($saveResult) {
-            if ($model->deleted == Status::NOT_DELETED) {
-                Yii::$app->session->setFlash('success', 'Запись восстановлена');
-            } else {
-                Yii::$app->session->setFlash('success', 'Запись удалена');
-            }
+            Yii::$app->session->setFlash('success', "Запись $textMessage");
         } else {
             $errors = $model->getFirstErrors();
-            Yii::$app->session->setFlash('error', 'Запись не была удалена (' . array_pop($errors) . ')');
+            Yii::$app->session->setFlash('error', "Запись не была $textMessage (" . array_pop($errors) . ')');
         }
 
         return $this->redirect(Yii::$app->request->referrer);

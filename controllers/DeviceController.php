@@ -165,15 +165,12 @@ class DeviceController extends Controller
 
         $model->deleted == Status::NOT_DELETED ? $model->deleted = Status::DELETED :
             $model->deleted = Status::NOT_DELETED;
+        $textMessage = $model->deleted == Status::NOT_DELETED ? 'восстановлена' : 'удалена';
         if ($model->save(false)) {
-            if ($model->deleted == Status::NOT_DELETED) {
-                Yii::$app->session->setFlash('success', 'Данные восстановлены');
-            } else {
-                Yii::$app->session->setFlash('success', 'Данные удалены');
-            }
+            Yii::$app->session->setFlash('success', "Запись $textMessage");
         } else {
             $errors = $model->getFirstErrors();
-            Yii::$app->session->setFlash('error', 'Запись не была удалена (' . array_pop($errors) . ')');
+            Yii::$app->session->setFlash('error', "Запись не была $textMessage (" . array_pop($errors) . ')');
         }
 
         return $this->redirect(Yii::$app->request->referrer);
