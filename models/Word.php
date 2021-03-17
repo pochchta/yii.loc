@@ -128,10 +128,12 @@ class Word extends ActiveRecord
                     if ($depth <= self::MAX_NUMBER_PARENTS) {
                         list('condition' => $condition, 'bind' => $bind) = Word::getConditionByParent([
                             'parents' => [$this->id],
-                            'depth' => $depth,
+                            'depth' => $i,
                         ]);
                         if (self::find()->andOnCondition($condition, $bind)->andFilterWhere(['deleted' => Status::NOT_DELETED])->one() !== NULL) {
                             $depth++;
+                        } else {
+                            break;
                         }
                     } else {
                         break;
@@ -276,21 +278,17 @@ class Word extends ActiveRecord
 
     /**
      * @param Word $model
-     * @return bool|int 1 ... 1 + MAX_NUMBER_PARENTS
+     * @return int 1 ... 1 + MAX_NUMBER_PARENTS
      */
     public static function getDepth($model)
     {
         for ($i = 1; $i <= 1 + self::MAX_NUMBER_PARENTS; $i++) {
-            if (isset($model)) {
-                if ($model->parent_id <= 0) {
-                    return $i;
-                }
-                $model = $model->parent;
-            } else {
+            if ($model->parent_id <= 0) {
                 break;
             }
+            $model = $model->parent;
         }
-        return false;
+        return $i;
     }
 
     /**
