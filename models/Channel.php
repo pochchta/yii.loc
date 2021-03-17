@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
 /**
@@ -33,6 +35,24 @@ class Channel extends ActiveRecord
         return 'channel';
     }
 
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
+                ],
+            ],
+            [
+                'class' => BlameableBehavior::class,
+                'createdByAttribute' => 'created_by',
+                'updatedByAttribute' => 'updated_by',
+            ],
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -53,20 +73,20 @@ class Channel extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'number' => 'Number',
-            'io' => 'Io',
-            'parent_id' => 'Parent ID',
-            'device_id' => 'Device ID',
-            'type_id' => 'Type ID',
-            'accuracy_id' => 'Accuracy ID',
-            'scale_id' => 'Scale ID',
-            'range' => 'Range',
-            'description' => 'Description',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
-            'created_by' => 'Created By',
-            'updated_by' => 'Updated By',
-            'deleted' => 'Deleted',
+            'number' => 'Номер',
+            'io' => 'Вх/вых',
+            'parent_id' => 'ID входа',
+            'device_id' => 'ID прибора',
+            'type_id' => 'Тип',
+            'accuracy_id' => 'Точность',
+            'scale_id' => 'Шкала',
+            'range' => 'Диапазон',
+            'description' => 'Описание',
+            'created_at' => 'Создано',
+            'updated_at' => 'Обновлено',
+            'created_by' => 'Создал',
+            'updated_by' => 'Обновил',
+            'deleted' => 'Удален',
         ];
     }
 }

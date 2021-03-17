@@ -2,9 +2,11 @@
 
 namespace app\controllers;
 
+use app\models\Status;
 use Yii;
 use app\models\Channel;
 use app\models\ChannelSearch;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -21,9 +23,24 @@ class ChannelController extends Controller
     {
         return [
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['POST'],
+                ],
+            ],
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'print-list', 'view', 'print'],
+                        'roles' => ['@'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['create', 'update', 'list-auto-complete', 'delete'],
+                        'roles' => ['ChangingDevice'],
+                    ],
                 ],
             ],
         ];
@@ -104,9 +121,19 @@ class ChannelController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
 
-        return $this->redirect(['index']);
+        $model->deleted == Status::NOT_DELETED ? $model->deleted = Status::DELETED :
+            $model->deleted = Status::NOT_DELETED;
+        $textMessage = $model->deleted == Status::NOT_DELETED ? 'восстановлена' : 'удалена';
+        if ($model->save(false)) {
+            Yii::$app->session->setFlash('success', "Запись $textMessage");
+        } else {
+            $errors = $model->getFirstErrors();
+            Yii::$app->session->setFlash('error', "Запись не была $textMessage (" . array_pop($errors) . ')');
+        }
+
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
     /**
@@ -122,6 +149,6 @@ class ChannelController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('Запрошенная страница не существует.');
     }
 }
