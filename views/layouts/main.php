@@ -43,8 +43,7 @@ AppAsset::register($this);
                 ['label' => 'Словарь', 'url' => '/word/index'],
                 ['label' => 'Приемки', 'url' => '/incoming/index'],
                 ['label' => 'Поверки', 'url' => '/verification/index'],
-                ['label' => 'Цеха', 'url' => '/department/index'],
-                ['label' => 'Шкалы', 'url' => '/scale/index'],
+                ['label' => 'Каналы', 'url' => '/channel/index'],
             ]],
             ['label' => 'Приборы', 'url' => ['/device/index']],
 
