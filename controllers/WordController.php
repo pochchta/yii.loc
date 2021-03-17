@@ -202,21 +202,21 @@ class WordController extends Controller
 
         $saveResult = false;
         if ($fileMutex->acquire($mutexName = 'word', Yii::$app->params['mutexTimeout'])) {
-            $saveResult = $model->save(false);
+            $model->validateDepth();
+            if ($model->hasErrors() == false) {
+                $saveResult = $model->save(false);  // false, т.к. изменяется только deleted и есть валидатор формирующий parent_id
+            }
             $fileMutex->release($mutexName);
         } else {    // добавляется ошибка к модели, после этого нельзя валидировать, т.к. ошибка затрется
             $model->addError('name', 'Словарь редактируется, попробуйте еще раз');
         }
 
+        $textMessage = $model->deleted == Status::NOT_DELETED ? 'восстановлена' : 'удалена';
         if ($saveResult) {
-            if ($model->deleted == Status::NOT_DELETED) {
-                Yii::$app->session->setFlash('success', 'Запись восстановлена');
-            } else {
-                Yii::$app->session->setFlash('success', 'Запись удалена');
-            }
+            Yii::$app->session->setFlash('success', "Запись $textMessage");
         } else {
             $errors = $model->getFirstErrors();
-            Yii::$app->session->setFlash('error', 'Запись не была удалена (' . array_pop($errors) . ')');
+            Yii::$app->session->setFlash('error', "Запись не была $textMessage (" . array_pop($errors) . ')');
         }
 
         return $this->redirect(Yii::$app->request->referrer);
