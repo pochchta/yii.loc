@@ -68,7 +68,7 @@ class Device extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'type', 'department', 'crew'], 'required'],
+            [['name', 'type', 'department', 'crew', 'number'], 'required'],
             [['description'], 'string'],
             [['number'], 'string', 'max' => 30],
             [['name', 'type', 'department', 'crew', 'position'], 'string', 'max' => 30],
@@ -76,6 +76,9 @@ class Device extends ActiveRecord
         ];
     }
 
+    /** Присваивание $attribute . '_id' = Word::findOne(['name' => $attribute])->id
+     * @param $attribute
+     */
     public function validateId($attribute)
     {
         if (!$this->hasErrors()) {

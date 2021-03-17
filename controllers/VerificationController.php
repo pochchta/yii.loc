@@ -89,19 +89,12 @@ class VerificationController extends Controller
     /**
      * Creates a new Verification model.
      * If creation is successful, the browser will be redirected to the 'view' page.
-     * @param $device_id
      * @return mixed
+     * @throws NotFoundHttpException отсутствует
      */
-    public function actionCreate($device_id)
+    public function actionCreate()
     {
-        $model = new Verification();
-
-        $model->device_id = $device_id;                         // только для отображения
-        $model->last_date = (new DateTime())->getTimestamp();
-        $model->period = Verification::PERIOD_BY_DEFAULT;
-
-        return $this->saveModel($model, 'create');
-
+        return $this->actionUpdate(NULL);
     }
 
     /**
@@ -113,19 +106,17 @@ class VerificationController extends Controller
      */
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
+        if (isset($id)) {       // update
+            $model = $this->findModel($id);
+            $view = 'update';
+        } else {                // create
+            $model = new Verification();
+            $model->device_id = Yii::$app->request->get('device_id');             // только для отображения
+            $model->last_date = (new DateTime())->getTimestamp();
+            $model->period = Verification::PERIOD_BY_DEFAULT;
+            $view = 'create';
+        }
 
-        return $this->saveModel($model, 'update');
-    }
-
-    /**
-     * Сохранение
-     * If save is successful, the browser will be redirected to the 'view' page.
-     * @param $model Verification
-     * @param $view
-     * @return mixed
-     */
-    public function saveModel($model, $view) {
         if ($model->load(Yii::$app->request->post())) {
             $fileMutex = Yii::$app->mutex;              /* @var $fileMutex yii\mutex\FileMutex */
 
@@ -145,7 +136,7 @@ class VerificationController extends Controller
 
             if ($saveResult) {
                 Yii::$app->session->setFlash('success', 'Запись сохранена');
-                return $this->redirect(['device/view', 'id' => $model->device_id]);
+                return $this->redirect(['index', 'device_id' => $model->device_id]);
             } else {
                 $errors = $model->getFirstErrors();
                 Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');

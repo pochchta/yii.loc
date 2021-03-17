@@ -79,12 +79,11 @@ class WordController extends Controller
      * Creates a new Word model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
+     * @throws NotFoundHttpException отсутствует
      */
     public function actionCreate()
     {
-        $model = new Word();
-
-        return $this->saveModel($model, 'create');
+        return $this->actionUpdate(NULL);
     }
 
     /**
@@ -96,20 +95,13 @@ class WordController extends Controller
      */
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
-
-        return $this->saveModel($model, 'update');
-    }
-
-    /**
-     * Сохранение и загрузка массива категорий
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param $model Word
-     * @param $view
-     * @return mixed
-     */
-    private function saveModel($model, $view)
-    {
+        if (isset($id)) {       // update
+            $model = $this->findModel($id);
+            $view = 'update';
+        } else {                // create
+            $model = new Word();
+            $view = 'create';
+        }
         $model->parent_name = $model->parent->name;
         $categoryId = Word::getParentByLevel($model, 0)->id;
         if ($key = array_search($categoryId, Word::FIELD_WORD)) {       // получение значения для select

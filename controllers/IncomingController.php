@@ -83,28 +83,12 @@ class IncomingController extends Controller
     /**
      * Creates a new Incoming model.
      * If creation is successful, the browser will be redirected to the 'view' page.
-     * @param $device_id
      * @return mixed
+     * @throws NotFoundHttpException отсутствует
      */
-    public function actionCreate($device_id)
+    public function actionCreate()
     {
-        $model = new Incoming();
-
-        if ($model->load(Yii::$app->request->post())) {
-            if ($model->save()) {
-                Yii::$app->session->setFlash('success', 'Запись сохранена');
-                return $this->redirect(['device/view', 'id' => $model->device_id]);
-            } else {
-                $errors = $model->getFirstErrors();
-                Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
-            }
-        }
-
-        $model->device_id = $device_id;     //  только для отображения
-
-        return $this->render('create', [
-            'model' => $model,
-        ]);
+        return $this->actionUpdate(NULL);
     }
 
     /**
@@ -116,19 +100,26 @@ class IncomingController extends Controller
      */
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
+        if (isset($id)) {       // update
+            $model = $this->findModel($id);
+            $view = 'update';
+        } else {                // create
+            $model = new Incoming();
+            $model->device_id = Yii::$app->request->get('device_id');             // только для отображения
+            $view = 'create';
+        }
 
         if ($model->load(Yii::$app->request->post())) {
             if ($model->save()) {
                 Yii::$app->session->setFlash('success', 'Запись сохранена');
-                return $this->redirect(['device/view', 'id' => $model->device_id]);
+                return $this->redirect(['index', 'device_id' => $model->device_id]);
             } else {
                 $errors = $model->getFirstErrors();
                 Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
             }
         }
 
-        return $this->render('update', [
+        return $this->render($view, [
             'model' => $model,
         ]);
     }

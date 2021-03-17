@@ -83,10 +83,11 @@ class DeviceController extends Controller
      * Creates a new Device model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
+     * @throws NotFoundHttpException отсутствует
      */
     public function actionCreate()
     {
-        return $this->saveModel(new Device(), 'create');
+        return $this->actionUpdate(NULL);
     }
 
     /**
@@ -98,16 +99,17 @@ class DeviceController extends Controller
      */
     public function actionUpdate($id)
     {
-        return $this->saveModel($this->findModel($id), 'update');
-    }
-
-    /**
-     * @param Device $model
-     * @param $view
-     * @return string|\yii\web\Response
-     */
-    private function saveModel($model, $view)
-    {
+        if (isset($id)) {       // update
+            $model = $this->findModel($id);
+            $model->name = $model->wordName->name;
+            $model->type = $model->wordType->name;
+            $model->department = $model->wordDepartment->name;
+            $model->crew = $model->wordCrew->name;
+            $view = 'update';
+        } else {                // create
+            $model = new Device();
+            $view = 'create';
+        }
         if ($model->load(Yii::$app->request->post())) {
             if ($model->save()) {
                 Yii::$app->session->setFlash('success', 'Запись сохранена');
@@ -163,7 +165,7 @@ class DeviceController extends Controller
 
         $model->deleted == Status::NOT_DELETED ? $model->deleted = Status::DELETED :
             $model->deleted = Status::NOT_DELETED;
-        if ($model->save()) {
+        if ($model->save(false)) {
             if ($model->deleted == Status::NOT_DELETED) {
                 Yii::$app->session->setFlash('success', 'Данные восстановлены');
             } else {
@@ -216,10 +218,6 @@ class DeviceController extends Controller
     protected function findModel($id)
     {
         if (($model = Device::findOne($id)) !== null) {
-            $model->name = $model->wordName->name;
-            $model->type = $model->wordType->name;
-            $model->department = $model->wordDepartment->name;
-            $model->crew = $model->wordCrew->name;
             return $model;
         }
 
