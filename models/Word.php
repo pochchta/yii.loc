@@ -51,6 +51,14 @@ class Word extends ActiveRecord
 
     public $category_name, $parent_name;
 
+    public static function getFieldWord($name)
+    {
+        if (isset(self::FIELD_WORD[$name])) {
+            return self::FIELD_WORD[$name];
+        }
+        return NULL;
+    }
+
     public static function tableName()
     {
         return 'word';
@@ -79,7 +87,7 @@ class Word extends ActiveRecord
         return [
             [['name', 'category_name'], 'required'],
             [['name', 'value', 'category_name', 'parent_name'], 'string', 'max' => 20],
-            [['name'], 'unique', 'when' => function($model){return $model->isAttributeChanged('name');}],
+            [['name'], 'unique', 'when' => function($model){return $model->isAttributeChanged('name');}],   // создан или изменен
             [['description'], 'string'],
             [['category_name'], 'validateCategoryName'],     // сначала присваивание parent_id
             [['parent_id'], 'validateDepth'],               // затем его валидация
@@ -99,7 +107,7 @@ class Word extends ActiveRecord
             if (strlen($this->parent_name)) {        // задан промежуточный родитель
                 $parent = self::findOne(['name' => $this->parent_name]);
                 if ($parent) {
-                    if (Word::getParentByLevel($parent, 0, 3)->id !== self::FIELD_WORD[$this->category_name]) {
+                    if (Word::getParentByLevel($parent, 0, 3)->id !== self::getFieldWord($this->category_name)) {
                         $this->addError('parent_name', 'Категория не принадлежит разделу или превышена вложенность');
                     }
                     if ($this->id !== $parent->id) {
@@ -111,7 +119,7 @@ class Word extends ActiveRecord
                     $this->addError('parent_name', 'Родительская категория не найдена');
                 }
             } else {
-                $this->parent_id = self::FIELD_WORD[$this->category_name];
+                $this->parent_id = self::getFieldWord($this->category_name);
             }
         }
     }
@@ -200,7 +208,7 @@ class Word extends ActiveRecord
         }
 
         if (isset($parents[0]) && isset(Word::FIELD_WORD[ucfirst($parents[0])])) {   // поиск по категории Word::FIELD_WORD
-            $parents[0] = Word::FIELD_WORD[ucfirst($parents[0])];
+            $parents[0] = Word::getFieldWord(ucfirst($parents[0]));
         }
 
         foreach ($parents as $key => $item) {   // дальше возможно изменение $parents[0] = 0, но $bindNames[0] останется прежним

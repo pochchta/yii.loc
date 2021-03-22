@@ -86,7 +86,7 @@ class Device extends ActiveRecord
             $word = Word::findOne(['name' => $this->$attribute]);
             if (isset($word)) {
                 $this->$attributeId = $word->id;
-                if (Word::FIELD_WORD[ucfirst($attribute)] !== Word::getParentByLevel($word, 0)->id) {
+                if (Word::getFieldWord(ucfirst($attribute)) !== Word::getParentByLevel($word, 0)->id) {
                     $this->addError($attribute, 'Значение не из списка');
                 }
             } else {
