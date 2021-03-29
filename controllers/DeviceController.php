@@ -101,8 +101,11 @@ class DeviceController extends Controller
     {
         if (isset($id)) {       // update
             $model = $this->findModel($id);
+            $model->kind = $model->wordKind->name;
             $model->name = $model->wordName->name;
-            $model->type = $model->wordType->name;
+            $model->type = $model->wordName->parent->name;
+            $model->group = $model->wordName->parent->parent->name;
+            $model->state = $model->wordState->name;
             $model->department = $model->wordDepartment->name;
             $model->crew = $model->wordCrew->name;
             $view = 'update';
@@ -138,13 +141,22 @@ class DeviceController extends Controller
             $wordSearch->load(Yii::$app->request->queryParams);
             if ($wordSearch->validate()) {
                 $depth = 1;
-                if (isset(Word::FIELD_WORD[ucfirst($wordSearch->term_name)])) {
+                $withParent = true;
+                if ($wordSearch->term_name == 'group') {
+                    $wordSearch->term_name = 'name';
+                } elseif ($wordSearch->term_name == 'type') {
+                    $wordSearch->term_name = 'name';
+                    $depth = 2;
+                } elseif (isset(Word::FIELD_WORD[$wordSearch->term_name])) {
                     $depth = Word::MAX_NUMBER_PARENTS;
                 }
+                if ($wordSearch->term_name == 'name') {     // выше term_name перезаписан
+                    $withParent = false;
+                }
                 $arrayCondition[] = [
-                    'parents' => [$wordSearch->term_name],
+                    'parents' => [$wordSearch->term_name, $wordSearch->term_p1, $wordSearch->term_p2],
                     'depth' => $depth,
-                    'withParent' => true
+                    'withParent' => $withParent
                 ];
                 echo $wordSearch->findNamesByParents($arrayCondition);
             }
