@@ -26,7 +26,7 @@ class DeviceSearch extends Device
         return [
             [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
             [['description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
-            [['name', 'type', 'department', 'crew', 'position', 'number'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['group', 'type', 'name', 'department', 'crew', 'position', 'number'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
             [['term', 'term_name'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']]
         ];
@@ -58,7 +58,7 @@ class DeviceSearch extends Device
     {
         $query = Device::find()
 //            ->select(['id', 'name_id', 'type_id', 'department_id', 'crew_id, 'position', 'number', 'deleted', 'created_at', 'updated_at'])
-            ->with('creator', 'updater', 'wordName', 'wordType', 'wordDepartment', 'wordCrew');
+            ->with('creator', 'updater', 'wordKind', 'wordName.parent.parent', 'wordState', 'wordDepartment', 'wordCrew');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -83,19 +83,35 @@ class DeviceSearch extends Device
             $query->andFilterWhere(['like', 'number', $this->number . '%', false]);
         }
         if (strlen($this->position)) {
-            $query->andFilterWhere(['like', 'number', $this->position . '%', false]);
+            $query->andFilterWhere(['like', 'position', $this->position . '%', false]);
         }
 
-        foreach(['name', 'type', 'department', 'crew'] as $item) {
+        foreach(['kind', 'name', 'type', 'group', 'state', 'department', 'crew'] as $item) {
             if (strlen($this->$item)) {
                 $depth = Word::MAX_NUMBER_PARENTS;
-                if (ucfirst($this->$item) == array_search(Status::NOT_CATEGORY, Word::FIELD_WORD)) {    // == 'not'
+                $withParent = true;
+                if ($this->$item == array_search(Status::NOT_CATEGORY, Word::FIELD_WORD)) {    // == 'not'
                     $depth = 1;
                 }
+                $parents = [1 => $this->$item];
+                if ($item == 'name') {
+                    $parents[1] = $this->group;
+                    $parents[2] = $this->type;
+                    $parents[3] = $this->name;
+                } elseif ($item == 'type') {
+                    $item = 'name';
+                    $depth = 2;
+                } elseif ($item == 'group') {
+                    $item = 'name';
+                    $depth = 1;
+                }
+                if ($item == 'name') {    // выше $item перезаписан
+                    $withParent = false;
+                }
                 list('condition' => $condition, 'bind' => $bind) = Word::getConditionByParent([
-                    'parents' => [1 => $this->$item],
+                    'parents' => $parents,
                     'depth' => $depth,
-                    'withParent' => true,
+                    'withParent' => $withParent,
                     'columnName' => "{$item}_id"
                 ]);
                 $query->andOnCondition($condition, $bind);
@@ -122,6 +138,12 @@ class DeviceSearch extends Device
      */
     public static function getAutoCompleteOptions($attribute, $prefix = '', $autoSend = false)
     {
+        $parents = '';
+        if ($attribute == 'name') {
+            $parents = "term_p1: $('#group').val(), term_p2: $('#type').val(),";
+        } elseif ($attribute == 'type') {
+            $parents = "term_p1: $('#group').val(),";
+        }
         if (strlen($prefix)) {
             $prefix = $prefix . '_';
         }
@@ -137,6 +159,7 @@ class DeviceSearch extends Device
                     $.getJSON('" . Url::to('/device/list-auto-complete') . "', {
                         term: request.term,
                         term_name: '{$attribute}',
+                        $parents
                     }, response);
                 }"),
                 'select' => $select,
