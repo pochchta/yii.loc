@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
@@ -11,10 +12,11 @@ use yii\db\ActiveRecord;
  * This is the model class for table "device".
  *
  * @property int $id
- * @property int|null $name_id                  // из словаря
- * @property int|null $type_id                  //
- * @property int|null $department_id            //
- * @property int|null $crew_id                  //
+ * @property int|null $kind_id                  // вид (эталон, ...) - из словаря
+ * @property int|null $name_id                  // название
+ * @property int|null $state_id                 // состояние (списан)
+ * @property int|null $department_id            // цех
+ * @property int|null $crew_id                  // бригада
  * @property string|null $position
  * @property string|null $number
  * @property string|null $description
@@ -26,8 +28,9 @@ use yii\db\ActiveRecord;
  *
  * @property User|null $creator magic property
  * @property User|null $updater magic property
+ * @property Word|null $wordKind magic property
  * @property Word|null $wordName magic property
- * @property Word|null $wordType magic property
+ * @property Word|null $wordState magic property
  * @property Word|null $wordDepartment magic property
  * @property Word|null $wordCrew magic property
  * @property Verification|null $activeVerification magic property
@@ -35,7 +38,7 @@ use yii\db\ActiveRecord;
  */
 class Device extends ActiveRecord
 {
-    public $name, $type, $department, $crew;
+    public $kind, $group, $type, $name, $state, $department, $crew;
     /**
      * {@inheritdoc}
      */
@@ -68,11 +71,11 @@ class Device extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'type', 'department', 'crew', 'number'], 'required'],
+            [['kind', 'name', 'state', 'department', 'crew', 'number'], 'required'],
             [['description'], 'string'],
-            [['number'], 'string', 'max' => 30],
-            [['name', 'type', 'department', 'crew', 'position'], 'string', 'max' => 30],
-            [['name', 'type', 'department', 'crew'], 'validateId', 'skipOnEmpty' => false],
+            [['number'], 'string', 'max' => Yii::$app->params['maxLengthTextField']],
+            [['kind', 'name', 'type', 'group', 'state', 'department', 'crew', 'position'], 'string', 'max' => Yii::$app->params['maxLengthTextField']],
+            [['kind', 'name', 'state', 'department', 'crew'], 'validateId', 'skipOnEmpty' => false],
         ];
     }
 
@@ -85,10 +88,21 @@ class Device extends ActiveRecord
             $attributeId = $attribute . '_id';
             $word = Word::findOne(['name' => $this->$attribute]);
             if (isset($word)) {
-                $this->$attributeId = $word->id;
-                if (Word::getFieldWord(ucfirst($attribute)) !== Word::getParentByLevel($word, 0)->id) {
-                    $this->addError($attribute, 'Значение не из списка');
+                $parents = Word::getParentByLevel($word);
+                if ($attribute == 'name') {
+                    if (
+                        Word::getFieldWord($attribute) !== $parents[0]->id ||
+                        (strlen($this->group) && $this->group !== $parents[1]->name) ||
+                        (strlen($this->type) && $this->type !== $parents[2]->name)
+                    ) {
+                        $this->addError($attribute, 'Значение не из списка');
+                    }
+                } else {
+                    if (Word::getFieldWord($attribute) !== $parents[0]->id) {
+                        $this->addError($attribute, 'Значение не из списка');
+                    }
                 }
+                $this->$attributeId = $word->id;
             } else {
                 $this->addError($attribute, 'Значение не из списка');
             }
@@ -102,8 +116,11 @@ class Device extends ActiveRecord
     {
         return [
             'id' => 'ID',
+            'kind_id' => 'Вид', 'kind' => 'Вид',
+            'group' => 'Группа',
+            'type' => 'Тип',
             'name_id' => 'Имя', 'name' => 'Имя',
-            'type_id' => 'Тип', 'type' => 'Тип',
+            'state_id' => 'Состояние', 'state' => 'Состояние',
             'department_id' => 'Цех', 'department' => 'Цех',
             'crew_id' => 'Бригада', 'crew' => 'Бригада',
             'position' => 'Позиция',
@@ -142,14 +159,19 @@ class Device extends ActiveRecord
         return $this->hasOne(User::class, ['id' => 'updated_by']);
     }
 
+    public function getWordKind()
+    {
+        return $this->hasOne(Word::class, ['id' => 'kind_id']);
+    }
+
     public function getWordName()
     {
         return $this->hasOne(Word::class, ['id' => 'name_id']);
     }
 
-    public function getWordType()
+    public function getWordState()
     {
-        return $this->hasOne(Word::class, ['id' => 'type_id']);
+        return $this->hasOne(Word::class, ['id' => 'state_id']);
     }
 
     public function getWordDepartment()
