@@ -48,12 +48,36 @@ if ($model->deleted == Status::NOT_DELETED) {
         'model' => $model,
         'attributes' => [
             [
-                'attribute' => 'name_id',
-                'value' => $model->wordName->name
+                'attribute' => ($attribute = 'kind') . '_id',
+                'value' => $model->{'word' . ucfirst($attribute)}->name
             ],
             [
-                'attribute' => 'type_id',
-                'value' => $model->wordType->name
+                'attribute' => ($attribute = 'group'),
+                'value' => $model->wordName->parent->parent->name
+            ],
+            [
+                'attribute' => ($attribute = 'type'),
+                'value' => $model->wordName->parent->name
+            ],
+            [
+                'attribute' => ($attribute = 'name') . '_id',
+                'value' => $model->{'word' . ucfirst($attribute)}->name
+            ],
+            [
+                'attribute' => ($attribute = 'state') . '_id',
+                'value' => $model->{'word' . ucfirst($attribute)}->name
+            ],
+            [
+                'attribute' => ($attribute = 'department') . '_id',
+                'value' => $model->{'word' . ucfirst($attribute)}->name
+            ],
+            [
+                'attribute' => 'position',
+                'value' => $model->position
+            ],
+            [
+                'attribute' => ($attribute = 'crew') . '_id',
+                'value' => $model->{'word' . ucfirst($attribute)}->name
             ],
             'number',
             'description:ntext',
@@ -70,18 +94,6 @@ if ($model->deleted == Status::NOT_DELETED) {
             [
                 'value' => $model->activeVerification->period,
                 'label' => 'Межповерочный интервал',
-            ],
-            [
-                'attribute' => 'department_id',
-                'value' => $model->wordDepartment->name
-            ],
-            [
-                'attribute' => 'position',
-                'value' => $model->position
-            ],
-            [
-                'attribute' => 'crew',
-                'value' => $model->wordCrew->name
             ],
             'created_at:date',
             'updated_at:date',

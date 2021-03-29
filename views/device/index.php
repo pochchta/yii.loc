@@ -44,33 +44,63 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => 'yii\grid\SerialColumn'],
 
             [
-                'attribute' => 'name_id',
-                'value' => function ($model) {
-                    return $model->wordName->name;
+                'attribute' => ($attribute = 'kind') . '_id',
+                'value' => function ($model) use ($attribute) {
+                    return $model->{'word' . ucfirst($attribute)}->name;
                 },
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
-                    'attribute' => $attribute = 'name',
+                    'attribute' => $attribute,
                 ] + DeviceSearch::getAutoCompleteOptions($attribute, '', true))
             ],
             [
-                'attribute' => 'type_id',
-                'value' => function ($model) {
-                    return $model->wordType->name;
+                'attribute' => ($attribute = 'group'),
+                'value' => function ($model) use ($attribute) {
+                    return $model->wordName->parent->parent->name;
                 },
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
-                    'attribute' => $attribute = 'type',
+                    'attribute' => $attribute,
                 ] + DeviceSearch::getAutoCompleteOptions($attribute, '', true))
             ],
             [
-                'attribute' => 'department_id',
-                'value' => function ($model) {
-                    return $model->wordDepartment->name;
+                'attribute' => ($attribute = 'type'),
+                'value' => function ($model) use ($attribute) {
+                    return $model->wordName->parent->name;
                 },
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
-                    'attribute' => $attribute = 'department',
+                    'attribute' => $attribute,
+                ] + DeviceSearch::getAutoCompleteOptions($attribute, '', true))
+            ],
+            [
+                'attribute' => ($attribute = 'name') . '_id',
+                'value' => function ($model) use ($attribute) {
+                    return $model->{'word' . ucfirst($attribute)}->name;
+                },
+                'filter' => AutoComplete::widget([
+                    'model' => $searchModel,
+                    'attribute' => $attribute,
+                ] + DeviceSearch::getAutoCompleteOptions($attribute, '', true))
+            ],
+            [
+                'attribute' => ($attribute = 'state') . '_id',
+                'value' => function ($model) use ($attribute) {
+                    return $model->{'word' . ucfirst($attribute)}->name;
+                },
+                'filter' => AutoComplete::widget([
+                    'model' => $searchModel,
+                    'attribute' => $attribute,
+                ] + DeviceSearch::getAutoCompleteOptions($attribute, '', true))
+            ],
+            [
+                'attribute' => ($attribute = 'department') . '_id',
+                'value' => function ($model) use ($attribute) {
+                    return $model->{'word' . ucfirst($attribute)}->name;
+                },
+                'filter' => AutoComplete::widget([
+                    'model' => $searchModel,
+                    'attribute' => $attribute,
                 ] + DeviceSearch::getAutoCompleteOptions($attribute, '', true))
             ],
             [
@@ -85,8 +115,8 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             [
                 'attribute' => ($attribute = 'crew') . '_id',
-                'value' => function ($model) {
-                    return $model->wordCrew->name;
+                'value' => function ($model) use ($attribute) {
+                    return $model->{'word' . ucfirst($attribute)}->name;
                 },
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,

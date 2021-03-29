@@ -15,11 +15,23 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, $attribute ='name')->textInput(['maxlength' => true])->widget(
+    <?= $form->field($model, $attribute ='kind')->textInput(['maxlength' => true])->widget(
+        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
+    ); ?>
+
+    <?= $form->field($model, $attribute ='group')->textInput(['maxlength' => true])->widget(
         AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
     ); ?>
 
     <?= $form->field($model, $attribute ='type')->textInput(['maxlength' => true])->widget(
+        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
+    ); ?>
+
+    <?= $form->field($model, $attribute ='name')->textInput(['maxlength' => true])->widget(
+        AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
+    ); ?>
+
+    <?= $form->field($model, $attribute ='state')->textInput(['maxlength' => true])->widget(
         AutoComplete::class, DeviceSearch::getAutoCompleteOptions($attribute)
     ); ?>
 
