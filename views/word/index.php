@@ -55,7 +55,7 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
 //            'description:ntext',
             [
-                'attribute' => $attribute = 'category1',
+                'attribute' => 'parent_id',
                 'format' => 'html',
                 'value' => function ($model) {
                     $parent = Word::getParentByLevel($model, 0);
@@ -63,7 +63,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 },
                 'filter' => Html::activeDropDownList(
                     $searchModel,
-                    $attribute,
+                    $attribute = 'category1',
                     [Status::ALL => 'все'] + array_combine(array_keys(Word::FIELD_WORD), Word::LABEL_FIELD_WORD)
                 )
             ],
@@ -95,7 +95,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     'attribute' => $attribute,
                 ] + WordSearch::getAutoCompleteOptions($attribute))
             ],
-            [
+/*            [
                 'attribute' => $attribute = 'category4',
                 'format' => 'html',
                 'value' => function ($model) {
@@ -108,7 +108,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     'model' => $searchModel,
                     'attribute' => $attribute,
                 ] + WordSearch::getAutoCompleteOptions($attribute))
-            ],
+            ],*/
             [
                 'attribute' => 'deleted',
                 'format' => 'html',

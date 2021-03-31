@@ -27,26 +27,36 @@ use yii\db\ActiveRecord;
  */
 class Word extends ActiveRecord
 {
-    const MAX_NUMBER_PARENTS = 4;       // максимальный уровень вложенности
+    const MAX_NUMBER_PARENTS = 3;       // максимальный уровень вложенности
 
     const FIELD_WORD = [
-        'Not' => 0,
-        'Scale' => -11,
-        'Department' => -12,
-        'Type' => -13,
-        'Name' => -14,
-        'Crew' => -15,
-        'Accuracy' => -16,
+        'not' => 0,
+        'kind' => -11,
+//        'group' => -12,
+//        'type' => -13,
+        'name' => -14,
+        'state' => -15,
+        'department' => -16,
+        'crew' => -17,
+
+        's_scale' => -18,
+        's_accuracy' => -19,
+        's_type' => -20,    // шкала квадратичная
+        'v_kind' => -21,    // поверка поверка
     ];
 
     const LABEL_FIELD_WORD = [
-        self::FIELD_WORD['Not'] => 'нет',
-        self::FIELD_WORD['Scale'] => 'Шкалы',
-        self::FIELD_WORD['Department'] => 'Цеха',
-        self::FIELD_WORD['Type'] => 'Типы приборов',
-        self::FIELD_WORD['Name'] => 'Названия приборов',
-        self::FIELD_WORD['Crew'] => 'Бригада',
-        self::FIELD_WORD['Accuracy'] => 'Точность',
+        self::FIELD_WORD['not'] => 'нет',   // TODO: ключи с маленькой буквы
+        self::FIELD_WORD['kind'] => 'Вид СИ',
+        self::FIELD_WORD['name'] => 'Названия приборов',
+        self::FIELD_WORD['state'] => 'Состояние',
+        self::FIELD_WORD['department'] => 'Цеха',
+        self::FIELD_WORD['crew'] => 'Бригада',
+
+        self::FIELD_WORD['s_scale'] => 'Шкалы',
+        self::FIELD_WORD['s_accuracy'] => 'Точность',
+        self::FIELD_WORD['s_type'] => 'Тип',
+        self::FIELD_WORD['v_kind'] => 'Вид поверки',
     ];
 
     public $category_name, $parent_name;
@@ -86,7 +96,7 @@ class Word extends ActiveRecord
     {
         return [
             [['name', 'category_name'], 'required'],
-            [['name', 'value', 'category_name', 'parent_name'], 'string', 'max' => 20],
+            [['name', 'value', 'category_name', 'parent_name'], 'string', 'max' => 40],
             [['name'], 'unique', 'when' => function($model){return $model->isAttributeChanged('name');}],   // создан или изменен
             [['description'], 'string'],
             [['category_name'], 'validateCategoryName'],     // сначала присваивание parent_id
@@ -155,7 +165,7 @@ class Word extends ActiveRecord
         }
     }
 
-    /**
+    /** Глубина считается от 1 элемента $parents
      * @param array $params array parents, str columnName = parent_id, int depth = 1, bool withParent = false
      * @return array|string[]
      */
@@ -194,7 +204,7 @@ class Word extends ActiveRecord
         }
         $previousKey = 0;                               // если $item == 'not', то $previousKey - ключ последнего значащего родителя
         foreach ($parents as $key => $item) {
-            if (ucfirst($item) == array_search(Status::NOT_CATEGORY, Word::FIELD_WORD)) {    // =='not'
+            if ($item == array_search(Status::NOT_CATEGORY, Word::FIELD_WORD)) {    // =='not'
                 if ($key > 0 && $depth > $key) {
                     $depth = $key;      // ограничение глубины для NOT_CATEGORY
                     $parentsKeyLast = $previousKey;
@@ -203,12 +213,12 @@ class Word extends ActiveRecord
             $previousKey = $key;
         }
         $conditionError = ['condition' => '0=1', 'bind' => []];
-        if ((isset($parents[0]) || isset($parents[1])) == false || empty($columnName)) {
+        if (is_array($parents) == false || empty($columnName)) {
             return $conditionError;
         }
 
-        if (isset($parents[0]) && isset(Word::FIELD_WORD[ucfirst($parents[0])])) {   // поиск по категории Word::FIELD_WORD
-            $parents[0] = Word::getFieldWord(ucfirst($parents[0]));
+        if (isset($parents[0]) && isset(Word::FIELD_WORD[$parents[0]])) {   // поиск по категории Word::FIELD_WORD
+            $parents[0] = Word::getFieldWord($parents[0]);
         }
 
         foreach ($parents as $key => $item) {   // дальше возможно изменение $parents[0] = 0, но $bindNames[0] останется прежним
@@ -229,7 +239,11 @@ class Word extends ActiveRecord
             if ($parentExpression && $likeExpression) {
                 $parentExpression .= ' AND ';
             }
-            $arrayCondition[$i] = "IN (SELECT id FROM word WHERE $parentExpression $likeExpression AND deleted = :not_del)";
+            $deleted = 'deleted = :not_del';
+            if ($parentExpression || $likeExpression) {
+                $deleted = 'AND ' . $deleted;
+            }
+            $arrayCondition[$i] = "IN (SELECT id FROM word WHERE $parentExpression $likeExpression $deleted)";
         }
 
         foreach ($arrayCondition as $key => $item) {    // присоединение columnName к запросам
@@ -321,10 +335,11 @@ class Word extends ActiveRecord
             $model = $model->parent;
             $parents[] = $model;
         }
+        $parents = array_reverse($parents);
         if ($level == Status::ALL) {
             return $parents;
         }
-        return isset($parents[count($parents) - $level - 1]) ? $parents[count($parents) - $level - 1] : NULL;
+        return isset($parents[$level]) ? $parents[$level] : NULL;
     }
 
     /**
