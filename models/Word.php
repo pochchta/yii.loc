@@ -142,19 +142,21 @@ class Word extends ActiveRecord
         if (!$this->hasErrors()) {
             if ($this->deleted == Status::NOT_DELETED) {
                 $depth = Word::getDepth($this);
-                for ($i = 1; $i <= self::MAX_NUMBER_PARENTS; $i++) {
-                    if ($depth <= self::MAX_NUMBER_PARENTS) {
-                        list('condition' => $condition, 'bind' => $bind) = Word::getConditionByParent([
-                            'parents' => [$this->id],
-                            'depth' => $i,
-                        ]);
-                        if (self::find()->andOnCondition($condition, $bind)->andFilterWhere(['deleted' => Status::NOT_DELETED])->one() !== NULL) {
-                            $depth++;
+                if (isset($this->id)) {             // не для новых записей
+                    for ($i = 1; $i <= self::MAX_NUMBER_PARENTS; $i++) {
+                        if ($depth <= self::MAX_NUMBER_PARENTS) {
+                            list('condition' => $condition, 'bind' => $bind) = Word::getConditionByParent([
+                                'parents' => [$this->id],
+                                'depth' => $i,
+                            ]);
+                            if (self::find()->andOnCondition($condition, $bind)->andFilterWhere(['deleted' => Status::NOT_DELETED])->one() !== NULL) {
+                                $depth++;
+                            } else {
+                                break;
+                            }
                         } else {
                             break;
                         }
-                    } else {
-                        break;
                     }
                 }
 
