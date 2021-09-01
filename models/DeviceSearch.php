@@ -26,7 +26,7 @@ class DeviceSearch extends Device
         return [
             [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
             [['description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
-            [['group', 'type', 'name', 'department', 'crew', 'position', 'number'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['group', 'type', 'name', 'department', 'crew', 'position', 'number', 'kind', 'state'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
             [['term', 'term_name'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']]
         ];
@@ -88,6 +88,15 @@ class DeviceSearch extends Device
 
         foreach(['kind', 'name', 'type', 'group', 'state', 'department', 'crew'] as $item) {
             if (strlen($this->$item)) {
+                if (strlen($this->group)) {
+                    if ($item == 'name' || $item == 'type') {
+                        continue;
+                    }
+                } elseif (strlen($this->type)) {
+                    if ($item == 'name') {
+                        continue;
+                    }
+                }
                 $depth = Word::MAX_NUMBER_PARENTS;
                 $withParent = true;
                 if ($this->$item == array_search(Status::NOT_CATEGORY, Word::FIELD_WORD)) {    // == 'not'
@@ -95,15 +104,16 @@ class DeviceSearch extends Device
                 }
                 $parents = [1 => $this->$item];
                 if ($item == 'name') {
-                    $parents[1] = $this->group;
-                    $parents[2] = $this->type;
-                    $parents[3] = $this->name;
+                    $depth = 1;
                 } elseif ($item == 'type') {
                     $item = 'name';
+                    $parents[2] = $this->name;
                     $depth = 2;
                 } elseif ($item == 'group') {
                     $item = 'name';
-                    $depth = 1;
+                    $parents[2] = $this->type;
+                    $parents[3] = $this->name;
+                    $depth = 3;
                 }
                 if ($item == 'name') {    // выше $item перезаписан
                     $withParent = false;
