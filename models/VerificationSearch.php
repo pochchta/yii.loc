@@ -147,19 +147,26 @@ class VerificationSearch extends Verification
         return '';
     }
 
-    public static function getAutoCompleteOptions($attribute)
+    public static function getAutoCompleteOptions($attribute, $prefix = '', $autoSend = false)
     {
+        if (strlen($prefix)) {
+            $prefix = $prefix . '_';
+        }
+        $select = '';
+        if ($autoSend) {
+            $select = new JsExpression("function(event, ui) {
+                selectAutoComplete(event, ui, '{$prefix}{$attribute}');
+            }");
+        }
         return [
             'clientOptions' => [
                 'source' => new JsExpression("function(request, response) {
-                    $.getJSON('" . Url::to('/verification/list-auto-complete') . "', {
+                    $.getJSON('" . Url::to('/device/list-auto-complete') . "', {
                         term: request.term,
                         term_name: '{$attribute}',
                     }, response);
                 }"),
-                'select' => new JsExpression("function(event, ui) {
-                    selectAutoComplete(event, ui, '$attribute');
-                }"),
+                'select' => $select,
                 'minLength' => Yii::$app->params['minSymbolsAutoComplete'],
                 'delay' => Yii::$app->params['delayAutoComplete']
             ],

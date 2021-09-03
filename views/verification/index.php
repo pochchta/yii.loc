@@ -1,8 +1,8 @@
 <?php
 
-use app\models\DeviceSearch;
 use app\models\Status;
 use app\models\Verification;
+use app\models\VerificationSearch;
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\jui\AutoComplete;
@@ -66,7 +66,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
                     'attribute' => 'device_id',
-                ] + DeviceSearch::getAutoCompleteOptions('id', 'device', true))
+                ] + VerificationSearch::getAutoCompleteOptions('id', 'device', true))
             ],
             [
                 'attribute' => 'device.name_id',
@@ -76,14 +76,14 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
                     'attribute' => 'device_name',
-                ] + DeviceSearch::getAutoCompleteOptions('name', 'device', true))
+                ] + VerificationSearch::getAutoCompleteOptions('name', 'device', true))
             ],
             [
                 'attribute' => 'device.number',
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
                     'attribute' => 'device_number',
-                ] + DeviceSearch::getAutoCompleteOptions('number', 'device', true)),
+                ] + VerificationSearch::getAutoCompleteOptions('number', 'device', true)),
                 'label' => '№ приб.'
             ],
             [
@@ -94,7 +94,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => AutoComplete::widget([
                     'model' => $searchModel,
                     'attribute' => 'device_department',
-                ] + DeviceSearch::getAutoCompleteOptions('department', 'device', true)),
+                ] + VerificationSearch::getAutoCompleteOptions('department', 'device', true)),
             ],
             [
                 'attribute' => 'type',
