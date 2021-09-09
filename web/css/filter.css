@@ -1,0 +1,278 @@
+#tabs_content2 {
+    position: absolute;
+    z-index: 12;
+}
+
+.catalogTabs .tabs_title {
+    padding: 18px 0 0 39px;
+    overflow: hidden
+}
+
+.catalogTabs .tabs_title ul {
+    list-style: none;
+    padding: 0;
+}
+
+.catalogTabs .tabs_title li {
+    margin: 0 10px 0 0;
+    float: left
+}
+
+.catalogTabs .tabs_title li a {
+    height: 32px;
+    padding: 0 10px;
+    display: inline-block;
+    text-decoration: none;
+    font-size: .783em;
+    line-height: 2.348em
+}
+
+.catalogTabs .tabs_title li a:hover {
+    color: #249dd6
+}
+
+.catalogTabs .tabs_title li a span {
+    border-bottom: 1px dashed #249dd6
+}
+
+.catalogTabs .tabs_title li a.current span {
+    border-bottom: 0
+}
+
+.catalogTabs .tabs_title li a i {
+    padding: 0;
+    font-style: normal;
+    color: #999;
+    font-weight: normal !important
+}
+
+.catalogTabs .tabs_title li a.current {
+    background: #fff;
+    box-shadow: 0 0 20px rgba(50, 92, 118, 0.3);
+    border-radius: 3px 3px 0 0;
+    font-weight: bold;
+    z-index: 201;
+    position: relative;
+    color: #000
+}
+
+.catalogTabs .tabs_content {
+    padding: 20px 20px 15px 39px;
+    background: #fff;
+    box-shadow: 0 0 20px rgba(50, 86, 108, 0.4);
+    border-radius: 3px;
+    z-index: 11;
+    position: relative
+}
+
+.checkbox input {
+    display: none;
+}
+
+.checkboxList {
+    padding: 0 0 0 5px;
+    list-style: none;
+    overflow: hidden
+}
+
+.checkboxList .checkbox {
+    width: auto;
+    height: 21px;
+    margin: 0 6px 6px 0;
+    padding: 0 10px;
+    float: left;
+    text-decoration: none;
+    font-size: .783em;
+    line-height: 22px;
+    font-weight: normal !important;
+    border-radius: 3px;
+    color: #249dd6;
+    border: 1px solid #fff
+}
+
+.checkbox.disabled {
+    opacity: .7;
+    color: #999;
+    border: 1px solid #FFF !important;
+    cursor: default !important
+}
+
+.checkbox.disabled .checkHead:hover {
+    text-decoration: none !important
+}
+
+.checkboxList .checkbox small, .extraParamContent .checkbox small {
+    color: #74c43a;
+    border-radius: 2px;
+    text-shadow: none
+}
+
+.checkboxList .checkbox.checked .checkboxIn small {
+    color: #000
+}
+
+.checkboxList .checkbox:hover {
+    border: 1px solid #249dd6
+}
+
+.checkboxList .checkbox.checked {
+    background: #249dd6;
+    color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4) inset;
+    text-shadow: 0 1px 0 #186990;
+    border: 1px solid #249dd6
+}
+
+.checkboxList .checkbox.checked .checkboxIn {
+    border-bottom: 0;
+    color: #fff;
+    cursor: default
+}
+
+
+.tabsFilterParams {
+    margin: 0;
+    padding: 0 0 0 27px;
+    position: relative
+}
+
+.fullFilterButton {
+    width: 168px;
+    height: 27px;
+    padding: 7px 10px 0 30px;
+    display: block;
+    border-radius: 0;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-top: 1px solid #FFF;
+    color: #000;
+    font-size: .8em;
+    text-decoration: none;
+    z-index: 1;
+    margin: -1px auto 10px;
+    background: url("../i/full-filter-icon.png") no-repeat scroll 11px 9px #d9f0b9;
+    box-sizing: content-box;
+}
+
+.openAllFilters a {
+    background-color: #FFF;
+    color: #249dd6;
+    float: right;
+    font-size: .8em;
+    position: relative;
+    padding: 5px 10px;
+    border-radius: 3px;
+    border: 1px solid #249dd6;
+    text-decoration: none
+}
+
+.openAllFilters a .extraParamArrow {
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    top: 7px;
+    left: -8px;
+    /*background: url('../i/close-open-arrows.png') no-repeat scroll 0 0 #FFF;*/
+    border: 3px solid #FFF
+}
+
+.openAllFilters a.opened {
+    color: #999;
+    border: 1px solid #999
+}
+
+.openAllFilters a:hover, .openAllFilters a.opened:hover {
+    color: #000;
+    border: 1px solid #000
+}
+
+.openAllFilters a:hover .extraParamArrow {
+    background-position: top right
+}
+
+.openAllFilters a.opened .extraParamArrow {
+    background-position: bottom left
+}
+
+.openAllFilters a.opened:hover .extraParamArrow {
+    background-position: bottom right
+}
+
+.fullFilterButton:hover span {
+    text-decoration: underline !important
+}
+
+.fullFilterButton span {
+    padding: 0 2px;
+    display: inline-block;
+    line-height: 1.044em
+}
+
+.callOffAll {
+    position: relative
+}
+
+.callOffAll a {
+    background: #fdd url("../i/catalog-cancel-icon.png") no-repeat scroll 5px 5px;
+    width: 18px;
+    height: 18px;
+    display: block;
+    padding: 0;
+    border: 3px solid #fff;
+    border-radius: 18px;
+    position: absolute;
+    left: -41px;
+    top: -8px;
+    z-index: 100;
+    color: #d62424;
+    box-sizing: content-box;
+}
+
+.callOffAll a span {
+    display: none
+}
+
+.filterUrlFilter {
+    background-color: #effae9;
+    margin-bottom: 10px;
+    margin-left: -26px;
+    padding: 7px 10px;
+    font-size: .8em;
+    border-radius: 3px
+}
+
+.filterUrlFilter a {
+    color: #74c43a
+}
+
+.filterUrlFilter a:hover {
+    color: #000
+}
+
+.filterItemsList {
+    background-color: #fdd;
+    color: #000;
+    border-radius: 3px;
+    margin: 5px 0 0 -26px;
+    font-size: .718em;
+    position: relative;
+    padding: 5px 10px;
+    z-index: 1
+}
+
+.showOnly {
+    padding: 0 3px 0 0;
+    font-weight: bold
+}
+
+.showGroup {
+    padding: 2px 3px
+}
+
+.showGroup a {
+    color: #d62424
+}
+
+.showGroup a:hover {
+    text-decoration: none
+}
