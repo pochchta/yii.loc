@@ -16,7 +16,6 @@ window.onload = function() {
                     $('#tabs_content1>div:not(".hide")').addClass('hide');
                     $('#tabs_content1>' + ($(this).attr('href'))).removeClass('hide');
                     $('#tabs_content1')
-                        .outerWidth($('#filters-form').outerWidth())
                         .removeClass('hide');
                 })
                 .on('mouseleave', function() {

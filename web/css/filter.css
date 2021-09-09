@@ -21,6 +21,10 @@
     border-color: transparent;
 }
 
+.catalogTabs {
+    position: relative;
+}
+
 .catalogTabs .tabs_title {
     padding: 18px 0 0 39px;
     overflow: hidden
