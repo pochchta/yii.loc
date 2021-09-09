@@ -1,58 +1,54 @@
 window.onload = function() {
     (function($) {
-        $(function() {
-
-/*            $('.tabs_title ul').on('click', 'a:not(.current)', function() {
-                $('.rfalse')
-                    .removeClass('current');
-                $(this)
-                    .addClass('current').siblings()
-                    .closest('div.tabs').find('div.tabs__content').removeClass('current').eq($(this).index()).addClass('current');
-            });*/
-            $('.catalogTabs')
-                .on('mouseover', 'li>a:not(.current)', function() {
-                    $('.catalogTabs li>a.current').removeClass('current');
-                    $(this).addClass('current');
-                    $('#tabs_content1>div:not(".hide")').addClass('hide');
-                    $('#tabs_content1>' + ($(this).attr('href'))).removeClass('hide');
-                    $('#tabs_content1')
-                        .removeClass('hide');
-                })
-                .on('mouseleave', function() {
-                    $('.catalogTabs li>a.current').removeClass('current');
-                    $('#tabs_content1').addClass('hide');
-                    $('#tabs_content2').addClass('hide');
-                })
-                .on('mouseover', '#tabs_content1>div>.checkboxList>span:not(.current)', function() {
-                    $('#tabs_content1>div>.checkboxList>span.current').removeClass('current');
-                    $(this).addClass('current');
-                    let $blockArrow1 = $('#block_arrow1');
-                    $blockArrow1
-                        .removeClass('hide')
-                        .offset({
-                            'left': $(this).offset().left + $(this).outerWidth() - $blockArrow1.outerWidth() - 1,
-                            'top': $(this).offset().top + $(this).outerHeight() - 1,
-                        });
-                    $('#tabs_content2').addClass('hide');
-                })
-                .on('mouseover', '#block_arrow1', function() {
-                    $('#tabs_content2>div:not(".hide")').addClass('hide');
-                    $('#tabs_content2>#tab' + ($('#tabs_content1>div>.checkboxList>span.current').children('input')[0].value)).removeClass('hide');
-                    let $tabs_content1 = $('#tabs_content1');
-                    $('#tabs_content2')
-                        .removeClass('hide')
-                        .offset({
-                            'left': $tabs_content1.offset().left,
-                            'top': $(this).offset().top + $(this).outerHeight(),
-                        })
-                        .width($tabs_content1.width() * 1.01);
-                })
-                .on('mouseleave', '#tabs_content1', function() {
-                    $('#block_arrow1').addClass('hide');
-                    $('#tabs_content1>div>.checkboxList>span.current').removeClass('current');
-                    $('#tabs_content2').addClass('hide');
-                })
-        });
+        $('.catalogTabs')
+            .on('mouseover', 'li>a:not(.current)', function() {
+                $('.catalogTabs li>a.current').removeClass('current');
+                $(this).addClass('current');
+                $('#tabs_content1>div:not(".hide")').addClass('hide');
+                $('#tabs_content1>' + ($(this).attr('href'))).removeClass('hide');
+                $('#tabs_content1').removeClass('hide');
+            })
+            .on('mouseleave', function() {
+                $('.catalogTabs li>a.current').removeClass('current');
+                // $('#tabs_content1').addClass('hide');
+                // $('#tabs_content2').addClass('hide');
+                $('.tabs_content').addClass('hide');
+            })
+            .on('mouseover', '.checkboxList span:not(.current)', function() {
+                // $currentTabsContent()
+                //     .children('div')
+                //     .children('.checkboxList')
+                //     .children('span.current')
+                //     .removeClass('current');
+                $(this).siblings().removeClass('current');
+                $(this).addClass('current');
+                let $currentTabsContent = $(this).parent().parent().parent();
+                let $blockArrow = $currentTabsContent.children('.block_arrow');
+                $blockArrow
+                    .removeClass('hide')
+                    .offset({
+                        'left': $(this).offset().left + $(this).outerWidth() - $blockArrow.outerWidth() - 1,
+                        'top': $(this).offset().top + $(this).outerHeight() - 1,
+                    });
+                $currentTabsContent.children('.tabs_content').addClass('hide');
+            })
+            .on('mouseover', '#block_arrow1', function() {          // TODO передалать в общий вид
+                $('#tabs_content2>div:not(".hide")').addClass('hide');
+                $('#tabs_content2>#tab' + ($('#tabs_content1>div>.checkboxList>span.current').children('input')[0].value)).removeClass('hide');
+                let $tabs_content1 = $('#tabs_content1');
+                $('#tabs_content2')
+                    .removeClass('hide')
+                    .offset({
+                        'left': $tabs_content1.offset().left,
+                        'top': $(this).offset().top + $(this).outerHeight(),
+                    })
+                    .width($tabs_content1.width() * 1.01);
+            })
+            .on('mouseleave', '#tabs_content1', function() {        // TODO передалать в общий вид
+                $('#block_arrow1').addClass('hide');
+                $('#tabs_content1>div>.checkboxList>span.current').removeClass('current');
+                $('#tabs_content2').addClass('hide');
+            })
     })(jQuery);
 
     if ($("div").is("#grid_id")) {

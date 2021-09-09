@@ -1,10 +1,15 @@
-#block_arrow1 {
+.block_arrow {
     background: #e0fff3;
     position: absolute;
     z-index: 14;
     font-size: 16px;
     padding: 3px 7px;
     width: 30px;
+}
+
+#block_arrow2 {
+    background: #feffdd;
+    z-index: 16;
 }
 
 #tabs_content1 {
