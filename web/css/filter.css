@@ -1,6 +1,24 @@
+#block_arrow1 {
+    background: #e0fff3;
+    position: absolute;
+    z-index: 14;
+    font-size: 16px;
+    padding: 3px 7px;
+    width: 30px;
+}
+
+#tabs_content1 {
+    position: absolute;
+}
+
 #tabs_content2 {
     position: absolute;
-    z-index: 12;
+    z-index: 13;
+    background: #e0fff3;
+}
+
+#tabs_content2 .checkbox {
+    border-color: transparent;
 }
 
 .catalogTabs .tabs_title {
@@ -111,8 +129,17 @@
     color: #000
 }
 
-.checkboxList .checkbox:hover {
-    border: 1px solid #249dd6
+.checkboxList .checkbox.current {
+    background: #e0fff3;
+    z-index: 13;
+}
+
+#tabs_content1 .checkboxList .checkbox:hover {
+    background: #e0fff3;
+}
+
+#tabs_content2 .checkboxList .checkbox:hover {
+    background: #feffdd;
 }
 
 .checkboxList .checkbox.checked {
@@ -223,7 +250,7 @@
     position: absolute;
     left: -41px;
     top: -8px;
-    z-index: 100;
+    z-index: 10;
     color: #d62424;
     box-sizing: content-box;
 }
