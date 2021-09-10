@@ -10,16 +10,9 @@ window.onload = function() {
             })
             .on('mouseleave', function() {
                 $('.catalogTabs li>a.current').removeClass('current');
-                // $('#tabs_content1').addClass('hide');
-                // $('#tabs_content2').addClass('hide');
                 $('.tabs_content').addClass('hide');
             })
             .on('mouseover', '.checkboxList span:not(.current)', function() {
-                // $currentTabsContent()
-                //     .children('div')
-                //     .children('.checkboxList')
-                //     .children('span.current')
-                //     .removeClass('current');
                 $(this).siblings().removeClass('current');
                 $(this).addClass('current');
                 let $currentTabsContent = $(this).parent().parent().parent();
@@ -32,22 +25,24 @@ window.onload = function() {
                     });
                 $currentTabsContent.children('.tabs_content').addClass('hide');
             })
-            .on('mouseover', '#block_arrow1', function() {          // TODO передалать в общий вид
-                $('#tabs_content2>div:not(".hide")').addClass('hide');
-                $('#tabs_content2>#tab' + ($('#tabs_content1>div>.checkboxList>span.current').children('input')[0].value)).removeClass('hide');
-                let $tabs_content1 = $('#tabs_content1');
-                $('#tabs_content2')
+            .on('mouseover', '.block_arrow', function() {
+                let $currentTabsContent = $(this).parent();
+                let $nextTabsContent = $(this).siblings('.tabs_content');
+                let value = $('#' + $currentTabsContent.attr('id') + '>div>.checkboxList>span.current>input')[0].value;
+                $nextTabsContent.children('div:not(".hide")').addClass('hide');
+                $nextTabsContent.children('#tab' + (value)).removeClass('hide');
+                $nextTabsContent
                     .removeClass('hide')
                     .offset({
-                        'left': $tabs_content1.offset().left,
+                        'left': $currentTabsContent.offset().left,
                         'top': $(this).offset().top + $(this).outerHeight(),
                     })
-                    .width($tabs_content1.width() * 1.01);
+                    .width($currentTabsContent.width() * 1.01);
             })
-            .on('mouseleave', '#tabs_content1', function() {        // TODO передалать в общий вид
-                $('#block_arrow1').addClass('hide');
-                $('#tabs_content1>div>.checkboxList>span.current').removeClass('current');
-                $('#tabs_content2').addClass('hide');
+            .on('mouseleave', '.tabs_content', function() {
+                $(this).children('.block_arrow').addClass('hide');
+                $('#' + $(this).attr('id') + '>div>.checkboxList>span.current').removeClass('current');
+                $(this).children('.tabs_content').addClass('hide');
             })
     })(jQuery);
 

@@ -1,7 +1,7 @@
 .block_arrow {
     background: #e0fff3;
     position: absolute;
-    z-index: 14;
+    /*z-index: 14;*/
     font-size: 16px;
     padding: 3px 7px;
     width: 30px;
@@ -9,17 +9,21 @@
 
 #block_arrow2 {
     background: #feffdd;
-    z-index: 16;
+    /*z-index: 16;*/
 }
 
-#tabs_content1 {
+.tabs_content {
     position: absolute;
 }
 
 #tabs_content2 {
-    position: absolute;
-    z-index: 13;
+    /*z-index: 13;*/
     background: #e0fff3;
+}
+
+#tabs_content3 {
+    /*z-index: 13;*/
+    background: #e6ffe2;
 }
 
 #tabs_content2 .checkbox {
@@ -89,7 +93,7 @@
     box-shadow: 0 0 20px rgba(50, 86, 108, 0.4);
     border-radius: 3px;
     z-index: 11;
-    position: relative
+    /*position: relative*/
 }
 
 .checkbox input {
@@ -138,17 +142,19 @@
     color: #000
 }
 
-.checkboxList .checkbox.current {
-    background: #e0fff3;
-    z-index: 13;
-}
-
-#tabs_content1 .checkboxList .checkbox:hover {
+.checkboxList .checkbox.current,
+.checkboxList .checkbox:hover {
     background: #e0fff3;
 }
 
+#tabs_content2 .checkboxList .checkbox.current,
 #tabs_content2 .checkboxList .checkbox:hover {
     background: #feffdd;
+}
+
+#tabs_content3 .checkboxList .checkbox.current,
+#tabs_content3 .checkboxList .checkbox:hover {
+    background: #ffd7d7;
 }
 
 .checkboxList .checkbox.checked {
