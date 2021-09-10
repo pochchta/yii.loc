@@ -13,9 +13,12 @@ window.onload = function() {
                 $('.tabs_content').addClass('hide');
             })
             .on('mouseover', '.checkboxList span:not(.current)', function() {
+                let $currentTabsContent = $(this).parent().parent().parent();
+                if ($currentTabsContent.attr('id') === 'tabs_content3') {
+                    return;
+                }
                 $(this).siblings().removeClass('current');
                 $(this).addClass('current');
-                let $currentTabsContent = $(this).parent().parent().parent();
                 let $blockArrow = $currentTabsContent.children('.block_arrow');
                 $blockArrow
                     .removeClass('hide')
