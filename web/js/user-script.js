@@ -1,3 +1,50 @@
+/**
+ * Создает вкладку с заданным id, если ее еще нет
+ * @param $tabs jquery объект куда будет добавлена вкладка
+ * @param id id вкладки
+ */
+function createTab($tabs, id) {
+    if (Boolean($('#tab' + id).length) === false) {
+        let $tab = $('<div class="hide"></div>').attr('id', 'tab' + id);
+        let $checkboxList = $('<div class="download checkboxList"></div>').appendTo($tab);
+        $checkboxList.text('Загрузка');
+        $tab.appendTo($tabs);
+    }
+}
+
+/**
+ * Загрузка и вставка пунктов меню во вкладку, если они еще не были загружены
+ * tab > checkboxList.download
+ * @param id - id вкладки
+ */
+function loadDataToTab(id) {
+    let $tab = $('#tab' + id);
+    let $checkboxList = $tab.children().first();
+    if ($checkboxList.hasClass('download')) {
+        let $span = $('<span class="checkbox filter-checkbox"></span>');
+        $.ajax({
+            method: "GET", // метод HTTP, используемый для запроса
+            url: "/device/filter", // строка, содержащая URL адрес, на который отправляется запрос
+            data: { // данные, которые будут отправлены на сервер
+                term_p1: id,
+            },
+            success: function (msg) {
+                $checkboxList.removeClass('download');
+                $checkboxList.text('');
+                let listFilterName = JSON.parse(msg);
+                for (let key in listFilterName) {
+                    if (listFilterName.hasOwnProperty(key)) {
+                        let $newSpan = $span.clone();
+                        $newSpan.attr('data-value', listFilterName[key].id);
+                        $newSpan.text(listFilterName[key].value);
+                        $newSpan.appendTo($checkboxList);
+                    }
+                }
+            },
+        });
+    }
+}
+
 window.onload = function() {
     (function($) {
         $('.catalogTabs')
@@ -31,8 +78,10 @@ window.onload = function() {
             .on('mouseover', '.block_arrow', function() {
                 let $currentTabsContent = $(this).parent();
                 let $nextTabsContent = $(this).siblings('.tabs_content');
-                let value = $('#' + $currentTabsContent.attr('id') + '>div>.checkboxList>span.current>input')[0].value;
+                let value = $('#' + $currentTabsContent.attr('id') + '>div>.checkboxList>span.current')[0].dataset.value;
                 $nextTabsContent.children('div:not(".hide")').addClass('hide');
+                createTab($nextTabsContent, value);
+                loadDataToTab(value);
                 $nextTabsContent.children('#tab' + (value)).removeClass('hide');
                 $nextTabsContent
                     .removeClass('hide')
