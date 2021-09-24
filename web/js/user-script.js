@@ -6,7 +6,7 @@
 function createTab($tabs, id) {
     if (Boolean($('#tab' + id).length) === false) {
         let $tab = $('<div class="hide"></div>').attr('id', 'tab' + id);
-        let $checkboxList = $('<div class="checkboxList"></div>').appendTo($tab);
+        $checkboxList = $('<div class="checkboxList"></div>').appendTo($tab);
         $tab.appendTo($tabs);
     }
 }
@@ -37,7 +37,7 @@ function loadDataToTab(id) {
                     if (listFilterName.hasOwnProperty(key)) {
                         let $newSpan = $span.clone();
                         $newSpan.attr('data-value', listFilterName[key].id);
-                        $newSpan.text(listFilterName[key].value);
+                        $newSpan.text(listFilterName[key].name);
                         $newSpan.appendTo($checkboxList);
                     }
                 }

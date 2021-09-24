@@ -54,13 +54,27 @@ class DeviceController extends Controller
      */
     public function actionIndex()
     {
+        $headerMenu = [
+            'kind',
+            'name',
+            'state',
+            'department',
+            'crew',
+        ];
+        $menu = [];
+        foreach ($headerMenu as $item) {
+            $menu[$item] = WordSearch::findNamesByParentId(['term_p1' => $id = Word::getFieldWord($item)]);
+            $menu[$item]['name'] = Word::LABEL_FIELD_WORD[$id];
+            $menu[$item]['id'] = $id;
+        }
+
         $params = Yii::$app->request->queryParams;
 
         $searchModel = new DeviceSearch();
         $dataProvider = $searchModel->search($params);
 
         return $this->render('index', compact(
-            'searchModel', 'dataProvider', 'params'
+            'searchModel', 'dataProvider', 'params', 'menu'
         ));
     }
 
@@ -130,24 +144,11 @@ class DeviceController extends Controller
 
     public function actionFilter()
     {
-        $wordSearch = new WordSearch();
-        $wordSearch->load(Yii::$app->request->queryParams);
-        if ($wordSearch->validate()) {
-            $query = Word::find()
-                ->select(['id', 'name as value'])
-                ->where(['deleted' => Status::NOT_DELETED])
-                ->andFilterWhere(['parent_id' => $wordSearch->term_p1])
-                ->orderBy('value')
-                ->limit(Yii::$app->params['maxLinesAutoComplete'])
-//            ->distinct()
-                ->asArray();
-            echo json_encode($query->all());
-        }
-
+        echo json_encode(WordSearch::findNamesByParentId(Yii::$app->request->queryParams));
         die();
     }
 
-    public function actionListAutoComplete()
+    public function actionListAutoComplete()    // TODO: delete
     {
         $deviceSearch = new DeviceSearch();
         $deviceSearch->load(Yii::$app->request->queryParams);

@@ -2,6 +2,8 @@
 
 use app\models\DeviceSearch;
 use app\models\Status;
+use app\models\Word;
+use app\models\WordSearch;
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\jui\AutoComplete;
@@ -12,6 +14,7 @@ use yii\widgets\Pjax;
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $model app\models\Device */
 /* @var $params array */
+/* @var $menu array */
 
 $this->title = 'Приборы';
 $this->params['breadcrumbs'][] = $this->title;
@@ -184,28 +187,24 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="catalogTabs">
             <div class="tabs_title" id="tabs">
                 <ul>
-                    <li><a data-value="tab-6" id="filter-title-14"><span>Вид СИ</span></a></li>
-                    <li><a data-value="tab-5" id="filter-title-600"><span>Тип СИ</span></a></li>
-                    <li><a data-value="tab-4" id="filter-title-601"><span>Мощность</span><i>, Вт</i></a></li>
-                    <li><a data-value="tab-3" id="filter-title-189"><span>Ток</span><i>, А</i></a></li>
-                    <li><a data-value="tab-2" id="filter-title-192"><span>Напр. ЭБ</span><i>, В</i></a></li>
-                    <li><a data-value="tab-1" id="filter-title-191"><span>Напр. КЭ</span><i>, В</i></a></li>
-                    <li><a data-value="tab0" id="filter-title-190"><span>Напр. КБ</span><i>, В</i></a></li>
+                    <?php foreach ($menu as $key => $tab): ?>
+                    <li><a data-value="tab<?=$tab['id']?>"><span><?=$tab['name']?></span></a></li>
+                    <?php endforeach ?>
                 </ul>
             </div>
             <div class="tabs_content hide" id="tabs_content1">
 
-                <?php $tabs = 7; for ($i=1; $i <= $tabs; $i++) : ?>
-                    <div id="tab<?=$i-7?>" class="hide">
+                <?php foreach ($menu as $key => $tab): ?>
+                    <div id="tab<?=$tab['id']?>" class="hide">
                         <div class="checkboxList">
-                            <?php $elems=20; for ($j=1; $j <= 20; $j++) : ?>
-                                <span class="checkbox filter-checkbox" data-id="" data-name="" data-value=<?=($i-1)*$elems+$j?>>
-                                    ТЕСТОВЫЙ ЭЛЕМЕНТ <?=($i-1)*$elems+$j?>
-                                </span>
-                            <?php endfor ?>
+                            <?php foreach ($tab as $elem): if (is_array($elem) == false) continue;?>
+                            <span class="checkbox filter-checkbox" data-value=<?=$elem['id']?>>
+                                <?=$elem['name']?>
+                            </span>
+                            <?php endforeach ?>
                         </div>
                     </div>
-                <?php endfor ?>
+                <?php endforeach ?>
 
                 <div id="block_arrow1" class="block_arrow glyphicon glyphicon-menu-down hide"></div>
                 <div class="tabs_content hide" id="tabs_content2">

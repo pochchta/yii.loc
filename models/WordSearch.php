@@ -28,7 +28,7 @@ class WordSearch extends Word
             [['name', 'value', 'description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
             [['category1', 'category2', 'category3', 'category4'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
-            [['term', 'term_name', 'term_p1', 'term_p2', 'term_p3'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['term', 'term_name', 'term_p1', 'term_p2', 'term_p3'], 'integer'],   // TODO: term_p1 - это parent_id для поиска пунктов меню
             [['category1'], 'default', 'value' => Status::ALL],
             [['category1'], 'validateCategoryName'],
         ];
@@ -192,5 +192,29 @@ class WordSearch extends Word
         }
 
         return json_encode($data);
+    }
+
+    /** Поиск элементов по родительскому id (term_p1)
+     * @param array $params queryParams
+     * @return array [['id' => 1, 'value' => 'Название'], []]
+     */
+    public static function findNamesByParentId($params)
+    {
+        $names = [];
+        $wordSearch = new WordSearch();
+        $wordSearch->load($params);
+        if ($wordSearch->validate()) {
+            $query = Word::find()
+                ->select(['id', 'name'])
+                ->where(['deleted' => Status::NOT_DELETED])
+                ->andFilterWhere(['parent_id' => $wordSearch->term_p1])
+                ->orderBy('name')
+                ->limit(Yii::$app->params['maxElementsTabMenu'])
+//            ->distinct()
+                ->asArray();
+            $names = $query->all();
+        }
+
+        return $names;
     }
 }
