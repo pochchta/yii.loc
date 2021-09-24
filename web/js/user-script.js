@@ -6,8 +6,7 @@
 function createTab($tabs, id) {
     if (Boolean($('#tab' + id).length) === false) {
         let $tab = $('<div class="hide"></div>').attr('id', 'tab' + id);
-        let $checkboxList = $('<div class="download checkboxList"></div>').appendTo($tab);
-        $checkboxList.text('Загрузка');
+        let $checkboxList = $('<div class="checkboxList"></div>').appendTo($tab);
         $tab.appendTo($tabs);
     }
 }
@@ -20,7 +19,9 @@ function createTab($tabs, id) {
 function loadDataToTab(id) {
     let $tab = $('#tab' + id);
     let $checkboxList = $tab.children().first();
-    if ($checkboxList.hasClass('download')) {
+    if ($checkboxList.hasClass('download') === false && $checkboxList.hasClass('success') === false) {
+        $checkboxList.addClass('download');
+        $checkboxList.text('Загрузка');
         let $span = $('<span class="checkbox filter-checkbox"></span>');
         $.ajax({
             method: "GET", // метод HTTP, используемый для запроса
@@ -29,8 +30,8 @@ function loadDataToTab(id) {
                 term_p1: id,
             },
             success: function (msg) {
-                $checkboxList.removeClass('download');
                 $checkboxList.text('');
+                $checkboxList.addClass('success');
                 let listFilterName = JSON.parse(msg);
                 for (let key in listFilterName) {
                     if (listFilterName.hasOwnProperty(key)) {
@@ -41,6 +42,12 @@ function loadDataToTab(id) {
                     }
                 }
             },
+            complete: function () {
+                $checkboxList.removeClass('download');
+                if ($checkboxList.hasClass('success') === false) {
+                    $checkboxList.text('Ошибка');
+                }
+            }
         });
     }
 }
@@ -52,7 +59,7 @@ window.onload = function() {
                 $('.catalogTabs li>a.current').removeClass('current');
                 $(this).addClass('current');
                 $('#tabs_content1>div:not(".hide")').addClass('hide');
-                $('#tabs_content1>' + ($(this).attr('href'))).removeClass('hide');
+                $('#tabs_content1>#' + ($(this).attr('data-value'))).removeClass('hide');
                 $('#tabs_content1').removeClass('hide');
             })
             .on('mouseleave', function() {

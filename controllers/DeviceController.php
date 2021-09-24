@@ -35,7 +35,7 @@ class DeviceController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'print-list', 'view', 'print'],
+                        'actions' => ['index', 'print-list', 'view', 'print', 'filter'],
                         'roles' => ['@'],
                     ],
                     [
@@ -126,6 +126,25 @@ class DeviceController extends Controller
         return $this->render($view, compact(
             'model'
         ));
+    }
+
+    public function actionFilter()
+    {
+        $wordSearch = new WordSearch();
+        $wordSearch->load(Yii::$app->request->queryParams);
+        if ($wordSearch->validate()) {
+            $query = Word::find()
+                ->select(['id', 'name as value'])
+                ->where(['deleted' => Status::NOT_DELETED])
+                ->andFilterWhere(['parent_id' => $wordSearch->term_p1])
+                ->orderBy('value')
+                ->limit(Yii::$app->params['maxLinesAutoComplete'])
+//            ->distinct()
+                ->asArray();
+            echo json_encode($query->all());
+        }
+
+        die();
     }
 
     public function actionListAutoComplete()
