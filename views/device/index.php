@@ -196,17 +196,35 @@ $this->params['breadcrumbs'][] = $this->title;
 
                 <?php foreach ($menu as $key => $tab): ?>
                     <div id="tab<?=$tab['id']?>" class="hide">
-                        <?php if($tab['source'] === 'word'): ?>
+                        <?php if($key === 'number'): ?>
+                            <?= Html::input('text', $key) ?>
+                            <?= Html::button('Применить', ['class' => 'filter_button']) ?>
+                        <?php elseif($key === 'deleted'): ?>
                             <div class="checkboxList">
-                                <input type="text" name="<?=$key?>_id">
+                                <?= Html::input('text', $key. '_id') ?>
+                                <span class="checkbox filter-checkbox" data-child="0" data-value="<?=Status::NOT_DELETED?>">Действующие</span>
+                                <span class="checkbox filter-checkbox" data-child="0" data-value="<?=Status::DELETED?>">Удаленные</span>
+                                <span class="checkbox filter-checkbox" data-child="0" data-value="<?=Status::ALL?>">Все</span>
+                            </div>
+                        <?php elseif($key === 'date'): ?>
+                            <label>Дата создания
+                                <input type="date" name="created_at_start">
+                                <input type="date" name="created_at_end">
+                            </label>
+                            <label>Дата обновления
+                                <input type="date" name="updated_at_start">
+                                <input type="date" name="updated_at_end">
+                            </label>
+                            <?= Html::button('Применить', ['class' => 'filter_button']) ?>
+                        <?php else: ?>
+                            <div class="checkboxList">
+                                <?= Html::input('text', $key) ?>
                                 <?php foreach ($tab as $elem): if (is_array($elem) == false) continue;?>
-                                <span class="checkbox filter-checkbox" data-value=<?=$elem['id']?>>
-                                    <?=$elem['name']?>
-                                </span>
+                                    <span class="checkbox filter-checkbox" data-value=<?=$elem['id']?>>
+                                        <?=$elem['name']?>
+                                    </span>
                                 <?php endforeach ?>
                             </div>
-                        <?php elseif($tab['source'] === 'number'): ?>
-                            <input type="text" name="<?=$key?>">
                         <?php endif ?>
                     </div>
                 <?php endforeach ?>

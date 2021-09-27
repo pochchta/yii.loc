@@ -13,17 +13,21 @@
     z-index: 16;
 }
 
-.tabs_content {
-    position: absolute;
-    width: 100%;
+#tabs_content1>div>input,
+#tabs_content1>div>label,
+#tabs_content1>div>button,
+#tabs_content1>div>select{
+    display: block;
 }
 
 #tabs_content2 {
+    position: absolute;
     z-index: 13;
     background: #e0fff3;
 }
 
 #tabs_content3 {
+    position: absolute;
     z-index: 15;
     background: #feffdd;
 }
@@ -96,7 +100,7 @@
     box-shadow: 0 0 20px rgba(50, 86, 108, 0.4);
     border-radius: 3px;
     z-index: 11;
-    /*position: relative*/
+    position: relative
 }
 
 .checkboxList input {

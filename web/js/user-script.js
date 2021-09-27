@@ -63,8 +63,8 @@ window.onload = function() {
                 $('#tabs_content1').removeClass('hide');
             })
             .on('mouseleave', function() {
-                $('.catalogTabs li>a.current').removeClass('current');
-                $('.tabs_content').addClass('hide');
+                // $('.catalogTabs li>a.current').removeClass('current');
+                // $('.tabs_content').addClass('hide');
             })
             .on('mouseover', '.checkboxList span:not(.current)', function() {
                 let $currentTabsContent = $(this).parent().parent().parent();
@@ -73,13 +73,15 @@ window.onload = function() {
                 }
                 $(this).siblings().removeClass('current');
                 $(this).addClass('current');
-                let $blockArrow = $currentTabsContent.children('.block_arrow');
-                $blockArrow
-                    .removeClass('hide')
-                    .offset({
-                        'left': $(this).offset().left + $(this).outerWidth() - $blockArrow.outerWidth() - 1,
-                        'top': $(this).offset().top + $(this).outerHeight() - 1,
-                    });
+                if ($(this).attr('data-child') !== '0') {
+                    let $blockArrow = $currentTabsContent.children('.block_arrow');
+                    $blockArrow
+                        .removeClass('hide')
+                        .offset({
+                            'left': $(this).offset().left + $(this).outerWidth() - $blockArrow.outerWidth() - 1,
+                            'top': $(this).offset().top + $(this).outerHeight() - 1,
+                        });
+                }
                 $currentTabsContent.children('.tabs_content').addClass('hide');
             })
             .on('mouseover', '.block_arrow', function() {
@@ -102,6 +104,13 @@ window.onload = function() {
                 $(this).children('.block_arrow').addClass('hide');
                 $('#' + $(this).attr('id') + '>div>.checkboxList>span.current').removeClass('current');
                 $(this).children('.tabs_content').addClass('hide');
+            })
+
+            .on('click', '.filter_button', function() {
+                alert('123');
+            })
+            .on('click', '.checkboxList>span', function() {
+                alert('123');
             })
     })(jQuery);
 
