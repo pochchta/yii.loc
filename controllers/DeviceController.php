@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\FilterMenu;
 use app\models\Word;
 use app\models\Status;
 use app\models\WordSearch;
@@ -60,13 +61,12 @@ class DeviceController extends Controller
             'state',
             'department',
             'crew',
+            'number'
         ];
-        $menu = [];
-        foreach ($headerMenu as $item) {
-            $menu[$item] = WordSearch::findNamesByParentId(['term_p1' => $id = Word::getFieldWord($item)]);
-            $menu[$item]['name'] = Word::LABEL_FIELD_WORD[$id];
-            $menu[$item]['id'] = $id;
-        }
+        $menu = (new FilterMenu($headerMenu))
+            ->setSource(['number' => 'number'])
+            ->setLabel(['number' => 'Номер прибора'])
+            ->getMenu();
 
         $params = Yii::$app->request->queryParams;
 

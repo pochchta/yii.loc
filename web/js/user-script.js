@@ -6,7 +6,7 @@
 function createTab($tabs, id) {
     if (Boolean($('#tab' + id).length) === false) {
         let $tab = $('<div class="hide"></div>').attr('id', 'tab' + id);
-        $checkboxList = $('<div class="checkboxList"></div>').appendTo($tab);
+        $('<div class="checkboxList"></div>').appendTo($tab);
         $tab.appendTo($tabs);
     }
 }
@@ -27,7 +27,7 @@ function loadDataToTab(id) {
             method: "GET", // метод HTTP, используемый для запроса
             url: "/device/filter", // строка, содержащая URL адрес, на который отправляется запрос
             data: { // данные, которые будут отправлены на сервер
-                term_p1: id,
+                parent_id: id,
             },
             success: function (msg) {
                 $checkboxList.text('');

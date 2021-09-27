@@ -5,6 +5,7 @@
     font-size: 16px;
     padding: 3px 7px;
     width: 30px;
+    cursor: pointer;
 }
 
 #block_arrow2 {
@@ -14,6 +15,7 @@
 
 .tabs_content {
     position: absolute;
+    width: 100%;
 }
 
 #tabs_content2 {
@@ -59,7 +61,8 @@
 }
 
 .catalogTabs .tabs_title li a:hover {
-    color: #249dd6
+    color: #249dd6;
+    cursor: pointer;
 }
 
 .catalogTabs .tabs_title li a span {
@@ -96,7 +99,7 @@
     /*position: relative*/
 }
 
-.checkbox input {
+.checkboxList input {
     display: none;
 }
 
@@ -145,6 +148,7 @@
 .checkboxList .checkbox.current,
 .checkboxList .checkbox:hover {
     background: #e0fff3;
+    cursor: pointer;
 }
 
 #tabs_content2 .checkboxList .checkbox.current,

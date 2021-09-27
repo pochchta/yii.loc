@@ -196,13 +196,18 @@ $this->params['breadcrumbs'][] = $this->title;
 
                 <?php foreach ($menu as $key => $tab): ?>
                     <div id="tab<?=$tab['id']?>" class="hide">
-                        <div class="checkboxList">
-                            <?php foreach ($tab as $elem): if (is_array($elem) == false) continue;?>
-                            <span class="checkbox filter-checkbox" data-value=<?=$elem['id']?>>
-                                <?=$elem['name']?>
-                            </span>
-                            <?php endforeach ?>
-                        </div>
+                        <?php if($tab['source'] === 'word'): ?>
+                            <div class="checkboxList">
+                                <input type="text" name="<?=$key?>_id">
+                                <?php foreach ($tab as $elem): if (is_array($elem) == false) continue;?>
+                                <span class="checkbox filter-checkbox" data-value=<?=$elem['id']?>>
+                                    <?=$elem['name']?>
+                                </span>
+                                <?php endforeach ?>
+                            </div>
+                        <?php elseif($tab['source'] === 'number'): ?>
+                            <input type="text" name="<?=$key?>">
+                        <?php endif ?>
                     </div>
                 <?php endforeach ?>
 
