@@ -2,10 +2,11 @@
  * Создает вкладку с заданным id, если ее еще нет
  * @param $tabs jquery объект куда будет добавлена вкладка
  * @param id id вкладки
+ * @param name название поля
  */
-function createTab($tabs, id) {
+function createTab($tabs, id, name) {
     if (Boolean($('#tab' + id).length) === false) {
-        let $tab = $('<div class="hide"></div>').attr('id', 'tab' + id);
+        let $tab = $('<div class="hide"></div>').attr('id', 'tab' + id).attr('data-name', name);
         $('<div class="checkboxList"></div>').appendTo($tab);
         $tab.appendTo($tabs);
     }
@@ -24,9 +25,9 @@ function loadDataToTab(id) {
         $checkboxList.text('Загрузка');
         let $span = $('<span class="checkbox filter-checkbox"></span>');
         $.ajax({
-            method: "GET", // метод HTTP, используемый для запроса
-            url: "/device/filter", // строка, содержащая URL адрес, на который отправляется запрос
-            data: { // данные, которые будут отправлены на сервер
+            method: "GET",
+            url: "/device/filter",
+            data: {
                 parent_id: id,
             },
             success: function (msg) {
@@ -52,7 +53,38 @@ function loadDataToTab(id) {
     }
 }
 
+function sendFiltersForm(id) {
+    let $form = $(id);
+    let msg = $form.serialize();
+    let url = $(location).attr('pathname');
+    $.pjax.reload({container: "#my-pjax-container", url: url + '?' + msg, 'timeout': 5000});
+}
+
+/**
+ * Установка значений в фильтры формы filters_form
+ */
+function setParamsToFiltersForm() {
+    let params = new URLSearchParams($(location).attr('search'));
+    let entries = params.entries();
+    for(let entry of entries) {
+        const [name, value] = entry;
+        $('#filters-form input[name=' + name + ']').val(value);
+    }
+}
+
+/**
+ * Замена url кнопки .print_button
+ */
+function setUrlForPrint() {
+    let $button = $('.print_button');
+    let url = $(location).attr('origin') + $button.attr('data-url') + $(location).attr('search');
+    $button.attr('href', url);
+}
+
 window.onload = function() {
+    setParamsToFiltersForm();
+    setUrlForPrint();
+
     (function($) {
         $('.catalogTabs')
             .on('mouseover', 'li>a:not(.current)', function() {
@@ -87,9 +119,12 @@ window.onload = function() {
             .on('mouseover', '.block_arrow', function() {
                 let $currentTabsContent = $(this).parent();
                 let $nextTabsContent = $(this).siblings('.tabs_content');
-                let value = $('#' + $currentTabsContent.attr('id') + '>div>.checkboxList>span.current')[0].dataset.value;
+                let $currentSpan = $('#' + $currentTabsContent.attr('id') + '>div>.checkboxList>span.current');
+                let $currentTab = $currentSpan.parent().parent();
+                let value = $currentSpan.attr('data-value');
+                let name = $currentTab.attr('data-name');
                 $nextTabsContent.children('div:not(".hide")').addClass('hide');
-                createTab($nextTabsContent, value);
+                createTab($nextTabsContent, value, name);
                 loadDataToTab(value);
                 $nextTabsContent.children('#tab' + (value)).removeClass('hide');
                 $nextTabsContent
@@ -107,10 +142,13 @@ window.onload = function() {
             })
 
             .on('click', '.filter_button', function() {
-                alert('123');
+                sendFiltersForm('#filters-form')
             })
             .on('click', '.checkboxList>span', function() {
-                alert('123');
+                let name = $(this).parent().parent().attr('data-name');
+                let value = $(this).attr('data-value');
+                $('#filters-form input[name=' + name + ']').val(value);
+                sendFiltersForm('#filters-form')
             })
     })(jQuery);
 
