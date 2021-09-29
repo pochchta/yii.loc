@@ -149,28 +149,33 @@
     color: #000
 }
 
+.checkboxList .checkbox.checked,
 .checkboxList .checkbox.current,
 .checkboxList .checkbox:hover {
     background: #e0fff3;
     cursor: pointer;
 }
 
+#tabs_content2 .checkboxList .checkbox.checked,
 #tabs_content2 .checkboxList .checkbox.current,
 #tabs_content2 .checkboxList .checkbox:hover {
     background: #feffdd;
 }
 
+#tabs_content3 .checkboxList .checkbox.checked,
 #tabs_content3 .checkboxList .checkbox.current,
 #tabs_content3 .checkboxList .checkbox:hover {
     background: #ffd7d7;
 }
 
 .checkboxList .checkbox.checked {
-    background: #249dd6;
-    color: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4) inset;
-    text-shadow: 0 1px 0 #186990;
-    border: 1px solid #249dd6
+    text-decoration-line: underline;
+    font-weight: bold !important;
+    /*background: #249dd6;*/
+    /*color: #fff;*/
+    /*box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4) inset;*/
+    /*text-shadow: 0 1px 0 #186990;*/
+    /*border: 1px solid #249dd6*/
 }
 
 .checkboxList .checkbox.checked .checkboxIn {
@@ -181,9 +186,9 @@
 
 
 .tabsFilterParams {
-    margin: 0;
     padding: 0 0 0 27px;
-    position: relative
+    position: relative;
+    margin: 0 0 4px;
 }
 
 .fullFilterButton {
@@ -276,6 +281,7 @@
     z-index: 10;
     color: #d62424;
     box-sizing: content-box;
+    cursor: pointer;
 }
 
 .callOffAll a span {
