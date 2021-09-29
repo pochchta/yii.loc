@@ -1,3 +1,5 @@
+const PJAX_TIMEOUT = 5000;
+
 /**
  * Создает вкладку с заданным id, если ее еще нет
  * @param $tabs jquery объект куда будет добавлена вкладка
@@ -42,6 +44,7 @@ function loadDataToTab(id) {
                         $newSpan.appendTo($checkboxList);
                     }
                 }
+                setParamsToCheckbox($tab.attr('data-name'));
             },
             complete: function () {
                 $checkboxList.removeClass('download');
@@ -53,11 +56,15 @@ function loadDataToTab(id) {
     }
 }
 
+/**
+ * Обновление pjax с учетом формы фильтрации
+ * @param id id формы
+ */
 function sendFiltersForm(id) {
     let $form = $(id);
     let msg = $form.serialize();
     let url = $(location).attr('pathname');
-    $.pjax.reload({container: "#my-pjax-container", url: url + '?' + msg, 'timeout': 5000});
+    $.pjax.reload({container: "#my-pjax-container", url: url + '?' + msg, 'timeout': PJAX_TIMEOUT});
 }
 
 /**
@@ -73,6 +80,30 @@ function setParamsToFiltersForm() {
 }
 
 /**
+ * Установка .checkboxList span.checked
+ * @param tabName - tab data-name
+ */
+function setParamsToCheckbox(tabName = '') {
+
+    let params = new URLSearchParams($(location).attr('search'));
+    let entries = params.entries();
+    for(let entry of entries) {
+        const [name, value] = entry;
+        if (tabName.length > 0 && tabName !== name) {  // только один тип значения задан и он не совпадает с текущим
+            continue;
+        }
+        let $span = $('#filters-form .tabs_content>div[data-name="' + name + '"] span[data-value="' + value + '"]');
+        let $checkboxList = $('#filters-form .tabs_content>div[data-name="' + name + '"]>.checkboxList');
+        if (Boolean($span.length) === false) {
+            $checkboxList.children().removeClass('checked');
+        } else if ($span.hasClass('checked') === false) {
+            $checkboxList.children().removeClass('checked');
+            $span.addClass('checked');
+        }
+    }
+}
+
+/**
  * Замена url кнопки .print_button
  */
 function setUrlForPrint() {
@@ -83,6 +114,7 @@ function setUrlForPrint() {
 
 window.onload = function() {
     setParamsToFiltersForm();
+    setParamsToCheckbox();
     setUrlForPrint();
 
     (function($) {
@@ -149,6 +181,10 @@ window.onload = function() {
                 let value = $(this).attr('data-value');
                 $('#filters-form input[name=' + name + ']').val(value);
                 sendFiltersForm('#filters-form')
+            })
+        $('#filters-reset')
+            .on('click', function() {
+                $.pjax.reload({container: "#my-pjax-container", url: $(location).attr('pathname'), 'timeout': PJAX_TIMEOUT});
             })
     })(jQuery);
 
