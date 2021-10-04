@@ -26,6 +26,9 @@ class FilterMenu
         return $this;
     }
 
+    /**
+     * @return array ['id' => ключ или название, 'source' => тип или источник, 'name' => название, 'label' => название по-русски]
+     */
     public function getMenu()
     {
         $menu = [];
@@ -36,14 +39,15 @@ class FilterMenu
             }
             if ($source === self::DEFAULT_SOURCE) {
                 $menu[$item] = WordSearch::findNamesByParentId(['parent_id' => $id = Word::getFieldWord($item)]);
-                $menu[$item]['name'] = Word::LABEL_FIELD_WORD[$id];
+                $menu[$item]['label'] = Word::LABEL_FIELD_WORD[$id];
                 $menu[$item]['id'] = $id;
             } else {
                 $menu[$item]['id'] = $item;
             }
             $menu[$item]['source'] = $source;
+            $menu[$item]['name'] = $item;
             if (isset($this->listLabel[$item])) {
-                $menu[$item]['name'] = $this->listLabel[$item];
+                $menu[$item]['label'] = $this->listLabel[$item];
             }
         }
         return $menu;

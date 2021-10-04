@@ -109,7 +109,8 @@ function setParamsToCheckbox(tabName = '') {
 function setParamsToFiltersItemList() {
     let $tabFiltersParams = $('.tabsFilterParams');
     let $list = $tabFiltersParams.find('#filters-active');
-    $list.children('.showGroup').remove();
+    $list.text('');  // очистка списка фильтров
+    $list.append('<span class="showOnly">Выводятся только:</span>');
 
     let $name = $('<span class="first"></span>');
     let $value = $('<span class="second"><a class="reset-filter" title="Отменить фильтр"></a></span>');
@@ -218,6 +219,20 @@ window.onload = function() {
     setParamsToCheckbox();
     setUrlForPrint();
     setParamsToFiltersItemList();
+
+    (function($) {
+        $(document)
+        .on('pjax:send', function() {
+            $('#pjax-loading').removeClass('hide');
+        })
+        .on('pjax:complete', function() {
+            // setParamsToFiltersForm();
+            setParamsToCheckbox();
+            setUrlForPrint();
+            setParamsToFiltersItemList();
+            $('#pjax-loading').addClass('hide')
+        })
+    })(jQuery);
 
     (function($) {
         $('.tabsFilterParams')

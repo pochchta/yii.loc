@@ -61,11 +61,14 @@ class DeviceController extends Controller
             'state',
             'department',
             'crew',
-            'number'
+            'number',
+            'created_at',
+            'updated_at',
+            'deleted',
         ];
         $menu = (new FilterMenu($headerMenu))
-            ->setSource(['number' => 'number'])
-            ->setLabel(['number' => 'Номер прибора'])
+            ->setSource(['number' => 'number', 'created_at' => 'date', 'updated_at' => 'date', 'deleted' => 'manual'])
+            ->setLabel(['number' => 'Номер прибора', 'created_at' => 'Дата создания', 'updated_at' => 'Дата изменения', 'deleted' => 'Удален'])
             ->getMenu();
 
         $params = Yii::$app->request->queryParams;

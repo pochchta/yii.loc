@@ -17,7 +17,9 @@ use yii\widgets\Pjax;
 $this->title = 'Приборы';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="device-index">
+
+<div class="device-index page-index">
+    <div id="pjax-loading" class="hide">Загрузка</div>
 
     <h1><?= Html::encode($this->title) ?></h1>
 
@@ -37,7 +39,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <div class="tabs_title" id="tabs">
                 <ul>
                     <?php foreach ($menu as $key => $tab): ?>
-                        <li><a data-value="tab<?=$tab['id']?>"><span><?=$tab['name']?></span></a></li>
+                        <li><a data-value="tab<?=$tab['id']?>" data-name="<?=$tab['name']?>"><span><?=$tab['label']?></span></a></li>
                     <?php endforeach ?>
                 </ul>
             </div>
@@ -45,33 +47,25 @@ $this->params['breadcrumbs'][] = $this->title;
 
                 <?php foreach ($menu as $key => $tab): ?>
                     <div id="tab<?=$tab['id']?>" data-name="<?=$key?>" class="hide">
-                        <?php if($key === 'number'): ?>
+                        <?php if($tab['source'] === 'number'): ?>
                             <?= Html::input('text', $key) ?>
                             <?= Html::button('Применить', ['class' => 'filter_button']) ?>
-                        <?php elseif($key === 'deleted'): ?>
+                        <?php elseif($tab['source'] === 'manual'): ?>
                             <div class="checkboxList">
-                                <?= Html::input('text', $key) ?>
-                                <span class="checkbox filter-checkbox" data-child="0" data-value="<?=Status::NOT_DELETED?>">Действующие</span>
+                                <?= Html::input('text', $key, '', ['class' => 'hide']) ?>
+                                <span class="checkbox filter-checkbox checked" data-child="0" data-value="">Действующие</span>
                                 <span class="checkbox filter-checkbox" data-child="0" data-value="<?=Status::DELETED?>">Удаленные</span>
                                 <span class="checkbox filter-checkbox" data-child="0" data-value="<?=Status::ALL?>">Все</span>
                             </div>
-                        <?php elseif($key === 'date'): ?>
-                            <label>Дата создания
-                                <input type="date" name="created_at_start">
-                                <input type="date" name="created_at_end">
-                            </label>
-                            <label>Дата обновления
-                                <input type="date" name="updated_at_start">
-                                <input type="date" name="updated_at_end">
-                            </label>
+                        <?php elseif($tab['source'] === 'date'): ?>
+                                <?= Html::input('date', $key . '_start') ?>
+                                <?= Html::input('date', $key . '_end') ?>
                             <?= Html::button('Применить', ['class' => 'filter_button']) ?>
                         <?php else: ?>
                             <div class="checkboxList">
-                                <?= Html::input('text', $key) ?>
+                                <?= Html::input('text', $key, '', ['class' => 'hide']) ?>
                                 <?php foreach ($tab as $elem): if (is_array($elem) == false) continue;?>
-                                    <span class="checkbox filter-checkbox" data-value=<?=$elem['id']?>>
-                                        <?=$elem['name']?>
-                                    </span>
+                                    <span class="checkbox filter-checkbox" data-value=<?=$elem['id']?>><?=$elem['name']?></span>
                                 <?php endforeach ?>
                             </div>
                         <?php endif ?>
@@ -84,10 +78,9 @@ $this->params['breadcrumbs'][] = $this->title;
                     <div class="tabs_content hide" id="tabs_content3"></div>
                 </div>
             </div>
-            <div class="tabsFilterParams ">
-                <!--<a class="fullFilterButton" href="/catalog/npn-small-signal-transistor/all-filters/"><span>Открыть подробный фильтр</span></a>-->
-                <div class="callOffAll filtersReset"><a title="Отменить все фильтры" id="filters-reset" href="#"><span>Отменить все фильтры</span></a></div>
-                <div class="filterItemsList" id="filters-active"><span class="showOnly">Выводятся только:</span>   <span class="showGroup"> <span class="first">Мощность, Вт</span>   <span><a href="#" class="reset-filter" title="Отменить фильтр" data-type="" data-filter-id="601" data-value="0.25">0.25</a>,</span>  </span></div>
+            <div class="tabsFilterParams hide">
+                <div class="callOffAll filtersReset"><a title="Отменить все фильтры" id="filters-reset"><span>Отменить все фильтры</span></a></div>
+                <div class="filterItemsList" id="filters-active"></div>
             </div>
         </div>
     </form>
