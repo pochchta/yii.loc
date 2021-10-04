@@ -110,32 +110,74 @@ function setParamsToFiltersItemList() {
     let $tabFiltersParams = $('.tabsFilterParams');
     let $list = $tabFiltersParams.find('#filters-active');
     $list.children('.showGroup').remove();
-    let $checkedSpans = $('#filters-form span.checked');
+
     let $name = $('<span class="first"></span>');
     let $value = $('<span class="second"><a class="reset-filter" title="Отменить фильтр"></a></span>');
     let $showGroup = $('<span class="showGroup"></span>');
     $showGroup.append($name).append($value);
-    let counterSpan = 0;
+
+    let $checkedSpans = $('#filters-form span.checked');    // выбранные пункты меню
     for (let span of $checkedSpans) {
         let $span = $(span);
         let $tab = $span.parent().parent();
         let tabName = $tab.attr('data-name');
-        let tabText = $('#tabs a[data-name=' + tabName + ']').text();  // название вкладки на русском языке
+        let tabLabel = $('#tabs a[data-name=' + tabName + ']').text();   // название вкладки на русском языке
 
         let $newShowGroup = $showGroup.clone();
         let $newName = $newShowGroup.children('.first');
-        $newName.text(tabText + ': ');
+        $newName.text(tabLabel + ': ');
 
         let $newValue = $newShowGroup.children('.second');
         let $newValueChild = $newValue.children().first();
         $newValueChild.text($span.text().toLowerCase());
         $newValueChild.attr('data-name', tabName);
 
-        if (counterSpan !== 0) {
+        if ($list.children('.showGroup').length > 0) {
             $list.append(', ')
         }
         $list.append($newShowGroup);
-        counterSpan++;
+    }
+
+    let $inputs = $('#filters-form input:not(.hide)[type="text"], #filters-form input:not(.hide)[type="date"]');      // поля для ручного ввода
+    for (let input of $inputs) {
+        let $input = $(input);
+        if ($input.val() === '') {
+            continue;
+        }
+
+        let addLabel = '';
+        if ($input.attr('type') === 'date') {
+            let name = $input.attr('name');
+            let arr = {
+                '_start': '(начало)',
+                '_end': '(конец)'
+            }
+            for (let key in arr) {
+                let index = name.indexOf(key);
+                if (index !== -1 && index + key.length === name.length) {   // суффикс '_start' (_end) есть в конце
+                    addLabel = arr[key];
+                    break;
+                }
+            }
+        }
+
+        let $tab = $input.parent();
+        let tabName = $tab.attr('data-name');
+        let tabLabel = $('#tabs a[data-name=' + tabName + ']').text() + addLabel;   // название вкладки на русском языке + суффикс (начало или конец)
+
+        let $newShowGroup = $showGroup.clone();
+        let $newName = $newShowGroup.children('.first');
+        $newName.text(tabLabel + ': ');
+
+        let $newValue = $newShowGroup.children('.second');
+        let $newValueChild = $newValue.children().first();
+        $newValueChild.text($input.val());
+        $newValueChild.attr('data-name', $input.attr('name'));
+
+        if ($list.children('.showGroup').length > 0) {
+            $list.append(', ')
+        }
+        $list.append($newShowGroup);
     }
 
     if ($list.children('.showGroup').length > 0) {
