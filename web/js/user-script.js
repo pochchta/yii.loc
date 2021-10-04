@@ -104,6 +104,65 @@ function setParamsToCheckbox(tabName = '') {
 }
 
 /**
+ * Установка списка фильтров из span.checked и input
+ */
+function setParamsToFiltersItemList() {
+    let $tabFiltersParams = $('.tabsFilterParams');
+    let $list = $tabFiltersParams.find('#filters-active');
+    $list.children('.showGroup').remove();
+    let $checkedSpans = $('#filters-form span.checked');
+    let $name = $('<span class="first"></span>');
+    let $value = $('<span class="second"><a class="reset-filter" title="Отменить фильтр"></a></span>');
+    let $showGroup = $('<span class="showGroup"></span>');
+    $showGroup.append($name).append($value);
+    let counterSpan = 0;
+    for (let span of $checkedSpans) {
+        let $span = $(span);
+        let $tab = $span.parent().parent();
+        let tabName = $tab.attr('data-name');
+        let tabText = $('#tabs a[data-name=' + tabName + ']').text();  // название вкладки на русском языке
+
+        let $newShowGroup = $showGroup.clone();
+        let $newName = $newShowGroup.children('.first');
+        $newName.text(tabText + ': ');
+
+        let $newValue = $newShowGroup.children('.second');
+        let $newValueChild = $newValue.children().first();
+        $newValueChild.text($span.text().toLowerCase());
+        $newValueChild.attr('data-name', tabName);
+
+        if (counterSpan !== 0) {
+            $list.append(', ')
+        }
+        $list.append($newShowGroup);
+        counterSpan++;
+    }
+
+    if ($list.children('.showGroup').length > 0) {
+        $tabFiltersParams.removeClass('hide')
+    } else {
+        $tabFiltersParams.addClass('hide')
+    }
+}
+
+/**
+ * Сброс фильтров
+ * @param name имя конкретного фильтра
+ */
+function resetFilters(name = '') {
+    let url = $(location).attr('pathname');
+    if (name.length > 0) {
+        let $form = $('#filters-form');
+        let $input = $form.find('input[name='+ name + ']');
+        $input.val('');
+        let msg = $form.serialize();
+        $.pjax.reload({container: "#my-pjax-container", url: url + '?' + msg, 'timeout': PJAX_TIMEOUT});
+    } else {
+        $.pjax.reload({container: "#my-pjax-container", url: url, 'timeout': PJAX_TIMEOUT});
+    }
+}
+
+/**
  * Замена url кнопки .print_button
  */
 function setUrlForPrint() {
@@ -116,6 +175,17 @@ window.onload = function() {
     setParamsToFiltersForm();
     setParamsToCheckbox();
     setUrlForPrint();
+    setParamsToFiltersItemList();
+
+    (function($) {
+        $('.tabsFilterParams')
+            .on('click', '.reset-filter', function() {
+                resetFilters($(this).attr('data-name'))
+            })
+            .on('click', '#filters-reset', function() {
+                resetFilters()
+            })
+    })(jQuery);
 
     (function($) {
         $('.catalogTabs')
@@ -181,10 +251,6 @@ window.onload = function() {
                 let value = $(this).attr('data-value');
                 $('#filters-form input[name=' + name + ']').val(value);
                 sendFiltersForm('#filters-form')
-            })
-        $('#filters-reset')
-            .on('click', function() {
-                $.pjax.reload({container: "#my-pjax-container", url: $(location).attr('pathname'), 'timeout': PJAX_TIMEOUT});
             })
     })(jQuery);
 
