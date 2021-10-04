@@ -71,6 +71,8 @@ function sendFiltersForm(id) {
  * Установка значений в фильтры формы filters_form
  */
 function setParamsToFiltersForm() {
+    $('#filters-form input').val('');       // очистка всех установленных значений
+
     let params = new URLSearchParams($(location).attr('search'));
     let entries = params.entries();
     for(let entry of entries) {
@@ -81,23 +83,29 @@ function setParamsToFiltersForm() {
 
 /**
  * Установка .checkboxList span.checked
+ * Запускается после setParamsToFiltersForm, т.к. используются значения из input
  * @param tabName - tab data-name
  */
 function setParamsToCheckbox(tabName = '') {
+    if (tabName.length > 0) {  // задан только один тип значения
+        let $checkboxList = $('#filters-form .tabs_content>div[data-name="' + tabName + '"]>.checkboxList');
+        $checkboxList.children('span.checked').removeClass('checked');
 
-    let params = new URLSearchParams($(location).attr('search'));
-    let entries = params.entries();
-    for(let entry of entries) {
-        const [name, value] = entry;
-        if (tabName.length > 0 && tabName !== name) {  // только один тип значения задан и он не совпадает с текущим
-            continue;
-        }
+        let $input = $('#filters-form input.hide[name=' + tabName + ']');
+        let name = $input.attr('name');
+        let value = $input.val();
         let $span = $('#filters-form .tabs_content>div[data-name="' + name + '"] span[data-value="' + value + '"]');
-        let $checkboxList = $('#filters-form .tabs_content>div[data-name="' + name + '"]>.checkboxList');
-        if (Boolean($span.length) === false) {
-            $checkboxList.children().removeClass('checked');
-        } else if ($span.hasClass('checked') === false) {
-            $checkboxList.children().removeClass('checked');
+        $span.addClass('checked');
+    } else {
+        $('#filters-form span.checked').removeClass('checked');     // очистка всех выбранных span
+
+        let $inputs = $('#filters-form input.hide');
+
+        for(let input of $inputs) {
+            let $input = ($(input));
+            let name = $input.attr('name');
+            let value = $input.val();
+            let $span = $('#filters-form .tabs_content>div[data-name="' + name + '"] span[data-value="' + value + '"]');
             $span.addClass('checked');
         }
     }
@@ -120,6 +128,9 @@ function setParamsToFiltersItemList() {
     let $checkedSpans = $('#filters-form span.checked');    // выбранные пункты меню
     for (let span of $checkedSpans) {
         let $span = $(span);
+        if ($span.attr('data-value') === '') {              // значение по умолчанию не выводится
+            continue;
+        }
         let $tab = $span.parent().parent();
         let tabName = $tab.attr('data-name');
         let tabLabel = $('#tabs a[data-name=' + tabName + ']').text();   // название вкладки на русском языке
@@ -226,7 +237,7 @@ window.onload = function() {
             $('#pjax-loading').removeClass('hide');
         })
         .on('pjax:complete', function() {
-            // setParamsToFiltersForm();
+            setParamsToFiltersForm();
             setParamsToCheckbox();
             setUrlForPrint();
             setParamsToFiltersItemList();

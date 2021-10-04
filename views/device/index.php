@@ -53,7 +53,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <?php elseif($tab['source'] === 'manual'): ?>
                             <div class="checkboxList">
                                 <?= Html::input('text', $key, '', ['class' => 'hide']) ?>
-                                <span class="checkbox filter-checkbox checked" data-child="0" data-value="">Действующие</span>
+                                <span class="checkbox filter-checkbox" data-child="0" data-value="">Действующие</span>
                                 <span class="checkbox filter-checkbox" data-child="0" data-value="<?=Status::DELETED?>">Удаленные</span>
                                 <span class="checkbox filter-checkbox" data-child="0" data-value="<?=Status::ALL?>">Все</span>
                             </div>
