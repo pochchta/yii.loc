@@ -167,6 +167,50 @@ class Word extends ActiveRecord
         }
     }
 
+    /**
+     * @param array $params str columnName = parent_id, int parent = 0, int depth = 1, bool withParent = false
+     * @return array
+     */
+    public static function getConditionByParentId($params = [])
+    {
+        $parent_id = 0;
+        $columnName = 'parent_id';
+        $depth = 1;
+        $withParent = false;
+
+        $arrayCondition = [];
+        $bindValues = [];
+
+        $withParent = isset($params['withParent']) ? filter_var($params['withParent'], FILTER_VALIDATE_BOOLEAN) : $withParent;
+        foreach (['columnName', 'parent_id', 'depth'] as $item) {
+            if (isset($params[$item])) {
+                $$item = $params[$item];
+            }
+        }
+        $hashColumnName = ':' . md5($columnName);
+        $arrayCondition[0] = " = $hashColumnName";
+        for ($i = 1; $i < $depth; $i++) {
+            $arrayCondition[$i] = "IN (SELECT id FROM word WHERE parent_id {$arrayCondition[$i-1]} AND deleted = :deleted)";
+        }
+
+        $arrayCondition[0] = $columnName . $arrayCondition[0];
+        $condition = end($arrayCondition);
+        if ($withParent) {
+            $condition = implode(" OR $columnName ", $arrayCondition);
+        }
+
+        $bindValues[$hashColumnName] = $parent_id;
+        if ($depth > 1) {
+            $bindValues['deleted'] = Status::NOT_DELETED;
+        }
+
+        return [
+            'condition' => preg_replace('/[\s]+/', ' ', $condition),
+            'bind' => $bindValues
+        ];
+
+    }
+
     /** Глубина считается от 1 элемента $parents
      * @param array $params array parents, str columnName = parent_id, int depth = 1, bool withParent = false
      * @return array|string[]
