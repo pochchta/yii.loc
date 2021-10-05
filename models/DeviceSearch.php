@@ -88,40 +88,10 @@ class DeviceSearch extends Device
 
         foreach(['kind', 'name', 'type', 'group', 'state', 'department', 'crew'] as $item) {
             if (strlen($this->$item)) {
-                if (strlen($this->group)) {
-                    if ($item == 'name' || $item == 'type') {
-                        continue;
-                    }
-                } elseif (strlen($this->type)) {
-                    if ($item == 'name') {
-                        continue;
-                    }
-                }
-                $depth = Word::MAX_NUMBER_PARENTS;
-                $withParent = true;
-                if ($this->$item == array_search(Status::NOT_CATEGORY, Word::FIELD_WORD)) {    // == 'not'
-                    $depth = 1;
-                }
-                $parents = [1 => $this->$item];
-                if ($item == 'name') {
-                    $depth = 1;
-                } elseif ($item == 'type') {
-                    $item = 'name';
-                    $parents[2] = $this->name;
-                    $depth = 2;
-                } elseif ($item == 'group') {
-                    $item = 'name';
-                    $parents[2] = $this->type;
-                    $parents[3] = $this->name;
-                    $depth = 3;
-                }
-                if ($item == 'name') {    // выше $item перезаписан
-                    $withParent = false;
-                }
-                list('condition' => $condition, 'bind' => $bind) = Word::getConditionByParent([
-                    'parents' => $parents,
-                    'depth' => $depth,
-                    'withParent' => $withParent,
+                list('condition' => $condition, 'bind' => $bind) = Word::getConditionByParentId([
+                    'parent_id' => $this->$item,
+                    'depth' => 3,
+                    'withParent' => true,
                     'columnName' => "{$item}_id"
                 ]);
                 $query->andOnCondition($condition, $bind);
