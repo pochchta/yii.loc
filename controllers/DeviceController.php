@@ -55,6 +55,10 @@ class DeviceController extends Controller
      */
     public function actionIndex()
     {
+        $params = Yii::$app->request->queryParams;
+        $searchModel = new DeviceSearch();
+        $dataProvider = $searchModel->search($params);
+
         $headerMenu = [
             'kind',
             'name',
@@ -69,12 +73,8 @@ class DeviceController extends Controller
         $menu = (new FilterMenu($headerMenu))
             ->setSource(['number' => 'number', 'created_at' => 'date', 'updated_at' => 'date', 'deleted' => 'manual'])
             ->setLabel(['number' => 'Номер прибора', 'created_at' => 'Дата создания', 'updated_at' => 'Дата изменения', 'deleted' => 'Удален'])
-            ->getMenu();
-
-        $params = Yii::$app->request->queryParams;
-
-        $searchModel = new DeviceSearch();
-        $dataProvider = $searchModel->search($params);
+            ->loadFilterParams(['word'], $params)
+            ->loadMenu();
 
         return $this->render('index', compact(
             'searchModel', 'dataProvider', 'params', 'menu'

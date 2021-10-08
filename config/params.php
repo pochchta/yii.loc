@@ -17,7 +17,7 @@ return [
     'delayAutoComplete' => 500,
     'minSymbolsAutoComplete' => 3,
     'maxLinesAutoComplete' => 10,       // кол-во строк в autoComplete
-    'maxElementsTabMenu' => 100,       // кол-во строк в autoComplete
+    'maxElementsTabMenu' => 1000,       // кол-во строк во вкладке меню фильтров
 
     'maxLinesIndex' => 20,              // кол-во строк при выводе в index
     'maxLinesPrint' => 500,             // кол-во строк при выводе на печать

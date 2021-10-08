@@ -112,7 +112,7 @@ function setParamsToCheckbox(tabName = '') {
 }
 
 /**
- * Установка списка фильтров из span.checked и input
+ * Установка списка фильтров из span.checked или input или global filterParams
  */
 function setParamsToFiltersItemList() {
     let $tabFiltersParams = $('.tabsFilterParams');
@@ -125,32 +125,7 @@ function setParamsToFiltersItemList() {
     let $showGroup = $('<span class="showGroup"></span>');
     $showGroup.append($name).append($value);
 
-    let $checkedSpans = $('#filters-form span.checked');    // выбранные пункты меню
-    for (let span of $checkedSpans) {
-        let $span = $(span);
-        if ($span.attr('data-value') === '') {              // значение по умолчанию не выводится
-            continue;
-        }
-        let $tab = $span.parent().parent();
-        let tabName = $tab.attr('data-name');
-        let tabLabel = $('#tabs a[data-name=' + tabName + ']').text();   // название вкладки на русском языке
-
-        let $newShowGroup = $showGroup.clone();
-        let $newName = $newShowGroup.children('.first');
-        $newName.text(tabLabel + ': ');
-
-        let $newValue = $newShowGroup.children('.second');
-        let $newValueChild = $newValue.children().first();
-        $newValueChild.text($span.text().toLowerCase());
-        $newValueChild.attr('data-name', tabName);
-
-        if ($list.children('.showGroup').length > 0) {
-            $list.append(', ')
-        }
-        $list.append($newShowGroup);
-    }
-
-    let $inputs = $('#filters-form input:not(.hide)[type="text"], #filters-form input:not(.hide)[type="date"]');      // поля для ручного ввода
+    let $inputs = $('#filters-form input[type="text"], #filters-form input:not(.hide)[type="date"]');      // поля для ручного ввода
     for (let input of $inputs) {
         let $input = $(input);
         if ($input.val() === '') {
@@ -174,6 +149,9 @@ function setParamsToFiltersItemList() {
         }
 
         let $tab = $input.parent();
+        if ($tab.hasClass('checkboxList')) {
+            $tab = $tab.parent();
+        }
         let tabName = $tab.attr('data-name');
         let tabLabel = $('#tabs a[data-name=' + tabName + ']').text() + addLabel;   // название вкладки на русском языке + суффикс (начало или конец)
 
@@ -183,7 +161,16 @@ function setParamsToFiltersItemList() {
 
         let $newValue = $newShowGroup.children('.second');
         let $newValueChild = $newValue.children().first();
-        $newValueChild.text($input.val());
+        let value = $input.val();                               // value записано в input вручную
+        if ($input.hasClass('hide')) {
+            let $span = $('#filters-form .tabs_content>div[data-name="' + tabName + '"] span[data-value="' + value + '"]');
+            if ($span.length > 0) {
+                value = $span.text();                           // value выставляем из span.checked
+            } else if(filterParams.hasOwnProperty(value) && filterParams[value].name === tabName) {
+                value = filterParams[value].label;              // value из глобальной переменной filterParams (список примененых фильтров)
+            }
+        }
+        $newValueChild.text(value);
         $newValueChild.attr('data-name', $input.attr('name'));
 
         if ($list.children('.showGroup').length > 0) {
