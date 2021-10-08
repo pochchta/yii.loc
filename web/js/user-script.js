@@ -203,33 +203,34 @@ function resetFilters(name = '') {
     }
 }
 
-/**
- * Замена url кнопки .print_button
- */
-function setUrlForPrint() {
-    let $button = $('.print_button');
-    let url = $(location).attr('origin') + $button.attr('data-url') + $(location).attr('search');
-    $button.attr('href', url);
-}
-
 window.onload = function() {
     setParamsToFiltersForm();
     setParamsToCheckbox();
-    setUrlForPrint();
     setParamsToFiltersItemList();
 
     (function($) {
+        $('.print_button')
+            .on('click', function() {
+                let url = $(location).attr('origin') + $(this).attr('data-url') + $(location).attr('search');
+                $(this).attr('href', url);
+            })
+        $('#my-pjax-container')
+            .on('click', '.reset_sort', function() {
+                resetFilters('sort');
+            })
+    })(jQuery);
+
+    (function($) {
         $(document)
-        .on('pjax:send', function() {
-            $('#pjax-loading').removeClass('hide');
-        })
-        .on('pjax:complete', function() {
-            setParamsToFiltersForm();
-            setParamsToCheckbox();
-            setUrlForPrint();
-            setParamsToFiltersItemList();
-            $('#pjax-loading').addClass('hide')
-        })
+            .on('pjax:send', function() {
+                $('#pjax-loading').removeClass('hide');
+            })
+            .on('pjax:complete', function() {
+                setParamsToFiltersForm();
+                setParamsToCheckbox();
+                setParamsToFiltersItemList();
+                $('#pjax-loading').addClass('hide')
+            })
     })(jQuery);
 
     (function($) {
@@ -238,7 +239,7 @@ window.onload = function() {
                 resetFilters($(this).attr('data-name'))
             })
             .on('click', '#filters-reset', function() {
-                resetFilters()
+                resetFilters();
             })
     })(jQuery);
 

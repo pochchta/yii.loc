@@ -44,9 +44,9 @@ $this->registerCssFile('@web/css/user-print.css');
                 <td><?= $n++ ?></td>
                 <td><?= $model->wordName->name ?></td>
                 <td><?= $model->number ?></td>
-                <td><?= $model->wordType->name ?></td>
+                <td><?= $model->wordKind->name ?></td>
                 <td><?= $model->wordDepartment->name ?></td>
-                <td><?= $model->name ?></td>
+                <td><?= $model->position ?></td>
                 <td><?= Yii::$app->formatter->asDate($model->created_at) ?></td>
                 <td><?= Yii::$app->formatter->asDate($model->updated_at) ?></td>
             </tr>

@@ -51,6 +51,10 @@ span.color-war{
     color: #ffa500;
 }
 
+#grid_id .reset_sort{
+    cursor: pointer;
+}
+
 /*
 .button-as-a{
     background: none;

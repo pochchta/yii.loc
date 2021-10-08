@@ -160,6 +160,11 @@ $this->params['breadcrumbs'][] = $this->title;
                 }
             ],
             [
+                'header' => Html::a(
+                    '<span class="glyphicon glyphicon-remove reset_sort"></span>',
+                    null,
+                    ['title' => 'Сбросить сортировку']
+                ),
                 'format' => 'raw',
                 'value' => function ($model) {
                     return
