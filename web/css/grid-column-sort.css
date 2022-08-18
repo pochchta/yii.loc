@@ -1,0 +1,41 @@
+#grid_column_sort ul{
+    border: 1px solid #eee;
+    width: 142px;
+    min-height: 20px;
+    list-style-type: none;
+    padding: 5px 0 0 0;
+    float: left;
+    margin: 0 10px 0 0;
+}
+
+#grid_column_sort li{
+    margin: 0 5px 5px 5px;
+    padding: 5px;
+    font-size: 1.2em;
+    width: 120px;
+    height: 1.9em;
+    line-height: 1.2em;
+}
+
+#grid_column_sort #sortable1 li{
+    background: #e6e6e6;
+    border: 1px solid #d3d3d3;
+}
+
+#grid_column_sort #sortable2 li{
+    background: #fbf9ee;
+    border: 1px solid #fcefa1;
+}
+
+#grid_column_sort .ui-sortable-placeholder{
+    background: white !important;
+    border: 1px dashed gray !important;
+}
+
+#grid_column_sort {
+    display: none;
+}
+#grid_column_sort button{
+    clear: both;
+    display: block;
+}
