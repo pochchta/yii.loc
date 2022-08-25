@@ -9,7 +9,6 @@ class GridColumnSort
     private $params;
     private $unSortGridViewData;
     private $gridViewData;
-    private $columnsFromGridViewData;
     private $columnsFromRep;
     private $columns;
 
@@ -32,7 +31,6 @@ class GridColumnSort
     public function runWidget()
     {
         $this->process();
-
         return ViewRender::widget([
             'clientOptions' => [
                 'params' => $this->params,
@@ -44,8 +42,8 @@ class GridColumnSort
     private function process()
     {
         if (! isset($this->columns)) {
+            $this->takeColumnsFromRep();
             $this->takeColumnsFromGridViewData();
-            $this->sort();
         }
     }
 
@@ -60,23 +58,46 @@ class GridColumnSort
 
     private function takeColumnsFromGridViewData()
     {
-        $this->columnsFromGridViewData = [];
-        foreach ($this->unSortGridViewData['columns'] as $item) {
-            if (is_string($item)) {
-                $this->columnsFromGridViewData[] = $item;
-            } elseif (is_array($item)) {
-                if (array_key_exists('attribute', $item)) {
-                    $this->columnsFromGridViewData[] = $item['attribute'];
-                } elseif (! array_key_exists('class', $item)) {
-                    $this->columnsFromGridViewData[] = 'noname';
-                }
-            }
-        }
+        $columnsService = array_filter($this->unSortGridViewData['columns'], function ($item) {
+            return $this->filterColumnName($item) === null;
+        });
+
+        $columnsUnSort = array_filter($this->unSortGridViewData['columns'], function ($item) {
+            return $this->filterColumnName($item) !== null;
+        });
+
+        $columnsKeys = array_map(function ($item){
+            return $this->filterColumnName($item);
+        }, $columnsUnSort);
+
+        $columnsUnSortWithKeys = array_combine($columnsKeys, $columnsUnSort);
+
+        $columnNames = array_filter($this->columnsFromRep, function ($name) use ($columnsUnSortWithKeys){
+            return key_exists($name, $columnsUnSortWithKeys);
+        });
+
+        $columnsSort = array_map(function ($name) use ($columnsUnSortWithKeys) {
+            return $columnsUnSortWithKeys[$name];
+        }, $columnNames);
+
+        $this->gridViewData = $this->unSortGridViewData;
+        $this->gridViewData['columns'] = array_merge($columnsSort, $columnsService);
+
+        $this->columns['enable'] = $columnNames;
+        $this->columns['disable'] = array_diff($columnsKeys, $this->columns['enable']);
+
     }
 
-    private function sort()
+    private function filterColumnName($item)
     {
-        $this->columns = [];
-        $this->gridViewData = $this->unSortGridViewData;
+        if (is_string($item)) {
+            return $item;
+        } elseif (is_array($item)) {
+            if (array_key_exists('attribute', $item)) {
+                return $item['attribute'];
+            }/* elseif (! array_key_exists('class', $item)) {
+                return 'noname';
+            }*/
+        }
     }
 }
