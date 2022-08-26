@@ -58,46 +58,52 @@ class GridColumnSort
 
     private function takeColumnsFromGridViewData()
     {
-        $columnsService = array_filter($this->unSortGridViewData['columns'], function ($item) {
-            return $this->filterColumnName($item) === null;
+        $names = array_map(function ($item){
+            return $this->extractColumnName($item);
+        }, $this->unSortGridViewData['columns']);
+        $hashes = array_map(function ($item){
+            return md5(json_encode($item));
+        }, $this->unSortGridViewData['columns']);
+        $columnsWithHash = array_combine($hashes, $this->unSortGridViewData['columns']);
+        $namesWithHash = array_combine($hashes, $names);
+
+        $usedHashesFromRep = array_filter($this->columnsFromRep, function ($hash) use ($namesWithHash) {
+            return key_exists($hash, $namesWithHash);
         });
-
-        $columnsUnSort = array_filter($this->unSortGridViewData['columns'], function ($item) {
-            return $this->filterColumnName($item) !== null;
+        $usedNamesFromRep = array_map(function ($hash) use ($namesWithHash) {
+            return $namesWithHash[$hash];
+        }, $usedHashesFromRep);
+        $usedNamesWithHashFromRep = array_combine($usedHashesFromRep, $usedNamesFromRep);
+        $usedNamesWithHashFromParams = array_filter($namesWithHash, function ($name) {
+            return in_array($name, $this->params['notDisabled']);
         });
+        $usedNamesWithHash = array_merge($usedNamesWithHashFromRep, $usedNamesWithHashFromParams);
 
-        $columnsKeys = array_map(function ($item){
-            return $this->filterColumnName($item);
-        }, $columnsUnSort);
-
-        $columnsUnSortWithKeys = array_combine($columnsKeys, $columnsUnSort);
-
-        $columnNames = array_filter($this->columnsFromRep, function ($name) use ($columnsUnSortWithKeys){
-            return key_exists($name, $columnsUnSortWithKeys);
-        });
-
-        $columnsSort = array_map(function ($name) use ($columnsUnSortWithKeys) {
-            return $columnsUnSortWithKeys[$name];
-        }, $columnNames);
+        $columnsSort = array_map(function ($hash) use ($columnsWithHash) {
+            return $columnsWithHash[$hash];
+        }, array_keys($usedNamesWithHash));
 
         $this->gridViewData = $this->unSortGridViewData;
-        $this->gridViewData['columns'] = array_merge($columnsSort, $columnsService);
+        if (! empty($columnsSort)) {
+            $this->gridViewData['columns'] = $columnsSort;
+        }
 
-        $this->columns['enable'] = $columnNames;
-        $this->columns['disable'] = array_diff($columnsKeys, $this->columns['enable']);
-
+        $this->columns['enabled'] = $usedNamesWithHash;
+        $this->columns['disabled'] = array_diff($namesWithHash, $this->columns['enabled']);
+        $this->columns['params'] = $this->params;
     }
 
-    private function filterColumnName($item)
+    private function extractColumnName($item)
     {
         if (is_string($item)) {
             return $item;
         } elseif (is_array($item)) {
             if (array_key_exists('attribute', $item)) {
                 return $item['attribute'];
-            }/* elseif (! array_key_exists('class', $item)) {
-                return 'noname';
-            }*/
+            } elseif (array_key_exists('class', $item)) {
+                return '№';
+            }
         }
+        return 'service';
     }
 }
