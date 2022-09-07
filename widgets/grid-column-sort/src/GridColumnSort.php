@@ -9,8 +9,8 @@ class GridColumnSort
     private $params;
     private $unSortGridViewData;
     private $gridViewData;
-    private $columnsFromRep;
-    private $columns;
+    private $namesFromRep;
+    private $columnsForWidget;
 
     /**
      * @param array $gridViewData
@@ -19,6 +19,23 @@ class GridColumnSort
     public function __construct(array $gridViewData, array $params)
     {
         $this->unSortGridViewData = $gridViewData;
+//        $params['name'] = $params['name'] ?? ($this->getShortClassName($params['class']) ?? '');
+//        $params['class'] = $params['class'] ?? '';
+//        $params['role'] = $params['role'] ?? '';
+//        $params['writeUrl'] = $params['writeUrl'] ?? '';
+//        $params['required'] = $params['required'] ?? [];
+        foreach (['name', 'class', 'role', 'writeUrl'] as $name) {
+            if (! isset($params[$name])) {
+                $params[$name] = '';
+            }
+        }
+        if ($params['name'] === '') {
+            $params['name'] = $this->getShortClassName($params['class']);
+        }
+        if (! isset($params['required'])) {
+            $params['required'] = [];
+        }
+
         $this->params = $params;
     }
 
@@ -34,14 +51,14 @@ class GridColumnSort
         return ViewRender::widget([
             'clientOptions' => [
                 'params' => $this->params,
-                'columns' => $this->columns,
+                'columns' => $this->columnsForWidget,
             ]
         ]);
     }
 
     private function process()
     {
-        if (! isset($this->columns)) {
+        if (! isset($this->columnsForWidget)) {
             $this->takeColumnsFromRep();
             $this->takeColumnsFromGridViewData();
         }
@@ -53,57 +70,68 @@ class GridColumnSort
             'role' => $this->params['role'],
             'name' => $this->params['name']
         ])->col;
-        $this->columnsFromRep = json_decode($json);
+        $this->namesFromRep = json_decode($json) ?? [];
     }
 
     private function takeColumnsFromGridViewData()
     {
-        $names = array_map(function ($item){
+        $names = array_map(function ($item, $key){
+            if (is_string($key)) {
+                return $key;
+            }
             return $this->extractColumnName($item);
-        }, $this->unSortGridViewData['columns']);
-        $hashes = array_map(function ($item){
-            return md5(json_encode($item));
-        }, $this->unSortGridViewData['columns']);
-        $columnsWithHash = array_combine($hashes, $this->unSortGridViewData['columns']);
-        $namesWithHash = array_combine($hashes, $names);
+        }, $this->unSortGridViewData['columns'], array_keys($this->unSortGridViewData['columns']));
+        $columnsByName = array_combine($names, $this->unSortGridViewData['columns']);
 
-        $usedHashesFromRep = array_filter($this->columnsFromRep, function ($hash) use ($namesWithHash) {
-            return key_exists($hash, $namesWithHash);
-        });
-        $usedNamesFromRep = array_map(function ($hash) use ($namesWithHash) {
-            return $namesWithHash[$hash];
-        }, $usedHashesFromRep);
-        $usedNamesWithHashFromRep = array_combine($usedHashesFromRep, $usedNamesFromRep);
-        $usedNamesWithHashFromParams = array_filter($namesWithHash, function ($name) {
-            return in_array($name, $this->params['notDisabled']);
-        });
-        $usedNamesWithHash = array_merge($usedNamesWithHashFromRep, $usedNamesWithHashFromParams);
+        $selectedNames = array_unique(array_merge($this->namesFromRep, $this->params['required']));
+        $usedNames = array_intersect($selectedNames, $names);
 
-        $columnsSort = array_map(function ($hash) use ($columnsWithHash) {
-            return $columnsWithHash[$hash];
-        }, array_keys($usedNamesWithHash));
+        $columnsByNameSort = array_map(function ($name) use ($columnsByName) {
+            return $columnsByName[$name];
+        }, $usedNames);
 
         $this->gridViewData = $this->unSortGridViewData;
-        if (! empty($columnsSort)) {
-            $this->gridViewData['columns'] = $columnsSort;
+        if (! empty($columnsByNameSort)) {
+            $this->gridViewData['columns'] = array_values($columnsByNameSort);
         }
 
-        $this->columns['enabled'] = $usedNamesWithHash;
-        $this->columns['disabled'] = array_diff($namesWithHash, $this->columns['enabled']);
-        $this->columns['params'] = $this->params;
+        $this->columnsForWidget['enabled'] = $selectedNames;
+        $this->columnsForWidget['disabled'] = array_diff($names, $this->columnsForWidget['enabled']);
+        $this->columnsForWidget['params'] = $this->params;
     }
 
     private function extractColumnName($item)
     {
         if (is_string($item)) {
-            return $item;
+            $pos = strpos($item, ':');
+            if ($pos !== false) {
+                $item = substr($item, 0, $pos);
+            }
+            return $this->findLabel($item);
         } elseif (is_array($item)) {
             if (array_key_exists('attribute', $item)) {
-                return $item['attribute'];
+                return $this->findLabel($item['attribute']);
             } elseif (array_key_exists('class', $item)) {
-                return '№';
+                return $this->getShortClassName($item['class']);
             }
         }
-        return 'service';
+        return 'noname';
+    }
+
+    private function findLabel($key)
+    {
+        if (class_exists($this->params['class'])) {
+            $label = (new $this->params['class'])->getAttributeLabel($key);
+        }
+        return $label ?? $key;
+    }
+
+    private function getShortClassName($name)
+    {
+        $pos = strrpos($name, '\\');
+        if ($pos !== false) {
+            $name = substr($name, $pos + 1);
+        }
+        return $name;
     }
 }
