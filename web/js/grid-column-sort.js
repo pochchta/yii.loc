@@ -16,34 +16,31 @@ function saveGridColumnSort(e) {
             col: JSON.stringify(takeColumnsFromHtml()),
         },
         success: function (msg) {
-            console.log('success');
-            console.log(msg);
-
+            document.dispatchEvent(new CustomEvent("gcs:success", {
+                detail: { msg: msg }
+            }));
         },
         complete: function (jqXHR, textStatus) {
-            console.log(textStatus);
             if (textStatus !== 'success') {
-                console.log('ошибка')
+                document.dispatchEvent(new CustomEvent("gcs:error", {
+                    detail: { msg: textStatus }
+                }));
             }
         }
     });
 }
 
-$( document ).ready(function(){
-    $(function() {
-        $( "#grid_column_sort ul" ).sortable({
-            connectWith: ".connectedSortable",
-            placeholder: "ui-state-highlight"
-        }).disableSelection();
-    });
+function initGridColumnSort() {
+    $( "#grid_column_sort ul" ).sortable({
+        connectWith: ".connectedSortable",
+        placeholder: "ui-state-highlight",
+        cancel: ".ui-state-disabled",
+    }).disableSelection();
 
-    $(function() {
-        $( ".show_grid_column_sort" ).click(function(){
-            $( "#grid_column_sort" ).show();
-        });
-        $( "#grid_column_sort .hide_grid_column_sort" ).click(function(){
-            $( "#grid_column_sort" ).hide();
-        });
+    $( ".show_grid_column_sort" ).click(function(){
+        $( "#grid_column_sort" ).show();
     });
-
-});
+    $( "#grid_column_sort .hide_grid_column_sort" ).click(function(){
+        $( "#grid_column_sort" ).hide();
+    });
+}
