@@ -25,10 +25,11 @@ class AppAsset extends AssetBundle
         'css/filter.css',
     ];
     public $js = [
-        'js/user-script.js'
+        'js/user-script.js',
     ];
     public $depends = [
         'yii\web\YiiAsset',
+        'yii\jui\JuiAsset',
         'yii\bootstrap\BootstrapAsset',
     ];
 }

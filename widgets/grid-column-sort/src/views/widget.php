@@ -1,7 +1,3 @@
-<?php
-use app\widgets\sort\WidgetAsset;
-WidgetAsset::register($this);
-?>
 <div id='grid_column_sort' class='clearfix'>
     <ul id='sortable1' class='connectedSortable'>
         <? foreach($columns['enabled'] as $key => $value) echo "<li id='$key' class='ui-state-default'>$value</li>" ?>
@@ -9,5 +5,5 @@ WidgetAsset::register($this);
     <ul id='sortable2' class='connectedSortable'>
         <? foreach($columns['disabled'] as $key => $value) echo "<li id='$key' class='ui-state-highlight'>$value</li>" ?>
     </ul>
-    <button class='hide_grid_column_sort' id='save_grid_column_sort'>Сохранить</button>
+    <button id='save_grid_column_sort'>Сохранить</button>
 </div>
