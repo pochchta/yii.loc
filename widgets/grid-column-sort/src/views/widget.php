@@ -1,3 +1,7 @@
+<?php
+use app\widgets\sort\WidgetAsset;
+WidgetAsset::register($this);
+?>
 <div id='grid_column_sort' class='clearfix'>
     <ul id='sortable1' class='connectedSortable'>
         <? foreach($columns['enabled'] as $key => $value) echo "<li id='$key' class='ui-state-default'>$value</li>" ?>
