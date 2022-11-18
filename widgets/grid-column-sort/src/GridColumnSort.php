@@ -16,14 +16,9 @@ class GridColumnSort
      * @param array $gridViewData
      * @param array $params
      */
-    public function __construct(array $gridViewData, array $params)
+    public function __construct(array $gridViewData = ['columns' => []], array $params = [])
     {
         $this->unSortGridViewData = $gridViewData;
-//        $params['name'] = $params['name'] ?? ($this->getShortClassName($params['class']) ?? '');
-//        $params['class'] = $params['class'] ?? '';
-//        $params['role'] = $params['role'] ?? '';
-//        $params['writeUrl'] = $params['writeUrl'] ?? '';
-//        $params['required'] = $params['required'] ?? [];
         foreach (['name', 'class', 'role', 'writeUrl'] as $name) {
             if (! isset($params[$name])) {
                 $params[$name] = '';
@@ -56,6 +51,11 @@ class GridColumnSort
         ]);
     }
 
+    public function getColumnsForWidget()
+    {
+        return $this->columnsForWidget;
+    }
+
     private function process()
     {
         if (! isset($this->columnsForWidget)) {
@@ -66,11 +66,14 @@ class GridColumnSort
 
     private function takeColumnsFromRep()
     {
-        $json = Model::findOne([
+        $model = Model::findOne([
             'role' => $this->params['role'],
             'name' => $this->params['name']
-        ])->col;
-        $this->namesFromRep = json_decode($json) ?? [];
+        ]);
+        $this->namesFromRep = [];
+        if ($model) {
+            $this->namesFromRep = json_decode($model->col);
+        }
     }
 
     private function takeColumnsFromGridViewData()
