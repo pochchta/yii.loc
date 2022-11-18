@@ -12,20 +12,26 @@ modules:
     config:
         Yii2:
             configFile: 'config/test.php'
+        Db:
+            dsn: 'mysql:host=localhost;dbname=database-tests'
+            user: 'root'
+            password:
+#            dump: 'tests/_data/test-dump.sql'
 
 # To enable code coverage:
-#coverage:
-#    #c3_url: http://localhost:8080/index-test.php/
-#    enabled: true
-#    #remote: true
-#    #remote_config: '../codeception.yml'
-#    whitelist:
-#        include:
-#            - models/*
+coverage:
+    #c3_url: http://localhost:8080/index-test.php/
+    enabled: true
+    #remote: true
+    #remote_config: '../codeception.yml'
+    whitelist:
+        include:
+            - models/*
 #            - controllers/*
 #            - commands/*
 #            - mail/*
-#    blacklist:
+            - widgets/  *
+ #    blacklist:
 #        include:
 #            - assets/*
 #            - config/*
