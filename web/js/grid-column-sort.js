@@ -40,7 +40,7 @@ function initGridColumnSort() {
     $( ".show_grid_column_sort" ).click(function(){
         $( "#grid_column_sort" ).show();
     });
-    $( "#grid_column_sort .hide_grid_column_sort" ).click(function(){
+    $( "#hide_grid_column_sort" ).click(function(){
         $( "#grid_column_sort" ).hide();
     });
 }

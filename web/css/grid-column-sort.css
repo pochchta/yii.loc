@@ -18,13 +18,13 @@
 }
 
 #grid_column_sort #sortable1 li{
-    background: #e6e6e6;
-    border: 1px solid #d3d3d3;
+    background: #fbf9ee;
+    border: 1px solid #fcefa1;
 }
 
 #grid_column_sort #sortable2 li{
-    background: #fbf9ee;
-    border: 1px solid #fcefa1;
+    background: #e6e6e6;
+    border: 1px solid #d3d3d3;
 }
 
 #grid_column_sort .ui-sortable-placeholder{
@@ -35,7 +35,7 @@
 #grid_column_sort {
     display: none;
 }
-#grid_column_sort button{
+#grid_column_sort .control{
     clear: both;
     display: block;
 }
