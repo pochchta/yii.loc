@@ -22,14 +22,11 @@ $this->params['breadcrumbs'][] = $this->title;
 
             <?php $form = ActiveForm::begin(); ?>
 
-            <?= $form->field($model, 'oldPass')->passwordInput(['maxlength' => true])
-            ?>
+            <?= $form->field($model, 'oldPass')->passwordInput(['maxlength' => true]) ?>
 
-            <?= $form->field($model, 'newPass')->passwordInput(['maxlength' => true])
-            ?>
+            <?= $form->field($model, 'newPass')->passwordInput(['maxlength' => true]) ?>
 
-            <?= $form->field($model, 'newPassRepeat')->passwordInput(['maxlength' => true])
-            ?>
+            <?= $form->field($model, 'newPassRepeat')->passwordInput(['maxlength' => true]) ?>
 
             <div class="form-group">
                 <?= Html::submitButton('Сохранить', ['class' => 'btn btn-success']) ?>

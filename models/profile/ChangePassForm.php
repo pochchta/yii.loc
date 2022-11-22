@@ -15,7 +15,7 @@ class ChangePassForm  extends Model
     public $newPass;                   // новый пароль
     public $newPassRepeat;             // подтверждение нового пароля
 
-    private $_userById;
+    private $_userById = false;
 
     public function rules()
     {
@@ -31,7 +31,7 @@ class ChangePassForm  extends Model
     public function validateOldPass($attribute)
     {
         if (!$this->hasErrors()) {
-            $user = $this->_userById;
+            $user = $this->getUserById();
             if ($user->validatePassword($this->oldPass) == false) {
                 $this->addError($attribute, 'Старый пароль не верен');
             }
@@ -56,10 +56,12 @@ class ChangePassForm  extends Model
         }
     }
 
-    public function __construct($config = [])
+    public function getUserById()
     {
-        parent::__construct($config);
-        $this->_userById = User::findOne(Yii::$app->user->identity->id);
+        if ($this->_userById === false) {
+            $this->_userById = User::findOne(Yii::$app->user->identity->id);
+        }
+        return $this->_userById;
     }
 
     /**
@@ -69,7 +71,7 @@ class ChangePassForm  extends Model
     public function updatePass()
     {
         if ($this->validate()) {
-            $user = $this->_userById;
+            $user = $this->getUserById();
             if ($user === NULL) {
                 throw new NotFoundHttpException('Запрошенная страница не существует.');
             }
