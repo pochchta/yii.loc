@@ -16,6 +16,7 @@ use yii\base\InvalidArgumentException;
  * @property string $username
  * @property string $password
  * @property string|null $auth_key
+ * @property string|null $profile_view
  */
 
 class User extends ActiveRecord implements IdentityInterface
@@ -100,7 +101,7 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return [
             [['username', 'password'], 'required'],
-            [['username', 'password'], 'string', 'max' => 64],
+            [['username', 'password', 'profile_view'], 'string', 'max' => 64],
             ['username', 'unique'],
         ];
     }
@@ -112,6 +113,7 @@ class User extends ActiveRecord implements IdentityInterface
             'username' => 'Имя пользователя',
             'password' => 'Пароль',
             'auth_key' => 'Ключ идентификации',
+            'profile_view' => 'Профиль вида',
         ];
     }
 
