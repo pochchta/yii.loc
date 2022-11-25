@@ -2,11 +2,12 @@
 
 namespace app\controllers;
 
-use app\models\ProfileForm;
+use app\models\profile\ChangeNameForm;
+use app\models\profile\ChangePassForm;
+use app\models\profile\ChangeViewForm;
 use app\models\User;
 use app\modules\admin\models\AuthAssignment;
 use Yii;
-use yii\base\Exception;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -113,17 +114,27 @@ class SiteController extends Controller
         ]);
     }
 
-    /**
-     * Updates an existing User model.
-     * @return mixed
-     * @throws Exception
-     */
-    public function actionProfile()
+    public function actionAssignment()
     {
-        $model = new ProfileForm();
+        $dataProvider = new ActiveDataProvider([                    // вывод ролей для выбранного юзера
+            'query' => AuthAssignment::find()
+                ->where(['user_id' => Yii::$app->user->identity->id])
+                ->with('item', 'permits.itemChild')
+        ]);
+
+        return $this->render('profile/assignment', compact(
+            'dataProvider'
+        ));
+    }
+
+    public function actionChangeName()
+    {
+        $model = new ChangeNameForm();
 
         if ($model->load(Yii::$app->request->post())) {
-            if ($model->updateUser()) {
+            if ($model->updateName()) {
+                // refresh identity
+                Yii::$app->user->switchIdentity(User::findOne(Yii::$app->user->identity->id));
                 Yii::$app->session->setFlash('success', 'Запись сохранена');
             } else {
                 $errors = $model->getFirstErrors();
@@ -131,17 +142,48 @@ class SiteController extends Controller
             }
         }
 
-        $dataProvider = new ActiveDataProvider([                    // вывод ролей для выбранного юзера
-            'query' => AuthAssignment::find()
-                ->where(['user_id' => Yii::$app->user->identity->id])
-                ->with('item', 'permits.itemChild')
-        ]);
+        $model->clearPassFields();
 
-        $model->oldPass = '';
-        $model->newPass = '';
-        $model->newPassRepeat = '';
-        return $this->render('profile', compact(
-            'model', 'dataProvider'
+        return $this->render('profile/change-name', compact(
+            'model'
+        ));
+    }
+
+    public function actionChangePass()
+    {
+        $model = new ChangePassForm();
+
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->updatePass()) {
+                Yii::$app->session->setFlash('success', 'Запись сохранена');
+            } else {
+                $errors = $model->getFirstErrors();
+                Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
+            }
+        }
+
+        $model->clearPassFields();
+
+        return $this->render('profile/change-pass', compact(
+            'model'
+        ));
+    }
+
+    public function actionChangeView()
+    {
+        $model = new ChangeViewForm();
+
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->updateProfileView()) {
+                Yii::$app->session->setFlash('success', 'Запись сохранена');
+            } else {
+                $errors = $model->getFirstErrors();
+                Yii::$app->session->setFlash('error', 'Запись не была сохранена (' . array_pop($errors) . ')');
+            }
+        }
+
+        return $this->render('profile/change-view', compact(
+            'model'
         ));
     }
 
