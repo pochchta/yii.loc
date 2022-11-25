@@ -42,7 +42,7 @@ class ChangePassForm  extends Model
     {
         if (!$this->hasErrors()) {
             if ($this->oldPass === $this->newPass) {
-                $this->addError($attribute, 'Старый и новый пароль одинаковы');
+                $this->addError($attribute, 'Новый пароль совпадает со старым');
             }
         }
     }
@@ -87,7 +87,7 @@ class ChangePassForm  extends Model
     /**
      * Очистка полей
      */
-    public function clearFields()
+    public function clearPassFields()
     {
         $this->oldPass = '';
         $this->newPass = '';
