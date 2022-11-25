@@ -95,7 +95,6 @@ class ChangeNameForm  extends Model
             }
 
             $user->username = $this->username;
-            $user->password = Yii::$app->getSecurity()->generatePasswordHash($this->oldPass);
             if ($user->save()) {
                 return true;
             }
