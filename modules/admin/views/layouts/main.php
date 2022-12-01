@@ -54,7 +54,7 @@ AppAsset::register($this);
                 ['label' => 'Войти', 'url' => ['/site/login']]
             ) : (
                 ['label' => Yii::$app->user->identity->username, 'items' => [
-                    ['label' => 'Профиль', 'url' => ['/site/profile']],
+                    ['label' => 'Профиль', 'url' => ['/site/assignment']],
                     Yii::$app->user->can('ChangingUsers') ? (
                         ['label' => 'Админка', 'url' => ['/admin']]
                     ) : (''),
