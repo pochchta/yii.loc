@@ -3,6 +3,11 @@ function takeColumnsFromHtml() {
     return Array.from($elements).map(item => item.innerText);
 }
 
+function takeRoleFromHtml() {
+    let $element = $('#grid_column_sort select.form-control');
+    return $element.val();
+}
+
 /**
  * Сохранение выбранных и отсортированных столбцов
  */
@@ -12,19 +17,25 @@ function saveGridColumnSort(e) {
         url: e.data.writeUrl,
         data: {
             name: e.data.name,
-            role: e.data.role,
+            role: takeRoleFromHtml(),
             col: JSON.stringify(takeColumnsFromHtml()),
         },
         success: function (msg) {
             document.dispatchEvent(new CustomEvent("gcs:success", {
                 detail: { msg: msg }
             }));
+            if (msg === true) {
+                showMessage('Столбцы таблицы: сохранено');
+            } else {
+                showMessage('Столбцы таблицы: ошибка сохранения', 'danger');
+            }
         },
         complete: function (jqXHR, textStatus) {
             if (textStatus !== 'success') {
                 document.dispatchEvent(new CustomEvent("gcs:error", {
-                    detail: { msg: textStatus }
+                    detail: { msg: jqXHR.responseText }
                 }));
+                showMessage('Столбцы таблицы: ' + jqXHR.responseText, 'danger');
             }
         }
     });
