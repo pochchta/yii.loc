@@ -44,7 +44,7 @@ class ChangeViewForm  extends Model
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->profileView = Yii::$app->user->identity->profile_view;
+        $this->profileView = Yii::$app->user->identity->getProfileView();
     }
 
     public function updateProfileView()
