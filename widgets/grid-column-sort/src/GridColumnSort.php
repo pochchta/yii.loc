@@ -4,6 +4,8 @@
 namespace app\widgets\sort;
 
 
+use Yii;
+
 class GridColumnSort
 {
     private $params;
@@ -137,5 +139,15 @@ class GridColumnSort
             $name = substr($name, $pos + 1);
         }
         return $name;
+    }
+
+    public static function getListProfileView()
+    {
+        $keys = array_keys(Yii::$app->authManager->getRoles());
+        $roles = array_combine($keys, $keys);
+        return array_merge(
+            ['default' => 'По умолчанию'],
+            $roles
+        );
     }
 }
