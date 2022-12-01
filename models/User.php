@@ -121,4 +121,23 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return $this->hasMany(AuthAssignment::class, ['user_id' => 'id']);
     }
+
+    /**Если профиль не задан, то берем первую роль.
+     * Если профиль есть в назначенных ролях, то берем его.
+     * Иначе 'default'.
+     * @return mixed|string|null
+     */
+    public function getProfileView()
+    {
+        $rolesByUser = array_keys(Yii::$app->authManager->getRolesByUser($this->id));
+        if (! isset($this->profile_view)) {
+            if (count($rolesByUser) > 0) {
+                return $rolesByUser[0];
+            }
+        }
+        if (in_array($this->profile_view, $rolesByUser)) {
+            return $this->profile_view;
+        }
+        return 'default';
+    }
 }
