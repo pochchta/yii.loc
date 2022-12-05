@@ -55,9 +55,22 @@ class DataController extends Controller
         }
 
         if ($model->load($params) && $model->save()) {
-            return true;
+            return 'true';
         }
-        return false;
+        return 'false';
+    }
+
+    public function actionReadColumn()
+    {
+        $params = Yii::$app->request->post();
+        $model = Model::findOne([
+            'role' => $params['role'],
+            'name' => $params['name']
+        ]);
+        if ($model) {
+            return $model->col;
+        }
+        return '[]';
     }
 
 }

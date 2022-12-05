@@ -21,7 +21,7 @@ class GridColumnSort
     public function __construct(array $gridViewData = ['columns' => []], array $params = [])
     {
         $this->unSortGridViewData = $gridViewData;
-        foreach (['name', 'class', 'role', 'writeUrl'] as $name) {
+        foreach (['name', 'class', 'role', 'writeUrl', 'readUrl'] as $name) {
             if (! isset($params[$name])) {
                 $params[$name] = '';
             }
@@ -47,7 +47,6 @@ class GridColumnSort
         $this->process();
         return ViewRender::widget([
             'clientOptions' => [
-                'params' => $this->params,
                 'columns' => $this->columnsForWidget,
             ]
         ]);

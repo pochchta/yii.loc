@@ -10,10 +10,11 @@ class ViewRender extends Widget
 {
     public function run()
     {
-        $options = json_encode($this->clientOptions['params']);
+        $options = json_encode($this->clientOptions['columns']['params']);
         $view = $this->getView();
         WidgetAsset::register($view);
         $view->registerJs("$('#save_grid_column_sort').on('click', $options, saveGridColumnSort);");
+        $view->registerJs("$('#load_grid_column_sort').on('change', $options, loadGridColumnSort);");
         return $this->render('widget', ['columns' => $this->formatColumns()]);
     }
 

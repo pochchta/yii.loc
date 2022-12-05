@@ -6,10 +6,10 @@ use yii\helpers\Html;
 <div id='grid_column_sort' class='clearfix'>
     <h3>Настройка столбцов таблицы</h3>
     <ul id='sortable1' class='connectedSortable'>
-        <? foreach($columns['enabled'] as $key => $value) echo "<li id='$key'>$value</li>" ?>
+        <? foreach($columns['enabled'] as $value) echo "<li>$value</li>" ?>
     </ul>
     <ul id='sortable2' class='connectedSortable'>
-        <? foreach($columns['disabled'] as $key => $value) echo "<li id='$key'>$value</li>" ?>
+        <? foreach($columns['disabled'] as $value) echo "<li>$value</li>" ?>
     </ul>
 
     <div class="control">
@@ -18,6 +18,7 @@ use yii\helpers\Html;
             Yii::$app->user->identity->getProfileView(),
             GridColumnSort::getListProfileView(),
             [
+                'id' => 'load_grid_column_sort',
                 'class' => 'form-control'
             ]
         ) ?>
