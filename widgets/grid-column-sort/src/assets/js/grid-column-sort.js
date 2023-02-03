@@ -100,18 +100,34 @@ class gcs {
         }
     }
 
-    static init() {
-        $( "#grid_column_sort ul" ).sortable({
+    static enableSortable() {
+        $( "#grid_column_sort ul").sortable({
             connectWith: ".connectedSortable",
             placeholder: "ui-state-highlight",
             cancel: ".ui-state-disabled",
         }).disableSelection();
+    }
 
-        $( ".show_grid_column_sort" ).click(function(){
-            $( "#grid_column_sort" ).show();
-        });
-        $( "#hide_grid_column_sort" ).click(function(){
-            $( "#grid_column_sort" ).hide();
-        });
+    static init() {
+        $(document)
+            .on('mouseover', function(event) {
+                if (event.target.id === 'grid_column_sort') {
+                    let $grid = $("#grid_column_sort");
+                    if ($grid.data('init') !== true) {
+                        gcs.enableSortable();
+                        $grid.data({init: true});
+                    }
+                }
+            })
+            .on('click', function(event) {
+                if (event.target.id === 'hide_grid_column_sort') {
+                    let elem = document.getElementById('grid_column_sort');
+                    elem.hidden = !elem.hidden;
+                }
+            })
     }
 }
+
+$(window).on('load', function() {
+    gcs.init();
+})
