@@ -1,5 +1,5 @@
 #grid_column_sort {
-    display: none;
+    /*display: none;*/
     position: absolute;
     z-index: 10;
     padding: 3px;

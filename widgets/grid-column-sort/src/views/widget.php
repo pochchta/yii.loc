@@ -3,7 +3,7 @@
 use app\widgets\sort\GridColumnSort;
 use yii\helpers\Html;
 ?>
-<div id='grid_column_sort' class='clearfix'>
+<div id='grid_column_sort' class='clearfix' hidden>
     <h3>Настройка столбцов таблицы</h3>
     <ul id='sortable1' class='connectedSortable'>
         <? foreach($columns['enabled'] as $value) echo "<li>$value</li>" ?>
