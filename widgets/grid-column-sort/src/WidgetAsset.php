@@ -8,8 +8,7 @@ use yii\web\AssetBundle;
 
 class WidgetAsset extends AssetBundle
 {
-    public $basePath = '@webroot';
-    public $baseUrl = '@web';
+    public $sourcePath = '@app/widgets/grid-column-sort/src/assets';
     public $css = [
         'css/grid-column-sort.css',
     ];
