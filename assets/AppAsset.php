@@ -25,9 +25,9 @@ class AppAsset extends AssetBundle
         'css/filter.css',
     ];
     public $js = [
-        'js/user-script.js',
+        'js/init.js',
         'js/flash.js',
-        'js/loadingWindow.js',
+        'js/loading-window.js',
     ];
     public $depends = [
         'yii\web\YiiAsset',
