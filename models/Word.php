@@ -456,4 +456,25 @@ class Word extends ActiveRecord
     {
         return '';
     }
+
+    /** Запросы для получения дочерних элементов
+     * @param $id int
+     * @param $level int глубина поиска
+     * @param $deleted int
+     * @return array Query
+     */
+    public static function getQueriesByIdToGetChildren($id, $level = 1, $deleted = Status::NOT_DELETED)
+    {
+        $array = [];
+        $params = [];
+        if ($deleted === Status::NOT_DELETED || $deleted === Status::DELETED) {
+            $params['deleted'] = $deleted;
+        }
+
+        $array[0] = self::find()->select('id')->where(['parent_id' => $id] + $params);
+        for ($currentLevel = 1; $currentLevel < $level; $currentLevel++) {
+            $array[$currentLevel] = self::find()->select('id')->where(['parent_id' => $array[$currentLevel - 1]] + $params);
+        }
+        return $array;
+    }
 }
