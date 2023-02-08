@@ -88,13 +88,12 @@ class DeviceSearch extends Device
 
         foreach(['kind', 'name', 'type', 'group', 'state', 'department', 'crew'] as $item) {
             if (strlen($this->$item)) {
-                list('condition' => $condition, 'bind' => $bind) = Word::getConditionByParentId([
-                    'parent_id' => $this->$item,
-                    'depth' => 3,
-                    'withParent' => true,
-                    'columnName' => "{$item}_id"
+                $subQueries = Word::getQueriesByIdToGetChildren($this->$item, 2);
+                $query->andWhere(['or',
+                    ["{$item}_id" => $this->$item],
+                    ["{$item}_id" => $subQueries[0]],
+                    ["{$item}_id" => $subQueries[1]]
                 ]);
-                $query->andOnCondition($condition, $bind);
             }
         }
 
