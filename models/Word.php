@@ -463,7 +463,7 @@ class Word extends ActiveRecord
      * @param $deleted int
      * @return array Query [0 => самый верхний, 1 => ниже]
      */
-    public static function getQueriesByIdToGetChildren($condition, $level = 1, $deleted = Status::NOT_DELETED)
+    public static function getQueriesToGetChildren($condition, $level = 1, $deleted = Status::NOT_DELETED)
     {
         $queries = [];
         $arrayConditions = [];
