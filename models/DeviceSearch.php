@@ -16,6 +16,7 @@ class DeviceSearch extends Device
     const COLUMN_SEARCH = ['id', 'number', 'position'];
     public $limit;
     public $term, $term_name;
+    public $kind_id, $group_id, $type_id, $name_id, $state_id, $department_id, $crew_id;
 
     /**
      * {@inheritdoc}
@@ -26,7 +27,9 @@ class DeviceSearch extends Device
         return [
             [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
             [['description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
-            [['group', 'type', 'name', 'department', 'crew', 'position', 'number', 'kind', 'state'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['position', 'number'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['group', 'type', 'name', 'department', 'crew', 'kind', 'state'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['group_id', 'type_id', 'name_id', 'department_id', 'crew_id', 'kind_id', 'state_id'], 'integer'],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
             [['term', 'term_name'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']]
         ];
@@ -87,12 +90,24 @@ class DeviceSearch extends Device
         }
 
         foreach(['kind', 'name', 'type', 'group', 'state', 'department', 'crew'] as $item) {
+            $condition = null;
+            $subCondition = null;
+            $item_id = "{$item}_id";
+
             if (strlen($this->$item)) {
-                $subQueries = Word::getQueriesByIdToGetChildren($this->$item, 2);
-                $query->andWhere(['or',
-                    ["{$item}_id" => $this->$item],
-                    ["{$item}_id" => $subQueries[0]],
-                    ["{$item}_id" => $subQueries[1]]
+                $condition = ['name' => $this->$item];
+                $subCondition = [$item_id => Word::find()->where(['name' => $this->$item])];
+            } elseif (strlen($this->$item_id)) {
+                $condition = $this->$item_id;
+                $subCondition = [$item_id => $this->$item_id];
+            }
+            if ($condition) {
+                $subQueries = Word::getQueriesToGetChildren($condition, 2);
+                $query->andWhere([
+                    'or',
+                    $subCondition,
+                    [$item_id => $subQueries[0]],
+                    [$item_id => $subQueries[1]]
                 ]);
             }
         }
