@@ -22,7 +22,7 @@ class WordTest extends \Codeception\Test\Unit
     // tests
     public function testGetQueryByIdToGetChildren()
     {
-        // неудаленные элементы словаря
+        // неудаленные элементы словаря - int
         $deleted = Status::NOT_DELETED;
         $testQueries[0] = "SELECT `id` FROM `word` WHERE (`parent_id`=1) AND (`deleted`=$deleted)";
         $testQueries[1] = "SELECT `id` FROM `word` WHERE (`parent_id` IN (SELECT `id` FROM `word` WHERE (`parent_id`=1) AND (`deleted`=$deleted))) AND (`deleted`=$deleted)";
@@ -46,7 +46,7 @@ class WordTest extends \Codeception\Test\Unit
             expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
         }
 
-        // удаленные
+        // удаленные - int
         $deleted = Status::DELETED;
         $testQueries[0] = "SELECT `id` FROM `word` WHERE (`parent_id`=1) AND (`deleted`=$deleted)";
         $testQueries[1] = "SELECT `id` FROM `word` WHERE (`parent_id` IN (SELECT `id` FROM `word` WHERE (`parent_id`=1) AND (`deleted`=$deleted))) AND (`deleted`=$deleted)";
@@ -63,7 +63,7 @@ class WordTest extends \Codeception\Test\Unit
             expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
         }
 
-        // все
+        // все - int
         $testQueries[0] = "SELECT `id` FROM `word` WHERE `parent_id`=1";
         $testQueries[1] = "SELECT `id` FROM `word` WHERE `parent_id` IN (SELECT `id` FROM `word` WHERE `parent_id`=1)";
 
@@ -79,7 +79,16 @@ class WordTest extends \Codeception\Test\Unit
             expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
         }
 
-        // все по названию
+        // все по названию - string
+        $testQueries[0] = "SELECT `id` FROM `word` WHERE `parent_id`='text'";
+
+        $queries = Word::getQueriesToGetChildren('text', 1, Status::ALL);
+        expect(count($queries))->equals(1);
+        foreach ($queries as $key => $query) {
+            expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
+        }
+
+        // все по названию - array
         $name = 'test';
         $testQueries[0] = "SELECT `id` FROM `word` WHERE `name`='$name'";
         $testQueries[1] = "SELECT `id` FROM `word` WHERE `parent_id` IN (SELECT `id` FROM `word` WHERE `name`='$name')";

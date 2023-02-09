@@ -458,7 +458,7 @@ class Word extends ActiveRecord
     }
 
     /** Запросы для получения дочерних элементов
-     * @param $condition int|array $condition = 1 === ['parent_id' = 1]
+     * @param $condition int|string|array $condition = 1 === ['parent_id' = 1]
      * @param $level int глубина поиска
      * @param $deleted int
      * @return array Query [0 => самый верхний, 1 => ниже]
@@ -468,13 +468,15 @@ class Word extends ActiveRecord
         $queries = [];
         $arrayConditions = [];
         $arrayDeleted = [];
-        if (is_int($condition)) {
+
+        if (is_int($condition) || is_string($condition)) {
             $arrayConditions['parent_id'] = $condition;
         } elseif (is_array($condition)) {
             $arrayConditions[key($condition)] = reset($condition);
         } else {
             return $queries;
         }
+
         if ($deleted === Status::NOT_DELETED || $deleted === Status::DELETED) {
             $arrayDeleted['deleted'] = $deleted;
         }
@@ -483,6 +485,7 @@ class Word extends ActiveRecord
         for ($currentLevel = 1; $currentLevel < $level; $currentLevel++) {
             $queries[$currentLevel] = self::find()->select('id')->where(['parent_id' => $queries[$currentLevel - 1]] + $arrayDeleted);
         }
+
         return $queries;
     }
 }
