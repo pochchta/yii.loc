@@ -78,5 +78,22 @@ class WordTest extends \Codeception\Test\Unit
         foreach ($queries as $key => $query) {
             expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
         }
+
+        // все по названию
+        $name = 'test';
+        $testQueries[0] = "SELECT `id` FROM `word` WHERE `name`='$name'";
+        $testQueries[1] = "SELECT `id` FROM `word` WHERE `parent_id` IN (SELECT `id` FROM `word` WHERE `name`='$name')";
+
+        $queries = Word::getQueriesByIdToGetChildren(['name' => $name], 1, Status::ALL);
+        expect(count($queries))->equals(1);
+        foreach ($queries as $key => $query) {
+            expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
+        }
+
+        $queries = Word::getQueriesByIdToGetChildren(['name' => $name], 2, Status::ALL);
+        expect(count($queries))->equals(2);
+        foreach ($queries as $key => $query) {
+            expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
+        }
     }
 }
