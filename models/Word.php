@@ -466,20 +466,17 @@ class Word extends ActiveRecord
     public static function getQueriesToGetChildren($condition, $level = 1, $deleted = Status::NOT_DELETED)
     {
         $queries = [];
-        $arrayConditions = [];
         $arrayDeleted = [];
 
-        if (is_array($condition)) {
-            $arrayConditions[key($condition)] = reset($condition);
-        } else {
-            $arrayConditions['id'] = $condition;
+        if (! is_array($condition)) {
+            $condition = ['id' => $condition];
         }
 
         if ($deleted === Status::NOT_DELETED || $deleted === Status::DELETED) {
             $arrayDeleted['deleted'] = $deleted;
         }
 
-        $queries[0] = self::find()->select('id')->where($arrayConditions + $arrayDeleted);
+        $queries[0] = self::find()->select('id')->where($condition + $arrayDeleted);
         for ($currentLevel = 1; $currentLevel <= $level; $currentLevel++) {
             $queries[$currentLevel] = self::find()->select('id')->where(['parent_id' => $queries[$currentLevel - 1]] + $arrayDeleted);
         }
