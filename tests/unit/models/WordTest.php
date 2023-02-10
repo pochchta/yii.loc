@@ -83,7 +83,7 @@ class WordTest extends \Codeception\Test\Unit
             expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
         }
 
-        // все по произвольному полю - array
+        // все по произвольному условию - array
         $name = 'test';
         $testQueries = $this->getTestQueries("`name`='$name'", Status::ALL);
 
