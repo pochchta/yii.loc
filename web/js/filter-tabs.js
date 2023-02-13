@@ -89,8 +89,10 @@ function setParamsToCheckbox(tabName = '') {
         let $checkboxList = $('#filters-form .tabs_content>div[data-name="' + tabName + '"]>.checkboxList');
         $checkboxList.children('span.checked').removeClass('checked');
 
-        let $input = $('#filters-form input.hide[name=' + tabName + ']');
+        let $input = $('#filters-form input.hide[name=' + tabName + '_id]');
         let name = $input.attr('name');
+        name = name.substr(0, name.length - 3);     // обрезка '_id', т.к. input.hide
+
         let value = $input.val();
         let $span = $('#filters-form .tabs_content>div[data-name="' + name + '"] span[data-value="' + value + '"]');
         $span.addClass('checked');
@@ -102,6 +104,7 @@ function setParamsToCheckbox(tabName = '') {
         for(let input of $inputs) {
             let $input = ($(input));
             let name = $input.attr('name');
+            name = name.substr(0, name.length - 3);     // обрезка '_id', т.к. input.hide
             let value = $input.val();
             let $span = $('#filters-form .tabs_content>div[data-name="' + name + '"] span[data-value="' + value + '"]');
             $span.addClass('checked');
@@ -110,19 +113,22 @@ function setParamsToCheckbox(tabName = '') {
 }
 
 /**
- * Установка списка фильтров из span.checked или input или global filterParams
+ * Установка списка установленных фильтров из span.checked или input или global filterParams
  */
 function setParamsToFiltersItemList() {
+    // очистка списка фильтров "Выводятся только: 1: 1,2; 2: 1"
     let $tabFiltersParams = $('.tabsFilterParams');
     let $list = $tabFiltersParams.find('#filters-active');
-    $list.text('');  // очистка списка фильтров
+    $list.text('');
     $list.append('<span class="showOnly">Выводятся только:</span>');
 
+    // создается заготовка под первую группу списка фильтров
     let $name = $('<span class="first"></span>');
     let $value = $('<span class="second"><a class="reset-filter" title="Отменить фильтр"></a></span>');
     let $showGroup = $('<span class="showGroup"></span>');
     $showGroup.append($name).append($value);
 
+    // обработка inputs
     let $inputs = $('#filters-form input[type="text"], #filters-form input:not(.hide)[type="date"]');      // поля для ручного ввода
     for (let input of $inputs) {
         let $input = $(input);
@@ -130,6 +136,7 @@ function setParamsToFiltersItemList() {
             continue;
         }
 
+        // input date
         let addLabel = '';
         if ($input.attr('type') === 'date') {
             let name = $input.attr('name');
@@ -153,10 +160,12 @@ function setParamsToFiltersItemList() {
         let tabName = $tab.attr('data-name');
         let tabLabel = $('#tabs a[data-name=' + tabName + ']').text() + addLabel;   // название вкладки на русском языке + суффикс (начало или конец)
 
+        // название фильтра
         let $newShowGroup = $showGroup.clone();
         let $newName = $newShowGroup.children('.first');
         $newName.text(tabLabel + ': ');
 
+        // значение фильтра
         let $newValue = $newShowGroup.children('.second');
         let $newValueChild = $newValue.children().first();
         let value = $input.val();                               // value записано в input вручную
@@ -164,7 +173,7 @@ function setParamsToFiltersItemList() {
             let $span = $('#filters-form .tabs_content>div[data-name="' + tabName + '"] span[data-value="' + value + '"]');
             if ($span.length > 0) {
                 value = $span.text();                           // value выставляем из span.checked
-            } else if(filterParams.hasOwnProperty(value) && filterParams[value].name === tabName) {
+            } else if(filterParams.hasOwnProperty(value) && filterParams[value].name === tabName + '_id') {
                 value = filterParams[value].label;              // value из глобальной переменной filterParams (список примененых фильтров)
             }
         }
@@ -303,7 +312,7 @@ $(window).on('load', function() {
             .on('click', '.checkboxList>span', function() {
                 let name = $(this).parent().parent().attr('data-name');
                 let value = $(this).attr('data-value');
-                $('#filters-form input[name=' + name + ']').val(value);
+                $('#filters-form input[name=' + name + '_id]').val(value);
                 sendFiltersForm('#filters-form')
             })
     })(jQuery);
