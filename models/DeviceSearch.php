@@ -90,24 +90,25 @@ class DeviceSearch extends Device
         }
 
         foreach(['kind', 'name', 'type', 'group', 'state', 'department', 'crew'] as $item) {
-            $condition = null;
-            $subCondition = null;
             $item_id = "{$item}_id";
 
-            if (strlen($this->$item)) {
-                $condition = ['name' => $this->$item];
-                $subCondition = [$item_id => Word::find()->where(['name' => $this->$item])];
-            } elseif (strlen($this->$item_id)) {
-                $condition = $this->$item_id;
-                $subCondition = [$item_id => $this->$item_id];
-            }
-            if ($condition) {
-                $subQueries = Word::getQueriesToGetChildren($condition, 2);
+            if (strlen($this->$item)) {                                                         // поиск по имени
+                $subQueries = Word::getQueriesToGetChildren(['like', 'name', $this->$item . '%', false], 2);
                 $query->andWhere([
                     'or',
-                    $subCondition,
                     [$item_id => $subQueries[0]],
-                    [$item_id => $subQueries[1]]
+                    [$item_id => $subQueries[1]],
+                    [$item_id => $subQueries[2]]
+                ]);
+            }
+
+            if (strlen($this->$item_id)) {                                                     // поиск по id
+                $subQueries = Word::getQueriesToGetChildren($this->$item_id, 2);
+                $query->andWhere([
+                    'or',
+                    [$item_id => $subQueries[0]],
+                    [$item_id => $subQueries[1]],
+                    [$item_id => $subQueries[2]]
                 ]);
             }
         }
