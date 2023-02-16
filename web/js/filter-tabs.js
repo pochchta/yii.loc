@@ -21,36 +21,46 @@ function loadDataToTab(id) {
     let $tab = $('#tab' + id);
     let $checkboxList = $tab.children().first();
     if ($checkboxList.hasClass('download') === false && $checkboxList.hasClass('success') === false) {
-        $checkboxList.addClass('download');
-        $checkboxList.text('Загрузка');
-        let $span = $('<span class="checkbox filter-checkbox"></span>');
-        $.ajax({
-            method: "GET",
-            url: "/device/filter",
-            data: {
-                parent_id: id,
-            },
-            success: function (msg) {
-                $checkboxList.text('');
-                $checkboxList.addClass('success');
-                let listFilterName = JSON.parse(msg);
-                for (let key in listFilterName) {
-                    if (listFilterName.hasOwnProperty(key)) {
-                        let $newSpan = $span.clone();
-                        $newSpan.attr('data-value', listFilterName[key].id);
-                        $newSpan.text(listFilterName[key].name);
-                        $newSpan.appendTo($checkboxList);
+
+        // $.when(gettingToken()).then(function (data) {
+        gettingToken().done(function (data) {
+
+            $checkboxList.addClass('download');
+            $checkboxList.text('Загрузка');
+            let $span = $('<span class="checkbox filter-checkbox"></span>');
+            $.ajax({
+                cache: true,
+                method: "GET",
+                url: "/api/word/get-children",
+                data: {
+                    parent_id: id,
+                },
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + data);
+                },
+                success: function (msg) {
+                    $checkboxList.text('');
+                    $checkboxList.addClass('success');
+                    let listFilterName = (msg);
+                    for (let key in listFilterName) {
+                        if (listFilterName.hasOwnProperty(key)) {
+                            let $newSpan = $span.clone();
+                            $newSpan.attr('data-value', listFilterName[key].id);
+                            $newSpan.text(listFilterName[key].name);
+                            $newSpan.appendTo($checkboxList);
+                        }
+                    }
+                    setParamsToCheckbox($tab.attr('data-name'));
+                },
+                complete: function () {
+                    $checkboxList.removeClass('download');
+                    if ($checkboxList.hasClass('success') === false) {
+                        $checkboxList.text('Ошибка');
                     }
                 }
-                setParamsToCheckbox($tab.attr('data-name'));
-            },
-            complete: function () {
-                $checkboxList.removeClass('download');
-                if ($checkboxList.hasClass('success') === false) {
-                    $checkboxList.text('Ошибка');
-                }
-            }
-        });
+            });
+        })
+
     }
 }
 
