@@ -34,3 +34,6 @@ tests/_support/_generated
 
 #image QR code
 /web/qr-image
+
+#dbf old databases
+/xbase
