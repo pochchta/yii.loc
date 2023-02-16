@@ -1,13 +1,11 @@
-const PJAX_TIMEOUT = 5000;
-
 function gettingData (url) {
     let getting;
 
     return function () {
-        if (getting === undefined || getting.state() !== 'resolved') {
+        if (getting === undefined || getting.state() === 'rejected') {
             return getting = $.get(url)
                 .fail(function() {
-                        console.warn('gettingData: ' + url + ' : ' + getting.state())
+                        console.error('gettingData: ' + url + ' : ' + getting.state())
                     }
                 );
         }
@@ -28,7 +26,8 @@ function initHideShowByToggleId() {
 $(window).on('load', function() {
 
     window.gettingToken = gettingData('/api/user/get-token');
-    gettingData('/api/app/get-params')().done(function(data){
+    window.gettingYiiParams = gettingData('/api/app/get-params');
+    window.gettingYiiParams().done(function (data) {
         window.yiiParams = data;
     });
 
