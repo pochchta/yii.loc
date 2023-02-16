@@ -21,10 +21,7 @@ function loadDataToTab(id) {
     let $tab = $('#tab' + id);
     let $checkboxList = $tab.children().first();
     if ($checkboxList.hasClass('download') === false && $checkboxList.hasClass('success') === false) {
-
-        // $.when(gettingToken()).then(function (data) {
-        gettingToken().done(function (data) {
-
+        gettingWordVersion().done(function (version) {
             $checkboxList.addClass('download');
             $checkboxList.text('Загрузка');
             let $span = $('<span class="checkbox filter-checkbox"></span>');
@@ -34,9 +31,7 @@ function loadDataToTab(id) {
                 url: "/api/word/get-children",
                 data: {
                     parent_id: id,
-                },
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader('Authorization', 'Bearer ' + data);
+                    version: version,
                 },
                 success: function (msg) {
                     $checkboxList.text('');
@@ -60,7 +55,6 @@ function loadDataToTab(id) {
                 }
             });
         })
-
     }
 }
 
@@ -328,10 +322,8 @@ $(window).on('load', function() {
                 })
         })(jQuery);
 
-        (function($) {
-            document.addEventListener("gcs:save_success", function(event) {
-                sendFiltersForm('#filters-form');
-            });
-        })(jQuery);
+        document.addEventListener("gcs:save_success", function() {
+            sendFiltersForm('#filters-form');
+        });
     })
 })
