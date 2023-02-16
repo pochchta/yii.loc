@@ -26,6 +26,7 @@ function initHideShowByToggleId() {
 $(window).on('load', function() {
 
     window.gettingToken = gettingData('/api/user/get-token');
+    window.gettingWordVersion = gettingData('/api/word/get-version');
     window.gettingYiiParams = gettingData('/api/app/get-params');
     window.gettingYiiParams().done(function (data) {
         window.yiiParams = data;
