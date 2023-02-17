@@ -209,18 +209,21 @@ function setParamsToFiltersItemList() {
 
 /**
  * Сброс фильтров
- * @param name имя конкретного фильтра
+ * @param name имя фильтра, который будет сброшен
+ * @param resetOne true сбросить один, а остальные оставить; false - наоборот
  */
-function resetFilters(name = '') {
-    let url = $(location).attr('pathname');
+function resetFilters(name = '', resetOne = true) {
+    let pathname = $(location).attr('pathname');
+    let search = $(location).attr('search');
     if (name.length > 0) {
-        let $form = $('#filters-form');
-        let $input = $form.find('input[name='+ name + ']');
-        $input.val('');
-        let msg = $form.serialize();
-        $.pjax.reload({container: "#my-pjax-container", url: url + '?' + msg, 'timeout': yiiParams['pjaxTimeout']});
+        search = search
+            .substr(1)
+            .split('&')
+            .filter(elem => resetOne ^ elem.includes(name + '='))
+            .join('&')
+        $.pjax.reload({container: "#my-pjax-container", url: pathname + '?' + search, 'timeout': yiiParams['pjaxTimeout']});
     } else {
-        $.pjax.reload({container: "#my-pjax-container", url: url, 'timeout': yiiParams['pjaxTimeout']});
+        $.pjax.reload({container: "#my-pjax-container", url: pathname, 'timeout': yiiParams['pjaxTimeout']});
     }
 }
 
@@ -312,7 +315,7 @@ function initHandlers() {
             resetFilters($(this).attr('data-name'))
         })
         .on('click', '#filters-reset', function() {
-            resetFilters();
+            resetFilters('sort', false);
         })
 
     $('#my-pjax-container')
