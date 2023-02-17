@@ -11,6 +11,7 @@ class GridAsset extends AssetBundle
 
     ];
     public $js = [
+        'js/init-grid.js',
         'js/filter-tabs.js',
     ];
     public $depends = [

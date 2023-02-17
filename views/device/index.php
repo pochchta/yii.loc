@@ -16,9 +16,7 @@ $this->title = 'Приборы';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<div class="device-index page-index">
-    <div id="pjax-loading" class="hide">Загрузка</div>
-
+<div class="device-index page-index" id="page-index">
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
