@@ -7,12 +7,10 @@ class loadingWindow {
         let loading_window_id = $selector.attr('id') + '_loading_window';
         let $window = $('#' + loading_window_id);
         if (! $window.length) {
-            let offsetZIndex = 10;
-            let newZIndex = + $selector.css('zIndex') + offsetZIndex;
+            let zIndex = 999;
             $window = $('<div>Загрузка</div>');
-            $window.position($selector.position());
             $window.css('position', 'absolute');
-            $window.css('zIndex', newZIndex);
+            $window.css('zIndex', zIndex);
             $window.css('background', '#eeeeeeb8');
             $window.attr('id', loading_window_id);
 
@@ -21,6 +19,9 @@ class loadingWindow {
             $window.css('padding', (selectorWidth / 15) + 'px');
 
         }
+        let pos = $selector.position();
+        $window.css('top', pos.top + 'px');
+        $window.css('left', pos.left + 'px');
 
         $window.css('width', $selector.css('width'));
         $window.css('height', $selector.css('height'));
