@@ -24,11 +24,14 @@ class gcs {
                 role: gcs.takeRoleFromHtml(),
                 col: JSON.stringify(gcs.takeColumnsFromHtml()),
             },
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('Authorization', 'Bearer ' + e.data.token);
+            },
             success: function (msg) {
                 document.dispatchEvent(new CustomEvent("gcs:save_success", {
                     detail: { msg: msg }
                 }));
-                if (JSON.parse(msg) === true) {
+                if (msg === true) {
                     flash.add('Столбцы таблицы: сохранено');
                 } else {
                     flash.add('Столбцы таблицы: ошибка сохранения', 'danger');
@@ -64,7 +67,7 @@ class gcs {
                 document.dispatchEvent(new CustomEvent("gcs:load_success", {
                     detail: { msg: msg }
                 }));
-                gcs.updateColumns(JSON.parse(msg), e.data);
+                gcs.updateColumns(msg, e.data);
             },
             complete: function (jqXHR, textStatus) {
                 if (textStatus !== 'success') {

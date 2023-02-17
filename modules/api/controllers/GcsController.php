@@ -1,35 +1,28 @@
 <?php
 
-namespace app\controllers;
+namespace app\modules\api\controllers;
 
 use app\widgets\sort\Model;
 use Yii;
-use yii\filters\AccessControl;
+use yii\filters\auth\HttpBearerAuth;
 use yii\web\Controller;
+use yii\web\HttpException;
 use yii\web\Response;
 
-class DataController extends Controller
+class GcsController extends Controller
 {
     /**
      * {@inheritdoc}
      */
+
+    public $enableCsrfValidation = false;
+
     public function behaviors()
     {
         return [
-            'access' => [
-                'class' => AccessControl::class,
-                'rules' => [
-                    [
-                        'allow' => true,
-                        'actions' => ['read-column'],
-                        'roles' => ['@'],
-                    ],
-                    [
-                        'allow' => true,
-                        'actions' => ['write-column'],
-                        'roles' => ['ChangingGridColumnSort'],
-                    ],
-                ],
+            'authenticator' => [
+                'class' => HttpBearerAuth::class,
+                'only' => ['write-column'],
             ],
         ];
     }
@@ -45,6 +38,9 @@ class DataController extends Controller
 
     public function actionWriteColumn()
     {
+        if(! Yii::$app->user->can('ChangingGridColumnSort')) {
+            throw new HttpException(403);
+        }
         $params = Yii::$app->request->post();
         $model = Model::findOne([
             'role' => $params['role'],
@@ -55,9 +51,9 @@ class DataController extends Controller
         }
 
         if ($model->load($params) && $model->save()) {
-            return 'true';
+            return true;
         }
-        return 'false';
+        return false;
     }
 
     public function actionReadColumn()
@@ -68,9 +64,9 @@ class DataController extends Controller
             'name' => $params['name']
         ]);
         if ($model) {
-            return $model->col;
+            return json_decode($model->col);
         }
-        return '[]';
+        return [];
     }
 
 }
