@@ -1,3 +1,13 @@
+$(window).on('load', function() {
+    gettingYiiParams().done(function () {
+        setParamsToFiltersForm();
+        setParamsToCheckbox();
+        setParamsToFiltersItemList();
+        initCatalogTabs();
+        initHandlers();
+    })
+})
+
 /**
  * Создает вкладку с заданным id, если ее еще нет
  * @param $tabs jquery объект куда будет добавлена вкладка
@@ -214,116 +224,107 @@ function resetFilters(name = '') {
     }
 }
 
-$(window).on('load', function() {
-    gettingYiiParams().done(function () {
-        setParamsToFiltersForm();
-        setParamsToCheckbox();
-        setParamsToFiltersItemList();
+/**
+ * Реализация механизма появления / исчезновения вкладок при наведении / снятии курсора
+ */
+function initCatalogTabs() {
+    $('.catalogTabs')
+        .on('mouseover', 'li>a:not(.current)', function() {
+            $('.catalogTabs li>a.current').removeClass('current');
+            $(this).addClass('current');
+            $('#tabs_content1>div:not(".hide")').addClass('hide');
+            $('#tabs_content1>#' + ($(this).attr('data-value'))).removeClass('hide');
+            $('#tabs_content1').removeClass('hide');
+        })
+        .on('mouseleave', function() {
+            // $('.catalogTabs li>a.current').removeClass('current');
+            // $('.tabs_content').addClass('hide');
+        })
+        .on('mouseover', '.checkboxList span:not(.current)', function() {
+            let $currentTabsContent = $(this).parent().parent().parent();
+            if ($currentTabsContent.attr('id') === 'tabs_content3') {
+                return;
+            }
+            $(this).siblings().removeClass('current');
+            $(this).addClass('current');
+            if ($(this).attr('data-child') !== '0') {
+                let $blockArrow = $currentTabsContent.children('.block_arrow');
+                $blockArrow
+                    .removeClass('hide')
+                    .offset({
+                        'left': $(this).offset().left + $(this).outerWidth() - $blockArrow.outerWidth() - 1,
+                        'top': $(this).offset().top + $(this).outerHeight() - 1,
+                    });
+            }
+            $currentTabsContent.children('.tabs_content').addClass('hide');
+        })
+        .on('mouseover', '.block_arrow', function() {
+            let $currentTabsContent = $(this).parent();
+            let $nextTabsContent = $(this).siblings('.tabs_content');
+            let $currentSpan = $('#' + $currentTabsContent.attr('id') + '>div>.checkboxList>span.current');
+            let $currentTab = $currentSpan.parent().parent();
+            let value = $currentSpan.attr('data-value');
+            let name = $currentTab.attr('data-name');
+            $nextTabsContent.children('div:not(".hide")').addClass('hide');
+            createTab($nextTabsContent, value, name);
+            loadDataToTab(value);
+            $nextTabsContent.children('#tab' + (value)).removeClass('hide');
+            $nextTabsContent
+                .removeClass('hide')
+                .offset({
+                    'left': $currentTabsContent.offset().left,
+                    'top': $(this).offset().top + $(this).outerHeight(),
+                })
+                .width($currentTabsContent.width() * 1.01);
+        })
+        .on('mouseleave', '.tabs_content', function() {
+            $(this).children('.block_arrow').addClass('hide');
+            $('#' + $(this).attr('id') + '>div>.checkboxList>span.current').removeClass('current');
+            $(this).children('.tabs_content').addClass('hide');
+        })
+}
 
-        (function($) {
-            $('.print_button')
-                .on('click', function() {
-                    let url = $(location).attr('origin') + $(this).attr('data-url') + $(location).attr('search');
-                    $(this).attr('href', url);
-                })
-            $('#my-pjax-container')
-                .on('click', '.reset_sort', function() {
-                    resetFilters('sort');
-                })
-        })(jQuery);
+/**
+ * Назначение обработчиков событий filter-tabs
+ */
+function initHandlers() {
+    // sendFiltersForm - pjax отправка формы
 
-        (function($) {
-            $(document)
-                .on('pjax:send', function() {
-                    $('#pjax-loading').removeClass('hide');
-                })
-                .on('pjax:complete', function() {
-                    setParamsToFiltersForm();
-                    setParamsToCheckbox();
-                    setParamsToFiltersItemList();
-                    $('#pjax-loading').addClass('hide')
-                })
-        })(jQuery);
+    $('.catalogTabs')
+        .on('click', '.filter_button', function() {
+            sendFiltersForm('#filters-form')
+        })
+        .on('click', '.checkboxList>span', function() {
+            let name = $(this).parent().parent().attr('data-name');
+            let value = $(this).attr('data-value');
+            $('#filters-form input[name=' + name + '_id]').val(value);
+            sendFiltersForm('#filters-form')
+        })
 
-        (function($) {
-            $('.tabsFilterParams')
-                .on('click', '.reset-filter', function() {
-                    resetFilters($(this).attr('data-name'))
-                })
-                .on('click', '#filters-reset', function() {
-                    resetFilters();
-                })
-        })(jQuery);
-
-        (function($) {
-            $('.catalogTabs')
-                .on('mouseover', 'li>a:not(.current)', function() {
-                    $('.catalogTabs li>a.current').removeClass('current');
-                    $(this).addClass('current');
-                    $('#tabs_content1>div:not(".hide")').addClass('hide');
-                    $('#tabs_content1>#' + ($(this).attr('data-value'))).removeClass('hide');
-                    $('#tabs_content1').removeClass('hide');
-                })
-                .on('mouseleave', function() {
-                    // $('.catalogTabs li>a.current').removeClass('current');
-                    // $('.tabs_content').addClass('hide');
-                })
-                .on('mouseover', '.checkboxList span:not(.current)', function() {
-                    let $currentTabsContent = $(this).parent().parent().parent();
-                    if ($currentTabsContent.attr('id') === 'tabs_content3') {
-                        return;
-                    }
-                    $(this).siblings().removeClass('current');
-                    $(this).addClass('current');
-                    if ($(this).attr('data-child') !== '0') {
-                        let $blockArrow = $currentTabsContent.children('.block_arrow');
-                        $blockArrow
-                            .removeClass('hide')
-                            .offset({
-                                'left': $(this).offset().left + $(this).outerWidth() - $blockArrow.outerWidth() - 1,
-                                'top': $(this).offset().top + $(this).outerHeight() - 1,
-                            });
-                    }
-                    $currentTabsContent.children('.tabs_content').addClass('hide');
-                })
-                .on('mouseover', '.block_arrow', function() {
-                    let $currentTabsContent = $(this).parent();
-                    let $nextTabsContent = $(this).siblings('.tabs_content');
-                    let $currentSpan = $('#' + $currentTabsContent.attr('id') + '>div>.checkboxList>span.current');
-                    let $currentTab = $currentSpan.parent().parent();
-                    let value = $currentSpan.attr('data-value');
-                    let name = $currentTab.attr('data-name');
-                    $nextTabsContent.children('div:not(".hide")').addClass('hide');
-                    createTab($nextTabsContent, value, name);
-                    loadDataToTab(value);
-                    $nextTabsContent.children('#tab' + (value)).removeClass('hide');
-                    $nextTabsContent
-                        .removeClass('hide')
-                        .offset({
-                            'left': $currentTabsContent.offset().left,
-                            'top': $(this).offset().top + $(this).outerHeight(),
-                        })
-                        .width($currentTabsContent.width() * 1.01);
-                })
-                .on('mouseleave', '.tabs_content', function() {
-                    $(this).children('.block_arrow').addClass('hide');
-                    $('#' + $(this).attr('id') + '>div>.checkboxList>span.current').removeClass('current');
-                    $(this).children('.tabs_content').addClass('hide');
-                })
-
-                .on('click', '.filter_button', function() {
-                    sendFiltersForm('#filters-form')
-                })
-                .on('click', '.checkboxList>span', function() {
-                    let name = $(this).parent().parent().attr('data-name');
-                    let value = $(this).attr('data-value');
-                    $('#filters-form input[name=' + name + '_id]').val(value);
-                    sendFiltersForm('#filters-form')
-                })
-        })(jQuery);
-
-        document.addEventListener("gcs:save_success", function() {
+    $(document)
+        .on("gcs:save_success", function () {
             sendFiltersForm('#filters-form');
-        });
-    })
-})
+        })
+
+    // resetFilters - сброс одного или нескольких фильтров
+    $('.catalogTabs .tabsFilterParams')
+        .on('click', '.reset-filter', function() {
+            resetFilters($(this).attr('data-name'))
+        })
+        .on('click', '#filters-reset', function() {
+            resetFilters();
+        })
+
+    $('#my-pjax-container')
+        .on('click', '.reset_sort', function() {
+            resetFilters('sort');
+        })
+
+    // восстановление значений в filter-tabs
+    $(document)
+        .on('pjax:complete', function() {
+            setParamsToFiltersForm();
+            setParamsToCheckbox();
+            setParamsToFiltersItemList();
+        })
+}
