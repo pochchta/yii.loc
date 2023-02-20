@@ -26,6 +26,7 @@ class AppAsset extends AssetBundle
     ];
     public $js = [
         'js/init.js',
+        'js/loc-search.js',
         'js/flash.js',
         'js/loading-window.js',
     ];
