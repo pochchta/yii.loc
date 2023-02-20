@@ -69,17 +69,6 @@ function loadDataToTab(id) {
 }
 
 /**
- * Обновление pjax с учетом формы фильтрации
- * @param id id формы
- */
-function sendFiltersForm(id) {
-    let $form = $(id);
-    let msg = $form.serialize();
-    let url = $(location).attr('pathname');
-    $.pjax.reload({container: "#my-pjax-container", url: url + '?' + msg, 'timeout': yiiParams['pjaxTimeout']});
-}
-
-/**
  * Установка значений в фильтры формы filters_form
  */
 function setParamsToFiltersForm() {
@@ -208,23 +197,33 @@ function setParamsToFiltersItemList() {
 }
 
 /**
+ * Обновление pjax с учетом формы фильтрации
+ * @param id id формы
+ */
+function sendFiltersForm(id) {
+    let $form = $(id);
+    let url = (new locSearch($form.serialize()))
+        .deleteEmptyValues()
+        .concat((new locSearch())
+            .deleteEmptyValues()
+            .deleteKey('sort', false)
+            .getSearch()
+        )
+        .getUrl();
+    $.pjax.reload({container: "#my-pjax-container", url: url, 'timeout': yiiParams['pjaxTimeout']});
+}
+
+/**
  * Сброс фильтров
  * @param name имя фильтра, который будет сброшен
- * @param resetOne true сбросить один, а остальные оставить; false - наоборот
+ * @param deleteOne true сбросить один, а остальные оставить; false - наоборот
  */
-function resetFilters(name = '', resetOne = true) {
-    let pathname = $(location).attr('pathname');
-    let search = $(location).attr('search');
-    if (name.length > 0) {
-        search = search
-            .substr(1)
-            .split('&')
-            .filter(elem => resetOne ^ elem.includes(name + '='))
-            .join('&')
-        $.pjax.reload({container: "#my-pjax-container", url: pathname + '?' + search, 'timeout': yiiParams['pjaxTimeout']});
-    } else {
-        $.pjax.reload({container: "#my-pjax-container", url: pathname, 'timeout': yiiParams['pjaxTimeout']});
-    }
+function resetFilters(name = '', deleteOne = true) {
+    let url = (new locSearch())
+        .deleteEmptyValues()
+        .deleteKey(name, deleteOne)
+        .getUrl()
+    $.pjax.reload({container: "#my-pjax-container", url: url, 'timeout': yiiParams['pjaxTimeout']});
 }
 
 /**
@@ -317,7 +316,6 @@ function initHandlers() {
         .on('click', '#filters-reset', function() {
             resetFilters('sort', false);
         })
-
     $('#my-pjax-container')
         .on('click', '.reset_sort', function() {
             resetFilters('sort');
