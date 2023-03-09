@@ -155,43 +155,38 @@ function loadDataToTab(id) {
 function setParamsToFiltersForm() {
     $('#filters-form input').val('');       // очистка всех установленных значений
 
-    let dataArray = window.filterTabsData.getArray();
-    for (let tab of dataArray) {
+    for (let tab of window.filterTabsData.getArray()) {
         for(let name in tab) {
             if (name === 'label' || name === 'tabName') continue;
-            $('#filters-form input[name=' + name + ']').val(tab[name]);
+            if (tab.hasOwnProperty(name)) {
+                $('#filters-form input[name=' + name + ']').val(tab[name]);
+            }
         }
     }
 }
 
 /**
  * Установка .checkboxList span.checked
- * Запускается после setParamsToFiltersForm, т.к. используются значения из input
  * @param tabName - tab data-name
  */
 function setParamsToCheckbox(tabName = '') {
+    let tabsData = window.filterTabsData.getObject();
+
     if (tabName.length > 0) {  // задан только один тип значения
         let $checkboxList = $('#filters-form .tabs_content>div[data-name="' + tabName + '"]>.checkboxList');
         $checkboxList.children('span.checked').removeClass('checked');
 
-        let $input = $('#filters-form input.hide[name=' + tabName + '_id]');
-        let name = $input.attr('name');
-        name = name.substr(0, name.length - 3);     // обрезка '_id', т.к. input.hide
+        let value = tabsData[tabName]['_id'];
 
-        let value = $input.val();
-        let $span = $('#filters-form .tabs_content>div[data-name="' + name + '"] span[data-value="' + value + '"]');
+        let $span = $('#filters-form .tabs_content>div[data-name="' + tabName + '"] span[data-value="' + value + '"]');
         $span.addClass('checked');
     } else {
         $('#filters-form span.checked').removeClass('checked');     // очистка всех выбранных span
 
-        let $inputs = $('#filters-form input.hide');
+        for (let tabName in tabsData) {
+            let value = tabsData[tabName]['_id'];
 
-        for(let input of $inputs) {
-            let $input = ($(input));
-            let name = $input.attr('name');
-            name = name.substr(0, name.length - 3);     // обрезка '_id', т.к. input.hide
-            let value = $input.val();
-            let $span = $('#filters-form .tabs_content>div[data-name="' + name + '"] span[data-value="' + value + '"]');
+            let $span = $('#filters-form .tabs_content>div[data-name="' + tabName + '"] span[data-value="' + value + '"]');
             $span.addClass('checked');
         }
     }
@@ -406,6 +401,7 @@ function initHandlers() {
     // восстановление значений в filter-tabs
     $(document)
         .on('pjax:complete', function() {
+            window.filterTabsData = new dataObj();
             setParamsToFiltersForm();
             setParamsToCheckbox();
             setParamsToFiltersItemList();
