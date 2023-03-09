@@ -1,5 +1,6 @@
 $(window).on('load', function() {
     gettingYiiParams().done(function () {
+        window.filterTabsData = new dataObj();
         setParamsToFiltersForm();
         setParamsToCheckbox();
         setParamsToFiltersItemList();
@@ -7,6 +8,86 @@ $(window).on('load', function() {
         initHandlers();
     })
 })
+
+/**
+ * Класс для хранения данных фильтра
+ */
+class dataObj {
+    static suffixes = ['_id', '_start', '_end'];
+    data = {};
+
+    constructor() {
+        this.create();
+        this.updateValues();
+    }
+
+    create() {
+        let $titles = $('#filters-form .tabs_title ul a');
+        for (let title of $titles) {
+            let $title = $(title);
+            let name = $title.attr('data-name');
+            let label = $title.text();
+            this.data[name] = {'label': label};
+        }
+    }
+
+    updateValues(tabName = '') {
+        let arrSearch = (new locSearch())
+            .deleteEmptyValues()
+            .deleteKey('sort')
+            .getArray()
+
+        for (let oneSearch of arrSearch) {
+            const [name, value] = oneSearch;
+
+            if (tabName.length > 0 && tabName !== name) continue;
+
+            let isSuffix = false;
+            for (let suffix of dataObj.suffixes) {
+                if (name.indexOf(suffix) === name.length - suffix.length) {
+                    this.data[name.substr(0, name.length - suffix.length)][suffix] = value;
+                    isSuffix = true;
+                    break;
+                }
+            }
+            if (isSuffix) continue;
+
+            this.data[name] = {'value': decodeURI(value)};
+        }
+    }
+
+    /**
+     * {'tabName': {'label': 'Название', 'value': 'фильтр_по_тексту', '_id': 'фильтр_по_id'}}
+     */
+    getObject() {
+        return this.data;
+    }
+
+    /**
+     * [{'tabName': 'tabName', 'label': 'Название', 'tabName': 'фильтр_по_тексту', 'tabName_id': 'фильтр_по_id'}]
+     */
+    getArray() {
+        let array = [];
+        $.each(this.data, function (tabName, tab) {
+            let newTab = {};
+            newTab['tabName'] = tabName;
+
+            $.each(tab, function (field, value) {
+                if (dataObj.suffixes.includes(field)) {
+                    newTab[tabName + field] = value;
+                } else if(field === 'label') {
+                    newTab['label'] = tab['label'];
+                } else if (field === 'value') {
+                    newTab[tabName] = tab['value'];
+                }
+            });
+
+            array.push(newTab);
+        });
+
+        return array;
+    }
+}
 
 /**
  * Создает вкладку с заданным id, если ее еще нет
@@ -74,11 +155,12 @@ function loadDataToTab(id) {
 function setParamsToFiltersForm() {
     $('#filters-form input').val('');       // очистка всех установленных значений
 
-    let params = new URLSearchParams($(location).attr('search'));
-    let entries = params.entries();
-    for(let entry of entries) {
-        const [name, value] = entry;
-        $('#filters-form input[name=' + name + ']').val(value);
+    let dataArray = window.filterTabsData.getArray();
+    for (let tab of dataArray) {
+        for(let name in tab) {
+            if (name === 'label' || name === 'tabName') continue;
+            $('#filters-form input[name=' + name + ']').val(tab[name]);
+        }
     }
 }
 
