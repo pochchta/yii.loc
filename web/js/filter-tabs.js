@@ -14,11 +14,18 @@ $(window).on('load', function() {
  */
 class dataObj {
     static suffixes = ['_id', '_start', '_end'];
+    static url = '/api/word/get-children';
     data = {};
+    deferred = new $.Deferred().resolve();
 
     constructor() {
         this.create();
+        this.update();
+    }
+
+    update() {
         this.updateValues();
+        this.updateLabelsById();
     }
 
     create() {
@@ -54,6 +61,32 @@ class dataObj {
 
             this.data[name] = {'value': decodeURI(value)};
         }
+    }
+
+    updateLabelsById() {
+        $.each(this.data, function (tabName, tab) {
+            if (tab.hasOwnProperty('_id')) {
+                let id = tab['_id'];
+                let valueById = '';
+
+                let $span = $('#filters-form .tabs_content span[data-value="' + id + '"]');
+                if ($span.length) {
+                    valueById = $span.text();
+                } else {
+                    this.deferred = this.deferred.then(function () {
+                        return $.get(dataObj.url, {'id': id})
+                            .done(function(data) {
+                                valueById = data;
+                            })
+                            .fail(function() {
+                                console.error('dataObj: ' + dataObj.url + ' : fail' )
+                            });
+                    })
+                }
+
+                this.data[tabName]['valueById'] = valueById;
+            }
+        }.bind(this))
     }
 
     /**
@@ -401,7 +434,7 @@ function initHandlers() {
     // восстановление значений в filter-tabs
     $(document)
         .on('pjax:complete', function() {
-            window.filterTabsData = new dataObj();
+            window.filterTabsData.update();
             setParamsToFiltersForm();
             setParamsToCheckbox();
             setParamsToFiltersItemList();
