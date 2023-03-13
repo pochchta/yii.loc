@@ -71,7 +71,7 @@ class dataObj {
     }
 
     updateNamesById() {
-        const dataObject = this.getObject();
+        const tabsData = this.getObject();
         $.each(this.data, function (tabName, tab) {
             if (tab.hasOwnProperty('_id') && tab.hasOwnProperty('nameById') === false) {
                 let id = tab['_id'];
@@ -83,7 +83,7 @@ class dataObj {
                     this.deferred = this.deferred.then(function () {
                         return $.get(dataObj.url, {'id': id})
                             .done(function(data) {
-                                dataObject[tabName]['nameById'] = data['name'];
+                                tabsData[tabName]['nameById'] = data['name'];
                             })
                             .fail(function() {
                                 console.error('dataObj: ' + dataObj.url + ' : fail' )
@@ -242,69 +242,64 @@ function setParamsToFiltersItemList() {
     $list.append('<span class="showOnly">Выводятся только:</span>');
 
     // создается заготовка под первую группу списка фильтров
-    let $name = $('<span class="first"></span>');
-    let $value = $('<span class="second"><a class="reset-filter" title="Отменить фильтр"></a></span>');
     let $showGroup = $('<span class="showGroup"></span>');
-    $showGroup.append($name).append($value);
+    let $name = $('<span class="first"></span>');
+    $showGroup.append($name);
+    let $value = $('<span class="second"></span>');
+    let $valueChild = $('<a class="reset-filter" title="Отменить фильтр"></a>');
 
-    // обработка inputs
-    let $inputs = $('#filters-form input[type="text"], #filters-form input:not(.hide)[type="date"]');      // поля для ручного ввода
-    for (let input of $inputs) {
-        let $input = $(input);
-        if ($input.val() === '') {
-            continue;
-        }
+    let tabsData = window.filterTabsData.getObject();
+    for (let tabName in tabsData) {
+        if (Object.keys(tabsData[tabName]).length > 1) {    // есть что-то кроме названия
 
-        // input date
-        let addLabel = '';
-        if ($input.attr('type') === 'date') {
-            let name = $input.attr('name');
-            let arr = {
-                '_start': '(начало)',
-                '_end': '(конец)'
-            }
-            for (let key in arr) {
-                let index = name.indexOf(key);
-                if (index !== -1 && index + key.length === name.length) {   // суффикс '_start' (_end) есть в конце
-                    addLabel = arr[key];
-                    break;
+            // название фильтра
+            let $newShowGroup = $showGroup.clone();
+            let $newName = $newShowGroup.children('.first');
+            $newName.text(tabsData[tabName]['label'] + ': ');
+
+            let textArray = {
+                'value': '🔎 ',
+                '_id': '👉 ',
+                '_start': 'с ',
+                '_end': 'по '
+            };
+
+            for (let key in textArray) {
+                if (tabsData[tabName].hasOwnProperty(key)) {
+                    let $newValue = $value.clone();
+                    let $newValueChild = $valueChild.clone();
+
+                    $newValue.text(textArray[key]);         // например '🔎 '
+                    let text = tabsData[tabName][key];
+                    if (key === '_id') {
+                        text = tabsData[tabName]['nameById'];
+                    }
+                    $newValueChild.text(text);              // например ПКЦ
+                    let dataName = tabName + key;
+                    if (key === 'value') {
+                        dataName = tabName;
+                    }
+                    $newValueChild.attr('data-name', dataName);     // название поля фильтра для сброса
+
+                    $newValue.append($newValueChild);
+                    if ($newShowGroup.children('.second').length > 0) {
+                        $newShowGroup.append(', ')
+                    }
+                    $newShowGroup.append($newValue);
+
                 }
             }
-        }
 
-        let $tab = $input.parent();
-        if ($tab.hasClass('checkboxList')) {
-            $tab = $tab.parent();
-        }
-        let tabName = $tab.attr('data-name');
-        let tabLabel = $('#tabs a[data-name=' + tabName + ']').text() + addLabel;   // название вкладки на русском языке + суффикс (начало или конец)
-
-        // название фильтра
-        let $newShowGroup = $showGroup.clone();
-        let $newName = $newShowGroup.children('.first');
-        $newName.text(tabLabel + ': ');
-
-        // значение фильтра
-        let $newValue = $newShowGroup.children('.second');
-        let $newValueChild = $newValue.children().first();
-        let value = $input.val();                               // value записано в input вручную
-        if ($input.hasClass('hide')) {
-            let $span = $('#filters-form .tabs_content>div[data-name="' + tabName + '"] span[data-value="' + value + '"]');
-            if ($span.length > 0) {
-                value = $span.text();                           // value выставляем из span.checked
-            } else if(filterParams.hasOwnProperty(value) && filterParams[value].name === tabName + '_id') {
-                value = filterParams[value].label;              // value из глобальной переменной filterParams (список примененых фильтров)
+            // добавляем фильтр
+            if ($list.children('.showGroup').length > 0) {
+                $list.append(', ')
             }
-        }
-        $newValueChild.text(value);
-        $newValueChild.attr('data-name', $input.attr('name'));
+            $list.append($newShowGroup);
 
-        if ($list.children('.showGroup').length > 0) {
-            $list.append(', ')
         }
-        $list.append($newShowGroup);
     }
 
+    // скрытие всего блока если не нужен
     if ($list.children('.showGroup').length > 0) {
         $tabFiltersParams.removeClass('hide')
     } else {
@@ -450,4 +445,4 @@ function initHandlers() {
 }
 
 // TODO version to getName
-// TODO модификация setparamstofilterlists
+// при клике на используемый фильтр не происходит фильтрация
