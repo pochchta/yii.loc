@@ -3,7 +3,9 @@ $(window).on('load', function() {
         window.filterTabsData = new dataObj();
         setParamsToFiltersForm();
         setParamsToCheckbox();
-        setParamsToFiltersItemList();
+        window.filterTabsData.deferred.done(function () {
+            setParamsToFiltersItemList();
+        });
         initCatalogTabs();
         initHandlers();
     })
@@ -14,7 +16,7 @@ $(window).on('load', function() {
  */
 class dataObj {
     static suffixes = ['_id', '_start', '_end'];
-    static url = '/api/word/get-children';
+    static url = '/api/word/get-name';
     data = {};
     deferred = new $.Deferred().resolve();
 
@@ -25,7 +27,7 @@ class dataObj {
 
     update() {
         this.updateValues();
-        this.updateLabelsById();
+        this.updateNamesById();
     }
 
     create() {
@@ -52,6 +54,11 @@ class dataObj {
             let isSuffix = false;
             for (let suffix of dataObj.suffixes) {
                 if (name.indexOf(suffix) === name.length - suffix.length) {
+                    if (suffix === '_id') {
+                        if (this.data[name.substr(0, name.length - suffix.length)][suffix] !== value) {
+                            delete(this.data[name.substr(0, name.length - suffix.length)]['nameById'])
+                        }
+                    }
                     this.data[name.substr(0, name.length - suffix.length)][suffix] = value;
                     isSuffix = true;
                     break;
@@ -59,24 +66,24 @@ class dataObj {
             }
             if (isSuffix) continue;
 
-            this.data[name] = {'value': decodeURI(value)};
+            this.data[name]['value'] = decodeURI(value);
         }
     }
 
-    updateLabelsById() {
+    updateNamesById() {
+        const dataObject = this.getObject();
         $.each(this.data, function (tabName, tab) {
-            if (tab.hasOwnProperty('_id')) {
+            if (tab.hasOwnProperty('_id') && tab.hasOwnProperty('nameById') === false) {
                 let id = tab['_id'];
-                let valueById = '';
 
                 let $span = $('#filters-form .tabs_content span[data-value="' + id + '"]');
                 if ($span.length) {
-                    valueById = $span.text();
+                    this.data[tabName]['nameById'] = $span.text();
                 } else {
                     this.deferred = this.deferred.then(function () {
                         return $.get(dataObj.url, {'id': id})
                             .done(function(data) {
-                                valueById = data;
+                                dataObject[tabName]['nameById'] = data['name'];
                             })
                             .fail(function() {
                                 console.error('dataObj: ' + dataObj.url + ' : fail' )
@@ -84,7 +91,6 @@ class dataObj {
                     })
                 }
 
-                this.data[tabName]['valueById'] = valueById;
             }
         }.bind(this))
     }
@@ -229,7 +235,7 @@ function setParamsToCheckbox(tabName = '') {
  * Установка списка установленных фильтров из span.checked или input или global filterParams
  */
 function setParamsToFiltersItemList() {
-    // очистка списка фильтров "Выводятся только: 1: 1,2; 2: 1"
+    // очистка списка примененных фильтров "Выводятся только: 1: 1,2; 2: 1"
     let $tabFiltersParams = $('.tabsFilterParams');
     let $list = $tabFiltersParams.find('#filters-active');
     $list.text('');
@@ -437,6 +443,11 @@ function initHandlers() {
             window.filterTabsData.update();
             setParamsToFiltersForm();
             setParamsToCheckbox();
-            setParamsToFiltersItemList();
+            window.filterTabsData.deferred.done(function () {
+                setParamsToFiltersItemList();
+            });
         })
 }
+
+// TODO version to getName
+// TODO модификация setparamstofilterlists
