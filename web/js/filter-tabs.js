@@ -57,9 +57,9 @@ class dataObj {
                 }
 
                 if (objectSearch.hasOwnProperty(tabName + suffix)) {
-                    this.setData(tabName, fieldName, decodeURI(objectSearch[tabName + suffix]));
+                    this.setField(tabName, fieldName, decodeURI(objectSearch[tabName + suffix]));
                 } else {
-                    delete(this.data[tabName][fieldName]);
+                    this.deleteField(tabName, fieldName);
                 }
 
             }
@@ -97,7 +97,7 @@ class dataObj {
      * @param fieldName
      * @param value
      */
-    setData(tabName, fieldName, value) {
+    setField(tabName, fieldName, value) {
 
         if (fieldName === '_id') {
             if (this.data[tabName][fieldName] !== value) {
@@ -105,6 +105,18 @@ class dataObj {
             }
         }
         this.data[tabName][fieldName] = value;
+    }
+
+    /**
+     * Удаление значения с условием (измененное поле _id сбрасывает nameById)
+     * @param tabName
+     * @param fieldName
+     */
+    deleteField(tabName, fieldName) {
+        if (fieldName === '_id') {
+            delete(this.data[tabName]['nameById']);
+        }
+        delete(this.data[tabName][fieldName]);
     }
 
     /**
@@ -302,12 +314,11 @@ function setParamsToFiltersItemList() {
                 }
             }
 
-            // добавляем фильтр
-            if ($list.children('.showGroup').length > 0) {
-                $list.append(', ')
-            }
-            $list.append($newShowGroup);
-
+            // добавляем фильтр, если он не пустой
+                if ($list.children('.showGroup').length > 0) {
+                    $list.append(', ')
+                }
+                $list.append($newShowGroup);
         }
     }
 
@@ -457,4 +468,4 @@ function initHandlers() {
 }
 
 // TODO version to getName
-// при клике на используемый фильтр остаются пустые категории
+// проверить сколько раз вызывается objData.update()
