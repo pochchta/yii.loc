@@ -67,6 +67,21 @@ class locSearch
     }
 
     getUrl() {
-        return this.pathname + '?' + this.search;
+        if (this.search.length > 0) {
+            return this.pathname + '?' + this.search;
+        }
+        return this.pathname;
+    }
+
+    /**
+     * return [] [['название поля поиска', 'значение'], ...]
+     */
+    getArray() {
+        if (this.search.length > 0) {
+            return this.search
+                .split('&')
+                .map(elem => elem.split('='))
+        }
+        return [];
     }
 }
