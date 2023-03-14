@@ -40,45 +40,41 @@ class dataObj {
         }
     }
 
-    updateValues(tabName = '') {
+    updateValues(chosenName = '') {
         let arrSearch = (new locSearch())
             .deleteEmptyValues()
             .deleteKey('sort')
             .getArray()
+        let objectSearch = Object.fromEntries(arrSearch);
 
-        for (let oneSearch of arrSearch) {
-            const [name, value] = oneSearch;
+        for (let tabName in this.data) {
+            if (chosenName.length > 0 && chosenName !== tabName) continue;     // если выбрано 1 поле
 
-            if (tabName.length > 0 && tabName !== name) continue;
-
-            let isSuffix = false;
-            for (let suffix of dataObj.suffixes) {
-                if (name.indexOf(suffix) === name.length - suffix.length) {
-                    if (suffix === '_id') {
-                        if (this.data[name.substr(0, name.length - suffix.length)][suffix] !== value) {
-                            delete(this.data[name.substr(0, name.length - suffix.length)]['nameById'])
-                        }
-                    }
-                    this.data[name.substr(0, name.length - suffix.length)][suffix] = value;
-                    isSuffix = true;
-                    break;
+            for (let suffix of dataObj.suffixes.concat([''])) {
+                let fieldName = suffix;
+                if (suffix === '') {
+                    fieldName = 'value';
                 }
-            }
-            if (isSuffix) continue;
 
-            this.data[name]['value'] = decodeURI(value);
+                if (objectSearch.hasOwnProperty(tabName + suffix)) {
+                    this.setData(tabName, fieldName, decodeURI(objectSearch[tabName + suffix]));
+                } else {
+                    delete(this.data[tabName][fieldName]);
+                }
+
+            }
         }
     }
 
     updateNamesById() {
         const tabsData = this.getObject();
-        $.each(this.data, function (tabName, tab) {
+        $.each(tabsData, function (tabName, tab) {
             if (tab.hasOwnProperty('_id') && tab.hasOwnProperty('nameById') === false) {
                 let id = tab['_id'];
 
                 let $span = $('#filters-form .tabs_content span[data-value="' + id + '"]');
                 if ($span.length) {
-                    this.data[tabName]['nameById'] = $span.text();
+                    tabsData[tabName]['nameById'] = $span.text();
                 } else {
                     this.deferred = this.deferred.then(function () {
                         return $.get(dataObj.url, {'id': id})
@@ -93,6 +89,22 @@ class dataObj {
 
             }
         }.bind(this))
+    }
+
+    /**
+     * Установка значения с условием (измененное поле _id сбрасывает nameById)
+     * @param tabName
+     * @param fieldName
+     * @param value
+     */
+    setData(tabName, fieldName, value) {
+
+        if (fieldName === '_id') {
+            if (this.data[tabName][fieldName] !== value) {
+                delete(this.data[tabName]['nameById']);
+            }
+        }
+        this.data[tabName][fieldName] = value;
     }
 
     /**
@@ -260,8 +272,8 @@ function setParamsToFiltersItemList() {
             let textArray = {
                 'value': '🔎 ',
                 '_id': '👉 ',
-                '_start': 'с ',
-                '_end': 'по '
+                '_start': '► ',
+                '_end': '◄ '
             };
 
             for (let key in textArray) {
@@ -445,4 +457,4 @@ function initHandlers() {
 }
 
 // TODO version to getName
-// при клике на используемый фильтр не происходит фильтрация
+// при клике на используемый фильтр остаются пустые категории
