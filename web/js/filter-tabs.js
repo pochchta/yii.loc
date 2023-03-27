@@ -15,10 +15,11 @@ $(window).on('load', function() {
  * Класс для хранения данных фильтра
  */
 class dataObj {
-    static suffixes = ['_id', '_start', '_end'];
-    static url = '/api/word/get-name';
+    suffixes = ['_id', '_start', '_end'];
+    url = '/api/word/get-name';
     data = {};
-    deferred = new $.Deferred().resolve();
+    deferred;
+    wordVersion;
 
     constructor() {
         this.create();
@@ -28,8 +29,14 @@ class dataObj {
     update() {
         this.updateValues();
         this.updateNamesById();
+        if (this.deferred === undefined) {
+            this.deferred = new $.Deferred().resolve();
+        }
     }
 
+    /**
+     * Создаем заготовку объекта: есть только название и метка
+     */
     create() {
         let $titles = $('#filters-form .tabs_title ul a');
         for (let title of $titles) {
@@ -40,7 +47,13 @@ class dataObj {
         }
     }
 
+    /**
+     * Обновление данных полей
+     * @param chosenName
+     */
     updateValues(chosenName = '') {
+        const self = this;
+
         let arrSearch = (new locSearch())
             .deleteEmptyValues()
             .deleteKey('sort')
@@ -50,7 +63,7 @@ class dataObj {
         for (let tabName in this.data) {
             if (chosenName.length > 0 && chosenName !== tabName) continue;     // если выбрано 1 поле
 
-            for (let suffix of dataObj.suffixes.concat([''])) {
+            for (let suffix of self.suffixes.concat([''])) {
                 let fieldName = suffix;
                 if (suffix === '') {
                     fieldName = 'value';
@@ -66,29 +79,40 @@ class dataObj {
         }
     }
 
+    /**
+     * Обновление названий по id (из данных страницы или через ajax)
+     */
     updateNamesById() {
-        const tabsData = this.getObject();
-        $.each(tabsData, function (tabName, tab) {
-            if (tab.hasOwnProperty('_id') && tab.hasOwnProperty('nameById') === false) {
+        const self = this;
+        $.each(self.getObject(), function (tabName, tab) {
+            if (tab.hasOwnProperty('_id') && tab.hasOwnProperty('nameById') === false) {    // только если еще не обновлено
                 let id = tab['_id'];
 
                 let $span = $('#filters-form .tabs_content span[data-value="' + id + '"]');
                 if ($span.length) {
-                    tabsData[tabName]['nameById'] = $span.text();
+                    self.setField(tabName, 'nameById', $span.text());
                 } else {
-                    this.deferred = this.deferred.then(function () {
-                        return $.get(dataObj.url, {'id': id})
+                    if (self.deferred === undefined) {
+                        self.deferred = window.gettingWordVersion().done(function (version) {
+                            self.wordVersion = version;
+                        });
+                    }
+                    self.deferred = self.deferred.then(function () {
+                        return $.get(self.url, {
+                            'id': id,
+                            'version': self.wordVersion
+                        })
                             .done(function(data) {
-                                tabsData[tabName]['nameById'] = data['name'];
+                                self.setField(tabName, 'nameById', data['name']);
                             })
                             .fail(function() {
-                                console.error('dataObj: ' + dataObj.url + ' : fail' )
+                                console.error('dataObj: ' + self.url + ' : fail' )
                             });
                     })
                 }
 
             }
-        }.bind(this))
+        })
     }
 
     /**
@@ -130,13 +154,14 @@ class dataObj {
      * [{'tabName': 'tabName', 'label': 'Название', 'tabName': 'фильтр_по_тексту', 'tabName_id': 'фильтр_по_id'}]
      */
     getArray() {
+        const self = this;
         let array = [];
         $.each(this.data, function (tabName, tab) {
             let newTab = {};
             newTab['tabName'] = tabName;
 
             $.each(tab, function (field, value) {
-                if (dataObj.suffixes.includes(field)) {
+                if (self.suffixes.includes(field)) {
                     newTab[tabName + field] = value;
                 } else if(field === 'label') {
                     newTab['label'] = tab['label'];
@@ -175,17 +200,17 @@ function loadDataToTab(id) {
     let $tab = $('#tab' + id);
     let $checkboxList = $tab.children().first();
     if ($checkboxList.hasClass('download') === false && $checkboxList.hasClass('success') === false) {
-        gettingWordVersion().done(function (version) {
-            $checkboxList.addClass('download');
-            $checkboxList.text('Загрузка');
+        $checkboxList.addClass('download');
+        $checkboxList.text('Загрузка');
+        window.gettingWordVersion().done(function (version) {
             let $span = $('<span class="checkbox filter-checkbox"></span>');
             $.ajax({
                 cache: true,
                 method: "GET",
                 url: "/api/word/get-children",
                 data: {
-                    parent_id: id,
-                    version: version,
+                    'parent_id': id,
+                    'version': version,
                 },
                 success: function (msg) {
                     $checkboxList.text('');
@@ -297,6 +322,9 @@ function setParamsToFiltersItemList() {
                     let text = tabsData[tabName][key];
                     if (key === '_id') {
                         text = tabsData[tabName]['nameById'];
+                    }
+                    if (text === undefined) {
+                        text = 'не найдено';
                     }
                     $newValueChild.text(text);              // например ПКЦ
                     let dataName = tabName + key;
@@ -466,6 +494,3 @@ function initHandlers() {
             });
         })
 }
-
-// TODO version to getName
-// проверить сколько раз вызывается objData.update()
