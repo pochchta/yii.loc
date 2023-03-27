@@ -1,3 +1,6 @@
+/**
+ * Обработка данных filter-tabs
+ */
 $(window).on('load', function() {
     gettingYiiParams().done(function () {
         window.filterTabsData = new dataObj();
@@ -238,7 +241,7 @@ function loadDataToTab(id) {
 }
 
 /**
- * Установка значений в фильтры формы filters_form
+ * Установка значений в inputs формы filters_form
  */
 function setParamsToFiltersForm() {
     $('#filters-form input').val('');       // очистка всех установленных значений
@@ -254,7 +257,7 @@ function setParamsToFiltersForm() {
 }
 
 /**
- * Установка .checkboxList span.checked
+ * Установка выбранных пунктов меню .checkboxList span.checked
  * @param tabName - tab data-name
  */
 function setParamsToCheckbox(tabName = '') {
@@ -281,7 +284,7 @@ function setParamsToCheckbox(tabName = '') {
 }
 
 /**
- * Установка списка установленных фильтров из span.checked или input или global filterParams
+ * Установка списка установленных фильтров
  */
 function setParamsToFiltersItemList() {
     // очистка списка примененных фильтров "Выводятся только: 1: 1,2; 2: 1"
@@ -369,7 +372,7 @@ function sendFiltersForm(id) {
             .getSearch()
         )
         .getUrl();
-    $.pjax.reload({container: "#my-pjax-container", url: url, 'timeout': yiiParams['pjaxTimeout']});
+    $.pjax.reload({container: "#my-pjax-container", url: url, 'timeout': window.yiiParams['pjaxTimeout']});
 }
 
 /**
@@ -382,7 +385,7 @@ function resetFilters(name = '', deleteOne = true) {
         .deleteEmptyValues()
         .deleteKey(name, deleteOne)
         .getUrl()
-    $.pjax.reload({container: "#my-pjax-container", url: url, 'timeout': yiiParams['pjaxTimeout']});
+    $.pjax.reload({container: "#my-pjax-container", url: url, 'timeout': window.yiiParams['pjaxTimeout']});
 }
 
 /**
