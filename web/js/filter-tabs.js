@@ -323,9 +323,6 @@ function setParamsToFiltersItemList() {
                     if (key === '_id') {
                         text = tabsData[tabName]['nameById'];
                     }
-                    if (text === undefined) {
-                        text = 'не найдено';
-                    }
                     $newValueChild.text(text);              // например ПКЦ
                     let dataName = tabName + key;
                     if (key === 'value') {
