@@ -392,44 +392,96 @@ function resetFilters(name = '', deleteOne = true) {
  * Реализация механизма появления / исчезновения вкладок при наведении / снятии курсора
  */
 function initCatalogTabs() {
+    const SMALL_TIMEOUT = 250;
+    const LARGE_TIMEOUT = 1000;
+    let timerArray = [];
     $('.catalogTabs')
-        .on('mouseover', 'li>a:not(.current)', function() {
-            $('.catalogTabs li>a.current').removeClass('current');
-            $(this).addClass('current');
-            $('#tabs_content1>div:not(".hide")').addClass('hide');
-            $('#tabs_content1>#' + ($(this).attr('data-value'))).removeClass('hide');
-            $('#tabs_content1').removeClass('hide');
-        })
-        .on('mouseleave', function() {
-            // $('.catalogTabs li>a.current').removeClass('current');
-            // $('.tabs_content').addClass('hide');
-        })
-        .on('mouseover', '.checkboxList span:not(.current)', function() {
-            let $currentTabsContent = $(this).parent().parent().parent();
-            if ($currentTabsContent.attr('id') === 'tabs_content3') {
-                return;
+        .on('mouseover', 'li>a:not(.current)', function() {                 // показ вкладки 1 уровня
+            let id = 'name';
+            if (timerArray[id] === undefined) {
+                timerArray[id] = setTimeout(function() {
+                    $('.catalogTabs li>a.current').removeClass('current');
+                    $(this).addClass('current');
+                    $('#tabs_content1>div:not(".hide")').addClass('hide');
+                    $('#tabs_content1>#' + ($(this).attr('data-value'))).removeClass('hide');
+                    $('#tabs_content1').removeClass('hide');
+
+                    timerArray[id] = undefined;
+                }.bind(this), SMALL_TIMEOUT);
             }
-            $(this).siblings().removeClass('current');
-            $(this).addClass('current');
-            if ($(this).attr('data-child') !== '0') {
-                let $blockArrow = $currentTabsContent.children('.block_arrow');
-                $blockArrow
-                    .removeClass('hide')
-                    .offset({
-                        'left': $(this).offset().left + $(this).outerWidth() - $blockArrow.outerWidth() - 1,
-                        'top': $(this).offset().top + $(this).outerHeight() - 1,
-                    });
-            }
-            $currentTabsContent.children('.tabs_content').addClass('hide');
+
         })
-        .on('mouseover', '.block_arrow', function() {
+        .on('mouseleave', 'li>a:not(.current)', function() {                 // отмена "показ вкладки 1 уровня"
+            let id = 'name';
+            if (timerArray[id]) {
+                clearTimeout(timerArray[id]);
+                timerArray[id] = undefined;
+            }
+
+        })
+
+        .on('mouseleave', function() {                                      // скрытие всего catalogTabs
+            let id = 'main';
+            if (timerArray[id] === undefined) {
+                timerArray[id] = setTimeout(function() {
+                    $('.catalogTabs li>a.current').removeClass('current');
+                    $('.tabs_content').addClass('hide');
+
+                    timerArray[id] = undefined;
+                }.bind(this), LARGE_TIMEOUT);
+            }
+        })
+        .on('mouseover', function() {                                       // отмена "скрытие всего catalogTabs"
+            let id = 'main';
+
+            if (timerArray[id]) {
+                clearTimeout(timerArray[id]);
+                timerArray[id] = undefined;
+            }
+        })
+
+        .on('mouseover', '.checkboxList span:not(.current)', function() {   // добавление стрелки для выбранного пункта span
+            let id = 'span';
+            if (timerArray[id] === undefined) {
+                timerArray[id] = setTimeout(function() {
+                    let $currentTabsContent = $(this).parent().parent().parent();
+                    if ($currentTabsContent.attr('id') === 'tabs_content3') {
+                        return;
+                    }
+                    $(this).siblings().removeClass('current');
+                    $(this).addClass('current');
+                    if ($(this).attr('data-child') !== '0') {
+                        let $blockArrow = $currentTabsContent.children('.block_arrow');
+                        $blockArrow
+                            .removeClass('hide')
+                            .offset({
+                                'left': $(this).offset().left + $(this).outerWidth() - $blockArrow.outerWidth() - 1,
+                                'top': $(this).offset().top + $(this).outerHeight() - 1,
+                            });
+                    }
+                    $currentTabsContent.children('.tabs_content').addClass('hide');
+
+                    timerArray[id] = undefined;
+                }.bind(this), SMALL_TIMEOUT);
+            }
+        })
+        .on('mouseleave', '.checkboxList span:not(.current)', function() {   // отмена "добавление стрелки для выбранного пункта span"
+            let id = 'span';
+
+            if (timerArray[id]) {
+                clearTimeout(timerArray[id]);
+                timerArray[id] = undefined;
+            }
+        })
+
+        .on('mouseover', '.block_arrow', function() {                       // показ вложенной вкладки
             let $currentTabsContent = $(this).parent();
             let $nextTabsContent = $(this).siblings('.tabs_content');
             let $currentSpan = $('#' + $currentTabsContent.attr('id') + '>div>.checkboxList>span.current');
             let $currentTab = $currentSpan.parent().parent();
             let value = $currentSpan.attr('data-value');
             let name = $currentTab.attr('data-name');
-            $nextTabsContent.children('div:not(".hide")').addClass('hide');
+            $nextTabsContent.children('div:not(".hide"):not(".block_arrow")').addClass('hide');
             createTab($nextTabsContent, value, name);
             loadDataToTab(value);
             $nextTabsContent.children('#tab' + (value)).removeClass('hide');
@@ -441,10 +493,25 @@ function initCatalogTabs() {
                 })
                 .width($currentTabsContent.width() * 1.01);
         })
-        .on('mouseleave', '.tabs_content', function() {
-            $(this).children('.block_arrow').addClass('hide');
-            $('#' + $(this).attr('id') + '>div>.checkboxList>span.current').removeClass('current');
-            $(this).children('.tabs_content').addClass('hide');
+
+        .on('mouseleave', '.tabs_content', function() {                     // сокрытие вложенной вкладки
+            let id = 'subTab_' + this.id;
+            if (timerArray[id] === undefined) {
+                timerArray[id] = setTimeout(function() {
+                    $(this).children('.block_arrow').addClass('hide');
+                    $('#' + $(this).attr('id') + '>div>.checkboxList>span.current').removeClass('current');
+                    $(this).children('.tabs_content').addClass('hide');
+
+                    timerArray[id] = undefined;
+                }.bind(this), LARGE_TIMEOUT);
+            }
+        })
+        .on('mouseover', '.tabs_content', function() {                     // отмена "сокрытие вложенной вкладки"
+            let id = 'subTab_' + this.id;
+            if (timerArray[id]) {
+                clearTimeout(timerArray[id]);
+                timerArray[id] = undefined;
+            }
         })
 }
 
