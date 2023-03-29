@@ -20,11 +20,19 @@ class WordController extends Controller
             ],
             [
                 'class' => 'yii\filters\HttpCache',
-                'only' => ['get-children'],
+                'only' => ['get-children', 'get-name'],
                 'lastModified' => function () {
                     return 0;
                 },
-                'cacheControlHeader' => 'public, max-age=' . Yii::$app->params['cacheControlTime'],
+                'cacheControlHeader' => 'public, max-age=' . Yii::$app->params['cacheTimeOfWord'],
+            ],
+            [
+                'class' => 'yii\filters\HttpCache',
+                'only' => ['get-version'],
+                'lastModified' => function () {
+                    return 0;
+                },
+                'cacheControlHeader' => 'public, max-age=' . Yii::$app->params['cacheTimeOfWordVersion'],
             ],
         ];
     }
@@ -41,6 +49,20 @@ class WordController extends Controller
     public function actionGetChildren()
     {
         return WordSearch::findNamesByParentId(Yii::$app->request->queryParams);
+    }
+
+    public function actionGetName()
+    {
+        $params = Yii::$app->request->queryParams;
+        $wordSearch = new WordSearch();
+        $wordSearch->load($params);
+        if ($wordSearch->validate()) {
+            $out = Word::find()->select('name')->where(['id' => $wordSearch->id])->asArray()->one();
+            if (isset($out)) {
+                return $out;
+            }
+        }
+        return ['name' => 'не найдено'];
     }
 
     public function actionGetVersion()
