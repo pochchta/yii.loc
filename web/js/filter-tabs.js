@@ -18,6 +18,7 @@ $(window).on('load', function() {
  * Класс для хранения данных фильтра
  */
 class dataObj {
+    statusNotDeleted = 0;
     suffixes = ['_id', '_start', '_end'];
     url = '/api/word/get-name';
     data = {};
@@ -62,6 +63,9 @@ class dataObj {
             .deleteKey('sort')
             .getArray()
         let objectSearch = Object.fromEntries(arrSearch);
+        if (objectSearch.hasOwnProperty('deleted') === false) {
+            objectSearch['deleted'] = this.statusNotDeleted;
+        }
 
         for (let tabName in this.data) {
             if (chosenName.length > 0 && chosenName !== tabName) continue;     // если выбрано 1 поле
@@ -88,10 +92,17 @@ class dataObj {
     updateNamesById() {
         const self = this;
         $.each(self.getObject(), function (tabName, tab) {
-            if (tab.hasOwnProperty('_id') && tab.hasOwnProperty('nameById') === false) {    // только если еще не обновлено
+            if (tabName === 'deleted' && tab.hasOwnProperty('nameById') === false) {
+                let id = tab['value'];
+                let $span = $('#filters-form .tabs_content span[data-value="' + id + '"][data-source="' + tabName + '"]');
+                if ($span.length) {
+                    self.setField(tabName, 'nameById', $span.text());
+                } else {
+                    self.setField(tabName, 'nameById', 'не найдено');
+                }
+            } else if (tab.hasOwnProperty('_id') && tab.hasOwnProperty('nameById') === false) {    // только если еще не обновлено
                 let id = tab['_id'];
-
-                let $span = $('#filters-form .tabs_content span[data-value="' + id + '"]');
+                let $span = $('#filters-form .tabs_content span[data-value="' + id + '"]:not([data-source])');
                 if ($span.length) {
                     self.setField(tabName, 'nameById', $span.text());
                 } else {
@@ -125,11 +136,11 @@ class dataObj {
      * @param value
      */
     setField(tabName, fieldName, value) {
-
-        if (fieldName === '_id') {
-            if (this.data[tabName][fieldName] !== value) {
-                delete(this.data[tabName]['nameById']);
-            }
+        if (
+            (tabName === 'deleted' && fieldName === 'value')
+            || (fieldName === '_id')
+        ) {
+            delete(this.data[tabName]['nameById']);
         }
         this.data[tabName][fieldName] = value;
     }
@@ -140,6 +151,11 @@ class dataObj {
      * @param fieldName
      */
     deleteField(tabName, fieldName) {
+        if (tabName === 'deleted' && fieldName === 'value') {
+            this.setField(tabName, fieldName, this.statusNotDeleted);
+            return;
+        }
+
         if (fieldName === '_id') {
             delete(this.data[tabName]['nameById']);
         }
@@ -178,6 +194,40 @@ class dataObj {
 
         return array;
     }
+
+    /** Получение имени для скрытого поля, в которое вставляется значение из кликнутого span
+     * 'name' => 'name_id'; 'deleted' => 'deleted'
+     */
+    getFieldNameByTabName(tabName) {
+        if (tabName === 'deleted') {
+            return tabName;
+        }
+        return tabName + '_id';
+
+    }
+
+    /** Получение значения для скрытого поля
+     * 'name' => tab['_id'], 'deleted' => tab['value']
+     */
+    getValueByTabName(tabName) {
+        if (tabName === 'deleted') {
+            return this.data[tabName]['value'];
+        }
+        return this.data[tabName]['_id'];
+    }
+
+    /** Получение подписи, например, для отображения выбранного фильтра
+     * 'name':'id' => tab['nameById'], 'deleted':'value' => tab['nameById'], 'number':'value' => tab['value']
+     */
+    getLabelByTabName(tabName, fieldName) {
+        if (
+            (tabName === 'deleted' && fieldName === 'value')
+            || (fieldName === '_id')
+        ) {
+            return this.data[tabName]['nameById'];
+        }
+        return this.data[tabName][fieldName];
+    }
 }
 
 /**
@@ -201,7 +251,7 @@ function createTab($tabs, id, name) {
  */
 function loadDataToTab(id) {
     let $tab = $('#tab' + id);
-    let $checkboxList = $tab.children().first();
+    let $checkboxList = $tab.children('.checkboxList').first();
     if ($checkboxList.hasClass('download') === false && $checkboxList.hasClass('success') === false) {
         $checkboxList.addClass('download');
         $checkboxList.text('Загрузка');
@@ -267,7 +317,7 @@ function setParamsToCheckbox(tabName = '') {
         let $checkboxList = $('#filters-form .tabs_content>div[data-name="' + tabName + '"]>.checkboxList');
         $checkboxList.children('span.checked').removeClass('checked');
 
-        let value = tabsData[tabName]['_id'];
+        let value = window.filterTabsData.getValueByTabName(tabName);
 
         let $span = $('#filters-form .tabs_content>div[data-name="' + tabName + '"] span[data-value="' + value + '"]');
         $span.addClass('checked');
@@ -275,7 +325,7 @@ function setParamsToCheckbox(tabName = '') {
         $('#filters-form span.checked').removeClass('checked');     // очистка всех выбранных span
 
         for (let tabName in tabsData) {
-            let value = tabsData[tabName]['_id'];
+            let value = window.filterTabsData.getValueByTabName(tabName);
 
             let $span = $('#filters-form .tabs_content>div[data-name="' + tabName + '"] span[data-value="' + value + '"]');
             $span.addClass('checked');
@@ -322,11 +372,10 @@ function setParamsToFiltersItemList() {
                     let $newValueChild = $valueChild.clone();
 
                     $newValue.text(textArray[key]);         // например '🔎 '
-                    let text = tabsData[tabName][key];
-                    if (key === '_id') {
-                        text = tabsData[tabName]['nameById'];
-                    }
+
+                    let text = window.filterTabsData.getLabelByTabName(tabName, key);
                     $newValueChild.text(text);              // например ПКЦ
+
                     let dataName = tabName + key;
                     if (key === 'value') {
                         dataName = tabName;
@@ -400,10 +449,14 @@ function initCatalogTabs() {
             let id = 'name';
             if (timerArray[id] === undefined) {
                 timerArray[id] = setTimeout(function() {
+                    let value = $(this).attr('data-value');
                     $('.catalogTabs li>a.current').removeClass('current');
                     $(this).addClass('current');
                     $('#tabs_content1>div:not(".hide")').addClass('hide');
-                    $('#tabs_content1>#' + ($(this).attr('data-value'))).removeClass('hide');
+                    if (Number.isInteger(Number.parseInt(value))) {
+                        loadDataToTab(value);
+                    }
+                    $('#tabs_content1>#tab' + value).removeClass('hide');
                     $('#tabs_content1').removeClass('hide');
 
                     timerArray[id] = undefined;
@@ -450,7 +503,7 @@ function initCatalogTabs() {
                     }
                     $(this).siblings().removeClass('current');
                     $(this).addClass('current');
-                    if ($(this).attr('data-child') !== '0') {
+                    if ($(this).attr('data-source') === undefined) {
                         let $blockArrow = $currentTabsContent.children('.block_arrow');
                         $blockArrow
                             .removeClass('hide')
@@ -527,8 +580,9 @@ function initHandlers() {
         })
         .on('click', '.checkboxList>span', function() {
             let name = $(this).parent().parent().attr('data-name');
+            name = window.filterTabsData.getFieldNameByTabName(name);
             let value = $(this).attr('data-value');
-            $('#filters-form input[name=' + name + '_id]').val(value);
+            $('#filters-form input[name=' + name + ']').val(value);
             sendFiltersForm('#filters-form')
         })
 
