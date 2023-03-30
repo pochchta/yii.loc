@@ -18,7 +18,7 @@ $(window).on('load', function() {
  * Класс для хранения данных фильтра
  */
 class dataObj {
-    statusNotDeleted = 0;
+    statusNotDeleted = '0';
     suffixes = ['_id', '_start', '_end'];
     url = '/api/word/get-name';
     data = {};
@@ -228,6 +228,16 @@ class dataObj {
         }
         return this.data[tabName][fieldName];
     }
+
+    /** Нужно ли вставлять подпись в список фильтров
+     * @returns {boolean}
+     */
+    checkIfNameNeedsToAdd(tabName) {
+        if (tabName === 'deleted') {
+            return this.data[tabName]['value'] !== this.statusNotDeleted;
+        }
+        return Object.keys(this.data[tabName]).length > 1;
+    }
 }
 
 /**
@@ -352,7 +362,7 @@ function setParamsToFiltersItemList() {
 
     let tabsData = window.filterTabsData.getObject();
     for (let tabName in tabsData) {
-        if (Object.keys(tabsData[tabName]).length > 1) {    // есть что-то кроме названия
+        if (window.filterTabsData.checkIfNameNeedsToAdd(tabName)) {    // есть что выводить
 
             // название фильтра
             let $newShowGroup = $showGroup.clone();
@@ -387,7 +397,6 @@ function setParamsToFiltersItemList() {
                         $newShowGroup.append(', ')
                     }
                     $newShowGroup.append($newValue);
-
                 }
             }
 
