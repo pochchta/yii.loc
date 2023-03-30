@@ -593,6 +593,9 @@ function initHandlers() {
             let value = $(this).attr('data-value');
             $('#filters-form input[name=' + name + ']').val(value);
             sendFiltersForm('#filters-form')
+
+            $('.catalogTabs li>a.current').removeClass('current');
+            $('.tabs_content').addClass('hide');    // скрываем меню
         })
 
     $(document)
