@@ -275,10 +275,12 @@ function loadDataToTab(id) {
                     'parent_id': id,
                     'version': version,
                 },
-                success: function (msg) {
-                    $checkboxList.text('');
+                success: function (listFilterName) {
                     $checkboxList.addClass('success');
-                    let listFilterName = (msg);
+                    $checkboxList.text('');
+                    if (listFilterName.length ===0) {
+                        $checkboxList.text('Нет вложенных элементов');
+                    }
                     for (let key in listFilterName) {
                         if (listFilterName.hasOwnProperty(key)) {
                             let $newSpan = $span.clone();
@@ -507,7 +509,7 @@ function initCatalogTabs() {
             if (timerArray[id] === undefined) {
                 timerArray[id] = setTimeout(function() {
                     let $currentTabsContent = $(this).parent().parent().parent();
-                    if ($currentTabsContent.attr('id') === 'tabs_content3') {
+                    if ($currentTabsContent.children('.tabs_content').length === 0) {   // достигнута ли максимальная вложенность
                         return;
                     }
                     $(this).siblings().removeClass('current');
@@ -543,7 +545,7 @@ function initCatalogTabs() {
             let $currentTab = $currentSpan.parent().parent();
             let value = $currentSpan.attr('data-value');
             let name = $currentTab.attr('data-name');
-            $nextTabsContent.children('div:not(".hide"):not(".block_arrow")').addClass('hide');
+            $nextTabsContent.children('div:not(".hide")').addClass('hide');
             createTab($nextTabsContent, value, name);
             loadDataToTab(value);
             $nextTabsContent.children('#tab' + (value)).removeClass('hide');
@@ -593,9 +595,6 @@ function initHandlers() {
             let value = $(this).attr('data-value');
             $('#filters-form input[name=' + name + ']').val(value);
             sendFiltersForm('#filters-form')
-
-            $('.catalogTabs li>a.current').removeClass('current');
-            $('.tabs_content').addClass('hide');    // скрываем меню
         })
 
     $(document)
