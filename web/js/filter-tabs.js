@@ -586,6 +586,11 @@ function initHandlers() {
     // sendFiltersForm - pjax отправка формы
 
     $('.catalogTabs')
+        .on('keypress',function(e) {
+            if(e.which === 13) {
+                sendFiltersForm('#filters-form')
+            }
+        })
         .on('click', '.filter_button', function() {
             sendFiltersForm('#filters-form')
         })
