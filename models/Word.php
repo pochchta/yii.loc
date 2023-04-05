@@ -483,4 +483,84 @@ class Word extends ActiveRecord
 
         return $queries;
     }
+
+    /** Запросы для получения дочерних элементов, если родитель не в базе, а в Word::FIELD_WORD
+     * @param $condition int|string|array $condition = 1 === ['id' = 1]
+     * @param $level int глубина поиска
+     * @param $deleted int
+     * @return array Query [0 => [номера] НЕ ЗАПРОС!, 1 => children, 2 => grandchildren]
+     */
+    public static function getQueriesToGetChildrenIfParentIsVirtual($condition, $level = 1, $deleted = Status::NOT_DELETED)
+    {
+        $queries = [];
+        $arrayDeleted = [];
+
+        if (! is_array($condition)) {
+            $condition = ['id' => $condition];
+        }
+
+        if ($deleted === Status::NOT_DELETED || $deleted === Status::DELETED) {
+            $arrayDeleted['deleted'] = $deleted;
+        }
+
+        $numbers = [];
+        if (strlen($condition['id'])) {
+            $numbers[] = $condition['id'];
+        } elseif ($condition[0] === 'like' && $condition[1] === 'name') {
+            $numbers = Word::getNumbersBySimilarLabel($condition[2]);
+        } else {
+            return $queries;
+        }
+
+        $queries[0] = $numbers;
+        for ($currentLevel = 1; $currentLevel <= $level; $currentLevel++) {
+            $queries[$currentLevel] = self::find()->select('id')->where(['parent_id' => $queries[$currentLevel - 1]] + $arrayDeleted);
+        }
+
+        return $queries;
+    }
+
+    /** Нечеткий поиск в Word::LABEL_FIELD_WORD
+     * @param $name
+     * @return array номера похожих labels
+     */
+    public static function getNumbersBySimilarLabel($name)
+    {
+        $numbers = [];
+
+        $hasPercentAtStart = false;
+        $hasPercentAtEnd = false;
+        if (mb_strpos($name, '%') === 0) {
+            $name = mb_substr($name, 1);
+            $hasPercentAtStart = true;
+        }
+        if (mb_strpos($name, '%') === mb_strlen($name) - 1) {
+            $name = mb_substr($name, 0, mb_strlen($name) - 1);
+            $hasPercentAtEnd = true;
+        }
+
+        foreach (Word::LABEL_FIELD_WORD as $key => $label) {
+            if ($hasPercentAtStart && $hasPercentAtEnd) {
+                if (mb_strpos($label, $name) !== false) {
+                    $numbers[] = $key;
+                }
+            } elseif ($hasPercentAtStart) {
+                if (mb_strpos($label, $name) === mb_strlen($label) - mb_strlen($name)) {
+                    $numbers[] = $key;
+                }
+            } elseif ($hasPercentAtEnd) {
+                if (mb_strpos($label, $name) === 0) {
+                    $numbers[] = $key;
+                }
+            } else {
+                if (
+                    (mb_strpos($label, $name) === 0)
+                    && mb_strpos($label, $name) === mb_strlen($label) - mb_strlen($name)
+                ) {
+                    $numbers[] = $key;
+                }
+            }
+        }
+        return $numbers;
+    }
 }
