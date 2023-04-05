@@ -1,20 +1,4 @@
 /**
- * Обработка данных filter-tabs
- */
-$(window).on('load', function() {
-    gettingYiiParams().done(function () {
-        window.filterTabsData = new dataObj();
-        setParamsToFiltersForm();
-        setParamsToCheckbox();
-        window.filterTabsData.deferred.done(function () {
-            setParamsToFiltersItemList();
-        });
-        initCatalogTabs();
-        initHandlers();
-    })
-})
-
-/**
  * Класс для хранения данных фильтра
  */
 class dataObj {
@@ -27,7 +11,6 @@ class dataObj {
 
     constructor() {
         this.create();
-        this.update();
     }
 
     update() {
@@ -241,214 +224,6 @@ class dataObj {
 }
 
 /**
- * Создает вкладку с заданным id, если ее еще нет
- * @param $tabs jquery объект куда будет добавлена вкладка
- * @param id id вкладки
- * @param name название поля
- */
-function createTab($tabs, id, name) {
-    if (Boolean($('#tab' + id).length) === false) {
-        let $tab = $('<div class="hide"></div>').attr('id', 'tab' + id).attr('data-name', name);
-        $('<div class="checkboxList"></div>').appendTo($tab);
-        $tab.appendTo($tabs);
-    }
-}
-
-/**
- * Загрузка и вставка пунктов меню во вкладку, если они еще не были загружены
- * tab > checkboxList.download
- * @param id - id вкладки
- */
-function loadDataToTab(id) {
-    let $tab = $('#tab' + id);
-    let $checkboxList = $tab.children('.checkboxList').first();
-    if ($checkboxList.hasClass('download') === false && $checkboxList.hasClass('success') === false) {
-        $checkboxList.addClass('download');
-        $checkboxList.text('Загрузка');
-        window.gettingWordVersion().done(function (version) {
-            let $span = $('<span class="checkbox filter-checkbox"></span>');
-            $.ajax({
-                cache: true,
-                method: "GET",
-                url: "/api/word/get-children",
-                data: {
-                    'parent_id': id,
-                    'version': version,
-                },
-                success: function (listFilterName) {
-                    $checkboxList.addClass('success');
-                    $checkboxList.text('');
-                    if (listFilterName.length ===0) {
-                        $checkboxList.text('Нет вложенных элементов');
-                    }
-                    for (let key in listFilterName) {
-                        if (listFilterName.hasOwnProperty(key)) {
-                            let $newSpan = $span.clone();
-                            $newSpan.attr('data-value', listFilterName[key].id);
-                            $newSpan.text(listFilterName[key].name);
-                            $newSpan.appendTo($checkboxList);
-                        }
-                    }
-                    setParamsToCheckbox($tab.attr('data-name'));
-                },
-                complete: function () {
-                    $checkboxList.removeClass('download');
-                    if ($checkboxList.hasClass('success') === false) {
-                        $checkboxList.text('Ошибка');
-                    }
-                }
-            });
-        })
-    }
-}
-
-/**
- * Установка значений в inputs формы filters_form
- */
-function setParamsToFiltersForm() {
-    $('#filters-form input').val('');       // очистка всех установленных значений
-
-    for (let tab of window.filterTabsData.getArray()) {
-        for(let name in tab) {
-            if (name === 'label' || name === 'tabName') continue;
-            if (tab.hasOwnProperty(name)) {
-                $('#filters-form input[name=' + name + ']').val(tab[name]);
-            }
-        }
-    }
-}
-
-/**
- * Установка выбранных пунктов меню .checkboxList span.checked
- * @param tabName - tab data-name
- */
-function setParamsToCheckbox(tabName = '') {
-    let tabsData = window.filterTabsData.getObject();
-
-    if (tabName.length > 0) {  // задан только один тип значения
-        let $checkboxList = $('#filters-form .tabs_content>div[data-name="' + tabName + '"]>.checkboxList');
-        $checkboxList.children('span.checked').removeClass('checked');
-
-        let value = window.filterTabsData.getValueByTabName(tabName);
-
-        let $span = $('#filters-form .tabs_content>div[data-name="' + tabName + '"] span[data-value="' + value + '"]');
-        $span.addClass('checked');
-    } else {
-        $('#filters-form span.checked').removeClass('checked');     // очистка всех выбранных span
-
-        for (let tabName in tabsData) {
-            let value = window.filterTabsData.getValueByTabName(tabName);
-
-            let $span = $('#filters-form .tabs_content>div[data-name="' + tabName + '"] span[data-value="' + value + '"]');
-            $span.addClass('checked');
-        }
-    }
-}
-
-/**
- * Установка списка установленных фильтров
- */
-function setParamsToFiltersItemList() {
-    // очистка списка примененных фильтров "Выводятся только: 1: 1,2; 2: 1"
-    let $tabFiltersParams = $('.tabsFilterParams');
-    let $list = $tabFiltersParams.find('#filters-active');
-    $list.text('');
-    $list.append('<span class="showOnly">Выводятся только:</span>');
-
-    // создается заготовка под первую группу списка фильтров
-    let $showGroup = $('<span class="showGroup"></span>');
-    let $name = $('<span class="first"></span>');
-    $showGroup.append($name);
-    let $value = $('<span class="second"></span>');
-    let $valueChild = $('<a class="reset-filter" title="Отменить фильтр"></a>');
-
-    let tabsData = window.filterTabsData.getObject();
-    for (let tabName in tabsData) {
-        if (window.filterTabsData.checkIfNameNeedsToAdd(tabName)) {    // есть что выводить
-
-            // название фильтра
-            let $newShowGroup = $showGroup.clone();
-            let $newName = $newShowGroup.children('.first');
-            $newName.text(tabsData[tabName]['label'] + ': ');
-
-            let textArray = {
-                'value': '🔎 ',
-                '_id': '👉 ',
-                '_start': '► ',
-                '_end': '◄ '
-            };
-
-            for (let key in textArray) {
-                if (tabsData[tabName].hasOwnProperty(key)) {
-                    let $newValue = $value.clone();
-                    let $newValueChild = $valueChild.clone();
-
-                    $newValue.text(textArray[key]);         // например '🔎 '
-
-                    let text = window.filterTabsData.getLabelByTabName(tabName, key);
-                    $newValueChild.text(text);              // например ПКЦ
-
-                    let dataName = tabName + key;
-                    if (key === 'value') {
-                        dataName = tabName;
-                    }
-                    $newValueChild.attr('data-name', dataName);     // название поля фильтра для сброса
-
-                    $newValue.append($newValueChild);
-                    if ($newShowGroup.children('.second').length > 0) {
-                        $newShowGroup.append(', ')
-                    }
-                    $newShowGroup.append($newValue);
-                }
-            }
-
-            // добавляем фильтр, если он не пустой
-                if ($list.children('.showGroup').length > 0) {
-                    $list.append(', ')
-                }
-                $list.append($newShowGroup);
-        }
-    }
-
-    // скрытие всего блока если не нужен
-    if ($list.children('.showGroup').length > 0) {
-        $tabFiltersParams.removeClass('hide')
-    } else {
-        $tabFiltersParams.addClass('hide')
-    }
-}
-
-/**
- * Обновление pjax с учетом формы фильтрации
- * @param id id формы
- */
-function sendFiltersForm(id) {
-    let $form = $(id);
-    let url = (new locSearch($form.serialize()))
-        .deleteEmptyValues()
-        .concat((new locSearch())
-            .deleteEmptyValues()
-            .deleteKey('sort', false)
-            .getSearch()
-        )
-        .getUrl();
-    $.pjax.reload({container: "#my-pjax-container", url: url, 'timeout': window.yiiParams['pjaxTimeout']});
-}
-
-/**
- * Сброс фильтров
- * @param name имя фильтра, который будет сброшен
- * @param deleteOne true сбросить один, а остальные оставить; false - наоборот
- */
-function resetFilters(name = '', deleteOne = true) {
-    let url = (new locSearch())
-        .deleteEmptyValues()
-        .deleteKey(name, deleteOne)
-        .getUrl()
-    $.pjax.reload({container: "#my-pjax-container", url: url, 'timeout': window.yiiParams['pjaxTimeout']});
-}
-
-/**
  * Реализация механизма появления / исчезновения вкладок при наведении / снятии курсора
  */
 function initCatalogTabs() {
@@ -580,54 +355,63 @@ function initCatalogTabs() {
 }
 
 /**
- * Назначение обработчиков событий filter-tabs
+ * Создает вкладку с заданным id, если ее еще нет
+ * @param $tabs jquery объект куда будет добавлена вкладка
+ * @param id id вкладки
+ * @param name название поля
  */
-function initHandlers() {
-    // sendFiltersForm - pjax отправка формы
+function createTab($tabs, id, name) {
+    if (Boolean($('#tab' + id).length) === false) {
+        let $tab = $('<div class="hide"></div>').attr('id', 'tab' + id).attr('data-name', name);
+        $('<div class="checkboxList"></div>').appendTo($tab);
+        $tab.appendTo($tabs);
+    }
+}
 
-    $('.catalogTabs')
-        .on('keypress',function(e) {
-            if(e.which === 13) {
-                sendFiltersForm('#filters-form')
-            }
-        })
-        .on('click', '.filter_button', function() {
-            sendFiltersForm('#filters-form')
-        })
-        .on('click', '.checkboxList>span', function() {
-            let name = $(this).parent().parent().attr('data-name');
-            name = window.filterTabsData.getFieldNameByTabName(name);
-            let value = $(this).attr('data-value');
-            $('#filters-form input[name=' + name + ']').val(value);
-            sendFiltersForm('#filters-form')
-        })
-
-    $(document)
-        .on("gcs:save_success", function () {
-            sendFiltersForm('#filters-form');
-        })
-
-    // resetFilters - сброс одного или нескольких фильтров
-    $('.catalogTabs .tabsFilterParams')
-        .on('click', '.reset-filter', function() {
-            resetFilters($(this).attr('data-name'))
-        })
-        .on('click', '#filters-reset', function() {
-            resetFilters('sort', false);
-        })
-    $('#my-pjax-container')
-        .on('click', '.reset_sort', function() {
-            resetFilters('sort');
-        })
-
-    // восстановление значений в filter-tabs
-    $(document)
-        .on('pjax:complete', function() {
-            window.filterTabsData.update();
-            setParamsToFiltersForm();
-            setParamsToCheckbox();
-            window.filterTabsData.deferred.done(function () {
-                setParamsToFiltersItemList();
+/**
+ * Загрузка и вставка пунктов меню во вкладку, если они еще не были загружены
+ * tab > checkboxList.download
+ * @param id - id вкладки
+ */
+function loadDataToTab(id) {
+    let $tab = $('#tab' + id);
+    let $checkboxList = $tab.children('.checkboxList').first();
+    if ($checkboxList.hasClass('download') === false && $checkboxList.hasClass('success') === false) {
+        $checkboxList.addClass('download');
+        $checkboxList.text('Загрузка');
+        window.gettingWordVersion().done(function (version) {
+            let $span = $('<span class="checkbox filter-checkbox"></span>');
+            $.ajax({
+                cache: true,
+                method: "GET",
+                url: "/api/word/get-children",
+                data: {
+                    'parent_id': id,
+                    'version': version,
+                },
+                success: function (listFilterName) {
+                    $checkboxList.addClass('success');
+                    $checkboxList.text('');
+                    if (listFilterName.length ===0) {
+                        $checkboxList.text('Нет вложенных элементов');
+                    }
+                    for (let key in listFilterName) {
+                        if (listFilterName.hasOwnProperty(key)) {
+                            let $newSpan = $span.clone();
+                            $newSpan.attr('data-value', listFilterName[key].id);
+                            $newSpan.text(listFilterName[key].name);
+                            $newSpan.appendTo($checkboxList);
+                        }
+                    }
+                    setParamsToCheckbox($tab.attr('data-name'));
+                },
+                complete: function () {
+                    $checkboxList.removeClass('download');
+                    if ($checkboxList.hasClass('success') === false) {
+                        $checkboxList.text('Ошибка');
+                    }
+                }
             });
         })
+    }
 }
