@@ -1,5 +1,6 @@
 <?php
 
+use app\assets\FormAsset;
 use app\models\Word;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -12,18 +13,24 @@ use yii\widgets\ActiveForm;
 /* @var $form yii\widgets\ActiveForm */
 /* @var $arrSecondCategory array */
 /* @var $arrThirdCategory array */
+
+FormAsset::register($this);
 ?>
+
+<?= $this->render('catalog-tabs/form', compact(
+    'menu'
+)); ?>
 
 <div class="word-form">
 
     <?php $form = ActiveForm::begin([
-        'id' => 'form1',
+        'id' => 'active-form',
     ]); ?>
 
     <?= $form->field($model, 'category_name')->dropDownList(
         array_combine(array_keys(Word::FIELD_WORD), Word::LABEL_FIELD_WORD)
     ) ?>
-    <?= $form->field($model, 'parent_name')->textInput(['maxlength' => true])->widget(
+    <?= $form->field($model, 'parent')->textInput(['maxlength' => true])->widget(
         AutoComplete::class, [
             'clientOptions' => [
                 'source' => new JsExpression("function(request, response) {
