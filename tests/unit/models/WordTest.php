@@ -3,8 +3,9 @@ namespace models;
 
 use app\models\Status;
 use app\models\Word;
+use Codeception\Test\Unit;
 
-class WordTest extends \Codeception\Test\Unit
+class WordTest extends Unit
 {
     /**
      * @var \UnitTester
@@ -98,6 +99,24 @@ class WordTest extends \Codeception\Test\Unit
         foreach ($queries as $key => $query) {
             expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
         }
+    }
+
+    public function testGetNumbersBySimilarLabel()
+    {
+        $id = Word::FIELD_WORD['name'];
+        $label = Word::LABEL_FIELD_WORD[$id];
+        expect(Word::getNumbersBySimilarLabel($label))->equals([$id]);
+        expect(Word::getNumbersBySimilarLabel($label . '%'))->equals([$id]);
+        expect(Word::getNumbersBySimilarLabel('%' . $label))->equals([$id]);
+        expect(Word::getNumbersBySimilarLabel('%' . $label . '%'))->equals([$id]);
+
+        expect(Word::getNumbersBySimilarLabel(mb_substr($label, 1)))->equals([]);
+        expect(Word::getNumbersBySimilarLabel(mb_substr($label, 0, mb_strlen($label) - 1)))->equals([]);
+        expect(Word::getNumbersBySimilarLabel(mb_substr($label, 1, mb_strlen($label) - 1)))->equals([]);
+
+        expect(Word::getNumbersBySimilarLabel('%' . mb_substr($label, 1)))->equals([$id]);
+        expect(Word::getNumbersBySimilarLabel(mb_substr($label, 0, mb_strlen($label) - 1) . '%'))->equals([$id]);
+        expect(Word::getNumbersBySimilarLabel('%' . mb_substr($label, 1, mb_strlen($label) - 1) . '%'))->equals([$id]);
     }
 
     public function getTestQueries($condition, $deleted = Status::NOT_DELETED)
