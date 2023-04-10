@@ -428,6 +428,7 @@ class Word extends ActiveRecord
             'updated_by' => 'Обновил',
             'deleted' => 'Удален',
             'parent_id' => 'Родительская категория',
+            'parent' => 'Родительская категория',
             'category1' => 'Раздел',
             'category2' => 'Папка 1',
             'category3' => 'Папка 2',
@@ -527,6 +528,13 @@ class Word extends ActiveRecord
     public static function getNumbersBySimilarLabel($name)
     {
         $numbers = [];
+
+        if (mb_strlen($name) === 0) {
+            return array_keys(Word::LABEL_FIELD_WORD, $name);
+        }
+        if (preg_match('/^%+$/', $name)) {
+            return array_keys(Word::LABEL_FIELD_WORD);
+        }
 
         $hasPercentAtStart = false;
         $hasPercentAtEnd = false;
