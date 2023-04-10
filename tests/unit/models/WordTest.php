@@ -117,6 +117,15 @@ class WordTest extends Unit
         expect(Word::getNumbersBySimilarLabel('%' . mb_substr($label, 1)))->equals([$id]);
         expect(Word::getNumbersBySimilarLabel(mb_substr($label, 0, mb_strlen($label) - 1) . '%'))->equals([$id]);
         expect(Word::getNumbersBySimilarLabel('%' . mb_substr($label, 1, mb_strlen($label) - 1) . '%'))->equals([$id]);
+
+        expect(Word::getNumbersBySimilarLabel(''))->equals([]);
+        expect(Word::getNumbersBySimilarLabel(0))->equals([]);
+        expect(Word::getNumbersBySimilarLabel(false))->equals([]);
+        expect(Word::getNumbersBySimilarLabel(null))->equals([]);
+        expect(Word::getNumbersBySimilarLabel('%'))->equals(array_keys(Word::LABEL_FIELD_WORD));
+        expect(Word::getNumbersBySimilarLabel('%%'))->equals(array_keys(Word::LABEL_FIELD_WORD));
+        expect(Word::getNumbersBySimilarLabel('%%%'))->equals(array_keys(Word::LABEL_FIELD_WORD));
+
     }
 
     public function getTestQueries($condition, $deleted = Status::NOT_DELETED)
