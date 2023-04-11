@@ -13,11 +13,12 @@ use yii\base\Model;
 class WordSearch extends Word
 {
     const REPLACE_NAMES = ['value'];
+    const COLUMN_NAMES = ['id'];
 
     public $limit;
     public $parent, $parent_v;
     public $name_v;
-    public $replace_name;
+    public $replace_name, $column_name;
 
 
     /**
@@ -32,6 +33,7 @@ class WordSearch extends Word
             [['parent', 'parent_v'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['limit'], 'integer', 'min' => 0, 'max' => Yii::$app->params['maxLines']],
             [['replace_name'], 'validateReplaceName'],
+            [['column_name'], 'validateColumnName'],
         ];
     }
 
@@ -41,6 +43,16 @@ class WordSearch extends Word
             if (in_array($this->replace_name, $this::REPLACE_NAMES) == false) {
                 $this->addError($attribute, 'Недопустимое имя для замены');
                     return;
+            }
+        }
+    }
+
+    public function validateColumnName($attribute)
+    {
+        if (!$this->hasErrors()) {
+            if (in_array($this->column_name, $this::COLUMN_NAMES) == false) {
+                $this->addError($attribute, 'Недопустимое имя для столбца');
+                return;
             }
         }
     }
@@ -80,64 +92,55 @@ class WordSearch extends Word
             $limit = $this->limit - count($names);
             if ($limit > 0) {
                 $query = Word::find()
-//                    ->where(['deleted' => Status::NOT_DELETED])
 //                    ->distinct()
-                    ->andFilterWhere(['id' => $this->id])
+                    ->andFilterWhere([
+                        'id' => $this->id,
+                        'parent_id' => $this->parent_id,
+                    ])
                     ->orderBy('name')
                     ->limit($limit)
                     ->asArray();
 
-                if (mb_strlen($this->replace_name)) {
-                    $query->select(['name as ' . $this->replace_name]);
-                } else {
-                    $query->select(['name']);
+                $select = [];
+                if (mb_strlen($this->column_name)) {
+                    $select[] = $this->column_name;
                 }
+                if (mb_strlen($this->replace_name)) {
+                    $select[] = 'name as ' . $this->replace_name;
+                } else {
+                    $select[] = 'name';
+                }
+                $query->select($select);
 
                 if (mb_strlen($this->name)) {
                     $query->andFilterWhere(['like', 'name', $this->name . '%', false]);
                 }
+
                 if (mb_strlen($this->name_v)) {
                     $query->andFilterWhere(['like', 'name', $this->name_v . '%', false]);
+                }
+
+                if (mb_strlen($this->parent)) {
+                    $query->andFilterWhere([
+                        'id' => Word::getQueriesToGetChildren(['like', 'name', $this->parent . '%', false])[1]
+                    ]);
+                }
+
+                if (mb_strlen($this->parent_v)) {
+                    $subQuery = ['or'];
+                    $subQuery[]['id'] = Word::getQueriesToGetChildren(['like', 'name', $this->parent_v . '%', false])[1];
+                    $subQuery[]['id'] = Word::getQueriesToGetChildrenIfParentIsVirtual(['like', 'name', $this->parent_v . '%', false])[1];
+                    $query->andFilterWhere($subQuery);
+                }
+
+                if ($this->deleted == Status::NOT_DELETED || $this->deleted == Status::DELETED) {
+                    $query->andFilterWhere(['deleted' => $this->deleted]);
                 }
 
                 $names = array_merge($names, $query->all());
             }
 
         }
-        return $names;
-    }
-
-    /** Поиск элементов по parent_id, parent, parent_v
-     * @return array [['id' => 1, 'value' => 'Название'], []]
-     */
-    public function findNamesByParent()
-    {
-        $names = [];
-        if ($this->validate()) {
-            $query = Word::find()
-                ->select(['id', 'name'])
-                ->orderBy('name')
-//            ->distinct()
-                ->asArray()
-                ->limit($this->limit)
-                ->where(['deleted' => Status::NOT_DELETED])
-                ->andFilterWhere([
-                    'parent_id' => $this->parent_id,
-                ]);
-            if (strlen($this->parent)) {
-                $query->andFilterWhere([
-                    'id' => Word::getQueriesToGetChildren(['like', 'name', $this->parent . '%', false])[1]
-                ]);
-            }
-            if (strlen($this->parent_v)) {
-                $subQuery = ['or'];
-                $subQuery[]['id'] = Word::getQueriesToGetChildren(['like', 'name', $this->parent_v . '%', false])[1];
-                $subQuery[]['id'] = Word::getQueriesToGetChildrenIfParentIsVirtual(['like', 'name', $this->parent_v . '%', false])[1];
-                $query->andFilterWhere($subQuery);
-            }
-            $names = $query->all();
-        }
-
         return $names;
     }
 }
