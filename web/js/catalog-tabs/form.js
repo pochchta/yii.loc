@@ -12,6 +12,7 @@ $(window).on('load', function() {
         initCatalogTabs();
         initHandlers();
     })
+    addAutoCompleteOptions();
 })
 
 /**
@@ -29,7 +30,9 @@ function setParamsToCheckbox(tabName = '') {
             .filter(function() {
                 return $(this).text() === value;
             })
+            .first()
             .addClass('checked');
+
     } else {
         $('#filters-form span.checked').removeClass('checked');     // очистка всех выбранных span
 
@@ -41,6 +44,7 @@ function setParamsToCheckbox(tabName = '') {
                 .filter(function() {
                     return $(this).text() === value;
                 })
+                .first()
                 .addClass('checked');
         }
     }
@@ -59,10 +63,45 @@ function initHandlers() {
         })
 
     $('#active-form input')
-        .on('input', function () {
-            let tabName = $(this).attr('name');
+        .on('input', function (e) {
+            let tabName = $(e.target).attr('name');
             if (window.filterTabsData.getObject().hasOwnProperty(tabName)) {
                 setParamsToCheckbox(tabName);
             }
         })
+}
+
+function onSelectAutoComplete(e, ui) {
+    let $input = $(e.target);
+    $input.val(ui.item.label);
+    let tabName = $input.attr('name');
+    if (window.filterTabsData.getObject().hasOwnProperty(tabName)) {
+        setParamsToCheckbox(tabName);
+    }
+}
+
+function addAutoCompleteOptions() {
+    window.gettingYiiParams().done(function (params) {
+        window.gettingWordVersion().done(function (version) {
+            let $inputs = $('#active-form input.ui-autocomplete-input');
+
+            for (let input of $inputs) {
+                $(input).autocomplete({
+                    "source": function (request, response) {
+                        $.getJSON('/api/word/get-names', {
+                            name_v: request.term,
+                            limit: params['maxLinesAutoComplete'],
+                            version: version
+                        }, response);
+                    },
+                    "minLength": params['minSymbolsAutoComplete'],
+                    "delay": params['delayAutoComplete'],
+                    "select": function (event, ui) {
+                        onSelectAutoComplete(event, ui)
+                    }
+                });
+            }
+
+        })
+    })
 }
