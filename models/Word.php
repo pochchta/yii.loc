@@ -451,50 +451,66 @@ class Word extends ActiveRecord
     }
 
     /** Запросы для получения дочерних элементов
-     * @param $condition int|string|array $condition = 1 === ['id' = 1]
-     * @param $level int глубина поиска
-     * @param $deleted int
+     * @param $condition string|array $condition = 'id = 1' === ['id' = 1]
      * @return array Query [0 => parent, 1 => children, 2 => grandchildren]
      */
-    public static function getQueriesToGetChildren($condition, $level = 1, $deleted = Status::NOT_DELETED)
+    public static function getQueriesToGetChildren($condition)
     {
-        $queries = [];
-        $arrayDeleted = [];
-
         if (! is_array($condition)) {
-            $condition = ['id' => $condition];
+            list($key, $value) = explode('=', $condition);
+            $condition = [$key => $value];
         }
 
-        if ($deleted === Status::NOT_DELETED || $deleted === Status::DELETED) {
-            $arrayDeleted['deleted'] = $deleted;
-        }
+        $arrayDeleted['deleted'] = Status::NOT_DELETED;
 
         $queries[0] = self::find()->select('id')->where($condition + $arrayDeleted);
-        for ($currentLevel = 1; $currentLevel <= $level; $currentLevel++) {
+        for ($currentLevel = 1; $currentLevel <= self::MAX_NUMBER_PARENTS; $currentLevel++) {
             $queries[$currentLevel] = self::find()->select('id')->where(['parent_id' => $queries[$currentLevel - 1]] + $arrayDeleted);
         }
 
         return $queries;
     }
 
-    /** Запросы для получения дочерних элементов, если родитель не в базе, а в Word::FIELD_WORD
-     * @param $condition int|string|array $condition = 1 === ['id' = 1]
+    /** Запросы для получения дочерних элементов: ключи показывают абсолютную глубину
+     * @param $condition string|array $condition = 'id = 1' === ['id' = 1]
      * @param $level int глубина поиска
-     * @param $deleted int
+     * @return array Query [0 => parent, 1 => children, 2 => grandchildren]
+     */
+    public static function getQueriesToGetChildrenIfDepthIsAbsolute($condition, $level = 1)
+    {
+        if (! is_array($condition)) {
+            list($key, $value) = explode('=', $condition);
+            $condition = [$key => $value];
+        }
+
+        $arrayDeleted['deleted'] = Status::NOT_DELETED;
+
+        $queries[0] = array_keys(Word::LABEL_FIELD_WORD);
+        for ($currentLevel = 1; $currentLevel <= self::MAX_NUMBER_PARENTS; $currentLevel++) {
+            $tempCondition = ['parent_id' => $queries[$currentLevel - 1]] + $arrayDeleted;
+            if ($level === $currentLevel) {
+                $tempCondition = $condition + $tempCondition;
+            }
+            $queries[$currentLevel] = self::find()->select('id')->where($tempCondition);
+        }
+
+        return $queries;
+    }
+
+    /** Запросы для получения дочерних элементов, если родитель не в базе, а в Word::FIELD_WORD
+     * @param $condition string|array $condition = 'id = 1' === ['id' = 1]
      * @return array Query [0 => [номера] НЕ ЗАПРОС!, 1 => children, 2 => grandchildren]
      */
-    public static function getQueriesToGetChildrenIfParentIsVirtual($condition, $level = 1, $deleted = Status::NOT_DELETED)
+    public static function getQueriesToGetChildrenIfParentIsVirtual($condition)
     {
         $queries = [];
-        $arrayDeleted = [];
 
         if (! is_array($condition)) {
-            $condition = ['id' => $condition];
+            list($key, $value) = explode('=', $condition);
+            $condition = [$key => $value];
         }
 
-        if ($deleted === Status::NOT_DELETED || $deleted === Status::DELETED) {
-            $arrayDeleted['deleted'] = $deleted;
-        }
+        $arrayDeleted['deleted'] = Status::NOT_DELETED;
 
         $numbers = [];
         if (strlen($condition['id'])) {
@@ -506,7 +522,7 @@ class Word extends ActiveRecord
         }
 
         $queries[0] = $numbers;
-        for ($currentLevel = 1; $currentLevel <= $level; $currentLevel++) {
+        for ($currentLevel = 1; $currentLevel <= self::MAX_NUMBER_PARENTS; $currentLevel++) {
             $queries[$currentLevel] = self::find()->select('id')->where(['parent_id' => $queries[$currentLevel - 1]] + $arrayDeleted);
         }
 
