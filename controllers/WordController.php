@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\FilterMenu;
 use app\models\Status;
 use Yii;
 use app\models\Word;
@@ -52,13 +53,23 @@ class WordController extends Controller
      */
     public function actionIndex()
     {
-        $searchModel = new WordSearch();
         $params = Yii::$app->request->queryParams;
-
+        $searchModel = new WordSearch();
         $dataProvider = $searchModel->search($params);
 
+        $headerMenu = [
+            'name',
+            'parent',
+            'value',
+            'deleted',
+        ];
+        $menu = (new FilterMenu($headerMenu))
+            ->setSource(['name' => 'text', 'parent' => 'category', 'value' => 'text', 'deleted' => 'manual'])
+            ->setLabel(['name' => 'Название', 'parent' => 'Категория', 'value' => 'Значение', 'deleted' => 'Удален'])
+            ->loadMenu();
+
         return $this->render('index', compact(
-            'searchModel', 'dataProvider'
+            'dataProvider', 'menu'
         ));
     }
 
@@ -95,6 +106,11 @@ class WordController extends Controller
      */
     public function actionUpdate($id)
     {
+        $menu = (new FilterMenu(['parent_name']))
+            ->setSource(['parent_name' => 'category'])
+            ->setLabel(['parent_name' => 'Категория'])
+            ->loadMenu();
+
         if (isset($id)) {       // update
             $model = $this->findModel($id);
             $view = 'update';
@@ -103,12 +119,6 @@ class WordController extends Controller
             $view = 'create';
         }
         $model->parent_name = $model->parent->name;
-        $categoryId = Word::getParentByLevel($model, 0)->id;
-        if ($key = array_search($categoryId, Word::FIELD_WORD)) {       // получение значения для select
-            $model->category_name = $key;
-        } else {
-            $model->category_name = Status::NOT_CATEGORY;
-        }
 
         if ($model->load($arrayPost = Yii::$app->request->post())) {
             if (isset($arrayPost['saveButton'])) {                     // сохранение
@@ -133,7 +143,7 @@ class WordController extends Controller
         }
 
         return $this->render($view, compact(
-            'model'
+            'model', 'menu'
         ));
     }
 
