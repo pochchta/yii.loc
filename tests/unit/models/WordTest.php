@@ -23,80 +23,100 @@ class WordTest extends Unit
     // tests
     public function testGetQueryByIdToGetChildren()
     {
-        // неудаленные элементы словаря - int
-        $testQueries = $this->getTestQueries("`id`=1");
-
-        $queries = Word::getQueriesToGetChildren(1, 1);
-        expect(count($queries))->equals(2);
-        foreach ($queries as $key => $query) {
-            expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
-        }
-
-        $queries = Word::getQueriesToGetChildren(1, 2);
-        expect(count($queries))->equals(3);
-        foreach ($queries as $key => $query) {
-            expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
-        }
-
-        $queries = Word::getQueriesToGetChildren(1, 3);
-        expect(count($queries))->equals(4);
-        foreach ($queries as $key => $query) {
-            expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
-        }
-
-        // удаленные - int
-        $testQueries = $this->getTestQueries("`id`=1", Status::DELETED);
-
-        $queries = Word::getQueriesToGetChildren(1, 1, Status::DELETED);
-        expect(count($queries))->equals(2);
-        foreach ($queries as $key => $query) {
-            expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
-        }
-
-        $queries = Word::getQueriesToGetChildren(1, 2, Status::DELETED);
-        expect(count($queries))->equals(3);
-        foreach ($queries as $key => $query) {
-            expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
-        }
-
-        // все - int
-        $testQueries = $this->getTestQueries("`id`=1", Status::ALL);
-
-        $queries = Word::getQueriesToGetChildren(1, 1, Status::ALL);
-        expect(count($queries))->equals(2);
-        foreach ($queries as $key => $query) {
-            expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
-        }
-
-        $queries = Word::getQueriesToGetChildren(1, 2, Status::ALL);
-        expect(count($queries))->equals(3);
-        foreach ($queries as $key => $query) {
-            expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
-        }
-
-        // все по строке - string
+        // по строке - string
         $str = '1';
-        $testQueries = $this->getTestQueries("`id`='$str'", Status::ALL);
 
-        $queries = Word::getQueriesToGetChildren($str, 1, Status::ALL);
-        expect(count($queries))->equals(2);
+        $testQueries = $this->getTestQueries("`id`='$str'");
+
+        $queries = Word::getQueriesToGetChildren('id=1');
         foreach ($queries as $key => $query) {
             expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
         }
 
-        // все по произвольному условию - array
+        // по произвольному условию - array
         $name = 'test';
-        $testQueries = $this->getTestQueries("`name`='$name'", Status::ALL);
 
-        $queries = Word::getQueriesToGetChildren(['name' => $name], 1, Status::ALL);
-        expect(count($queries))->equals(2);
+        $testQueries = $this->getTestQueries("`name`='$name'");
+
+        $queries = Word::getQueriesToGetChildren(['name' => $name]);
         foreach ($queries as $key => $query) {
             expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
         }
+    }
 
-        $queries = Word::getQueriesToGetChildren(['name' => $name], 2, Status::ALL);
-        expect(count($queries))->equals(3);
+    public function testGetQueryByIdToGetChildrenIfDepthIsAbsolute()
+    {
+        // по строке - string
+        $str = '1';
+
+            // level 1
+        $level = 1;
+        $testQueries = $this->getTestQueriesIfDepthIsAbsolute("`id`='$str'", $level);
+
+        $queries = Word::getQueriesToGetChildrenIfDepthIsAbsolute('id=1', $level);
         foreach ($queries as $key => $query) {
+            if ($key === 0) {
+                expect($query)->equals($testQueries[$key]);
+                continue;
+            }
+            expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
+        }
+
+        // по произвольному условию - array
+        $name = 'test';
+
+            // level 1
+        $level = 1;
+        $testQueries = $this->getTestQueriesIfDepthIsAbsolute("`name`='$name'", $level);
+
+        $queries = Word::getQueriesToGetChildrenIfDepthIsAbsolute(['name' => $name], $level);
+        foreach ($queries as $key => $query) {
+            if ($key === 0) {
+                expect($query)->equals($testQueries[$key]);
+                continue;
+            }
+            expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
+        }
+
+            // level 2
+        $level = 2;
+        $testQueries = $this->getTestQueriesIfDepthIsAbsolute("`name`='$name'", $level);
+
+        $queries = Word::getQueriesToGetChildrenIfDepthIsAbsolute(['name' => $name], $level);
+        foreach ($queries as $key => $query) {
+            if ($key === 0) {
+                expect($query)->equals($testQueries[$key]);
+                continue;
+            }
+            expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
+        }
+    }
+
+    public function testGetQueryByIdToGetChildrenIfParentIsVirtual()
+    {
+        // по строке - string
+        $str = '1';
+        $testQueries = $this->getTestQueriesIfDepthIfParentIsVirtual("`id`='$str'");
+
+        $queries = Word::getQueriesToGetChildrenIfParentIsVirtual('id=1');
+        foreach ($queries as $key => $query) {
+            if ($key === 0) {
+                expect($query)->equals($testQueries[$key]);
+                continue;
+            }
+            expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
+        }
+
+        // по произвольному условию - array
+        $name = 'test';
+        $testQueries = $this->getTestQueriesIfDepthIfParentIsVirtual("`name`='$name'");
+
+        $queries = Word::getQueriesToGetChildrenIfParentIsVirtual(['name' => $name]);
+        foreach ($queries as $key => $query) {
+            if ($key === 0) {
+                expect($query)->equals($testQueries[$key]);
+                continue;
+            }
             expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
         }
     }
@@ -143,6 +163,38 @@ class WordTest extends Unit
             $testQueries[2] = "SELECT `id` FROM `word` WHERE `parent_id` IN ($testQueries[1])";
             $testQueries[3] = "SELECT `id` FROM `word` WHERE `parent_id` IN ($testQueries[2])";
         }
+
+        return $testQueries;
+    }
+
+    public function getTestQueriesIfDepthIsAbsolute($condition, $level = 1)
+    {
+        $testQueries = [];
+        $deleted = Status::NOT_DELETED;
+        $conditions = ['', '', '', ''];
+        $conditions[$level] = ' (' . $condition . ') AND';
+
+        $testQueries[0] = implode(', ', array_keys(Word::LABEL_FIELD_WORD));
+        $testQueries[1] = "SELECT `id` FROM `word` WHERE{$conditions[1]} (`parent_id` IN ($testQueries[0])) AND (`deleted`=$deleted)";
+        $testQueries[2] = "SELECT `id` FROM `word` WHERE{$conditions[2]} (`parent_id` IN ($testQueries[1])) AND (`deleted`=$deleted)";
+        $testQueries[3] = "SELECT `id` FROM `word` WHERE{$conditions[3]} (`parent_id` IN ($testQueries[2])) AND (`deleted`=$deleted)";
+
+        $testQueries[0] = explode(', ', $testQueries[0]);
+
+        return $testQueries;
+    }
+
+    public function getTestQueriesIfDepthIfParentIsVirtual($condition)
+    {
+        $testQueries = [];
+        $deleted = Status::NOT_DELETED;
+
+        $testQueries[0] = implode(', ', array_keys(Word::LABEL_FIELD_WORD));
+        $testQueries[1] = "SELECT `id` FROM `word` WHERE (`parent_id` IN ($testQueries[0])) AND (`deleted`=$deleted)";
+        $testQueries[2] = "SELECT `id` FROM `word` WHERE (`parent_id` IN ($testQueries[1])) AND (`deleted`=$deleted)";
+        $testQueries[3] = "SELECT `id` FROM `word` WHERE (`parent_id` IN ($testQueries[2])) AND (`deleted`=$deleted)";
+
+        $testQueries[0] = explode(', ', $testQueries[0]);
 
         return $testQueries;
     }
