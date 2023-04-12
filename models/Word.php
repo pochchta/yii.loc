@@ -59,7 +59,7 @@ class Word extends ActiveRecord
         self::FIELD_WORD['v_kind'] => 'Вид поверки',
     ];
 
-    public $category_name, $parent_name;
+    public $parent_name;
 
     public static function getFieldWord($name)
     {
@@ -95,41 +95,35 @@ class Word extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'category_name'], 'required'],
-            [['name', 'value', 'category_name', 'parent_name'], 'string', 'max' => 40],
+            [['name', 'parent_name'], 'required'],
+            [['name', 'value', 'parent_name'], 'string', 'min' =>  1,'max' => 40],
             [['name'], 'unique', 'when' => function($model){return $model->isAttributeChanged('name');}],   // создан или изменен
             [['description'], 'string'],
-            [['category_name'], 'validateCategoryName'],     // сначала присваивание parent_id
+            [['parent_name'], 'validateCategoryName'],      // сначала присваивание parent_id
             [['parent_id'], 'validateDepth'],               // затем его валидация
         ];
     }
 
-    /** Валидация category_name, parent_name, присваивание parent_id
+    /** Валидация parent_name, присваивание parent_id
      * @param $attribute
      */
     public function validateCategoryName($attribute)
     {
         if (!$this->hasErrors()) {
-            if (isset(self::FIELD_WORD[$this->category_name]) == false) {
-                $this->addError($attribute, 'Категория не найдена');
+            if (in_array($this->parent_name, $this::LABEL_FIELD_WORD)) {
+                $this->parent_id = array_search($this->parent_name, $this::LABEL_FIELD_WORD);
                 return;
             }
-            if (strlen($this->parent_name)) {        // задан промежуточный родитель
-                $parent = self::findOne(['name' => $this->parent_name]);
-                if ($parent) {
-                    if (Word::getParentByLevel($parent, 0, 3)->id !== self::getFieldWord($this->category_name)) {
-                        $this->addError('parent_name', 'Категория не принадлежит разделу или превышена вложенность');
-                    }
-                    if ($this->id !== $parent->id) {
-                        $this->parent_id = $parent->id;
-                    } else {
-                        $this->addError('parent_name', 'Выбрана та же категория');
-                    }
+
+            $parent = self::findOne(['name' => $this->parent_name]);
+            if ($parent) {
+                if ($this->id !== $parent->id) {
+                    $this->parent_id = $parent->id;
                 } else {
-                    $this->addError('parent_name', 'Родительская категория не найдена');
+                    $this->addError($attribute, 'Выбрана та же категория');
                 }
             } else {
-                $this->parent_id = self::getFieldWord($this->category_name);
+                $this->addError($attribute, 'Родительская категория не найдена');
             }
         }
     }
@@ -428,12 +422,10 @@ class Word extends ActiveRecord
             'updated_by' => 'Обновил',
             'deleted' => 'Удален',
             'parent_id' => 'Родительская категория',
-            'parent' => 'Родительская категория',
             'category1' => 'Раздел',
             'category2' => 'Папка 1',
             'category3' => 'Папка 2',
             'category4' => 'Папка 3',
-            'category_name' => 'Раздел',
             'parent_name' => 'Папка'
         ];
     }
