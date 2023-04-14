@@ -118,7 +118,11 @@ class WordController extends Controller
             $model = new Word();
             $view = 'create';
         }
-        $model->parent_name = $model->parent->name;
+
+        $model->parent_name = $model->getNameOfVirtualParent();
+        if ($model->parent_id > 0) {
+            $model->parent_name = $model->parent->name;
+        }
 
         if ($model->load($arrayPost = Yii::$app->request->post())) {
             if (isset($arrayPost['saveButton'])) {                     // сохранение
