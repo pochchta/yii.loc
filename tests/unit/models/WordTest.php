@@ -23,17 +23,17 @@ class WordTest extends Unit
     // tests
     public function testGetQueryByIdToGetChildren()
     {
-        // по строке - string
+        // по строке - id
         $str = '1';
 
         $testQueries = $this->getTestQueries("`id`='$str'");
 
-        $queries = Word::getQueriesToGetChildren('id=1');
+        $queries = Word::getQueriesToGetChildren('id=' . $str);
         foreach ($queries as $key => $query) {
             expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
         }
 
-        // по произвольному условию - array
+        // по массиву - ['name' => 'что-то']
         $name = 'test';
 
         $testQueries = $this->getTestQueries("`name`='$name'");
@@ -46,14 +46,14 @@ class WordTest extends Unit
 
     public function testGetQueryByIdToGetChildrenIfDepthIsAbsolute()
     {
-        // по строке - string
+        // по строке - id
         $str = '1';
 
             // level 1
         $level = 1;
         $testQueries = $this->getTestQueriesIfDepthIsAbsolute("`id`='$str'", $level);
 
-        $queries = Word::getQueriesToGetChildrenIfDepthIsAbsolute('id=1', $level);
+        $queries = Word::getQueriesToGetChildrenIfDepthIsAbsolute('id=' . $str, $level);
         foreach ($queries as $key => $query) {
             if ($key === 0) {
                 expect($query)->equals($testQueries[$key]);
@@ -62,7 +62,7 @@ class WordTest extends Unit
             expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
         }
 
-        // по произвольному условию - array
+        // по массиву - ['name' => 'что-то']
         $name = 'test';
 
             // level 1
@@ -94,11 +94,11 @@ class WordTest extends Unit
 
     public function testGetQueryByIdToGetChildrenIfParentIsVirtual()
     {
-        // по строке - string
-        $str = '1';
+        // по строке - один id
+        $str = Word::FIELD_WORD['name'];
         $testQueries = $this->getTestQueriesIfDepthIfParentIsVirtual("`id`='$str'");
 
-        $queries = Word::getQueriesToGetChildrenIfParentIsVirtual('id=1');
+        $queries = Word::getQueriesToGetChildrenIfParentIsVirtual('id=' . $str);
         foreach ($queries as $key => $query) {
             if ($key === 0) {
                 expect($query)->equals($testQueries[$key]);
@@ -107,11 +107,41 @@ class WordTest extends Unit
             expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
         }
 
-        // по произвольному условию - array
-        $name = 'test';
+        // по массиву - два id
+        $ids = [];
+        $ids[] = Word::FIELD_WORD['name'];
+        $ids[] = Word::FIELD_WORD['state'];
+
+        $testQueries = $this->getTestQueriesIfDepthIfParentIsVirtual("`id`='$ids[0], $ids[1]'");
+
+        $queries = Word::getQueriesToGetChildrenIfParentIsVirtual(['id' => $ids]);
+        foreach ($queries as $key => $query) {
+            if ($key === 0) {
+                expect($query)->equals($testQueries[$key]);
+                continue;
+            }
+            expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
+        }
+
+        // по массиву - [name => 'нечто']
+        $name = Word::LABEL_FIELD_WORD[Word::FIELD_WORD['name']];
         $testQueries = $this->getTestQueriesIfDepthIfParentIsVirtual("`name`='$name'");
 
         $queries = Word::getQueriesToGetChildrenIfParentIsVirtual(['name' => $name]);
+        foreach ($queries as $key => $query) {
+            if ($key === 0) {
+                expect($query)->equals($testQueries[$key]);
+                continue;
+            }
+            expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
+        }
+
+        // по массиву - ['like', 'name', 'нечто']
+        $name = Word::LABEL_FIELD_WORD[Word::FIELD_WORD['name']];
+        $condition = ['like', 'name', $name];
+        $testQueries = $this->getTestQueriesIfDepthIfParentIsVirtual($condition);
+
+        $queries = Word::getQueriesToGetChildrenIfParentIsVirtual($condition);
         foreach ($queries as $key => $query) {
             if ($key === 0) {
                 expect($query)->equals($testQueries[$key]);
@@ -145,7 +175,6 @@ class WordTest extends Unit
         expect(Word::getNumbersBySimilarLabel('%'))->equals(array_keys(Word::LABEL_FIELD_WORD));
         expect(Word::getNumbersBySimilarLabel('%%'))->equals(array_keys(Word::LABEL_FIELD_WORD));
         expect(Word::getNumbersBySimilarLabel('%%%'))->equals(array_keys(Word::LABEL_FIELD_WORD));
-
     }
 
     public function getTestQueries($condition, $deleted = Status::NOT_DELETED)
@@ -186,15 +215,35 @@ class WordTest extends Unit
 
     public function getTestQueriesIfDepthIfParentIsVirtual($condition)
     {
+        if (! is_array($condition)) {
+            $condition = str_replace(['`', '\'', '"'], '', $condition);
+            list($key, $value) = explode('=', $condition);
+            $condition = [$key => $value];
+        }
+
         $testQueries = [];
         $deleted = Status::NOT_DELETED;
 
-        $testQueries[0] = implode(', ', array_keys(Word::LABEL_FIELD_WORD));
-        $testQueries[1] = "SELECT `id` FROM `word` WHERE (`parent_id` IN ($testQueries[0])) AND (`deleted`=$deleted)";
+        if (isset($condition['id'])) {
+            $numbers = explode(', ', $condition['id']);
+        } elseif (isset($condition['name'])) {
+            $numbers = Word::getNumbersBySimilarLabel($condition['name']);
+        } elseif ($condition[0] === 'like' && $condition[1] === 'name') {
+            $numbers = Word::getNumbersBySimilarLabel($condition[2]);
+        } else {
+            return $testQueries;
+        }
+
+        $testQueries[0] = implode(', ',$numbers);
+        $subQuery1 = "={$testQueries[0]}";
+        if (mb_strpos($testQueries[0], ',') !== false) {
+            $subQuery1 = " IN ($testQueries[0])";
+        }
+        $testQueries[1] = "SELECT `id` FROM `word` WHERE (`parent_id`{$subQuery1}) AND (`deleted`=$deleted)";
         $testQueries[2] = "SELECT `id` FROM `word` WHERE (`parent_id` IN ($testQueries[1])) AND (`deleted`=$deleted)";
         $testQueries[3] = "SELECT `id` FROM `word` WHERE (`parent_id` IN ($testQueries[2])) AND (`deleted`=$deleted)";
 
-        $testQueries[0] = explode(', ', $testQueries[0]);
+        $testQueries[0] = explode(', ',$testQueries[0]);
 
         return $testQueries;
     }

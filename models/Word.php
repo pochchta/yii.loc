@@ -507,14 +507,22 @@ class Word extends ActiveRecord
 
         if (! is_array($condition)) {
             list($key, $value) = explode('=', $condition);
+            if (is_numeric($value)) {
+                $value = intval($value);
+            }
             $condition = [$key => $value];
         }
 
         $arrayDeleted['deleted'] = Status::NOT_DELETED;
 
         $numbers = [];
-        if (strlen($condition['id'])) {
+        if (isset($condition['id'])) {
             $numbers[] = $condition['id'];
+            if (is_array($condition['id'])) {
+                $numbers = $condition['id'];
+            }
+        } elseif (isset($condition['name'])) {
+            $numbers = Word::getNumbersBySimilarLabel($condition['name']);
         } elseif ($condition[0] === 'like' && $condition[1] === 'name') {
             $numbers = Word::getNumbersBySimilarLabel($condition[2]);
         } else {
