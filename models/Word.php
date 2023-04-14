@@ -463,7 +463,7 @@ class Word extends ActiveRecord
 
         $arrayDeleted['deleted'] = Status::NOT_DELETED;
 
-        $queries[0] = self::find()->select('id')->where($condition + $arrayDeleted);
+        $queries[0] = self::find()->select('id')->where(['AND', $condition, $arrayDeleted]);
         for ($currentLevel = 1; $currentLevel <= self::MAX_NUMBER_PARENTS; $currentLevel++) {
             $queries[$currentLevel] = self::find()->select('id')->where(['parent_id' => $queries[$currentLevel - 1]] + $arrayDeleted);
         }
@@ -487,9 +487,11 @@ class Word extends ActiveRecord
 
         $queries[0] = array_keys(Word::LABEL_FIELD_WORD);
         for ($currentLevel = 1; $currentLevel <= self::MAX_NUMBER_PARENTS; $currentLevel++) {
-            $tempCondition = ['parent_id' => $queries[$currentLevel - 1]] + $arrayDeleted;
+            $tempCondition = ['AND', ['parent_id' => $queries[$currentLevel - 1]], $arrayDeleted];
             if ($level === $currentLevel) {
-                $tempCondition = $condition + $tempCondition;
+                $and = array_shift($tempCondition);
+                array_unshift($tempCondition, $condition);
+                array_unshift($tempCondition, $and);
             }
             $queries[$currentLevel] = self::find()->select('id')->where($tempCondition);
         }

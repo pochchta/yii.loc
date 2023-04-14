@@ -1,5 +1,5 @@
 <?php
-namespace models;
+namespace app\tests\unit\models;
 
 use app\models\Status;
 use app\models\Word;
@@ -39,6 +39,16 @@ class WordTest extends Unit
         $testQueries = $this->getTestQueries("`name`='$name'");
 
         $queries = Word::getQueriesToGetChildren(['name' => $name]);
+        foreach ($queries as $key => $query) {
+            expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
+        }
+
+        // по массиву - ['like', 'name', 'что-то']
+        $name = 'test';
+
+        $testQueries = $this->getTestQueries("`name` LIKE '$name'");
+
+        $queries = Word::getQueriesToGetChildren(['like', 'name', $name, false]);
         foreach ($queries as $key => $query) {
             expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
         }
@@ -83,6 +93,22 @@ class WordTest extends Unit
         $testQueries = $this->getTestQueriesIfDepthIsAbsolute("`name`='$name'", $level);
 
         $queries = Word::getQueriesToGetChildrenIfDepthIsAbsolute(['name' => $name], $level);
+        foreach ($queries as $key => $query) {
+            if ($key === 0) {
+                expect($query)->equals($testQueries[$key]);
+                continue;
+            }
+            expect($query->createCommand()->getRawSql())->equals($testQueries[$key]);
+        }
+
+        // по массиву - ['like', 'name', 'что-то']
+        $name = 'test';
+
+        // level 1
+        $level = 1;
+        $testQueries = $this->getTestQueriesIfDepthIsAbsolute("`name` LIKE '$name'", $level);
+
+        $queries = Word::getQueriesToGetChildrenIfDepthIsAbsolute(['like', 'name', $name, false], $level);
         foreach ($queries as $key => $query) {
             if ($key === 0) {
                 expect($query)->equals($testQueries[$key]);
