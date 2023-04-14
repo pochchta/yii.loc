@@ -15,11 +15,31 @@ class WordSearch extends Word
     const REPLACE_NAMES = ['value'];
     const COLUMN_NAMES = ['id'];
 
+    const RULES_AUTO_COMPLETE = [
+        'word' => [
+            'levels' => [1, 2, 3],
+            'parent_name' => [
+                'virtualParent' => 'yes'
+            ],
+        ],
+        'device' => [
+            'levels' => [1, 2, 3],
+            'kind' => [
+                'levels' => [1],
+            ],
+            'group' => [
+                'levels' => [2],
+            ],
+            'type' => [
+                'levels' => [3],
+            ],
+        ]
+    ];
+
     public $limit;
     public $parent, $parent_v;
     public $name_v;
     public $replace_name, $column_name;
-
 
     /**
      * {@inheritdoc}
@@ -141,6 +161,69 @@ class WordSearch extends Word
             }
 
         }
+        return $names;
+    }
+
+    /** Поиск имен в базе и массиве Word::LABEL_FIELD_WORD по name_id, name.
+     * @return array
+     */
+    public function findAutoComplete()  // TODO name в массиве должен искать!
+    {
+        $names = [];
+        $limit = Yii::$app->params['maxLinesAutoComplete'];
+
+        if (
+            $this->validate() === false
+            || mb_strlen($this->parent) === 0
+            || mb_strlen($this->name) === 0
+        ) {
+            return $names;
+        }
+
+        $levels = $this::RULES_AUTO_COMPLETE[$this->parent]['levels'];
+        $virtualParent = $this::RULES_AUTO_COMPLETE[$this->parent]['virtualParent'];
+        if (isset($this::RULES_AUTO_COMPLETE[$this->parent][$this->name]['levels'])) {
+            $levels = $this::RULES_AUTO_COMPLETE[$this->parent][$this->name]['levels'];
+        }
+        if (isset($this::RULES_AUTO_COMPLETE[$this->parent][$this->name]['virtualParent'])) {
+            $virtualParent = $this::RULES_AUTO_COMPLETE[$this->parent][$this->name]['virtualParent'];
+        }
+        $virtualParent = Word::FIELD_WORD[$virtualParent];  // получаем id по названию
+
+        if ($virtualParent) {
+            $names = array_map(function ($item) {
+                return ['name' => Word::LABEL_FIELD_WORD[$item]];
+            }, Word::getNumbersBySimilarLabel($this->name . '%'));
+        }
+        $names = array_slice($names, 0, $limit);  // обрезка если уже слишком много элементов
+
+        $limit = $limit - count($names);
+        if ($limit > 0) {
+            $query = Word::find()
+//                ->distinct()
+                ->select(['name as value'])
+                ->orderBy('name')
+                ->andFilterWhere(['like', 'name', $this->name . '%', false])
+                ->limit($limit)
+                ->asArray();
+
+            if ($virtualParent) {
+                $queries = Word::getQueriesToGetChildrenIfParentIsVirtual(['id', $virtualParent]);
+            } else {
+                $queries = Word::getQueriesToGetChildrenIfDepthIsAbsolute();
+            }
+
+            if ($levels) {
+                $query->andFilterWhere(['id' => Word::mergeQueriesOr($queries, $levels)]);
+            }
+
+            if ($this->deleted == Status::NOT_DELETED || $this->deleted == Status::DELETED) {
+                $query->andFilterWhere(['deleted' => $this->deleted]);
+            }
+
+            $names = array_merge($names, $query->all());
+        }
+
         return $names;
     }
 }
