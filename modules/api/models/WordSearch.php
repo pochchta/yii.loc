@@ -17,9 +17,10 @@ class WordSearch extends Word
 
     const RULES_AUTO_COMPLETE = [
         'word' => [
+            'virtualParent' => 1,
             'levels' => [1, 2, 3],
             'parent_name' => [
-                'virtualParent' => 'yes'
+                'levels' => [1,2],
             ],
         ],
         'device' => [
@@ -37,7 +38,7 @@ class WordSearch extends Word
     ];
 
     public $limit;
-    public $parent, $parent_v;
+    public $field, $parent, $parent_v;
     public $name_v;
     public $replace_name, $column_name;
 
@@ -50,7 +51,7 @@ class WordSearch extends Word
             [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted', 'parent_id'], 'integer'],
             [['name', 'name_v', 'value', 'description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
-            [['parent', 'parent_v'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
+            [['parent', 'parent_v', 'field'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['limit'], 'integer', 'min' => 0, 'max' => Yii::$app->params['maxLines']],
             [['replace_name'], 'validateReplaceName'],
             [['column_name'], 'validateColumnName'],
@@ -164,10 +165,10 @@ class WordSearch extends Word
         return $names;
     }
 
-    /** Поиск имен в базе и массиве Word::LABEL_FIELD_WORD по name_id, name.
+    /** Поиск имен в базе и массиве Word::LABEL_FIELD_WORD по name.
      * @return array
      */
-    public function findAutoComplete()  // TODO name в массиве должен искать!
+    public function findAutoComplete()
     {
         $names = [];
         $limit = Yii::$app->params['maxLinesAutoComplete'];
@@ -175,6 +176,7 @@ class WordSearch extends Word
         if (
             $this->validate() === false
             || mb_strlen($this->parent) === 0
+            || mb_strlen($this->field) === 0
             || mb_strlen($this->name) === 0
         ) {
             return $names;
@@ -182,22 +184,22 @@ class WordSearch extends Word
 
         $levels = $this::RULES_AUTO_COMPLETE[$this->parent]['levels'];
         $virtualParent = $this::RULES_AUTO_COMPLETE[$this->parent]['virtualParent'];
-        if (isset($this::RULES_AUTO_COMPLETE[$this->parent][$this->name]['levels'])) {
-            $levels = $this::RULES_AUTO_COMPLETE[$this->parent][$this->name]['levels'];
+        if (isset($this::RULES_AUTO_COMPLETE[$this->parent][$this->field]['levels'])) {
+            $levels = $this::RULES_AUTO_COMPLETE[$this->parent][$this->field]['levels'];
         }
-        if (isset($this::RULES_AUTO_COMPLETE[$this->parent][$this->name]['virtualParent'])) {
-            $virtualParent = $this::RULES_AUTO_COMPLETE[$this->parent][$this->name]['virtualParent'];
+        if (isset($this::RULES_AUTO_COMPLETE[$this->parent][$this->field]['virtualParent'])) {
+            $virtualParent = $this::RULES_AUTO_COMPLETE[$this->parent][$this->field]['virtualParent'];
         }
-        $virtualParent = Word::FIELD_WORD[$virtualParent];  // получаем id по названию
 
         if ($virtualParent) {
             $names = array_map(function ($item) {
-                return ['name' => Word::LABEL_FIELD_WORD[$item]];
+                return ['value' => Word::LABEL_FIELD_WORD[$item]];
             }, Word::getNumbersBySimilarLabel($this->name . '%'));
-        }
-        $names = array_slice($names, 0, $limit);  // обрезка если уже слишком много элементов
 
-        $limit = $limit - count($names);
+            $names = array_slice($names, 0, $limit);  // обрезка если уже слишком много элементов
+            $limit = $limit - count($names);
+        }
+
         if ($limit > 0) {
             $query = Word::find()
 //                ->distinct()
@@ -207,15 +209,8 @@ class WordSearch extends Word
                 ->limit($limit)
                 ->asArray();
 
-            if ($virtualParent) {
-                $queries = Word::getQueriesToGetChildrenIfParentIsVirtual(['id', $virtualParent]);
-            } else {
-                $queries = Word::getQueriesToGetChildrenIfDepthIsAbsolute();
-            }
-
-            if ($levels) {
-                $query->andFilterWhere(['id' => Word::mergeQueriesOr($queries, $levels)]);
-            }
+            $queries = Word::getQueriesToGetChildrenIfDepthIsAbsolute();
+            $query->andFilterWhere(Word::mergeQueriesOr($queries, 'id', $levels));
 
             if ($this->deleted == Status::NOT_DELETED || $this->deleted == Status::DELETED) {
                 $query->andFilterWhere(['deleted' => $this->deleted]);
