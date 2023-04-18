@@ -93,23 +93,13 @@ class DeviceSearch extends Device
             $item_id = "{$item}_id";
 
             if (strlen($this->$item)) {                                                         // поиск по имени
-                $subQueries = Word::getQueriesToGetChildren(['like', 'name', $this->$item . '%', false], 2);
-                $query->andWhere([
-                    'or',
-                    [$item_id => $subQueries[0]],
-                    [$item_id => $subQueries[1]],
-                    [$item_id => $subQueries[2]]
-                ]);
+                $subQueries = Word::getQueriesToGetChildren(['like', 'name', $this->$item . '%', false]);
+                $query->andFilterWhere(Word::mergeQueriesOr($subQueries, $item_id, [0,1,2]));
             }
 
             if (strlen($this->$item_id)) {                                                     // поиск по id
-                $subQueries = Word::getQueriesToGetChildren($this->$item_id, 2);
-                $query->andWhere([
-                    'or',
-                    [$item_id => $subQueries[0]],
-                    [$item_id => $subQueries[1]],
-                    [$item_id => $subQueries[2]]
-                ]);
+                $subQueries = Word::getQueriesToGetChildren(['id' => $this->$item_id]);
+                $query->andFilterWhere(Word::mergeQueriesOr($subQueries, $item_id, [0,1,2]));
             }
         }
 
