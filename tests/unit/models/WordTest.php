@@ -273,4 +273,14 @@ class WordTest extends Unit
 
         return $testQueries;
     }
+
+    public function testMergeQueriesOr()
+    {
+        $array = [0,1,2,3];
+        expect(Word::mergeQueriesOr($array, '', [1]))->equals(['or', ['' => 1]]);
+        expect(Word::mergeQueriesOr($array, '', [3]))->equals(['or', ['' => 3]]);
+        expect(Word::mergeQueriesOr($array, '', [5]))->equals([]);
+        expect(Word::mergeQueriesOr($array, '', [1,2]))->equals(['or', ['' => 1], ['' => 2]]);
+        expect(Word::mergeQueriesOr($array, '', [1,5]))->equals(['or', ['' => 1]]);
+    }
 }
