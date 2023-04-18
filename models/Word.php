@@ -69,6 +69,16 @@ class Word extends ActiveRecord
         return NULL;
     }
 
+    public function getNameOfVirtualParent()
+    {
+        if ($this->parent_id <= 0) {
+            if (isset(Word::LABEL_FIELD_WORD[$this->parent_id])) {
+                return Word::LABEL_FIELD_WORD[$this->parent_id];
+            }
+        }
+        return '';
+    }
+
     public static function tableName()
     {
         return 'word';
@@ -451,7 +461,7 @@ class Word extends ActiveRecord
     }
 
     /** Запросы для получения дочерних элементов
-     * @param $condition string|array $condition = 'id = 1' === ['id' = 1]
+     * @param $condition string|array $condition = 'id = 1' === ['id' => 1]
      * @return array Query [0 => parent, 1 => children, 2 => grandchildren]
      */
     public static function getQueriesToGetChildren($condition)
@@ -472,11 +482,11 @@ class Word extends ActiveRecord
     }
 
     /** Запросы для получения дочерних элементов: ключи показывают абсолютную глубину
-     * @param $condition string|array $condition = 'id = 1' === ['id' = 1]
+     * @param $condition string|array $condition = 'id = 1' === ['id' => 1]
      * @param $level int глубина поиска
      * @return array Query [0 => parent, 1 => children, 2 => grandchildren]
      */
-    public static function getQueriesToGetChildrenIfDepthIsAbsolute($condition, $level = 1)
+    public static function getQueriesToGetChildrenIfDepthIsAbsolute($condition = [], $level = 0)
     {
         if (! is_array($condition)) {
             list($key, $value) = explode('=', $condition);
@@ -500,7 +510,7 @@ class Word extends ActiveRecord
     }
 
     /** Запросы для получения дочерних элементов, если родитель не в базе, а в Word::FIELD_WORD
-     * @param $condition string|array $condition = 'id = 1' === ['id' = 1]
+     * @param $condition string|array $condition = 'id = 1' === ['id' => 1]
      * @return array Query [0 => [номера] НЕ ЗАПРОС!, 1 => children, 2 => grandchildren]
      */
     public static function getQueriesToGetChildrenIfParentIsVirtual($condition)
@@ -537,6 +547,31 @@ class Word extends ActiveRecord
         }
 
         return $queries;
+    }
+
+    /**
+     * @param $queries
+     * @param $name
+     * @param array $levels
+     * @return array
+     */
+    public static function mergeQueriesOr($queries, $name, $levels = [])
+    {
+        if (count($levels) > 0) {
+            $queries = array_filter($queries, function($key) use ($levels) {
+                return in_array($key, $levels);
+            }, ARRAY_FILTER_USE_KEY );
+        }
+
+        $queries = array_map(function ($item) use ($name) {
+            return [$name => $item];
+        }, $queries);
+
+        if (count($queries) > 0) {
+            array_unshift($queries, 'or');
+        }
+
+        return array_values($queries);
     }
 
     /** Нечеткий поиск в Word::LABEL_FIELD_WORD
