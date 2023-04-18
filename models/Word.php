@@ -591,32 +591,32 @@ class Word extends ActiveRecord
 
         $hasPercentAtStart = false;
         $hasPercentAtEnd = false;
-        if (mb_strpos($name, '%') === 0) {
+        if (mb_stripos($name, '%') === 0) {
             $name = mb_substr($name, 1);
             $hasPercentAtStart = true;
         }
-        if (mb_strpos($name, '%') === mb_strlen($name) - 1) {
+        if (mb_stripos($name, '%') === mb_strlen($name) - 1) {
             $name = mb_substr($name, 0, mb_strlen($name) - 1);
             $hasPercentAtEnd = true;
         }
 
         foreach (Word::LABEL_FIELD_WORD as $key => $label) {
             if ($hasPercentAtStart && $hasPercentAtEnd) {
-                if (mb_strpos($label, $name) !== false) {
+                if (mb_stripos($label, $name) !== false) {
                     $numbers[] = $key;
                 }
             } elseif ($hasPercentAtStart) {
-                if (mb_strpos($label, $name) === mb_strlen($label) - mb_strlen($name)) {
+                if (mb_stripos($label, $name) === mb_strlen($label) - mb_strlen($name)) {
                     $numbers[] = $key;
                 }
             } elseif ($hasPercentAtEnd) {
-                if (mb_strpos($label, $name) === 0) {
+                if (mb_stripos($label, $name) === 0) {
                     $numbers[] = $key;
                 }
             } else {
                 if (
-                    (mb_strpos($label, $name) === 0)
-                    && mb_strpos($label, $name) === mb_strlen($label) - mb_strlen($name)
+                    (mb_stripos($label, $name) === 0)
+                    && mb_stripos($label, $name) === mb_strlen($label) - mb_strlen($name)
                 ) {
                     $numbers[] = $key;
                 }
