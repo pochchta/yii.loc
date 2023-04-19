@@ -33,5 +33,34 @@ $(window).on('load', function() {
     });
 
     initHideShowByToggleId();
+    addAutoCompleteOptions();
 
 })
+
+function addAutoCompleteOptions() {
+    window.gettingYiiParams().done(function (params) {
+        window.gettingWordVersion().done(function (version) {
+            let $inputs = $('#active-form input.ui-autocomplete-input, #filters-form input.ui-autocomplete-input');
+
+            for (let input of $inputs) {
+                let $input = $(input);
+                $input.autocomplete({
+                    "source": function (request, response) {
+                        $.getJSON('/api/word/get-auto-complete', {
+                            name: request.term,
+                            field: $input.attr('name'),
+                            parent: $input.attr('data-parent'),
+                            version: version,
+                        }, response);
+                    },
+                    "minLength": params['minSymbolsAutoComplete'],
+                    "delay": params['delayAutoComplete'],
+                    "select": function (event, ui) {
+                        onSelectAutoComplete(event, ui)
+                    }
+                });
+            }
+
+        })
+    })
+}

@@ -12,7 +12,6 @@ $(window).on('load', function() {
         initCatalogTabs();
         initHandlers();
     })
-    addAutoCompleteOptions();
 })
 
 /**
@@ -78,30 +77,4 @@ function onSelectAutoComplete(e, ui) {
     if (window.filterTabsData.getObject().hasOwnProperty(tabName)) {
         setParamsToCheckbox(tabName);
     }
-}
-
-function addAutoCompleteOptions() {
-    window.gettingYiiParams().done(function (params) {
-        window.gettingWordVersion().done(function (version) {
-            let $inputs = $('#active-form input.ui-autocomplete-input');
-
-            for (let input of $inputs) {
-                $(input).autocomplete({
-                    "source": function (request, response) {
-                        $.getJSON('/api/word/get-names', {
-                            name_v: request.term,
-                            limit: params['maxLinesAutoComplete'],
-                            version: version
-                        }, response);
-                    },
-                    "minLength": params['minSymbolsAutoComplete'],
-                    "delay": params['delayAutoComplete'],
-                    "select": function (event, ui) {
-                        onSelectAutoComplete(event, ui)
-                    }
-                });
-            }
-
-        })
-    })
 }

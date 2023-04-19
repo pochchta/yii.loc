@@ -215,3 +215,6 @@ function initHandlers() {
             });
         })
 }
+
+function onSelectAutoComplete(e, ui) {
+}
