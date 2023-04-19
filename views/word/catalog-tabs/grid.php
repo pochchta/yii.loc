@@ -31,7 +31,7 @@ use yii\helpers\Html;
                             <span class="checkbox filter-checkbox" data-source=<?=$key?> data-value="<?=Status::ALL?>">Все</span>
                         </div>
                     <?php elseif($tab['source'] === 'category'): ?>
-                        <?= Html::input('text', $key, '') ?>
+                        <?= Html::input('text', $key, '', ['class' => 'ui-autocomplete-input', 'data' => ['parent' => 'word']]) ?>
                         <?= Html::input('text', $key . '_id', '', ['class' => 'hide']) ?>
                         <?= Html::button('Применить', ['class' => 'filter_button']) ?>
                         <div class="checkboxList">
