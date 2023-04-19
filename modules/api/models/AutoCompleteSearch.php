@@ -44,6 +44,7 @@ class AutoCompleteSearch extends ActiveRecord
     public function rules()
     {
         return [
+            [['name', 'field', 'parent'], 'required'],
             [['name', 'field', 'parent'], 'string', 'min' => 1, 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
             ['parent', 'validateParentName'],
