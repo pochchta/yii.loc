@@ -8,7 +8,7 @@ class FormAsset extends AssetBundle
     public $basePath = '@webroot';
     public $baseUrl = '@web';
     public $css = [
-        'css/catalog-tabs.css',
+        'css/catalog-tabs/main.css',
     ];
     public $js = [
         'js/init-grid.js',

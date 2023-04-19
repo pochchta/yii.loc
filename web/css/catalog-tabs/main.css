@@ -9,7 +9,7 @@ body { /* Принудительная прокрутка, т.к. изменен
 .block_arrow {
     background: #e0fff3;
     position: absolute;
-    z-index: 14;
+    z-index: 114;
     font-size: 16px;
     padding: 3px 7px;
     width: 30px;
@@ -18,12 +18,12 @@ body { /* Принудительная прокрутка, т.к. изменен
 
 #block_arrow2 {
     background: #feffdd;
-    z-index: 16;
+    z-index: 116;
 }
 
 #block_arrow3 {
     background: #ffd7d7;
-    z-index: 18;
+    z-index: 118;
 }
 
 #tabs_content1>div>input,
@@ -35,18 +35,18 @@ body { /* Принудительная прокрутка, т.к. изменен
 
 #tabs_content2 {
     position: absolute;
-    z-index: 13;
+    z-index: 113;
     background: #e0fff3;
 }
 
 #tabs_content3 {
     position: absolute;
-    z-index: 15;
+    z-index: 115;
     background: #feffdd;
 }
 #tabs_content4 {
     position: absolute;
-    z-index: 17;
+    z-index: 117;
     background: #ffd7d7;
 }
 
@@ -107,7 +107,7 @@ body { /* Принудительная прокрутка, т.к. изменен
     box-shadow: 0 0 20px rgba(50, 92, 118, 0.3);
     border-radius: 3px 3px 0 0;
     font-weight: bold;
-    z-index: 31;
+    z-index: 131;
     position: relative;
     color: #000
 }
@@ -117,7 +117,7 @@ body { /* Принудительная прокрутка, т.к. изменен
     background: #fff;
     box-shadow: 0 0 20px rgba(50, 86, 108, 0.4);
     border-radius: 3px;
-    z-index: 11;
+    z-index: 111;
     position: absolute;
     left: 0;
     right: 0;
@@ -229,9 +229,9 @@ body { /* Принудительная прокрутка, т.к. изменен
     color: #000;
     font-size: .8em;
     text-decoration: none;
-    z-index: 1;
+    z-index: 11;
     margin: -1px auto 10px;
-    background: url("../i/full-filter-icon.png") no-repeat scroll 11px 9px #d9f0b9;
+    background: url("/i/full-filter-icon.png") no-repeat scroll 11px 9px #d9f0b9;
     box-sizing: content-box;
 }
 
@@ -253,7 +253,7 @@ body { /* Принудительная прокрутка, т.к. изменен
     position: absolute;
     top: 7px;
     left: -8px;
-    /*background: url('../i/close-open-arrows.png') no-repeat scroll 0 0 #FFF;*/
+    /*background: url('/i/close-open-arrows.png') no-repeat scroll 0 0 #FFF;*/
     border: 3px solid #FFF
 }
 
@@ -294,7 +294,7 @@ body { /* Принудительная прокрутка, т.к. изменен
 }
 
 .callOffAll a {
-    background: #fdd url("../i/catalog-cancel-icon.png") no-repeat scroll 5px 5px;
+    background: #fdd url("/i/catalog-cancel-icon.png") no-repeat scroll 5px 5px;
     width: 18px;
     height: 18px;
     display: block;
@@ -304,7 +304,7 @@ body { /* Принудительная прокрутка, т.к. изменен
     position: absolute;
     left: -41px;
     top: -8px;
-    z-index: 10;
+    z-index: 110;
     color: #d62424;
     box-sizing: content-box;
     cursor: pointer;
@@ -339,7 +339,7 @@ body { /* Принудительная прокрутка, т.к. изменен
     font-size: .718em;
     position: relative;
     padding: 5px 10px;
-    z-index: 1
+    z-index: 11
 }
 
 .showOnly {

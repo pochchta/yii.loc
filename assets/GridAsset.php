@@ -8,7 +8,8 @@ class GridAsset extends AssetBundle
     public $basePath = '@webroot';
     public $baseUrl = '@web';
     public $css = [
-        'css/catalog-tabs.css',
+        'css/catalog-tabs/main.css',
+        'css/catalog-tabs/grid.css',
     ];
     public $js = [
         'js/init-grid.js',
