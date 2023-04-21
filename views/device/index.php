@@ -1,6 +1,8 @@
 <?php
 
+use app\assets\GridAsset;
 use app\models\Status;
+use app\widgets\sort\GridColumnSort;
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
@@ -14,6 +16,8 @@ use yii\widgets\Pjax;
 
 $this->title = 'Приборы';
 $this->params['breadcrumbs'][] = $this->title;
+
+GridAsset::register($this);
 ?>
 
 <div class="device-index page-index" id="page-index">
@@ -30,67 +34,22 @@ $this->params['breadcrumbs'][] = $this->title;
         ]) ?>
     </p>
 
-    <form id="filters-form" action="" method="get">
-        <div class="catalogTabs">
-            <div class="tabs_title" id="tabs">
-                <ul>
-                    <?php foreach ($menu->getMenu() as $key => $tab): ?>
-                        <li><a data-value="tab<?=$tab['id']?>" data-name="<?=$tab['name']?>"><span><?=$tab['label']?></span></a></li>
-                    <?php endforeach ?>
-                </ul>
-            </div>
-            <div class="tabs_content hide" id="tabs_content1">
+    <?= $this->render('catalog-tabs/grid', compact(
+        'menu'
+    )); ?>
 
-                <?php foreach ($menu->getMenu() as $key => $tab): ?>
-                    <div id="tab<?=$tab['id']?>" data-name="<?=$key?>" class="hide">
-                        <?php if($tab['source'] === 'number'): ?>
-                            <?= Html::input('text', $key) ?>
-                            <?= Html::button('Применить', ['class' => 'filter_button']) ?>
-                        <?php elseif($tab['source'] === 'manual'): ?>
-                            <div class="checkboxList">
-                                <?= Html::input('text', $key, '', ['class' => 'hide']) ?>
-                                <span class="checkbox filter-checkbox" data-child="0" data-value="">Действующие</span>
-                                <span class="checkbox filter-checkbox" data-child="0" data-value="<?=Status::DELETED?>">Удаленные</span>
-                                <span class="checkbox filter-checkbox" data-child="0" data-value="<?=Status::ALL?>">Все</span>
-                            </div>
-                        <?php elseif($tab['source'] === 'date'): ?>
-                                <?= Html::input('date', $key . '_start') ?>
-                                <?= Html::input('date', $key . '_end') ?>
-                            <?= Html::button('Применить', ['class' => 'filter_button']) ?>
-                        <?php else: ?>
-                            <div class="checkboxList">
-                                <?= Html::input('text', $key, '', ['class' => 'hide']) ?>
-                                <?php foreach ($tab as $elem): if (is_array($elem) == false) continue;?>
-                                    <span class="checkbox filter-checkbox" data-value=<?=$elem['id']?>><?=$elem['name']?></span>
-                                <?php endforeach ?>
-                            </div>
-                        <?php endif ?>
-                    </div>
-                <?php endforeach ?>
-
-                <div id="block_arrow1" class="block_arrow glyphicon glyphicon-menu-down hide"></div>
-                <div class="tabs_content hide" id="tabs_content2">
-                    <div id="block_arrow2" class="block_arrow glyphicon glyphicon-menu-down hide"></div>
-                    <div class="tabs_content hide" id="tabs_content3"></div>
-                </div>
-            </div>
-            <div class="tabsFilterParams hide">
-                <div class="callOffAll filtersReset"><a title="Отменить все фильтры" id="filters-reset"><span>Отменить все фильтры</span></a></div>
-                <div class="filterItemsList" id="filters-active"></div>
-            </div>
-        </div>
-    </form>
 
     <?php Pjax::begin([
         'id' => 'my-pjax-container',
         'timeout' => Yii::$app->params['pjaxTimeout'],
-    ]) ?>
+    ]);
 
-    <?= GridView::widget([
+    $gridViewData = [
         'id' => 'grid_id',
         'dataProvider' => $dataProvider,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
+            'id',
+            '№' => ['class' => 'yii\grid\SerialColumn'],
 
             [
                 'attribute' => ($attribute = 'kind') . '_id',
@@ -157,12 +116,19 @@ $this->params['breadcrumbs'][] = $this->title;
                     }
                 }
             ],
-            [
-                'header' => Html::a(
-                    '<span class="glyphicon glyphicon-remove reset_sort"></span>',
-                    null,
-                    ['title' => 'Сбросить сортировку']
-                ),
+            'Кнопки' => [
+                'header' =>
+                    Html::a(
+                        '<span class="glyphicon glyphicon-remove reset_sort a-action"></span>',
+                        null,
+                        ['title' => 'Сбросить сортировку']
+                    )
+                    . Html::a(
+                        '<span class="glyphicon glyphicon-cog show_grid_column_sort a-action" data-toggle-id="grid_column_sort"></span>',
+                        null,
+                        ['title' => 'Настроить столбцы']
+                    ),
+                'contentOptions' => ['class' => 'nowrap'],
                 'format' => 'raw',
                 'value' => function ($model) {
                     return
@@ -184,10 +150,21 @@ $this->params['breadcrumbs'][] = $this->title;
                 }
             ],
         ],
-    ]); ?>
+    ];
+
+    $gridColumnSort = new GridColumnSort($gridViewData, [
+        'required' => ['Кнопки'],
+        'token' => Yii::$app->user->identity->getAuthKey(),
+        'writeUrl' => '/api/gcs/write-column',
+        'readUrl' => '/api/gcs/read-column',
+        'class' => '\app\models\device',
+        'role' => Yii::$app->user->identity->getProfileView(),
+    ]);
+    ?>
+
+    <?= $gridColumnSort->runWidget() ?>
+
+    <?= GridView::widget($gridColumnSort->getGridViewData()); ?>
 
     <?php Pjax::end() ?>
 </div>
-<script>
-    let filterParams = <?= json_encode($menu->getFilterParams()) ?>
-</script>
