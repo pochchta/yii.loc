@@ -39,6 +39,7 @@ class loadingWindow {
         if (! $window.length) {
             let zIndex = 999;
             $window = $('<div>Загрузка</div>');
+            $window.css('display', 'none');
             $window.css('position', 'absolute');
             $window.css('zIndex', zIndex);
             $window.css('background', '#eeeeeeb8');
@@ -50,13 +51,11 @@ class loadingWindow {
             $window.insertAfter($selector);
         }
 
+        $window.fadeIn("slow");
+
         $window.outerHeight(selectorHeight);
         $window.outerWidth(selectorWidth);
-
-        $window.css('top', selectorTop + 'px');
-        $window.css('left', selectorLeft + 'px');
-
-        $window.css('display', 'block');
+        $window.offset({top: selectorTop, left: selectorLeft})
     }
 
     /**
