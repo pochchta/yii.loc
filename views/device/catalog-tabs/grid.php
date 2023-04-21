@@ -20,7 +20,7 @@ use yii\helpers\Html;
             <?php foreach ($menu->getMenu() as $key => $tab): ?>
                 <div id="tab<?=$tab['id']?>" data-name="<?=$key?>" class="hide">
                     <?php if($tab['source'] === 'number'): ?>
-                        <?= Html::input('text', $key) ?>
+                        <?= Html::input('text', $key, '', ['class' => 'ui-autocomplete-input', 'data' => ['parent' => 'device']]) ?>
                         <?= Html::button('Применить', ['class' => 'filter_button']) ?>
                     <?php elseif($tab['source'] === 'manual'): ?>
                         <?= Html::input('text', $key, '', ['class' => 'hide']) ?>
@@ -34,7 +34,7 @@ use yii\helpers\Html;
                         <?= Html::input('date', $key . '_end') ?>
                         <?= Html::button('Применить', ['class' => 'filter_button']) ?>
                     <?php else: ?>
-                        <?= Html::input('text', $key, '') ?>
+                        <?= Html::input('text', $key, '', ['class' => 'ui-autocomplete-input', 'data' => ['parent' => 'device']]) ?>
                         <?= Html::input('text', $key . '_id', '', ['class' => 'hide']) ?>
                         <?= Html::button('Применить', ['class' => 'filter_button']) ?>
                         <div class="checkboxList"></div>
