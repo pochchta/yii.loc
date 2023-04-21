@@ -7,9 +7,8 @@ use app\models\Status;
 use app\models\Word;
 use Yii;
 use yii\base\Model;
-use yii\db\ActiveRecord;
 
-class AutoCompleteSearch extends ActiveRecord
+class AutoCompleteSearch extends Model
 {
     const RULES_AUTO_COMPLETE = [
         'word' => [
@@ -24,13 +23,7 @@ class AutoCompleteSearch extends ActiveRecord
         ],
         'device' => [
             'levels' => [1, 2, 3],
-            'kind' => [
-                'levels' => [1],
-            ],
-            'group' => [
-                'levels' => [2],
-            ],
-            'type' => [
+            'name' => [
                 'levels' => [3],
             ],
             'number' => [
@@ -123,14 +116,26 @@ class AutoCompleteSearch extends ActiveRecord
                         }
                     }
                 } else {
-                    $queries = Word::getQueriesToGetChildrenIfDepthIsAbsolute();
-                    $query->andFilterWhere(Word::mergeQueriesOr($queries, 'id', $levels));
+                    if ($this->parent === 'word') {
+                        $query->andFilterWhere(
+                            Word::mergeQueriesOr(
+                                Word::getQueriesToGetChildrenIfDepthIsAbsolute(), 'id', $levels
+                            )
+                        );
+                    } else {
+                        $condition = isset(Word::FIELD_WORD[$this->field]) ? ['id' => Word::FIELD_WORD[$this->field]] : null;
+                        $query->andFilterWhere(
+                            Word::mergeQueriesOr(
+                                Word::getQueriesToGetChildrenIfParentIsVirtual($condition), 'id', $levels
+                            )
+                        );
+                    }
                 }
                 $query
                     ->distinct()
                     ->select(["$name as value"])
                     ->orderBy($name)
-                    ->andFilterWhere(['like', $name, $this->$name . '%', false])
+                    ->andFilterWhere(['like', $name, $this->name . '%', false])
                     ->limit($limit)
                     ->asArray();
 
