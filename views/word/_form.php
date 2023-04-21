@@ -1,11 +1,8 @@
 <?php
 
 use app\assets\FormAsset;
-use app\models\Word;
 use yii\helpers\Html;
-use yii\helpers\Url;
 use yii\jui\AutoComplete;
-use yii\web\JsExpression;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
@@ -27,23 +24,11 @@ FormAsset::register($this);
         'id' => 'active-form',
     ]); ?>
 
-    <?= $form->field($model, 'category_name')->dropDownList(
-        array_combine(array_keys(Word::FIELD_WORD), Word::LABEL_FIELD_WORD)
-    ) ?>
-    <?= $form->field($model, 'parent')->textInput(['maxlength' => true])->widget(
+    <?= $form->field($model, 'parent_name')->textInput(['maxlength' => true])->widget(
         AutoComplete::class, [
-            'clientOptions' => [
-                'source' => new JsExpression("function(request, response) {
-                    $.getJSON('" . Url::to('/word/list-auto-complete') . "', {
-                        term: request.term,
-                        term_p1: $('#category_name').val(),
-                    }, response);
-                }"),
-                'minLength' => Yii::$app->params['minSymbolsAutoComplete'],
-                'delay' => Yii::$app->params['delayAutoComplete']
-            ],
             'options' => [
                 'class' => 'form-control',
+                'data' => ['parent' => 'word']
             ]
         ]
     ); ?>
