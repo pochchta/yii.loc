@@ -123,20 +123,15 @@ class AutoCompleteSearch extends Model
                         $query = Device::find();
                     }
                 } else {
-                    if ($this->parent === 'word') {
-                        $query->andFilterWhere(
-                            Word::mergeQueriesOr(
-                                Word::getQueriesToGetChildrenIfDepthIsAbsolute(), 'id', $levels
-                            )
-                        );
-                    } else {
+                    $condition = ['id' => array_values(Word::FIELD_WORD)];
+                    if ($this->parent !== 'word') {
                         $condition = isset(Word::FIELD_WORD[$this->field]) ? ['id' => Word::FIELD_WORD[$this->field]] : null;
-                        $query->andFilterWhere(
-                            Word::mergeQueriesOr(
-                                Word::getQueriesToGetChildrenIfParentIsVirtual($condition), 'id', $levels
-                            )
-                        );
                     }
+                    $query->andFilterWhere(
+                        Word::mergeQueriesOr(
+                            Word::getQueriesToGetChildrenIfParentIsVirtual($condition), 'id', $levels
+                        )
+                    );
                 }
                 $query
                     ->distinct()
