@@ -17,21 +17,15 @@ use yii\helpers\Html;
             </ul>
         </div>
         <div class="tabs_content hide absolute" id="tabs_content1">
-
             <?php foreach ($menu->getMenu() as $key => $tab): ?>
                 <div id="tab<?=$tab['id']?>" data-name="<?=$key?>" class="hide">
-                    <?php if($tab['source'] === 'text'): ?>
-                        <?= Html::input('text', $key) ?>
+                    <?php if($tab['source'] === 'word'): ?>
+                        <?= Html::input('text', $key, '', $tab['autoComplete']) ?>
+                        <?= Html::input('text', $key . '_id', '', ['class' => 'hide']) ?>
                         <?= Html::button('Применить', ['class' => 'filter_button']) ?>
-                    <?php elseif($tab['source'] === 'manual'): ?>
-                        <?= Html::input('text', $key, '', ['class' => 'hide']) ?>
-                        <div class="checkboxList">
-                            <span class="checkbox filter-checkbox" data-source=<?=$key?> data-value="<?=Status::NOT_DELETED?>">Действующие</span>
-                            <span class="checkbox filter-checkbox" data-source=<?=$key?> data-value="<?=Status::DELETED?>">Удаленные</span>
-                            <span class="checkbox filter-checkbox" data-source=<?=$key?> data-value="<?=Status::ALL?>">Все</span>
-                        </div>
+                        <div class="checkboxList"></div>
                     <?php elseif($tab['source'] === 'category'): ?>
-                        <?= Html::input('text', $key, '', ['class' => 'ui-autocomplete-input', 'data' => ['parent' => 'word']]) ?>
+                        <?= Html::input('text', $key, '', $tab['autoComplete']) ?>
                         <?= Html::input('text', $key . '_id', '', ['class' => 'hide']) ?>
                         <?= Html::button('Применить', ['class' => 'filter_button']) ?>
                         <div class="checkboxList">
@@ -43,11 +37,16 @@ use yii\helpers\Html;
                         <?= Html::input('date', $key . '_start') ?>
                         <?= Html::input('date', $key . '_end') ?>
                         <?= Html::button('Применить', ['class' => 'filter_button']) ?>
-                    <?php else: ?>
-                        <?= Html::input('text', $key, '') ?>
-                        <?= Html::input('text', $key . '_id', '', ['class' => 'hide']) ?>
+                    <?php elseif($tab['source'] === 'text'): ?>
+                        <?= Html::input('text', $key, '', $tab['autoComplete']) ?>
                         <?= Html::button('Применить', ['class' => 'filter_button']) ?>
-                        <div class="checkboxList"></div>
+                    <?php elseif($tab['source'] === 'deleted'): ?>
+                        <?= Html::input('text', $key, '', ['class' => 'hide']) ?>
+                        <div class="checkboxList">
+                            <span class="checkbox filter-checkbox" data-source=<?=$key?> data-value="<?=Status::NOT_DELETED?>">Действующие</span>
+                            <span class="checkbox filter-checkbox" data-source=<?=$key?> data-value="<?=Status::DELETED?>">Удаленные</span>
+                            <span class="checkbox filter-checkbox" data-source=<?=$key?> data-value="<?=Status::ALL?>">Все</span>
+                        </div>
                     <?php endif ?>
                 </div>
             <?php endforeach ?>

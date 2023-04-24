@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Status;
 use app\models\Word;
 
 /* @var $menu app\models\FilterMenu */
@@ -17,13 +18,22 @@ use app\models\Word;
         <div class="tabs_content hide absolute" id="tabs_content1">
             <?php foreach ($menu->getMenu() as $key => $tab): ?>
                 <div id="tab<?=$tab['id']?>" data-name="<?=$key?>" class="hide">
-                    <?php if($tab['source'] === 'category'): ?>
+                    <?php if($tab['source'] === 'word'): ?>
+                        <div class="checkboxList"></div>
+                    <?php elseif($tab['source'] === 'category'): ?>
                         <div class="checkboxList">
                             <?php foreach (Word::FIELD_WORD as $name => $number):?>
                                 <span class="checkbox filter-checkbox" data-value=<?=$number?>><?=Word::LABEL_FIELD_WORD[$number]?></span>
                             <?php endforeach ?>
                         </div>
-
+                    <?php elseif($tab['source'] === 'date'): ?>
+                    <?php elseif($tab['source'] === 'text'): ?>
+                    <?php elseif($tab['source'] === 'deleted'): ?>
+                        <div class="checkboxList">
+                            <span class="checkbox filter-checkbox" data-source=<?=$key?> data-value="<?=Status::NOT_DELETED?>">Действующие</span>
+                            <span class="checkbox filter-checkbox" data-source=<?=$key?> data-value="<?=Status::DELETED?>">Удаленные</span>
+                            <span class="checkbox filter-checkbox" data-source=<?=$key?> data-value="<?=Status::ALL?>">Все</span>
+                        </div>
                     <?php endif ?>
                 </div>
             <?php endforeach ?>
