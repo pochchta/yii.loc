@@ -5,18 +5,15 @@ namespace app\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use yii\helpers\Url;
-use yii\web\JsExpression;
 
 /**
  * DeviceSearch represents the model behind the search form of `app\models\Device`.
  */
 class DeviceSearch extends Device
 {
-    const COLUMN_SEARCH = ['id', 'number', 'position'];
     public $limit;
-    public $term, $term_name;
     public $kind_id, $group_id, $type_id, $name_id, $state_id, $department_id, $crew_id;
+    public $created_at_start, $created_at_end, $updated_at_start, $updated_at_end;
 
     /**
      * {@inheritdoc}
@@ -26,18 +23,16 @@ class DeviceSearch extends Device
     {
         return [
             [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
+            [['created_at_start', 'created_at_end', 'updated_at_start', 'updated_at_end'], 'filter',
+                'filter' => function($value) {return strtotime($value) !== false ? strtotime($value) : null;}],
             [['description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['position', 'number'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['group', 'type', 'name', 'department', 'crew', 'kind', 'state'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['group_id', 'type_id', 'name_id', 'department_id', 'crew_id', 'kind_id', 'state_id'], 'integer'],
             [['deleted'], 'default', 'value' => Status::NOT_DELETED],
-            [['term', 'term_name'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']]
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function scenarios()
     {
         // bypass scenarios() implementation in the parent class
@@ -60,7 +55,6 @@ class DeviceSearch extends Device
     public function search($params)
     {
         $query = Device::find()
-//            ->select(['id', 'name_id', 'type_id', 'department_id', 'crew_id, 'position', 'number', 'deleted', 'created_at', 'updated_at'])
             ->with('creator', 'updater', 'wordKind', 'wordName.parent.parent', 'wordState', 'wordDepartment', 'wordCrew');
 
         $dataProvider = new ActiveDataProvider([
@@ -79,12 +73,25 @@ class DeviceSearch extends Device
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
         ]);
+
+        if (strlen($this->created_at_start)) {
+            $query->andFilterWhere(['>=', 'created_at', $this->created_at_start]);
+        }
+        if (strlen($this->created_at_end)) {
+            $query->andFilterWhere(['<=', 'created_at', $this->created_at_end]);
+        }
+        if (strlen($this->updated_at_start)) {
+            $query->andFilterWhere(['>=', 'updated_at', $this->updated_at_start]);
+        }
+        if (strlen($this->updated_at_end)) {
+            $query->andFilterWhere(['<=', 'updated_at', $this->updated_at_end]);
+        }
+
         if (strlen($this->number)) {
             $query->andFilterWhere(['like', 'number', $this->number . '%', false]);
         }
+
         if (strlen($this->position)) {
             $query->andFilterWhere(['like', 'position', $this->position . '%', false]);
         }
@@ -113,66 +120,5 @@ class DeviceSearch extends Device
     public function formName()
     {
         return '';
-    }
-
-    /**
-     * @param $attribute string
-     * @param $prefix string префикс для атрибута при поиске GET параметра и селектора
-     * @param bool $autoSend
-     * @return array
-     */
-    public static function getAutoCompleteOptions($attribute, $prefix = '', $autoSend = false)
-    {
-        $parents = '';
-        if ($attribute == 'name') {
-            $parents = "term_p1: $('#group').val(), term_p2: $('#type').val(),";
-        } elseif ($attribute == 'type') {
-            $parents = "term_p1: $('#group').val(),";
-        }
-        if (strlen($prefix)) {
-            $prefix = $prefix . '_';
-        }
-        $select = '';
-        if ($autoSend) {
-            $select = new JsExpression("function(event, ui) {
-                selectAutoComplete(event, ui, '{$prefix}{$attribute}');
-            }");
-        }
-        return [
-            'clientOptions' => [
-                'source' => new JsExpression("function(request, response) {
-                    $.getJSON('" . Url::to('/device/list-auto-complete') . "', {
-                        term: request.term,
-                        term_name: '{$attribute}',
-                        $parents
-                    }, response);
-                }"),
-                'select' => $select,
-                'minLength' => Yii::$app->params['minSymbolsAutoComplete'],
-                'delay' => Yii::$app->params['delayAutoComplete']
-            ],
-            'options' => [
-                'class' => 'form-control',
-            ]
-        ];
-    }
-
-    /** Поиск по номерам для AutoComplete
-     * @return false|string
-     */
-    public function findNames()
-    {
-        $data = [];
-        if (in_array($this->term_name, self::COLUMN_SEARCH)) {
-            $data = Device::find()
-                ->select(["$this->term_name as value"])
-                ->where(['deleted' => Status::NOT_DELETED])
-                ->andOnCondition("$this->term_name LIKE :term", [':term' => $this->term . '%'])
-                ->orderBy($this->term_name)
-                ->limit(Yii::$app->params['maxLinesAutoComplete'])
-                ->distinct()
-                ->asArray()->all();
-        }
-        return json_encode($data);
     }
 }
