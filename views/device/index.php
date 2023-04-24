@@ -34,7 +34,7 @@ GridAsset::register($this);
         ]) ?>
     </p>
 
-    <?= $this->render('catalog-tabs/grid', compact(
+    <?= $this->render('/catalog-tabs/grid', compact(
         'menu'
     )); ?>
 

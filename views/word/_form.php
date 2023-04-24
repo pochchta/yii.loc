@@ -14,7 +14,7 @@ use yii\widgets\ActiveForm;
 FormAsset::register($this);
 ?>
 
-<?= $this->render('catalog-tabs/form', compact(
+<?= $this->render('/catalog-tabs/form', compact(
     'menu'
 )); ?>
 

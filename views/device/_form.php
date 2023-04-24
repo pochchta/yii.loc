@@ -13,7 +13,7 @@ use yii\widgets\ActiveForm;
 FormAsset::register($this);
 ?>
 
-<?= $this->render('catalog-tabs/form', compact(
+<?= $this->render('/catalog-tabs/form', compact(
     'menu'
 )); ?>
 
@@ -36,7 +36,7 @@ FormAsset::register($this);
         AutoComplete::class, [
             'options' => [
                 'class' => 'form-control',
-                'data' => ['parent' => 'device']
+                'data' => ['parent' => 'device_form']
             ]
         ]
     ); ?>
