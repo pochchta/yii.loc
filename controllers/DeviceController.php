@@ -2,7 +2,7 @@
 
 namespace app\controllers;
 
-use app\models\FilterMenu;
+use app\models\CatalogTabs;
 use app\models\Word;
 use app\models\Status;
 use app\models\WordSearch;
@@ -70,8 +70,8 @@ class DeviceController extends Controller
             'updated_at',
             'deleted',
         ];
-        $menu = (new FilterMenu($headerMenu))
-            ->setSource(['number' => 'number', 'created_at' => 'date', 'updated_at' => 'date', 'deleted' => 'manual'])
+        $menu = (new CatalogTabs($headerMenu))
+            ->setSource(['number' => 'text', 'created_at' => 'date', 'updated_at' => 'date', 'deleted' => 'deleted'])
             ->setLabel(['number' => 'Номер прибора', 'created_at' => 'Дата создания', 'updated_at' => 'Дата изменения', 'deleted' => 'Удален'])
             ->loadFilterParams(['word'], $params)
             ->loadMenu();

@@ -4,9 +4,9 @@
 namespace app\models;
 
 
-class FilterMenu
+class CatalogTabs
 {
-    private $headerMenu, $listSource = [], $listLabel = [], $menu = [];
+    private $headerMenu, $listSource = [], $listLabel = [], $listAutoComplete = [], $menu = [];
     const DEFAULT_SOURCE = 'word';
 
     public function __construct($headerMenu)
@@ -14,7 +14,8 @@ class FilterMenu
         $this->headerMenu = $headerMenu;
     }
 
-    /** Установить источники
+    /**
+     * Установить источники
      * @param $listSource ['name' => 'category']
      * word - категория word - по-умолчанию
      * category - список категорий word
@@ -39,8 +40,19 @@ class FilterMenu
         return $this;
     }
 
-    /** Сформировать меню
-     *
+    /**
+     * Установить параметры autoComplete
+     * @param $listAutoComplete ['parentName' => ['name', ...]]
+     * @return $this
+     */
+    public function setAutoComplete($listAutoComplete)
+    {
+        $this->listAutoComplete = $listAutoComplete;
+        return $this;
+    }
+
+    /**
+     * Сформировать меню
      */
     public function buildMenu()
     {
@@ -61,12 +73,18 @@ class FilterMenu
             if (isset($this->listLabel[$item])) {
                 $this->menu[$item]['label'] = $this->listLabel[$item];
             }
+            foreach ($this->listAutoComplete as $parentName => $fields) {
+                if (in_array($item, $fields)) {
+                    $this->menu[$item]['autoComplete'] = ['class' => 'ui-autocomplete-input', 'data' => ['parent' => $parentName]];
+                    break;
+                }
+            }
         }
         return $this;
     }
 
-    /** Получить меню
-     *
+    /**
+     * Получить меню
      */
     public function getMenu()
     {

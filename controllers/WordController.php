@@ -2,7 +2,7 @@
 
 namespace app\controllers;
 
-use app\models\FilterMenu;
+use app\models\CatalogTabs;
 use app\models\Status;
 use Yii;
 use app\models\Word;
@@ -63,10 +63,11 @@ class WordController extends Controller
             'value',
             'deleted',
         ];
-        $menu = (new FilterMenu($headerMenu))
-            ->setSource(['name' => 'text', 'parent' => 'category', 'value' => 'text', 'deleted' => 'manual'])
+        $menu = (new CatalogTabs($headerMenu))
+            ->setSource(['name' => 'text', 'parent' => 'category', 'value' => 'text', 'deleted' => 'deleted'])
             ->setLabel(['name' => 'Название', 'parent' => 'Категория', 'value' => 'Значение', 'deleted' => 'Удален'])
-            ->loadMenu();
+            ->setAutoComplete(['word' => ['name', 'parent', 'value']])
+            ->buildMenu();
 
         return $this->render('index', compact(
             'dataProvider', 'menu'
@@ -106,10 +107,10 @@ class WordController extends Controller
      */
     public function actionUpdate($id)
     {
-        $menu = (new FilterMenu(['parent_name']))
+        $menu = (new CatalogTabs(['parent_name']))
             ->setSource(['parent_name' => 'category'])
             ->setLabel(['parent_name' => 'Категория'])
-            ->loadMenu();
+            ->buildMenu();
 
         if (isset($id)) {       // update
             $model = $this->findModel($id);
