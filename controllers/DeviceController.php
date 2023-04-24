@@ -3,9 +3,7 @@
 namespace app\controllers;
 
 use app\models\CatalogTabs;
-use app\models\Word;
 use app\models\Status;
-use app\models\WordSearch;
 use Yii;
 use app\models\Device;
 use app\models\DeviceSearch;
@@ -73,11 +71,11 @@ class DeviceController extends Controller
         $menu = (new CatalogTabs($headerMenu))
             ->setSource(['number' => 'text', 'created_at' => 'date', 'updated_at' => 'date', 'deleted' => 'deleted'])
             ->setLabel(['number' => 'Номер прибора', 'created_at' => 'Дата создания', 'updated_at' => 'Дата изменения', 'deleted' => 'Удален'])
-            ->loadFilterParams(['word'], $params)
-            ->loadMenu();
+            ->setAutoComplete(['device' => ['kind', 'name', 'state', 'department', 'crew', 'number', ]])
+            ->buildMenu();
 
         return $this->render('index', compact(
-            'searchModel', 'dataProvider', 'params', 'menu'
+            'dataProvider', 'menu'
         ));
     }
 
@@ -116,12 +114,15 @@ class DeviceController extends Controller
      */
     public function actionUpdate($id)
     {
+        $menu = (new CatalogTabs(['kind', 'name', 'state', 'department', 'crew']))
+            ->setSource(['number' => 'text'])
+            ->setLabel(['number' => 'Номер прибора'])
+            ->buildMenu();
+
         if (isset($id)) {       // update
             $model = $this->findModel($id);
             $model->kind = $model->wordKind->name;
             $model->name = $model->wordName->name;
-            $model->type = $model->wordName->parent->name;
-            $model->group = $model->wordName->parent->parent->name;
             $model->state = $model->wordState->name;
             $model->department = $model->wordDepartment->name;
             $model->crew = $model->wordCrew->name;
@@ -141,50 +142,8 @@ class DeviceController extends Controller
         }
 
         return $this->render($view, compact(
-            'model'
+            'model', 'menu'
         ));
-    }
-
-    public function actionFilter()
-    {
-        echo json_encode(WordSearch::findNamesByParentId(Yii::$app->request->queryParams));
-        die();
-    }
-
-    public function actionListAutoComplete()    // TODO: delete
-    {
-        $deviceSearch = new DeviceSearch();
-        $deviceSearch->load(Yii::$app->request->queryParams);
-        if (in_array($deviceSearch->term_name, DeviceSearch::COLUMN_SEARCH)) {
-            if ($deviceSearch->validate()) {
-                echo $deviceSearch->findNames();
-            }
-        } else {
-            $wordSearch = new WordSearch();
-            $wordSearch->load(Yii::$app->request->queryParams);
-            if ($wordSearch->validate()) {
-                $depth = 1;
-                $withParent = true;
-                if ($wordSearch->term_name == 'group') {
-                    $wordSearch->term_name = 'name';
-                } elseif ($wordSearch->term_name == 'type') {
-                    $wordSearch->term_name = 'name';
-                    $depth = 2;
-                } elseif (isset(Word::FIELD_WORD[$wordSearch->term_name])) {
-                    $depth = Word::MAX_NUMBER_PARENTS;
-                }
-                if ($wordSearch->term_name == 'name') {     // выше term_name перезаписан
-                    $withParent = false;
-                }
-                $arrayCondition[] = [
-                    'parents' => [$wordSearch->term_name, $wordSearch->term_p1, $wordSearch->term_p2],
-                    'depth' => $depth,
-                    'withParent' => $withParent
-                ];
-                echo $wordSearch->findNamesByParents($arrayCondition);
-            }
-        }
-        die();
     }
 
     /**

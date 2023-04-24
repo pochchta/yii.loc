@@ -8,10 +8,8 @@ use yii\grid\GridView;
 use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
-/* @var $searchModel app\models\DeviceSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $model app\models\Device */
-/* @var $params array */
 /* @var $menu app\models\CatalogTabs */
 
 $this->title = 'Приборы';
