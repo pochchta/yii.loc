@@ -12,23 +12,30 @@ class AutoCompleteSearch extends Model
 {
     const RULES_AUTO_COMPLETE = [
         'word' => [
-            'virtualParent' => 1,
             'levels' => [1, 2, 3],
             'parent_name' => [
+                'virtualParent' => 1,
                 'levels' => [1,2],
             ],
             'parent' => [
+                'virtualParent' => 1,
                 'levels' => [1,2],
             ],
+            'value' => [
+                'source' => 1,
+            ]
         ],
         'device' => [
+            'levels' => [1, 2, 3],
+            'number' => [
+                'source' => 1,
+            ]
+        ],
+        'device_form' => [
             'levels' => [1, 2, 3],
             'name' => [
                 'levels' => [3],
             ],
-            'number' => [
-                'source' => 1
-            ]
         ]
     ];
 
@@ -109,11 +116,11 @@ class AutoCompleteSearch extends Model
                 $query = Word::find();
                 $name = 'name';
                 if ($source) {
-                    if ($this->parent === 'device') {
+                    if (key_exists($this->field, $this::RULES_AUTO_COMPLETE[$this->parent])) {
+                        $name = $this->field;
+                    }
+                    if (in_array($this->parent, ['device', 'device_form'])) {
                         $query = Device::find();
-                        if (key_exists($this->field, $this::RULES_AUTO_COMPLETE[$this->parent])) {
-                            $name = $this->field;
-                        }
                     }
                 } else {
                     if ($this->parent === 'word') {
