@@ -3,7 +3,7 @@
 use app\models\Status;
 use app\models\Word;
 
-/* @var $menu app\models\FilterMenu */
+/* @var $menu app\models\CatalogTabs */
 ?>
 
 <form id="filters-form">

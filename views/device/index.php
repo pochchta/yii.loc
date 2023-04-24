@@ -12,7 +12,7 @@ use yii\widgets\Pjax;
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $model app\models\Device */
 /* @var $params array */
-/* @var $menu app\models\FilterMenu */
+/* @var $menu app\models\CatalogTabs */
 
 $this->title = 'Приборы';
 $this->params['breadcrumbs'][] = $this->title;
