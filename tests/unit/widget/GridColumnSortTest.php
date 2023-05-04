@@ -1,6 +1,6 @@
 <?php
 
-use \app\widgets\sort\GridColumnSort;
+use \app\widgets\gcs\GridColumnSort;
 use Codeception\Test\Unit;
 use Codeception\Util\Fixtures;
 
