@@ -2,7 +2,7 @@
 
 namespace app\modules\api\controllers;
 
-use app\widgets\sort\Model;
+use app\widgets\gcs\Model;
 use Yii;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\Controller;
