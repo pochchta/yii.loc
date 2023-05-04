@@ -1,4 +1,4 @@
-#grid_column_sort {
+.connected-sortable-columns {
     /*display: none;*/
     position: absolute;
     z-index: 10;
@@ -7,13 +7,13 @@
     background: #99b0b7ed;
 }
 
-#grid_column_sort h3 {
+.connected-sortable-columns h3 {
     margin: 3px;
     /*background: #c3d7dd;*/
     padding: 3px;
 }
 
-#grid_column_sort ul{
+.connected-sortable-columns ul{
     border: 1px solid #eee;
     width: 142px;
     min-height: 20px;
@@ -23,7 +23,7 @@
     margin: 0 5px 0 5px;
 }
 
-#grid_column_sort li{
+.connected-sortable-columns li{
     margin: 0 5px 5px 5px;
     padding: 5px;
     font-size: 1.2em;
@@ -32,29 +32,29 @@
     line-height: 1.2em;
 }
 
-#grid_column_sort #sortable1 li{
+.connected-sortable-columns .sortable1 li{
     background: #fbf9ee;
     border: 1px solid #fcefa1;
 }
 
-#grid_column_sort #sortable2 li{
+.connected-sortable-columns .sortable2 li{
     background: #e6e6e6;
     border: 1px solid #d3d3d3;
 }
 
-#grid_column_sort .ui-sortable-placeholder{
+.connected-sortable-columns .ui-sortable-placeholder{
     background: white !important;
     border: 1px dashed gray !important;
 }
 
-#grid_column_sort .control{
+.connected-sortable-columns .control{
     margin-left: 3px;
     margin-top: 3px;
     clear: both;
     float: left;
 }
 
-#grid_column_sort .control select.form-control {
+.connected-sortable-columns .control select.form-control {
     display: inline-block;
     width: auto;
     vertical-align: middle;
