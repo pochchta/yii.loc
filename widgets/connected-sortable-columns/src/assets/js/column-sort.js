@@ -110,7 +110,7 @@ class gcs {
         $(document)
             .on('click', function(e) {
                 let $button = $(e.target);
-                if ($button.hasClass('.hide-connected-sortable-columns')) {
+                if ($button.hasClass('toggle-connected-sortable-columns')) {
                     $button.closest('.connected-sortable-columns').toggle();
                 }
             })

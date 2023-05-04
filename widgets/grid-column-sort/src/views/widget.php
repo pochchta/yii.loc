@@ -28,7 +28,7 @@ use yii\helpers\Html;
         ]) ?>
         <?= Html::a('Закрыть', null, [
             'id' => 'hide_grid_column_sort',
-            'class' => 'btn btn-warning hide-connected-sortable-columns',
+            'class' => 'btn btn-warning toggle-connected-sortable-columns',
         ]) ?>
     </div>
 </div>
