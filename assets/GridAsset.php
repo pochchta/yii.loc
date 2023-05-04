@@ -18,5 +18,6 @@ class GridAsset extends AssetBundle
     ];
     public $depends = [
         'app\assets\AppAsset',
+        'app\widgets\connectedSortable\WidgetAsset',
     ];
 }
