@@ -1,14 +1,14 @@
 <?php
 
-use app\widgets\sort\GridColumnSort;
+use app\widgets\gcs\GridColumnSort;
 use yii\helpers\Html;
 ?>
-<div id='grid_column_sort' class='clearfix' hidden>
+<div id='grid_column_sort' class='connected-sortable-columns clearfix' hidden>
     <h3>Настройка столбцов таблицы</h3>
-    <ul id='sortable1' class='connectedSortable'>
+    <ul class='connected-sortable sortable1'>
         <? foreach($columns['enabled'] as $value) echo "<li>$value</li>" ?>
     </ul>
-    <ul id='sortable2' class='connectedSortable'>
+    <ul class='connected-sortable sortable2'>
         <? foreach($columns['disabled'] as $value) echo "<li>$value</li>" ?>
     </ul>
 
@@ -28,7 +28,7 @@ use yii\helpers\Html;
         ]) ?>
         <?= Html::a('Закрыть', null, [
             'id' => 'hide_grid_column_sort',
-            'class' => 'btn btn-warning',
+            'class' => 'btn btn-warning hide-connected-sortable-columns',
         ]) ?>
     </div>
 </div>

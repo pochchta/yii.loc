@@ -1,7 +1,7 @@
 <?php
 
 
-namespace app\widgets\sort;
+namespace app\widgets\gcs;
 
 
 use yii\bootstrap\Widget;
