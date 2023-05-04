@@ -1,16 +1,19 @@
 class loadingWindow {
     /**
      * Создание и отображение окна "загрузка" поверх переданного элемента jquery
-     * @param $selector jquery
+     * @param $element js или jquery
      */
-    static show($selector) {
-        let selectorWidth = $selector.outerWidth();
-        let selectorHeight = $selector.outerHeight();
-        let selectorPosition = $selector.offset();
+    static show($element) {
+        if (! ($element instanceof jQuery)) {
+            $element = $($element);
+        }
+        let selectorWidth = $element.outerWidth();
+        let selectorHeight = $element.outerHeight();
+        let selectorPosition = $element.offset();
         let selectorLeft = selectorPosition.left;
         let selectorTop = selectorPosition.top;
 
-        let $absChildren = $selector.find('.absolute:not(.hide)');  // с учетом вложенных .absolute
+        let $absChildren = $element.find('.absolute:not(.hide)');  // с учетом вложенных .absolute
         for (let child of $absChildren) {
             let $child = $(child);
 
@@ -34,7 +37,7 @@ class loadingWindow {
             }
         }
 
-        let loading_window_id = $selector.attr('id') + '_loading_window';
+        let loading_window_id = $element.attr('id') + '_loading_window';
         let $window = $('#' + loading_window_id);
         if (! $window.length) {
             let zIndex = 999;
@@ -48,7 +51,7 @@ class loadingWindow {
             $window.css('font-size', (selectorWidth / 15) + 'px');
             $window.css('padding', (selectorWidth / 15) + 'px');
 
-            $window.insertAfter($selector);
+            $window.insertAfter($element);
         }
 
         $window.fadeIn("slow");
@@ -60,10 +63,13 @@ class loadingWindow {
 
     /**
      * Сокрытие окна "загрузка" над переданным элементом
-     * @param $selector jquery
+     * @param $element js или jquery
      */
-    static hide($selector) {
-        let loading_window_id = $selector.attr('id') + '_loading_window';
+    static hide($element) {
+        if (! ($element instanceof jQuery)) {
+            $element = $($element);
+        }
+        let loading_window_id = $element.attr('id') + '_loading_window';
         let $window = $('#' + loading_window_id);
         if ($window.length) {
             $window.css('display', 'none');
