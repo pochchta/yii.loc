@@ -18,8 +18,9 @@ class gcs {
 
         $.ajax({
             method: "POST",
-            url: e.data.writeUrl,
+            url: e.data.write_url,
             data: {
+                widget_name: e.data.widget_name,
                 name: e.data.name,
                 role: gcs.takeRoleFromHtml($rootElement),
                 col: JSON.stringify(gcs.takeColumnsFromHtml($rootElement)),
@@ -58,8 +59,9 @@ class gcs {
 
         $.ajax({
             method: "POST",
-            url: e.data.readUrl,
+            url: e.data.read_url,
             data: {
+                widget_name: e.data.widget_name,
                 name: e.data.name,
                 role: gcs.takeRoleFromHtml($rootElement),
             },

@@ -2,14 +2,14 @@
 
 namespace app\modules\api\controllers;
 
-use app\widgets\gcs\Model;
+use app\widgets\csc\Model;
 use Yii;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\Controller;
 use yii\web\HttpException;
 use yii\web\Response;
 
-class GcsController extends Controller
+class CscController extends Controller
 {
     /**
      * {@inheritdoc}
@@ -44,7 +44,9 @@ class GcsController extends Controller
         $params = Yii::$app->request->post();
         $model = Model::findOne([
             'role' => $params['role'],
-            'name' => $params['name']
+            'name' => $params['name'],
+            'widget_name' => $params['widget_name'],
+
         ]);
         if (empty($model)) {
             $model = new Model();
@@ -61,7 +63,8 @@ class GcsController extends Controller
         $params = Yii::$app->request->post();
         $model = Model::findOne([
             'role' => $params['role'],
-            'name' => $params['name']
+            'name' => $params['name'],
+            'widget_name' => $params['widget_name'],
         ]);
         if ($model) {
             return json_decode($model->col);

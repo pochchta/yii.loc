@@ -1,6 +1,6 @@
 <?php
 
-namespace app\widgets\gcs;
+namespace app\widgets\csc;
 
 
 use yii\db\ActiveRecord;
@@ -11,6 +11,7 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property string|null $role
  * @property string|null $name
+ * @property string|null $widget_name
  * @property string|null $col
  */
 class Model extends ActiveRecord
@@ -30,7 +31,7 @@ class Model extends ActiveRecord
     {
         return [
             [['col'], 'string'],
-            [['role', 'name'], 'string', 'max' => 255],
+            [['role', 'name', 'widget_name'], 'string', 'max' => 255],
         ];
     }
 
@@ -44,6 +45,7 @@ class Model extends ActiveRecord
             'role' => 'Role',
             'name' => 'Name',
             'col' => 'Col',
+            'widget_name' => 'widgetName',
         ];
     }
 

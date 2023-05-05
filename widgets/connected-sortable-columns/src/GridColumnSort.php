@@ -1,7 +1,7 @@
 <?php
 
 
-namespace app\widgets\gcs;
+namespace app\widgets\csc;
 
 
 use Yii;
@@ -21,7 +21,7 @@ class GridColumnSort
     public function __construct(array $gridViewData = ['columns' => []], array $params = [])
     {
         $this->unSortGridViewData = $gridViewData;
-        foreach (['name', 'class', 'role', 'writeUrl', 'readUrl', 'token'] as $name) {
+        foreach (['name', 'class', 'role', 'write_url', 'read_url', 'token'] as $name) {
             if (! isset($params[$name])) {
                 $params[$name] = '';
             }
@@ -32,6 +32,8 @@ class GridColumnSort
         if (! isset($params['required'])) {
             $params['required'] = [];
         }
+
+        $params['widget_name'] = basename(get_class($this));
 
         $this->params = $params;
     }
@@ -69,7 +71,8 @@ class GridColumnSort
     {
         $model = Model::findOne([
             'role' => $this->params['role'],
-            'name' => $this->params['name']
+            'name' => $this->params['name'],
+            'widget_name' => $this->params['widget_name'],
         ]);
         $this->namesFromRep = [];
         if ($model) {
