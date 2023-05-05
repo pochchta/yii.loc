@@ -1,13 +1,16 @@
 <?php
 
 
-namespace app\models;
+namespace app\models\catalogTabs;
 
+
+use app\models\Word;
 
 class CatalogTabs
 {
-    private $headerMenu, $listSource = [], $listLabel = [], $listAutoComplete = [], $menu = [];
     const DEFAULT_SOURCE = 'word';
+
+    private $headerMenu, $listSource = [], $listLabel = [], $listAutoComplete = [], $menu;
 
     public function __construct($headerMenu)
     {
@@ -85,10 +88,27 @@ class CatalogTabs
     }
 
     /**
-     * Получить меню
+     * Получить меню в виде массива
      */
     public function getMenu()
     {
         return $this->menu;
+    }
+
+    /**
+     * Получить заголовок меню
+     */
+    public function getHeaderMenu()
+    {
+        return $this->headerMenu;
+    }
+
+    /**
+     * Установить заголовок меню
+     * @param array $headerMenu
+     */
+    public function setHeaderMenu(array $headerMenu)
+    {
+        $this->headerMenu = $headerMenu;
     }
 }
