@@ -56,6 +56,7 @@ class CatalogTabs
      */
     public function buildMenu()
     {
+        $this->menu = [];
         foreach ($this->headerMenu as $item) {
             $source = self::DEFAULT_SOURCE;
             if (isset($this->listSource[$item])) {

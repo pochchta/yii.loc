@@ -82,12 +82,16 @@ class CatalogTabsSort
             }
         }
 
-        $this->columnsForWidget['enabled'] = array_values($newHeaderMenu);
-        $this->columnsForWidget['disabled'] =
-            array_values(array_diff($headerMenu, $this->columnsForWidget['enabled']));
+        $this->columnsForWidget['enabled'] = array_map(function ($item) {
+            return $this->menu->getMenu()[$item]['label'];
+        }, $newHeaderMenu);
+        $this->columnsForWidget['disabled'] = array_map(function ($item) {
+            return $this->menu->getMenu()[$item]['label'];
+        }, array_diff($headerMenu, $newHeaderMenu));
         $this->columnsForWidget['params'] = $this->params;
 
         $this->menu->setHeaderMenu($newHeaderMenu);
+        $this->menu->buildMenu();
     }
 
     /**
