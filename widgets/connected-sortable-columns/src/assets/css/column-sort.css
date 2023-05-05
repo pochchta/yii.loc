@@ -15,7 +15,7 @@
 
 .connected-sortable-columns ul{
     border: 1px solid #eee;
-    width: 142px;
+    min-width: 142px;
     min-height: 20px;
     list-style-type: none;
     padding: 5px 0 0 0;
@@ -24,10 +24,10 @@
 }
 
 .connected-sortable-columns li{
-    margin: 0 5px 5px 5px;
+    margin: 0 15px 5px 5px;
     padding: 5px;
     font-size: 1.2em;
-    width: 120px;
+    min-width: 120px;
     height: 1.9em;
     line-height: 1.2em;
 }
