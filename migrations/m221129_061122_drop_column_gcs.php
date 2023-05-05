@@ -23,8 +23,10 @@ class m221129_061122_drop_column_gcs extends Migration
      */
     public function safeDown()
     {
-        echo "m221129_061122_drop_column_gcs cannot be reverted.\n";
-
-        return false;
+        $this->addColumn(
+            '{{%grid_column_sort}}',
+            'user_id',
+            $this->bigInteger()->unsigned()
+        );
     }
 }
