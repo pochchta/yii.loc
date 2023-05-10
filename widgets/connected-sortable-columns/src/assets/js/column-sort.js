@@ -96,7 +96,6 @@ class gcs {
     }
 
     static updateColumns(columnsAfter, e) {
-        let params = e.data;
         let $rootElement = $(e.target).closest('.connected-sortable-columns');
 
         let $columns = $rootElement.find('ul li');
@@ -111,12 +110,12 @@ class gcs {
 
         $columns.remove();
 
-        for (let name of arrayBeforeUpdate) {
-            if (columnsAfter.includes(name) || params.required.includes(name)) {
-                $sortable1.append('<li>' + name + '</li>')
-            } else {
-                $sortable2.append('<li>' + name + '</li>')
-            }
+        for (let name of columnsAfter) {
+            $sortable1.append('<li>' + name + '</li>')
+        }
+        const arrayDiff = arrayBeforeUpdate.filter(x => !columnsAfter.includes(x)).sort();
+        for (let name of arrayDiff) {
+            $sortable2.append('<li>' + name + '</li>')
         }
     }
 
