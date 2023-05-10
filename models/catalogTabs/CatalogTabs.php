@@ -15,6 +15,7 @@ class CatalogTabs
     public function __construct($headerMenu)
     {
         $this->headerMenu = $headerMenu;
+        $this->addSettingsButton();
     }
 
     /**
@@ -29,7 +30,7 @@ class CatalogTabs
      */
     public function setSource($listSource)
     {
-        $this->listSource = $listSource;
+        $this->listSource = array_unique(array_merge($this->listSource, $listSource));
         return $this;
     }
 
@@ -39,7 +40,7 @@ class CatalogTabs
      */
     public function setLabel($listLabel)
     {
-        $this->listLabel = $listLabel;
+        $this->listLabel = array_unique(array_merge($this->listLabel, $listLabel));
         return $this;
     }
 
@@ -50,7 +51,7 @@ class CatalogTabs
      */
     public function setAutoComplete($listAutoComplete)
     {
-        $this->listAutoComplete = $listAutoComplete;
+        $this->listAutoComplete = array_unique(array_merge($this->listAutoComplete, $listAutoComplete));
         return $this;
     }
 
@@ -88,10 +89,25 @@ class CatalogTabs
     }
 
     /**
+     * Добавить кнопку настроек в шапку ['settingsButton' => 'Кнопка']
+     */
+    private function addSettingsButton()
+    {
+        if (! in_array('settingsButton', $this->headerMenu)) {
+            $this->headerMenu[] = 'settingsButton';
+            $this->listLabel['settingsButton'] = 'Настройки';
+            $this->listSource['settingsButton'] = 'settingsButton';
+        }
+    }
+
+    /**
      * Получить меню в виде массива
      */
     public function getMenu()
     {
+        if (! isset($this->menu)) {
+            $this->buildMenu();
+        }
         return $this->menu;
     }
 
