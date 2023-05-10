@@ -187,8 +187,12 @@ function initHandlers() {
         })
 
     $(document)
-        .on("gcs:save_success", function () {
-            sendFiltersForm('#filters-form');
+        .on("csc:save_success", function (event) {
+            if (event.detail.widget_name === 'GridColumnSort') {
+                sendFiltersForm('#filters-form');
+            } else if (event.detail.widget_name === 'CatalogTabsSort') {
+                location.reload();
+            }
         })
 
     // resetFilters - сброс одного или нескольких фильтров
@@ -217,4 +221,7 @@ function initHandlers() {
 }
 
 function onSelectAutoComplete(e, ui) {
+    let $input = $(e.target);
+    $input.val(ui.item.label);
+    sendFiltersForm('#filters-form')
 }
