@@ -5,46 +5,18 @@ namespace app\widgets\csc;
 
 
 use app\models\catalogTabs\CatalogTabs;
-use Yii;
 
-class CatalogTabsSort
+class CatalogTabsSort extends MainSort
 {
-    private $params;
     private $menu;
-    private $namesFromRep;
-    private $columnsForWidget;
 
     public function __construct(CatalogTabs $menu, array $params = [])
     {
         $this->menu = $menu;
-        foreach (['name', 'class', 'role', 'write_url', 'read_url', 'token'] as $name) {
-            if (! isset($params[$name])) {
-                $params[$name] = '';
-            }
-        }
-        if ($params['name'] === '') {
-            $params['name'] = $this->getShortClassName($params['class']);
-        }
-        if (! isset($params['required'])) {
-            $params['required'] = [];
-        }
-
-        $params['widget_name'] = basename(get_class($this));
-
-        $this->params = $params;
+        $this->loadParams($params);
     }
 
-    public function runWidget()
-    {
-        $this->process();
-        return ViewRender::widget([
-            'clientOptions' => [
-                'columns' => $this->columnsForWidget,
-            ]
-        ]);
-    }
-
-    private function process()
+    protected function process()
     {
         if (! isset($this->columnsForWidget)) {
             $this->takeColumnsFromRep();
@@ -53,19 +25,12 @@ class CatalogTabsSort
     }
 
     /**
-     * Запросить настройки сортировки по профилю
+     * @return CatalogTabs
      */
-    private function takeColumnsFromRep()
+    public function getMenu()
     {
-        $model = Model::findOne([
-            'role' => $this->params['role'],
-            'name' => $this->params['name'],
-            'widget_name' => $this->params['widget_name'],
-        ]);
-        $this->namesFromRep = [];
-        if ($model) {
-            $this->namesFromRep = json_decode($model->col);
-        }
+        $this->process();
+        return $this->menu;
     }
 
     /**
@@ -92,36 +57,5 @@ class CatalogTabsSort
 
         $this->menu->setHeaderMenu($newHeaderMenu);
         $this->menu->buildMenu();
-    }
-
-    /**
-     * @return CatalogTabs
-     */
-    public function getMenu()
-    {
-        $this->process();
-        return $this->menu;
-    }
-
-    private function getShortClassName($name)
-    {
-        $pos = strrpos($name, '\\');
-        if ($pos !== false) {
-            $name = substr($name, $pos + 1);
-        }
-        return $name;
-    }
-
-    /**
-     * @return array
-     */
-    public static function getListProfileView()
-    {
-        $keys = array_keys(Yii::$app->authManager->getRoles());
-        $roles = array_combine($keys, $keys);
-        return array_merge(
-            ['default' => 'По умолчанию'],
-            $roles
-        );
     }
 }

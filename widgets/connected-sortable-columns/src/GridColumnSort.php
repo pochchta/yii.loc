@@ -4,15 +4,10 @@
 namespace app\widgets\csc;
 
 
-use Yii;
-
-class GridColumnSort
+class GridColumnSort extends MainSort
 {
-    private $params;
     private $unSortGridViewData;
     private $gridViewData;
-    private $namesFromRep;
-    private $columnsForWidget;
 
     /**
      * @param array $gridViewData
@@ -21,45 +16,10 @@ class GridColumnSort
     public function __construct(array $gridViewData = ['columns' => []], array $params = [])
     {
         $this->unSortGridViewData = $gridViewData;
-        foreach (['name', 'class', 'role', 'write_url', 'read_url', 'token'] as $name) {
-            if (! isset($params[$name])) {
-                $params[$name] = '';
-            }
-        }
-        if ($params['name'] === '') {
-            $params['name'] = $this->getShortClassName($params['class']);
-        }
-        if (! isset($params['required'])) {
-            $params['required'] = [];
-        }
-
-        $params['widget_name'] = basename(get_class($this));
-
-        $this->params = $params;
+        $this->loadParams($params);
     }
 
-    public function getGridViewData()
-    {
-        $this->process();
-        return $this->gridViewData;
-    }
-
-    public function runWidget()
-    {
-        $this->process();
-        return ViewRender::widget([
-            'clientOptions' => [
-                'columns' => $this->columnsForWidget,
-            ]
-        ]);
-    }
-
-    public function getColumnsForWidget()
-    {
-        return $this->columnsForWidget;
-    }
-
-    private function process()
+    protected function process()
     {
         if (! isset($this->columnsForWidget)) {
             $this->takeColumnsFromRep();
@@ -67,17 +27,10 @@ class GridColumnSort
         }
     }
 
-    private function takeColumnsFromRep()
+    public function getGridViewData()
     {
-        $model = Model::findOne([
-            'role' => $this->params['role'],
-            'name' => $this->params['name'],
-            'widget_name' => $this->params['widget_name'],
-        ]);
-        $this->namesFromRep = [];
-        if ($model) {
-            $this->namesFromRep = json_decode($model->col);
-        }
+        $this->process();
+        return $this->gridViewData;
     }
 
     private function takeColumnsFromGridViewData()
@@ -124,32 +77,5 @@ class GridColumnSort
             }
         }
         return 'noname';
-    }
-
-    private function findLabel($key)
-    {
-        if (class_exists($this->params['class'])) {
-            $label = (new $this->params['class'])->getAttributeLabel($key);
-        }
-        return $label ?? $key;
-    }
-
-    private function getShortClassName($name)
-    {
-        $pos = strrpos($name, '\\');
-        if ($pos !== false) {
-            $name = substr($name, $pos + 1);
-        }
-        return $name;
-    }
-
-    public static function getListProfileView()
-    {
-        $keys = array_keys(Yii::$app->authManager->getRoles());
-        $roles = array_combine($keys, $keys);
-        return array_merge(
-            ['default' => 'По умолчанию'],
-            $roles
-        );
     }
 }
