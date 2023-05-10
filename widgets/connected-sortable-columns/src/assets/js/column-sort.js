@@ -30,7 +30,10 @@ class gcs {
             },
             success: function (msg) {
                 document.dispatchEvent(new CustomEvent("gcs:save_success", {
-                    detail: { msg: msg }
+                    detail: {
+                        msg: msg,
+                        widget_name: e.data.widget_name,
+                    }
                 }));
                 if (msg === true) {
                     flash.add('Столбцы таблицы: сохранено');
@@ -41,7 +44,10 @@ class gcs {
             complete: function (jqXHR, textStatus) {
                 if (textStatus !== 'success') {
                     document.dispatchEvent(new CustomEvent("gcs:save_error", {
-                        detail: { msg: jqXHR.responseText }
+                        detail: {
+                            msg: jqXHR.responseText,
+                            widget_name: e.data.widget_name,
+                        }
                     }));
                     flash.add('Столбцы таблицы: ' + jqXHR.responseText, 'danger');
                 }
@@ -67,14 +73,20 @@ class gcs {
             },
             success: function (msg) {
                 document.dispatchEvent(new CustomEvent("gcs:load_success", {
-                    detail: { msg: msg }
+                    detail: {
+                        msg: msg,
+                        widget_name: e.data.widget_name,
+                    }
                 }));
                 gcs.updateColumns(msg, e);
             },
             complete: function (jqXHR, textStatus) {
                 if (textStatus !== 'success') {
                     document.dispatchEvent(new CustomEvent("gcs:load_error", {
-                        detail: { msg: jqXHR.responseText }
+                        detail: {
+                            msg: jqXHR.responseText,
+                            widget_name: e.data.widget_name,
+                        }
                     }));
                     flash.add('Столбцы таблицы: ' + jqXHR.responseText, 'danger');
                 }
