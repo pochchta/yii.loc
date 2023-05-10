@@ -4,8 +4,8 @@ use app\widgets\csc\CatalogTabsSort;
 use yii\helpers\Html;
 
 $options = json_encode($columns['params']);
-$this->registerJs("$('#save_catalog_tabs_sort').on('click', $options, gcs.save);");
-$this->registerJs("$('#load_catalog_tabs_sort').on('change', $options, gcs.load);");
+$this->registerJs("$('#save_catalog_tabs_sort').on('click', $options, csc.save);");
+$this->registerJs("$('#load_catalog_tabs_sort').on('change', $options, csc.load);");
 ?>
 
 <div id='catalog_tabs_sort' class='connected-sortable-columns clearfix'>

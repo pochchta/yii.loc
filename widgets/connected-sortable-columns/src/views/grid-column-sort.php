@@ -4,8 +4,8 @@ use app\widgets\csc\GridColumnSort;
 use yii\helpers\Html;
 
 $options = json_encode($columns['params']);
-$this->registerJs("$('#save_grid_column_sort').on('click', $options, gcs.save);");
-$this->registerJs("$('#load_grid_column_sort').on('change', $options, gcs.load);");
+$this->registerJs("$('#save_grid_column_sort').on('click', $options, csc.save);");
+$this->registerJs("$('#load_grid_column_sort').on('change', $options, csc.load);");
 ?>
 <div id='grid_column_sort' class='connected-sortable-columns clearfix'>
     <h3>Настройка столбцов таблицы</h3>

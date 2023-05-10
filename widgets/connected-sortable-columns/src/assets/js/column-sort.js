@@ -1,4 +1,4 @@
-class gcs {
+class csc {
     static takeColumnsFromHtml($rootElement) {
         let $elements = $rootElement.find('.sortable1 li');
         return Array.from($elements).map(item => item.innerText);
@@ -22,14 +22,14 @@ class gcs {
             data: {
                 widget_name: e.data.widget_name,
                 name: e.data.name,
-                role: gcs.takeRoleFromHtml($rootElement),
-                col: JSON.stringify(gcs.takeColumnsFromHtml($rootElement)),
+                role: csc.takeRoleFromHtml($rootElement),
+                col: JSON.stringify(csc.takeColumnsFromHtml($rootElement)),
             },
             beforeSend: function (xhr) {
                 xhr.setRequestHeader('Authorization', 'Bearer ' + e.data.token);
             },
             success: function (msg) {
-                document.dispatchEvent(new CustomEvent("gcs:save_success", {
+                document.dispatchEvent(new CustomEvent("csc:save_success", {
                     detail: {
                         msg: msg,
                         widget_name: e.data.widget_name,
@@ -43,7 +43,7 @@ class gcs {
             },
             complete: function (jqXHR, textStatus) {
                 if (textStatus !== 'success') {
-                    document.dispatchEvent(new CustomEvent("gcs:save_error", {
+                    document.dispatchEvent(new CustomEvent("csc:save_error", {
                         detail: {
                             msg: jqXHR.responseText,
                             widget_name: e.data.widget_name,
@@ -69,20 +69,20 @@ class gcs {
             data: {
                 widget_name: e.data.widget_name,
                 name: e.data.name,
-                role: gcs.takeRoleFromHtml($rootElement),
+                role: csc.takeRoleFromHtml($rootElement),
             },
             success: function (msg) {
-                document.dispatchEvent(new CustomEvent("gcs:load_success", {
+                document.dispatchEvent(new CustomEvent("csc:load_success", {
                     detail: {
                         msg: msg,
                         widget_name: e.data.widget_name,
                     }
                 }));
-                gcs.updateColumns(msg, e);
+                csc.updateColumns(msg, e);
             },
             complete: function (jqXHR, textStatus) {
                 if (textStatus !== 'success') {
-                    document.dispatchEvent(new CustomEvent("gcs:load_error", {
+                    document.dispatchEvent(new CustomEvent("csc:load_error", {
                         detail: {
                             msg: jqXHR.responseText,
                             widget_name: e.data.widget_name,
@@ -144,9 +144,9 @@ class gcs {
 }
 
 $(window).on('load', function() {
-    gcs.initControl();
-    gcs.initSortable();
+    csc.initControl();
+    csc.initSortable();
 })
 $(document).on('pjax:complete', function() {
-    gcs.initSortable();
+    csc.initSortable();
 })
