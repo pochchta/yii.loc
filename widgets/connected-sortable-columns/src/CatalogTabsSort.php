@@ -20,7 +20,7 @@ class CatalogTabsSort extends MainSort
     {
         if (! isset($this->columnsForWidget)) {
             $this->takeColumnsFromRep();
-            $this->sortMenu($this->namesFromRep);
+            $this->sortMenu();
         }
     }
 
@@ -34,25 +34,30 @@ class CatalogTabsSort extends MainSort
     }
 
     /**
-     * Сортировка и фильтрация меню по $newOrder и формирование столбцов для выбора
-     * @param array $newOrder ['название_поля', ...]
+     * Сортировка и фильтрация меню по $namesFromRep и формирование столбцов для выбора
      */
-    public function sortMenu(array $newOrder)
+    public function sortMenu()
     {
-        $headerMenu = $this->menu->getHeaderMenu();
-        $newHeaderMenu = [];
-        foreach ($newOrder as $newOrderItem) {
-            if (in_array($newOrderItem, $headerMenu)) {
-                $newHeaderMenu[] = $newOrderItem;
-            }
-        }
 
-        $this->columnsForWidget['enabled'] = array_map(function ($item) {
-            return $this->menu->getMenu()[$item]['label'];
-        }, $newHeaderMenu);
-        $this->columnsForWidget['disabled'] = array_map(function ($item) {
-            return $this->menu->getMenu()[$item]['label'];
-        }, array_diff($headerMenu, $newHeaderMenu));
+        $menu = $this->menu->getMenu();
+        $labels = array_map(function ($item) {
+            return $item['label'];
+        }, $menu);
+        $keysByName = array_combine($labels, array_keys($menu));
+
+        $selectedNames = array_unique(array_merge($this->namesFromRep, $this->params['required']));     // настройки + required
+        $usedNames = array_intersect($selectedNames, $labels);                                          // что используется на самом деле
+        $newHeaderMenu = array_map(function ($item) use ($keysByName) {
+            return $keysByName[$item];
+        }, $usedNames);                                                                                 // заголовок меню
+
+        $allLabels = array_unique(array_merge($labels, $this->params['required']));                     // для виджета сортировки
+
+        $this->columnsForWidget['enabled'] = $this->namesFromRep;
+        $disabled = array_diff($allLabels, $this->namesFromRep);
+        sort($disabled);
+        $this->columnsForWidget['disabled'] = array_values($disabled);
+
         $this->columnsForWidget['params'] = $this->params;
 
         $this->menu->setHeaderMenu($newHeaderMenu);
