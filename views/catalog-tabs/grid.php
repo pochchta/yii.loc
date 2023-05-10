@@ -4,7 +4,7 @@ use app\models\Status;
 use app\models\Word;
 use yii\helpers\Html;
 
-/* @var $menu app\models\CatalogTabs */
+$menu = $catalogTabsSort->getMenu();
 ?>
 
 <form id="filters-form">
@@ -47,6 +47,14 @@ use yii\helpers\Html;
                             <span class="checkbox filter-checkbox" data-source=<?=$key?> data-value="<?=Status::DELETED?>">Удаленные</span>
                             <span class="checkbox filter-checkbox" data-source=<?=$key?> data-value="<?=Status::ALL?>">Все</span>
                         </div>
+                    <?php elseif($tab['source'] === 'settingsButton'): ?>
+                        <?= Html::a(
+                            '<span class="glyphicon glyphicon-cog a-action" data-toggle-id="catalog_tabs_sort"></span>',
+                            null,
+                            [
+                                'title' => 'Настроить меню',
+                            ]
+                        ) ?>
                     <?php endif ?>
                 </div>
             <?php endforeach ?>
@@ -63,3 +71,6 @@ use yii\helpers\Html;
         </div>
     </div>
 </form>
+<?php if (Yii::$app->user->can('ChangingCatalogTabsSort')) : ?>
+    <?= $catalogTabsSort->runWidget() ?>
+<?php endif?>
