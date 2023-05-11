@@ -1,9 +1,10 @@
 <?php
 
+use app\models\CatalogTabs;
 use app\models\Status;
 use app\models\Word;
 
-/* @var $menu app\models\CatalogTabs */
+/* @var $menu CatalogTabs */
 ?>
 
 <form id="filters-form">
