@@ -4,7 +4,7 @@
 namespace app\widgets\csc;
 
 
-use app\models\catalogTabs\CatalogTabs;
+use app\models\CatalogTabs;
 
 class CatalogTabsSort extends MainSort
 {

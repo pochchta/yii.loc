@@ -1,10 +1,8 @@
 <?php
 
 
-namespace app\models\catalogTabs;
+namespace app\models;
 
-
-use app\models\Word;
 
 class CatalogTabs
 {
