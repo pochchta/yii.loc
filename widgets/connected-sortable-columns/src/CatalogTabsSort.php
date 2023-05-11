@@ -38,23 +38,22 @@ class CatalogTabsSort extends MainSort
      */
     public function sortMenu()
     {
-
         $menu = $this->menu->getMenu();
-        $labels = array_map(function ($item) {
+        $names = array_map(function ($item) {
             return $item['label'];
         }, $menu);
-        $keysByName = array_combine($labels, array_keys($menu));
+        $keysByName = array_combine($names, array_keys($menu));
 
         $selectedNames = array_unique(array_merge($this->namesFromRep, $this->params['required']));     // настройки + required
-        $usedNames = array_intersect($selectedNames, $labels);                                          // что используется на самом деле
+        $usedNames = array_intersect($selectedNames, $names);                                           // что используется на самом деле
         $newHeaderMenu = array_map(function ($item) use ($keysByName) {
             return $keysByName[$item];
         }, $usedNames);                                                                                 // заголовок меню
 
-        $allLabels = array_unique(array_merge($labels, $this->params['required']));                     // для виджета сортировки
+        $allLabels = array_unique(array_merge($names, $this->params['required']));                      // для виджета сортировки
 
-        $this->columnsForWidget['enabled'] = $this->namesFromRep;
-        $disabled = array_diff($allLabels, $this->namesFromRep);
+        $this->columnsForWidget['enabled'] = array_intersect($this->namesFromRep, $names);
+        $disabled = array_diff($allLabels, $this->columnsForWidget['enabled']);
         sort($disabled);
         $this->columnsForWidget['disabled'] = array_values($disabled);
 

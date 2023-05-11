@@ -55,9 +55,11 @@ class GridColumnSort extends MainSort
             $this->gridViewData['columns'] = array_values($columnsByNameSort);
         }
 
-        $this->columnsForWidget['enabled'] = array_values($usedNames);
-        $this->columnsForWidget['disabled'] =
-            array_values(array_diff($names, $this->columnsForWidget['enabled']));
+        $this->columnsForWidget['enabled'] = array_intersect($this->namesFromRep, $names);
+        $disabled = array_diff($names, $this->columnsForWidget['enabled']);
+        sort($disabled);
+        $this->columnsForWidget['disabled'] = array_values($disabled);
+
         $this->columnsForWidget['params'] = $this->params;
     }
 
