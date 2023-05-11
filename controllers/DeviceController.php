@@ -71,8 +71,7 @@ class DeviceController extends Controller
         $menu = (new CatalogTabs($headerMenu))
             ->setSource(['number' => 'text', 'created_at' => 'date', 'updated_at' => 'date', 'deleted' => 'deleted'])
             ->setLabel(['number' => 'Номер прибора', 'created_at' => 'Дата создания', 'updated_at' => 'Дата изменения', 'deleted' => 'Удален'])
-            ->setAutoComplete(['device' => ['kind', 'name', 'state', 'department', 'crew', 'number', ]])
-            ->buildMenu();
+            ->setAutoComplete(['device' => ['kind', 'name', 'state', 'department', 'crew', 'number', ]]);
 
         return $this->render('index', compact(
             'dataProvider', 'menu'
@@ -116,8 +115,7 @@ class DeviceController extends Controller
     {
         $menu = (new CatalogTabs(['kind', 'name', 'state', 'department', 'crew']))
             ->setSource(['number' => 'text'])
-            ->setLabel(['number' => 'Номер прибора'])
-            ->buildMenu();
+            ->setLabel(['number' => 'Номер прибора']);
 
         if (isset($id)) {       // update
             $model = $this->findModel($id);

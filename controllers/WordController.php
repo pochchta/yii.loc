@@ -66,8 +66,7 @@ class WordController extends Controller
         $menu = (new CatalogTabs($headerMenu))
             ->setSource(['name' => 'text', 'parent' => 'category', 'value' => 'text', 'deleted' => 'deleted'])
             ->setLabel(['name' => 'Название', 'parent' => 'Категория', 'value' => 'Значение', 'deleted' => 'Удален'])
-            ->setAutoComplete(['word' => ['name', 'parent', 'value']])
-            ->buildMenu();
+            ->setAutoComplete(['word' => ['name', 'parent', 'value']]);
 
         return $this->render('index', compact(
             'dataProvider', 'menu'
@@ -109,8 +108,7 @@ class WordController extends Controller
     {
         $menu = (new CatalogTabs(['parent_name']))
             ->setSource(['parent_name' => 'category'])
-            ->setLabel(['parent_name' => 'Категория'])
-            ->buildMenu();
+            ->setLabel(['parent_name' => 'Категория']);
 
         if (isset($id)) {       // update
             $model = $this->findModel($id);
@@ -150,45 +148,6 @@ class WordController extends Controller
         return $this->render($view, compact(
             'model', 'menu'
         ));
-    }
-
-    public function actionListAutoComplete()
-    {
-        $wordSearch = new WordSearch();
-        $wordSearch->load(Yii::$app->request->queryParams);
-        if ($wordSearch->validate()) {
-            if (in_array($wordSearch->term_name, WordSearch::COLUMN_SEARCH)) {
-                echo $wordSearch->findNamesByFieldName();
-            } else {
-                if ($wordSearch->term_name == 'category2') {
-                    $arrayCondition[] = [
-                        'parents' => [$wordSearch->term_p1],
-                        'depth' => 1,
-                        'withParent' => false
-                    ];
-                } elseif ($wordSearch->term_name == 'category3') {
-                    $arrayCondition[] = [
-                        'parents' => [$wordSearch->term_p1, $wordSearch->term_p2],
-                        'depth' => 2,
-                        'withParent' => false
-                    ];
-                } elseif ($wordSearch->term_name == 'category4') {
-                    $arrayCondition[] = [
-                        'parents' => [$wordSearch->term_p1, $wordSearch->term_p2, $wordSearch->term_p3],
-                        'depth' => 3,
-                        'withParent' => false
-                    ];
-                } else {                                    // word/_form
-                    $arrayCondition[] = [
-                        'parents' => [$wordSearch->term_p1],
-                        'depth' => Word::MAX_NUMBER_PARENTS - 1,
-                        'withParent' => true
-                    ];
-                }
-                echo $wordSearch->findNamesByParents($arrayCondition);
-            }
-        }
-        die();
     }
 
     /**
