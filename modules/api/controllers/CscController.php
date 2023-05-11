@@ -38,15 +38,22 @@ class CscController extends Controller
 
     public function actionWriteColumn()
     {
-        if(! Yii::$app->user->can('ChangingGridColumnSort')) {
+        $params = Yii::$app->request->post();
+        if ($params['widget_name'] === 'CatalogTabsSort') {
+            if(! Yii::$app->user->can('ChangingCatalogTabsSort')) {
+                throw new HttpException(403);
+            }
+        } elseif ($params['widget_name'] === 'GridColumnSort') {
+            if(! Yii::$app->user->can('ChangingGridColumnSort')) {
+                throw new HttpException(403);
+            }
+        } else {
             throw new HttpException(403);
         }
-        $params = Yii::$app->request->post();
         $model = Model::findOne([
             'role' => $params['role'],
             'name' => $params['name'],
             'widget_name' => $params['widget_name'],
-
         ]);
         if (empty($model)) {
             $model = new Model();
@@ -67,9 +74,9 @@ class CscController extends Controller
             'widget_name' => $params['widget_name'],
         ]);
         if ($model) {
-            return json_decode($model->col);
+            return $model->col;
         }
-        return [];
+        return json_encode([]);
     }
 
 }

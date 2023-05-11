@@ -78,7 +78,7 @@ class csc {
                         widget_name: e.data.widget_name,
                     }
                 }));
-                csc.updateColumns(msg, e);
+                csc.updateColumns(JSON.parse(msg), e);
             },
             complete: function (jqXHR, textStatus) {
                 if (textStatus !== 'success') {
