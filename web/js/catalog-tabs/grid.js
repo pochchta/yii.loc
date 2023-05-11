@@ -191,6 +191,7 @@ function initHandlers() {
             if (event.detail.widget_name === 'GridColumnSort') {
                 sendFiltersForm('#filters-form');
             } else if (event.detail.widget_name === 'CatalogTabsSort') {
+                loadingWindow.show($('body'));
                 location.reload();
             }
         })
