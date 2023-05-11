@@ -74,7 +74,7 @@ class Device extends ActiveRecord
             [['kind', 'name', 'state', 'department', 'crew', 'number'], 'required'],
             [['description'], 'string'],
             [['number'], 'string', 'max' => Yii::$app->params['maxLengthTextField']],
-            [['kind', 'name', 'type', 'group', 'state', 'department', 'crew', 'position'], 'string', 'max' => Yii::$app->params['maxLengthTextField']],
+            [['kind', 'name', 'state', 'department', 'crew', 'position'], 'string', 'max' => Yii::$app->params['maxLengthTextField']],
             [['kind', 'name', 'state', 'department', 'crew'], 'validateId', 'skipOnEmpty' => false],
         ];
     }
@@ -89,17 +89,12 @@ class Device extends ActiveRecord
             $word = Word::findOne(['name' => $this->$attribute]);
             if (isset($word)) {
                 $parents = Word::getParentByLevel($word);
+                if (Word::getFieldWord($attribute) !== $parents[0]->id) {
+                    $this->addError($attribute, 'Значение не из нужной категории');
+                }
                 if ($attribute == 'name') {
-                    if (
-                        Word::getFieldWord($attribute) !== $parents[0]->id ||
-                        (strlen($this->group) && $this->group !== $parents[1]->name) ||
-                        (strlen($this->type) && $this->type !== $parents[2]->name)
-                    ) {
-                        $this->addError($attribute, 'Значение не из списка');
-                    }
-                } else {
-                    if (Word::getFieldWord($attribute) !== $parents[0]->id) {
-                        $this->addError($attribute, 'Значение не из списка');
+                    if (! isset($parents[2])) {
+                        $this->addError($attribute, 'Значение неверной глубины');
                     }
                 }
                 $this->$attributeId = $word->id;
