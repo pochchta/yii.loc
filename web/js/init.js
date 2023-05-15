@@ -48,7 +48,7 @@ function addAutoCompleteOptions() {
                 let $input = $(input);
                 let source = 'word';
                 let fieldName = $input.attr('name');
-                let parentName = $input.attr('data-parent');
+                let parentName = $input.attr('data-parent');        // # 'device' or 'device_form'
 
                 if (
                     rules.hasOwnProperty(parentName)
@@ -56,7 +56,7 @@ function addAutoCompleteOptions() {
                     && rules[parentName][fieldName].hasOwnProperty('source')
                     && rules[parentName][fieldName]['source'] === 1
                 ) {
-                    source = parentName.split('_')[0];
+                    source = parentName.split('_')[0];            // если источник собственный, то обрезаем, например, '_form'
                 }
 
                 window.gettingVersion[source]().done(function (version) {
