@@ -4,7 +4,7 @@
 class dataObj {
     statusNotDeleted = '0';
     suffixes = ['_id', '_start', '_end'];
-    url = '/api/word/get-name';
+    url = '/api/word/get-names';
     data = {};
     deferred;
     wordVersion;
@@ -90,17 +90,18 @@ class dataObj {
                     self.setField(tabName, 'nameById', $span.text());
                 } else {
                     if (self.deferred === undefined) {
-                        self.deferred = window.gettingWordVersion().done(function (version) {
+                        self.deferred = window.gettingVersion.word().done(function (version) {
                             self.wordVersion = version;
                         });
                     }
                     self.deferred = self.deferred.then(function () {
                         return $.get(self.url, {
                             'id': id,
-                            'version': self.wordVersion
+                            'version': self.wordVersion,
+                            'limit': 1,
                         })
                             .done(function(data) {
-                                self.setField(tabName, 'nameById', data['name']);
+                                self.setField(tabName, 'nameById', data[0]['name']);
                             })
                             .fail(function() {
                                 console.error('dataObj: ' + self.url + ' : fail' )
@@ -124,6 +125,8 @@ class dataObj {
             || (fieldName === '_id')
         ) {
             delete(this.data[tabName]['nameById']);
+        } else if (fieldName === 'nameById' && value === '') {
+            value = 'не найдено';
         }
         this.data[tabName][fieldName] = value;
     }
@@ -379,15 +382,16 @@ function loadDataToTab(id) {
     if ($checkboxList.hasClass('download') === false && $checkboxList.hasClass('success') === false) {
         $checkboxList.addClass('download');
         $checkboxList.text('Загрузка');
-        window.gettingWordVersion().done(function (version) {
+        window.gettingVersion.word().done(function (version) {
             let $span = $('<span class="checkbox filter-checkbox"></span>');
             $.ajax({
                 cache: true,
                 method: "GET",
-                url: "/api/word/get-children",
+                url: "/api/word/get-names",
                 data: {
                     'parent_id': id,
                     'version': version,
+                    'column_name': 'id'
                 },
                 success: function (listFilterName) {
                     $checkboxList.addClass('success');
