@@ -40,23 +40,30 @@ $(window).on('load', function() {
 })
 
 function addAutoCompleteOptions() {
+    const PREFIXES = ['device'];
     window.gettingYiiParams().done(function (params) {
         window.gettingRulesAutoComplete().done(function (rules) {
             let $inputs = $('#active-form input.ui-autocomplete-input, #filters-form input.ui-autocomplete-input');
 
             for (let input of $inputs) {
                 let $input = $(input);
-                let source = 'word';
-                let fieldName = $input.attr('name');
-                let parentName = $input.attr('data-parent');        // # 'device' or 'device_form'
 
+                let fieldName = $input.attr('name');
+                let explodedName = fieldName.split('_');            // # 'name' or 'device_name'
+                if (PREFIXES.includes(explodedName[0])) {           // обрезка префикса
+                    explodedName.shift();
+                    fieldName = explodedName.join('_');
+                }
+
+                let source = 'word';
+                let parentName = $input.attr('data-parent');        // # 'device' or 'device_form'
                 if (
                     rules.hasOwnProperty(parentName)
                     && rules[parentName].hasOwnProperty(fieldName)
                     && rules[parentName][fieldName].hasOwnProperty('source')
                     && rules[parentName][fieldName]['source'] === 1
                 ) {
-                    source = parentName.split('_')[0];            // если источник собственный, то обрезаем, например, '_form'
+                    source = parentName.split('_')[0];            // если источник собственный, то обрезаем все кроме 0 элемента, например, '_form'
                 }
 
                 window.gettingVersion[source]().done(function (version) {
@@ -65,7 +72,7 @@ function addAutoCompleteOptions() {
                         source: function (request, response) {
                             $.getJSON('/api/word/get-auto-complete', {
                                 name: request.term,
-                                field: $input.attr('name'),
+                                field: fieldName,
                                 parent: $input.attr('data-parent'),
                                 version: version,
                             }, response);

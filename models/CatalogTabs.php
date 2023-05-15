@@ -7,6 +7,7 @@ namespace app\models;
 class CatalogTabs
 {
     const DEFAULT_SOURCE = 'word';
+    const PREFIXES = ['device'];
 
     private $headerMenu, $listSource = [], $listLabel = [], $listAutoComplete = [], $menu;
 
@@ -60,12 +61,19 @@ class CatalogTabs
     {
         $this->menu = [];
         foreach ($this->headerMenu as $item) {
+            $this->menu[$item]['field'] = $item;
+            $explodedName = explode('_', $item);
+            if (in_array($explodedName[0], self::PREFIXES)) {
+                array_shift($explodedName);
+                $this->menu[$item]['field'] = implode('_', $explodedName);
+            }
+
             $source = self::DEFAULT_SOURCE;
             if (isset($this->listSource[$item])) {
                 $source = $this->listSource[$item];
             }
             if ($source === self::DEFAULT_SOURCE) {
-                $id = Word::getFieldWord($item);
+                $id = Word::getFieldWord($this->menu[$item]['field']);
                 $this->menu[$item]['label'] = Word::LABEL_FIELD_WORD[$id];
                 $this->menu[$item]['id'] = $id;
             } else {
