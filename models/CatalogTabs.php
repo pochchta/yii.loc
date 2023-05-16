@@ -29,7 +29,7 @@ class CatalogTabs
      */
     public function setSource($listSource)
     {
-        $this->listSource = array_unique(array_merge($this->listSource, $listSource));
+        $this->listSource = array_merge($this->listSource, $listSource);
         return $this;
     }
 
@@ -39,7 +39,7 @@ class CatalogTabs
      */
     public function setLabel($listLabel)
     {
-        $this->listLabel = array_unique(array_merge($this->listLabel, $listLabel));
+        $this->listLabel = array_merge($this->listLabel, $listLabel);
         return $this;
     }
 
@@ -50,7 +50,7 @@ class CatalogTabs
      */
     public function setAutoComplete($listAutoComplete)
     {
-        $this->listAutoComplete = array_unique(array_merge($this->listAutoComplete, $listAutoComplete));
+        $this->listAutoComplete = array_merge($this->listAutoComplete, $listAutoComplete);
         return $this;
     }
 
