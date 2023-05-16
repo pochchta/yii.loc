@@ -4,6 +4,7 @@ namespace app\modules\api\models;
 
 use app\models\Device;
 use app\models\Status;
+use app\models\Verification;
 use app\models\Word;
 use Yii;
 use yii\base\Model;
@@ -36,6 +37,11 @@ class AutoCompleteSearch extends Model
             'name' => [
                 'levels' => [3],
             ],
+        ],
+        'verification' => [
+            'name' => [
+                'source' => 1,
+            ]
         ]
     ];
 
@@ -121,6 +127,8 @@ class AutoCompleteSearch extends Model
                     }
                     if (in_array($this->parent, ['device', 'device_form'])) {
                         $query = Device::find();
+                    } elseif (in_array($this->parent, ['verification'])) {
+                        $query = Verification::find();
                     }
                 } else {
                     $condition = ['id' => array_values(Word::FIELD_WORD)];
