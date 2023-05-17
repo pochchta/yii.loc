@@ -23,9 +23,8 @@ $(window).on('load', function() {
 function setParamsToFiltersForm() {
     $('#filters-form input').val('');       // очистка всех установленных значений
 
-    for (let tab of window.filterTabsData.getArray()) {
+    for (let tab of window.filterTabsData.getArrayForInputs()) {
         for(let name in tab) {
-            if (name === 'label' || name === 'tabName') continue;
             if (tab.hasOwnProperty(name)) {
                 $('#filters-form input[name=' + name + ']').val(tab[name]);
             }
