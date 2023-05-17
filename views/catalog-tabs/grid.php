@@ -1,6 +1,7 @@
 <?php
 
 use app\models\Status;
+use app\models\Verification;
 use app\models\Word;
 use yii\helpers\Html;
 
@@ -12,7 +13,7 @@ $menu = $catalogTabsSort->getMenu();
         <div class="tabs_title" id="tabs">
             <ul>
                 <?php foreach ($menu->getMenu() as $key => $tab): ?>
-                    <li><a data-value="<?=$tab['id']?>" data-name="<?=$tab['name']?>"><span><?=$tab['label']?></span></a></li>
+                    <li><a data-value="<?=$tab['id']?>" data-name="<?=$tab['name']?>" data-source="<?=$tab['source']?>"><span><?=$tab['label']?></span></a></li>
                 <?php endforeach ?>
             </ul>
         </div>
@@ -41,7 +42,7 @@ $menu = $catalogTabsSort->getMenu();
                         <?= Html::input('text', $key, '', $tab['autoComplete']) ?>
                         <?= Html::button('Применить', ['class' => 'filter_button']) ?>
                     <?php elseif($tab['source'] === 'deleted'): ?>
-                        <?= Html::input('text', $key, '', ['class' => 'hide']) ?>
+                        <?= Html::input('text', $key . '_id', '', ['class' => 'hide']) ?>
                         <div class="checkboxList">
                             <span class="checkbox filter-checkbox" data-source=<?=$key?> data-value="<?=Status::NOT_DELETED?>">Действующие</span>
                             <span class="checkbox filter-checkbox" data-source=<?=$key?> data-value="<?=Status::DELETED?>">Удаленные</span>
@@ -55,6 +56,13 @@ $menu = $catalogTabsSort->getMenu();
                                 'title' => 'Настроить меню',
                             ]
                         ) ?>
+                    <?php elseif($tab['source'] === 'vStatus'): ?>
+                        <?= Html::input('text', $key . '_id', '', ['class' => 'hide']) ?>
+                        <div class="checkboxList">
+                            <span class="checkbox filter-checkbox" data-source=<?=$key?> data-value="<?=Verification::STATUS_ON?>">Действующие</span>
+                            <span class="checkbox filter-checkbox" data-source=<?=$key?> data-value="<?=Verification::STATUS_OFF?>">Старые</span>
+                            <span class="checkbox filter-checkbox" data-source=<?=$key?> data-value="<?=Verification::STATUS_ALL?>">Все</span>
+                        </div>
                     <?php endif ?>
                 </div>
             <?php endforeach ?>
