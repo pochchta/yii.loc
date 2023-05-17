@@ -2,15 +2,17 @@
  * Класс для хранения данных фильтра
  */
 class dataObj {
-    statusNotDeleted = '0';
     suffixes = ['_id', '_start', '_end'];
     url = '/api/word/get-names';
     data = {};
     deferred;
     wordVersion;
+    paramsByDefault = {};               // значения по умолчанию в 'defaultValidators'
+    paramsByDefaultWithoutId = {};      // '_id' на конце ключей обрезаны
 
     constructor() {
         this.create();
+        this.processDefaultValues();
     }
 
     update() {
@@ -22,7 +24,7 @@ class dataObj {
     }
 
     /**
-     * Создаем заготовку объекта: есть только название и метка
+     * Создаем заготовку объекта без значений и подписей
      */
     create() {
         let $titles = $('#filters-form .tabs_title ul a');
@@ -30,7 +32,29 @@ class dataObj {
             let $title = $(title);
             let name = $title.attr('data-name');
             let label = $title.text();
-            this.data[name] = {'label': label};
+            this.data[name] = {label: label};
+            let source = $title.attr('data-source');
+            if (source === 'category') {
+                source = 'word';
+            }
+            this.data[name]['source'] = source;
+        }
+    }
+
+    /**
+     * Обработка данных фильтра по умолчанию
+     */
+    processDefaultValues() {
+        this.paramsByDefault = JSON.parse($('#grid_id').attr('data-paramsByDefault'));
+
+        for (let param in this.paramsByDefault) {
+            const POSTFIX = '_id';
+            let fieldName = param;
+            let startIndex = param.indexOf(POSTFIX);
+            if (startIndex === param.length - POSTFIX.length) {
+                fieldName = param.slice(0, startIndex);
+            }
+            this.paramsByDefaultWithoutId[fieldName] = this.paramsByDefault[param];
         }
     }
 
@@ -45,9 +69,11 @@ class dataObj {
             .deleteEmptyValues()
             .deleteKey('sort')
             .getArray()
-        let objectSearch = Object.fromEntries(arrSearch);
-        if (objectSearch.hasOwnProperty('deleted') === false) {
-            objectSearch['deleted'] = this.statusNotDeleted;
+        let objectSearch = Object.fromEntries(arrSearch);                   // получаем значения из url
+        for (let fieldName in this.paramsByDefault) {
+            if (objectSearch.hasOwnProperty(fieldName) === false) {
+                objectSearch[fieldName] = this.paramsByDefault[fieldName];  // дополняем из параметров по-умолчанию
+            }
         }
 
         for (let tabName in this.data) {
@@ -75,40 +101,42 @@ class dataObj {
     updateNamesById() {
         const self = this;
         $.each(self.getObject(), function (tabName, tab) {
-            if (tabName === 'deleted' && tab.hasOwnProperty('nameById') === false) {
-                let id = tab['value'];
-                let $span = $('#filters-form .tabs_content span[data-value="' + id + '"][data-source="' + tabName + '"]');
-                if ($span.length) {
-                    self.setField(tabName, 'nameById', $span.text());
-                } else {
-                    self.setField(tabName, 'nameById', 'не найдено');
-                }
-            } else if (tab.hasOwnProperty('_id') && tab.hasOwnProperty('nameById') === false) {    // только если еще не обновлено
-                let id = tab['_id'];
-                let $span = $('#filters-form .tabs_content span[data-value="' + id + '"]:not([data-source])');
-                if ($span.length) {
-                    self.setField(tabName, 'nameById', $span.text());
-                } else {
-                    if (self.deferred === undefined) {
-                        self.deferred = window.gettingVersion.word().done(function (version) {
-                            self.wordVersion = version;
-                        });
+            if (tab.hasOwnProperty('_id') && tab.hasOwnProperty('nameById') === false) {
+                if (tab['source'] !== 'word') {
+                    let id = tab['_id'];
+                    let $span = $('#filters-form .tabs_content span[data-value="' + id + '"][data-source="' + tabName + '"]');
+                    if ($span.length) {
+                        self.setField(tabName, 'nameById', $span.text());
+                    } else {
+                        self.setField(tabName, 'nameById', 'не найдено');
                     }
-                    self.deferred = self.deferred.then(function () {
-                        return $.get(self.url, {
-                            'id': id,
-                            'version': self.wordVersion,
-                            'limit': 1,
-                        })
-                            .done(function(data) {
-                                self.setField(tabName, 'nameById', data[0]['name']);
-                            })
-                            .fail(function() {
-                                console.error('dataObj: ' + self.url + ' : fail' )
+                } else {
+                    let id = tab['_id'];
+                    let $span = $('#filters-form .tabs_content span[data-value="' + id + '"]:not([data-source])');
+                    if ($span.length) {
+                        self.setField(tabName, 'nameById', $span.text());
+                    } else {
+                        if (self.deferred === undefined) {
+                            self.deferred = window.gettingVersion.word().done(function (version) {
+                                self.wordVersion = version;
                             });
-                    })
-                }
+                        }
+                        self.deferred = self.deferred.then(function () {
+                            return $.get(self.url, {
+                                'id': id,
+                                'version': self.wordVersion,
+                                'limit': 1,
+                            })
+                                .done(function (data) {
+                                    self.setField(tabName, 'nameById', data[0]['name']);
+                                })
+                                .fail(function () {
+                                    console.error('dataObj: ' + self.url + ' : fail')
+                                });
+                        })
+                    }
 
+                }
             }
         })
     }
@@ -120,10 +148,7 @@ class dataObj {
      * @param value
      */
     setField(tabName, fieldName, value) {
-        if (
-            (tabName === 'deleted' && fieldName === 'value')
-            || (fieldName === '_id')
-        ) {
+        if (fieldName === '_id') {
             delete(this.data[tabName]['nameById']);
         } else if (fieldName === 'nameById' && value === '') {
             value = 'не найдено';
@@ -137,12 +162,7 @@ class dataObj {
      * @param fieldName
      */
     deleteField(tabName, fieldName) {
-        if (tabName === 'deleted' && fieldName === 'value') {
-            this.setField(tabName, fieldName, this.statusNotDeleted);
-            return;
-        }
-
-        if (fieldName === '_id') {
+         if (fieldName === '_id') {
             delete(this.data[tabName]['nameById']);
         }
         delete(this.data[tabName][fieldName]);
@@ -175,41 +195,58 @@ class dataObj {
                 }
             });
 
-            array.push(newTab);
+            if (Object.keys(newTab).length) {
+                array.push(newTab);
+            }
+        });
+
+        return array;
+    }
+
+    /**
+     * только поля: _id, _start, _end, value
+     */
+    getArrayForInputs() {
+        const self = this;
+        let array = [];
+        $.each(this.data, function (tabName, tab) {
+            let newTab = {};
+
+            $.each(tab, function (field, value) {
+                if (self.suffixes.includes(field)) {
+                    newTab[tabName + field] = value;
+                } else if (field === 'value') {
+                    newTab[tabName] = tab['value'];
+                }
+            });
+
+            if (Object.keys(newTab).length) {
+                array.push(newTab);
+            }
         });
 
         return array;
     }
 
     /** Получение имени для скрытого поля, в которое вставляется значение из кликнутого span
-     * 'name' => 'name_id'; 'deleted' => 'deleted'
+     * 'name' => 'name_id';
      */
     getFieldNameByTabName(tabName) {
-        if (tabName === 'deleted') {
-            return tabName;
-        }
         return tabName + '_id';
-
     }
 
     /** Получение значения для скрытого поля
-     * 'name' => tab['_id'], 'deleted' => tab['value']
+     * 'name' => tab['_id']
      */
     getValueByTabName(tabName) {
-        if (tabName === 'deleted') {
-            return this.data[tabName]['value'];
-        }
         return this.data[tabName]['_id'];
     }
 
     /** Получение подписи, например, для отображения выбранного фильтра
-     * 'name':'id' => tab['nameById'], 'deleted':'value' => tab['nameById'], 'number':'value' => tab['value']
+     * 'name':'id' => tab['nameById'], 'number':'value' => tab['value']
      */
     getLabelByTabName(tabName, fieldName) {
-        if (
-            (tabName === 'deleted' && fieldName === 'value')
-            || (fieldName === '_id')
-        ) {
+        if (fieldName === '_id') {
             return this.data[tabName]['nameById'];
         }
         return this.data[tabName][fieldName];
@@ -219,10 +256,13 @@ class dataObj {
      * @returns {boolean}
      */
     checkIfNameNeedsToAdd(tabName) {
-        if (tabName === 'deleted') {
-            return this.data[tabName]['value'] !== this.statusNotDeleted;
+        if (this.data[tabName].hasOwnProperty('value')) {
+            return true;
         }
-        return Object.keys(this.data[tabName]).length > 1;
+        if (this.paramsByDefaultWithoutId[tabName] === parseInt(this.data[tabName]['_id'])) {
+            return false;
+        }
+        return this.data[tabName].hasOwnProperty('nameById');
     }
 }
 
