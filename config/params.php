@@ -6,9 +6,9 @@ return [
     'senderName' => 'Example.com mailer',
 
     // http cache
-    'cacheTimeOfWord' => 12*30*24*60*60,    // seconds
-    'cacheTimeOfWordVersion' => 60*60,      // seconds
-    'cacheTimeOfParams' => 24*60*60,        // seconds
+    'cacheTimeOfData' => 12*30*24*60*60,      // seconds
+    'cacheTimeOfVersion' => 60*60,            // seconds
+    'cacheTimeOfParams' => 24*60*60,          // seconds
 
     // mutex
     'mutexTimeout' => 1,                // seconds

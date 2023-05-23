@@ -14,11 +14,19 @@ class AutoCompleteController extends Controller
         return [
             [
                 'class' => 'yii\filters\HttpCache',
+                'only' => ['get-auto-complete'],
+                'lastModified' => function () {
+                    return 0;
+                },
+                'cacheControlHeader' => 'public, max-age=' . Yii::$app->params['cacheTimeOfData'],
+            ],
+            [
+                'class' => 'yii\filters\HttpCache',
                 'only' => ['get-rules'],
                 'lastModified' => function () {
                     return 0;
                 },
-                'cacheControlHeader' => 'public, max-age=' . Yii::$app->params['cacheTime'],
+                'cacheControlHeader' => 'public, max-age=' . Yii::$app->params['cacheTimeOfParams'],
             ],
         ];
     }
@@ -30,6 +38,14 @@ class AutoCompleteController extends Controller
         }
         Yii::$app->response->format = Response::FORMAT_JSON;
         return true;
+    }
+
+    public function actionGetAutoComplete()
+    {
+        $params = Yii::$app->request->queryParams;
+        $search = new AutoCompleteSearch();
+        $search->load($params);
+        return $search->findAutoComplete();
     }
 
     public function actionGetRules()
