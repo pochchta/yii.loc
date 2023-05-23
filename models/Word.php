@@ -42,11 +42,11 @@ class Word extends ActiveRecord
         's_scale' => -18,
         's_accuracy' => -19,
         's_type' => -20,    // шкала квадратичная
-        'v_kind' => -21,    // поверка поверка
+        'v_type' => -21,    // поверка поверка
     ];
 
     const LABEL_FIELD_WORD = [
-        self::FIELD_WORD['not'] => 'нет',   // TODO: ключи с маленькой буквы
+        self::FIELD_WORD['not'] => 'нет',
         self::FIELD_WORD['kind'] => 'Вид СИ',
         self::FIELD_WORD['name'] => 'Названия приборов',
         self::FIELD_WORD['state'] => 'Состояние',
@@ -56,11 +56,16 @@ class Word extends ActiveRecord
         self::FIELD_WORD['s_scale'] => 'Шкалы',
         self::FIELD_WORD['s_accuracy'] => 'Точность',
         self::FIELD_WORD['s_type'] => 'Тип',
-        self::FIELD_WORD['v_kind'] => 'Вид поверки',
+        self::FIELD_WORD['v_type'] => 'Вид поверки',
     ];
 
     public $parent_name;
 
+    /**
+     * Получение номера из массива FIELD_WORD по ключу
+     * @param $name
+     * @return int|null
+     */
     public static function getFieldWord($name)
     {
         if (isset(self::FIELD_WORD[$name])) {
