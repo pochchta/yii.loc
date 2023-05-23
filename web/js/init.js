@@ -70,7 +70,7 @@ function addAutoCompleteOptions() {
 
                     $input.autocomplete({
                         source: function (request, response) {
-                            $.getJSON('/api/word/get-auto-complete', {
+                            $.getJSON('/api/auto-complete/get-auto-complete', {
                                 name: request.term,
                                 field: fieldName,
                                 parent: $input.attr('data-parent'),
