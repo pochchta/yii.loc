@@ -21,12 +21,12 @@ class IncomingSearch extends Incoming
     public function rules()
     {
         return [
-            [['id', 'device_id', 'status', 'payment', 'created_by', 'updated_by', 'deleted'], 'integer'],
+            [['id', 'device_id', 'status', 'payment', 'created_by', 'updated_by', 'deleted_id'], 'integer'],
             [['description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['created_at_start', 'created_at_end', 'updated_at_start', 'updated_at_end'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['status'], 'default', 'value' => Status::ALL],
             [['payment'], 'default', 'value' => Status::ALL],
-            [['deleted'], 'default', 'value' => Status::NOT_DELETED],
+            [['deleted_id'], 'default', 'value' => Status::NOT_DELETED],
             [['device_name', 'device_number', 'device_department'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['term', 'term_name'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']]
         ];
@@ -87,8 +87,8 @@ class IncomingSearch extends Incoming
         if ($this->payment != Status::ALL) {
             $query->andFilterWhere(['payment' => $this->payment]);
         }
-        if ($this->deleted != Status::ALL) {
-            $query->andFilterWhere(['deleted' => $this->deleted]);
+        if ($this->deleted_id != Status::ALL) {
+            $query->andFilterWhere(['deleted_id' => $this->deleted_id]);
         }
 
         if ($this->created_at_start != '') {
@@ -123,7 +123,7 @@ class IncomingSearch extends Incoming
 
         if ($this->device_number != '') {
             $query->andOnCondition(
-                'device_id IN (SELECT id FROM device WHERE number LIKE :number AND deleted = :not_del)',
+                'device_id IN (SELECT id FROM device WHERE number LIKE :number AND deleted_id = :not_del)',
                 [':number' => $this->device_number . '%', ':not_del' => Status::NOT_DELETED]
             );
         }

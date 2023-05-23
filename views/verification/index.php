@@ -38,7 +38,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <p><?=
             'Записи относятся только к прибору: '
             . Html::a(
-                $modelDevice->wordName->name . ', №' . $modelDevice->number . ($modelDevice->deleted == Status::DELETED ? ' (удален)' : ''),
+                $modelDevice->wordName->name . ', №' . $modelDevice->number . ($modelDevice->deleted_id == Status::DELETED ? ' (удален)' : ''),
                 ['device/view', 'id' => $modelDevice->id],
                 ['data' => ['pjax' => 0]]
             )
@@ -59,7 +59,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     return Html::a(
                         $model->device_id,
                         ['device/view', 'id' => $model->device_id],
-                        ['title' => $model->device->wordName->name . ', № ' . $model->device->number . ($model->device->deleted == Status::DELETED ? ' (удален)' : '')]
+                        ['title' => $model->device->wordName->name . ', № ' . $model->device->number . ($model->device->deleted_id == Status::DELETED ? ' (удален)' : '')]
                     );
                 },
                 'label' => 'ID приб.',

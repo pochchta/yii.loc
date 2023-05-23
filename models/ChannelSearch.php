@@ -16,7 +16,7 @@ class ChannelSearch extends Channel
     public function rules()
     {
         return [
-            [['id', 'number', 'io', 'parent_id', 'device_id', 'type_id', 'accuracy_id', 'scale_id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
+            [['id', 'number', 'io', 'parent_id', 'device_id', 'type_id', 'accuracy_id', 'scale_id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted_id'], 'integer'],
             [['range', 'description'], 'safe'],
         ];
     }
@@ -69,7 +69,7 @@ class ChannelSearch extends Channel
             'updated_at' => $this->updated_at,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
-            'deleted' => $this->deleted,
+            'deleted_id' => $this->deleted_id,
         ]);
 
         $query->andFilterWhere(['like', 'range', $this->range])

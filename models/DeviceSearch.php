@@ -22,14 +22,14 @@ class DeviceSearch extends Device
     public function rules()
     {
         return [
-            [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
+            [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted_id'], 'integer'],
             [['created_at_start', 'created_at_end', 'updated_at_start', 'updated_at_end'], 'filter',
                 'filter' => function($value) {return strtotime($value) !== false ? strtotime($value) : null;}],
             [['description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['position', 'number'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['group', 'type', 'name', 'department', 'crew', 'kind', 'state'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['group_id', 'type_id', 'name_id', 'department_id', 'crew_id', 'kind_id', 'state_id'], 'integer'],
-            [['deleted'], 'default', 'value' => Status::NOT_DELETED],
+            [['deleted_id'], 'default', 'value' => Status::NOT_DELETED],
         ];
     }
 
@@ -110,8 +110,8 @@ class DeviceSearch extends Device
             }
         }
 
-        if ($this->deleted != Status::ALL) {
-            $query->andFilterWhere(['deleted' => $this->deleted]);
+        if ($this->deleted_id != Status::ALL) {
+            $query->andFilterWhere(['deleted_id' => $this->deleted_id]);
         }
 
         return $dataProvider;

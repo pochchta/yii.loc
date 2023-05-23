@@ -1,11 +1,9 @@
 <?php
 
-use app\models\DeviceSearch;
 use app\models\Incoming;
 use app\models\Status;
 use yii\helpers\Html;
 use yii\grid\GridView;
-use yii\jui\AutoComplete;
 use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
@@ -38,7 +36,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <p><?=
         'Записи относятся только к прибору: '
         . Html::a(
-            $modelDevice->wordName->name . ', №' . $modelDevice->number . ($modelDevice->deleted == Status::DELETED ? ' (удален)' : ''),
+            $modelDevice->wordName->name . ', №' . $modelDevice->number . ($modelDevice->deleted_id == Status::DELETED ? ' (удален)' : ''),
             ['device/view', 'id' => $modelDevice->id],
             ['data' => ['pjax' => 0]]
         )
@@ -63,27 +61,15 @@ $this->params['breadcrumbs'][] = $this->title;
                     );
                 },
                 'label' => 'ID приб.',
-                'filter' => AutoComplete::widget([
-                    'model' => $searchModel,
-                    'attribute' => 'device_id',
-                ] + DeviceSearch::getAutoCompleteOptions('id', 'device', true))
             ],
             [
                 'attribute' => 'device.name_id',
                 'value' => function ($model) {
                     return $model->device->wordName->name;
                 },
-                'filter' => AutoComplete::widget([
-                    'model' => $searchModel,
-                    'attribute' => 'device_name',
-                ] + DeviceSearch::getAutoCompleteOptions('name', 'device', true))
             ],
             [
                 'attribute' => 'device.number',
-                'filter' => AutoComplete::widget([
-                    'model' => $searchModel,
-                    'attribute' => 'device_number',
-                ] + DeviceSearch::getAutoCompleteOptions('number', 'device', true)),
                 'label' => '№ приб.'
             ],
             [
@@ -91,10 +77,6 @@ $this->params['breadcrumbs'][] = $this->title;
                 'value' => function ($model) {
                     return $model->device->wordDepartment->name;
                 },
-                'filter' => AutoComplete::widget([
-                    'model' => $searchModel,
-                    'attribute' => 'device_department',
-                ] + DeviceSearch::getAutoCompleteOptions('department', 'device', true)),
             ],
             [
                 'attribute' => 'status',

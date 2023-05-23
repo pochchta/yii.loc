@@ -23,7 +23,7 @@ use yii\db\ActiveRecord;
  * @property int|null $updated_at
  * @property int|null $created_by
  * @property int|null $updated_by
- * @property int $deleted
+ * @property int $deleted_id
  */
 class Channel extends ActiveRecord
 {
@@ -60,7 +60,7 @@ class Channel extends ActiveRecord
     {
         return [
             [['number', 'io', 'device_id', 'type_id', 'accuracy_id', 'scale_id', 'range'], 'required'],
-            [['number', 'io', 'parent_id', 'device_id', 'type_id', 'accuracy_id', 'scale_id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted'], 'integer'],
+            [['number', 'io', 'parent_id', 'device_id', 'type_id', 'accuracy_id', 'scale_id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted_id'], 'integer'],
             [['description'], 'string'],
             [['range'], 'string', 'max' => 255],
         ];
@@ -86,7 +86,7 @@ class Channel extends ActiveRecord
             'updated_at' => 'Обновлено',
             'created_by' => 'Создал',
             'updated_by' => 'Обновил',
-            'deleted' => 'Удален',
+            'deleted_id' => 'Удален',
         ];
     }
 }

@@ -13,7 +13,7 @@ use yii\widgets\ActiveForm;
 <p><?=
     'Относится к прибору: '
     . Html::a(
-        $model->device->wordName->name . ', №' . $model->device->number . ($model->device->deleted == Status::DELETED ? ' (удален)' : ''),
+        $model->device->wordName->name . ', №' . $model->device->number . ($model->device->deleted_id == Status::DELETED ? ' (удален)' : ''),
         ['device/view', 'id' => $model->device_id]
     )
     ?></p>

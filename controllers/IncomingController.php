@@ -134,9 +134,9 @@ class IncomingController extends Controller
     {
         $model = $this->findModel($id);
 
-        $model->deleted == Status::NOT_DELETED ? $model->deleted = Status::DELETED :
-            $model->deleted = Status::NOT_DELETED;
-        $textMessage = $model->deleted == Status::NOT_DELETED ? 'восстановлена' : 'удалена';
+        $model->deleted_id == Status::NOT_DELETED ? $model->deleted_id = Status::DELETED :
+            $model->deleted_id = Status::NOT_DELETED;
+        $textMessage = $model->deleted_id == Status::NOT_DELETED ? 'восстановлена' : 'удалена';
         if ($model->save(false)) {
             Yii::$app->session->setFlash('success', "Запись $textMessage");
         } else {

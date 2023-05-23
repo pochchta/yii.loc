@@ -24,7 +24,7 @@ use yii\db\ActiveRecord;
  * @property int|null $updated_at
  * @property int|null $created_by
  * @property int|null $updated_by
- * @property int $deleted
+ * @property int $deleted_id
  *
  * @property User|null $creator magic property
  * @property User|null $updater magic property
@@ -125,7 +125,7 @@ class Device extends ActiveRecord
             'updated_at' => 'Обновлено',
             'created_by' => 'Создал',
             'updated_by' => 'Обновил',
-            'deleted' => 'Удален',
+            'deleted_id' => 'Удален',
         ];
     }
 

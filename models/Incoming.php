@@ -19,7 +19,7 @@ use yii\db\ActiveRecord;
  * @property int|null $updated_by
  * @property int|null $created_at
  * @property int|null $updated_at
- * @property int $deleted
+ * @property int $deleted_id
  *
  * @property Device $device
  * @property User $creator
@@ -101,7 +101,7 @@ class Incoming extends ActiveRecord
             'updated_by' => 'Обновил',
             'created_at' => 'Создано',
             'updated_at' => 'Обновлено',
-            'deleted' => 'Удален',
+            'deleted_id' => 'Удален',
         ];
     }
 
