@@ -17,7 +17,7 @@ use yii\db\ActiveRecord;
  * @property int|null $updated_at
  * @property int|null $created_by
  * @property int|null $updated_by
- * @property int $deleted
+ * @property int $deleted_id
  * @property int $parent_id
  *
  * @property Device[] $devices magic property
@@ -144,7 +144,7 @@ class Word extends ActiveRecord
     public function validateDepth()
     {
         if (!$this->hasErrors()) {
-            if ($this->deleted == Status::NOT_DELETED) {
+            if ($this->deleted_id == Status::NOT_DELETED) {
                 $depth = Word::getDepth($this);
                 if (isset($this->id)) {             // не для новых записей
                     for ($i = 1; $i <= self::MAX_NUMBER_PARENTS; $i++) {
@@ -153,7 +153,7 @@ class Word extends ActiveRecord
                                 'parents' => [$this->id],
                                 'depth' => $i,
                             ]);
-                            if (self::find()->andOnCondition($condition, $bind)->andFilterWhere(['deleted' => Status::NOT_DELETED])->one() !== NULL) {
+                            if (self::find()->andOnCondition($condition, $bind)->andFilterWhere(['deleted_id' => Status::NOT_DELETED])->one() !== NULL) {
                                 $depth++;
                             } else {
                                 break;
@@ -194,7 +194,7 @@ class Word extends ActiveRecord
         $hashColumnName = ':' . md5($columnName);
         $arrayCondition[0] = " = $hashColumnName";
         for ($i = 1; $i < $depth; $i++) {
-            $arrayCondition[$i] = "IN (SELECT id FROM word WHERE parent_id {$arrayCondition[$i-1]} AND deleted = :deleted)";
+            $arrayCondition[$i] = "IN (SELECT id FROM word WHERE parent_id {$arrayCondition[$i-1]} AND deleted_id = :deleted_id)";
         }
 
         $arrayCondition[0] = $columnName . $arrayCondition[0];
@@ -205,7 +205,7 @@ class Word extends ActiveRecord
 
         $bindValues[$hashColumnName] = $parent_id;
         if ($depth > 1) {
-            $bindValues['deleted'] = Status::NOT_DELETED;
+            $bindValues['deleted_id'] = Status::NOT_DELETED;
         }
 
         return [
@@ -289,7 +289,7 @@ class Word extends ActiveRecord
             if ($parentExpression && $likeExpression) {
                 $parentExpression .= ' AND ';
             }
-            $deleted = 'deleted = :not_del';
+            $deleted = 'deleted_id = :not_del';
             if ($parentExpression || $likeExpression) {
                 $deleted = 'AND ' . $deleted;
             }
@@ -430,7 +430,7 @@ class Word extends ActiveRecord
             'updated_at' => 'Обновлено',
             'created_by' => 'Создал',
             'updated_by' => 'Обновил',
-            'deleted' => 'Удален',
+            'deleted_id' => 'Удален',
             'parent_id' => 'Родительская категория',
             'category1' => 'Раздел',
             'category2' => 'Папка 1',
@@ -471,7 +471,7 @@ class Word extends ActiveRecord
             $condition = [$key => $value];
         }
 
-        $arrayDeleted['deleted'] = Status::NOT_DELETED;
+        $arrayDeleted['deleted_id'] = Status::NOT_DELETED;
 
         $queries[0] = self::find()->select('id')->where(['AND', $condition, $arrayDeleted]);
         for ($currentLevel = 1; $currentLevel <= self::MAX_NUMBER_PARENTS; $currentLevel++) {
@@ -493,7 +493,7 @@ class Word extends ActiveRecord
             $condition = [$key => $value];
         }
 
-        $arrayDeleted['deleted'] = Status::NOT_DELETED;
+        $arrayDeleted['deleted_id'] = Status::NOT_DELETED;
 
         $queries[0] = array_keys(Word::LABEL_FIELD_WORD);
         for ($currentLevel = 1; $currentLevel <= self::MAX_NUMBER_PARENTS; $currentLevel++) {
@@ -525,7 +525,7 @@ class Word extends ActiveRecord
             $condition = [$key => $value];
         }
 
-        $arrayDeleted['deleted'] = Status::NOT_DELETED;
+        $arrayDeleted['deleted_id'] = Status::NOT_DELETED;
 
         $numbers = [];
         if (isset($condition['id'])) {

@@ -161,8 +161,8 @@ class WordController extends Controller
     {
         $model = $this->findModel($id);
 
-        $model->deleted == Status::NOT_DELETED ? $model->deleted = Status::DELETED :
-            $model->deleted = Status::NOT_DELETED;
+        $model->deleted_id == Status::NOT_DELETED ? $model->deleted_id = Status::DELETED :
+            $model->deleted_id = Status::NOT_DELETED;
 
         $fileMutex = Yii::$app->mutex;              /* @var $fileMutex yii\mutex\FileMutex */
 
@@ -170,14 +170,14 @@ class WordController extends Controller
         if ($fileMutex->acquire($mutexName = 'word', Yii::$app->params['mutexTimeout'])) {
             $model->validateDepth();
             if ($model->hasErrors() == false) {
-                $saveResult = $model->save(false);  // false, т.к. изменяется только deleted и есть валидатор формирующий parent_id
+                $saveResult = $model->save(false);  // false, т.к. изменяется только deleted_id и есть валидатор формирующий parent_id
             }
             $fileMutex->release($mutexName);
         } else {    // добавляется ошибка к модели, после этого нельзя валидировать, т.к. ошибка затрется
             $model->addError('name', 'Словарь редактируется, попробуйте еще раз');
         }
 
-        $textMessage = $model->deleted == Status::NOT_DELETED ? 'восстановлена' : 'удалена';
+        $textMessage = $model->deleted_id == Status::NOT_DELETED ? 'восстановлена' : 'удалена';
         if ($saveResult) {
             Yii::$app->session->setFlash('success', "Запись $textMessage");
         } else {

@@ -48,9 +48,9 @@ class WordSearch extends Word
     public function rules()
     {
         return [
-            [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted', 'parent_id'], 'integer'],
+            [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted_id', 'parent_id'], 'integer'],
             [['name', 'name_v', 'value', 'description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
-            [['deleted'], 'default', 'value' => Status::NOT_DELETED],
+            [['deleted_id'], 'default', 'value' => Status::NOT_DELETED],
             [['parent', 'parent_v', 'field'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['limit'], 'integer', 'min' => 0, 'max' => Yii::$app->params['maxLines']],
             [['replace_name'], 'validateReplaceName'],
@@ -154,8 +154,8 @@ class WordSearch extends Word
                     $query->andFilterWhere($subQuery);
                 }
 
-                if ($this->deleted == Status::NOT_DELETED || $this->deleted == Status::DELETED) {
-                    $query->andFilterWhere(['deleted' => $this->deleted]);
+                if ($this->deleted_id == Status::NOT_DELETED || $this->deleted_id == Status::DELETED) {
+                    $query->andFilterWhere(['deleted_id' => $this->deleted_id]);
                 }
 
                 $names = array_merge($names, $query->all());

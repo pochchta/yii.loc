@@ -13,7 +13,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Словарь', 'url' => ['index'
 $this->params['breadcrumbs'][] = $this->title;
 YiiAsset::register($this);
 
-if ($model->deleted == Status::NOT_DELETED) {
+if ($model->deleted_id == Status::NOT_DELETED) {
     $deleteMessage = 'Вы уверены, что хотите удалить этот элемент?';
     $deleteTitle = 'Удалить';
     $deleteText = '';

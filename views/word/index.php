@@ -110,10 +110,10 @@ $this->params['breadcrumbs'][] = $this->title;
                 ] + WordSearch::getAutoCompleteOptions($attribute))
             ],*/
             [
-                'attribute' => 'deleted',
+                'attribute' => 'deleted_id',
                 'format' => 'html',
                 'value' => function ($model) {
-                    if ($model->deleted == Status::NOT_DELETED) {
+                    if ($model->deleted_id == Status::NOT_DELETED) {
                         return '';
                     } else {
                         return '<span class="glyphicon glyphicon-remove-sign color-err" title="Удален"></span>';
@@ -133,7 +133,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     ['title' => 'Очистить все фильтры']
                 ),
                 'value' => function ($model) {
-                    if ($model->deleted == Status::NOT_DELETED) {
+                    if ($model->deleted_id == Status::NOT_DELETED) {
                         $deleteMessage = 'Вы уверены, что хотите удалить этот элемент?';
                         $deleteTitle = 'Удалить';
                         $deleteCssClass = 'glyphicon glyphicon-trash a-action';

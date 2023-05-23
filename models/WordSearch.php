@@ -21,11 +21,11 @@ class WordSearch extends Word
     public function rules()
     {
         return [
-            [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted', 'parent_id'], 'integer'],
+            [['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'deleted_id', 'parent_id'], 'integer'],
             [['created_at_start', 'created_at_end', 'updated_at_start', 'updated_at_end'], 'filter',
                 'filter' => function($value) {return strtotime($value) !== false ? strtotime($value) : null;}],
             [['name', 'value', 'description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
-            [['deleted'], 'default', 'value' => Status::NOT_DELETED],
+            [['deleted_id'], 'default', 'value' => Status::NOT_DELETED],
             [['parent'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
             [['limit'], 'integer', 'min' => 0, 'max' => Yii::$app->params['maxLines']],
         ];
@@ -106,8 +106,8 @@ class WordSearch extends Word
             $query->andFilterWhere($subQueries);
         }
 
-        if ($this->deleted == Status::NOT_DELETED || $this->deleted == Status::DELETED) {
-            $query->andFilterWhere(['deleted' => $this->deleted]);
+        if ($this->deleted_id == Status::NOT_DELETED || $this->deleted_id == Status::DELETED) {
+            $query->andFilterWhere(['deleted_id' => $this->deleted_id]);
         }
 
         return $dataProvider;
