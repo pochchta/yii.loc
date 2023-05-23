@@ -45,7 +45,11 @@ class dataObj {
      * Обработка данных фильтра по умолчанию
      */
     processDefaultValues() {
-        this.paramsByDefault = JSON.parse($('#grid_id').attr('data-paramsByDefault'));
+        try {
+            this.paramsByDefault = JSON.parse($('#grid_id').attr('data-paramsByDefault'));
+        } catch (e) {
+            // paramsByDefault не используется
+        }
 
         for (let param in this.paramsByDefault) {
             const POSTFIX = '_id';
