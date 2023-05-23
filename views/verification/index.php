@@ -1,11 +1,13 @@
 <?php
 
+use app\assets\GridAsset;
+use app\models\CatalogTabs;
 use app\models\Status;
 use app\models\Verification;
-use app\models\VerificationSearch;
+use app\widgets\csc\CatalogTabsSort;
 use yii\helpers\Html;
 use yii\grid\GridView;
-use yii\jui\AutoComplete;
+use yii\helpers\Json;
 use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
@@ -14,18 +16,25 @@ use yii\widgets\Pjax;
 /* @var $model app\models\Verification */
 /* @var $modelDevice app\models\Device */
 /* @var $params array */
+/* @var $menu CatalogTabs */
+
 
 $this->title = 'Поверки';
 $this->params['breadcrumbs'][] = $this->title;
+
+GridAsset::register($this);
+
+$catalogTabsSort = new CatalogTabsSort($menu, [
+    'required' => Yii::$app->user->can('ChangingCatalogTabsSort') ? ['Настройки'] : [],
+    'token' => Yii::$app->user->identity->getAuthKey(),
+    'write_url' => '/api/csc/write-column',
+    'read_url' => '/api/csc/read-column',
+    'class' => '\app\models\verification',
+    'role' => Yii::$app->user->identity->getProfileView(),
+]);
 ?>
-<div class="verification-index">
-
+<div class="verification-index" id="page-index">
     <h1><?= Html::encode($this->title) ?></h1>
-
-    <?php Pjax::begin([
-        'id' => 'my-pjax-container',
-        'timeout' => Yii::$app->params['pjaxTimeout']
-    ]) ?>
 
     <p>
         <?= Html::a('Печать списка', array_merge(['print-list'], $params), [
@@ -33,6 +42,15 @@ $this->params['breadcrumbs'][] = $this->title;
             'data' => ['pjax' => 0]
         ]) ?>
     </p>
+
+    <?= $this->render('/catalog-tabs/grid', compact(
+        'catalogTabsSort'
+    )); ?>
+
+    <?php Pjax::begin([
+        'id' => 'my-pjax-container',
+        'timeout' => Yii::$app->params['pjaxTimeout']
+    ]) ?>
 
     <?php if ($modelDevice != NULL): ?>
         <p><?=
@@ -48,10 +66,12 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= GridView::widget([
         'id' => 'grid_id',
         'dataProvider' => $dataProvider,
-        'filterModel' => $searchModel,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
+            [
+                'attribute' => 'name',
+            ],
             [
                 'attribute' => 'device_id',
                 'format' => 'html',
@@ -63,27 +83,15 @@ $this->params['breadcrumbs'][] = $this->title;
                     );
                 },
                 'label' => 'ID приб.',
-                'filter' => AutoComplete::widget([
-                    'model' => $searchModel,
-                    'attribute' => 'device_id',
-                ] + VerificationSearch::getAutoCompleteOptions('id', 'device', true))
             ],
             [
                 'attribute' => 'device.name_id',
                 'value' => function ($model) {
                     return $model->device->wordName->name;
                 },
-                'filter' => AutoComplete::widget([
-                    'model' => $searchModel,
-                    'attribute' => 'device_name',
-                ] + VerificationSearch::getAutoCompleteOptions('name', 'device', true))
             ],
             [
                 'attribute' => 'device.number',
-                'filter' => AutoComplete::widget([
-                    'model' => $searchModel,
-                    'attribute' => 'device_number',
-                ] + VerificationSearch::getAutoCompleteOptions('number', 'device', true)),
                 'label' => '№ приб.'
             ],
             [
@@ -91,69 +99,44 @@ $this->params['breadcrumbs'][] = $this->title;
                 'value' => function ($model) {
                     return $model->device->wordDepartment->name;
                 },
-                'filter' => AutoComplete::widget([
-                    'model' => $searchModel,
-                    'attribute' => 'device_department',
-                ] + VerificationSearch::getAutoCompleteOptions('department', 'device', true)),
             ],
             [
-                'attribute' => 'type',
+                'attribute' => 'type_id',
                 'value' => function ($model) {
-                    return isset(Verification::TYPE_LABEL[$model->type]) ? Verification::TYPE_LABEL[$model->type] : NULL;
+                    return $model->vtype->name;
                 },
-                'filter' => Html::activeDropDownList($searchModel, 'type',
-                    [Status::ALL => 'все'] + Verification::TYPE_LABEL
-                ),
             ],
             [
                 'attribute' => 'last_date',
                 'format' => 'date',
-                'filter' => Html::activeInput('date', $searchModel, 'last_date_start')
-                    . Yii::$app->formatter->asNtext("\n")
-                    . Html::activeInput('date', $searchModel, 'last_date_end'),
-                'filterOptions' => ['class' => 'filter-date']
             ],
             [
                 'attribute' => 'next_date',
                 'format' => 'date',
-                'filter' => Html::activeInput('date', $searchModel, 'next_date_start')
-                    . Yii::$app->formatter->asNtext("\n")
-                    . Html::activeInput('date', $searchModel, 'next_date_end'),
-                'filterOptions' => ['class' => 'filter-date']
             ],
             'period',
             [
-                'attribute' => 'status',
+                'attribute' => 'status_id',
                 'format' => 'html',
                 'value' => function ($model) {
-                    if ($model->status == Verification::STATUS_ON) {
+                    if ($model->status_id == Verification::STATUS_ON) {
                         return '<span class="glyphicon glyphicon-ok-circle color-ok" title="Последняя поверка"></span>';
                     } else {
                         return '';
                     }
                 },
-                'filter' => Html::activeDropDownList($searchModel, 'status', [
-                    Verification::STATUS_OFF => 'off',
-                    Verification::STATUS_ON => 'on',
-                    Status::ALL => 'все'
-                ]),
                 'label' => 'Посл.'
             ],
             [
-                'attribute' => 'deleted',
+                'attribute' => 'deleted_id',
                 'format' => 'html',
                 'value' => function ($model) {
-                    if ($model->deleted == Status::NOT_DELETED) {
+                    if ($model->deleted_id == Status::NOT_DELETED) {
                         return '';
                     } else {
                         return '<span class="glyphicon glyphicon-remove-sign color-err" title="Удален"></span>';
                     }
                 },
-                'filter' => Html::activeDropDownList($searchModel, 'deleted', [
-                    Status::NOT_DELETED => 'нет',
-                    Status::DELETED => 'да',
-                    Status::ALL => 'все'
-                ])
             ],
 
             [
@@ -164,7 +147,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     ['title' => 'Очистить все фильтры']
                 ),
                 'value' => function ($model) {
-                    if ($model->deleted == Status::NOT_DELETED) {
+                    if ($model->deleted_id == Status::NOT_DELETED) {
                         $deleteMessage = 'Вы уверены, что хотите удалить этот элемент?';
                         $deleteTitle = 'Удалить';
                         $deleteCssClass = 'glyphicon glyphicon-trash a-action';
@@ -195,6 +178,11 @@ $this->params['breadcrumbs'][] = $this->title;
                         );
                 }
             ],
+        ],
+        'options' => [
+            'data' => [
+                'paramsByDefault' => Json::encode($searchModel->getDefaultValidators())
+            ]
         ],
     ]); ?>
 
