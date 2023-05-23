@@ -201,4 +201,9 @@ class Verification extends ActiveRecord
     {
         return $this->hasOne(Word::class, ['id' => 'type_id']);
     }
+
+    public function formName()
+    {
+        return '';
+    }
 }

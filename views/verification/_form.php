@@ -1,13 +1,16 @@
 <?php
 
+use app\assets\FormAsset;
 use app\models\Status;
-use app\models\Verification;
 use yii\helpers\Html;
+use yii\jui\AutoComplete;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Verification */
 /* @var $form yii\widgets\ActiveForm */
+
+FormAsset::register($this);
 ?>
 
 <p><?=
@@ -20,13 +23,22 @@ use yii\widgets\ActiveForm;
 
 <div class="verification-form">
 
-    <?php $form = ActiveForm::begin(); ?>
+    <?php $form = ActiveForm::begin([
+        'id' => 'active-form',
+    ]); ?>
 
     <?= $form->field($model, 'device_id')->dropDownList(
         [$model->device_id => $model->device->number]
     ) ?>
 
-    <?= $form->field($model, 'type')->dropDownList(Verification::TYPE_LABEL) ?>
+    <?= $form->field($model, $attribute ='type')->textInput(['maxlength' => true])->widget(
+        AutoComplete::class, [
+            'options' => [
+                'class' => 'form-control',
+                'data' => ['parent' => 'verification']
+            ]
+        ]
+    ); ?>
 
     <?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>
 
