@@ -124,6 +124,7 @@ class VerificationController extends Controller
     {
         if (isset($id)) {       // update
             $model = $this->findModel($id);
+            $model->type = $model->vtype->name;
             $view = 'update';
         } else {                // create
             $model = new Verification();

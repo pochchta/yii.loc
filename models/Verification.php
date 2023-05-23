@@ -5,6 +5,7 @@ namespace app\models;
 use DateInterval;
 use DateTime;
 use Exception;
+use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
@@ -71,8 +72,9 @@ class Verification extends ActiveRecord
     public function rules()
     {
         return [
-            [['type_id', 'device_id', 'last_date', 'period'], 'required'],
-            [['type_id'], 'integer', 'min' => 0, 'max' => 1],
+            [['type', 'device_id', 'last_date', 'period'], 'required'],
+            [['type'], 'string', 'max' => Yii::$app->params['maxLengthTextField']],
+            [['type'], 'validateId', 'skipOnEmpty' => false],
             [['description'], 'string'],
             [['device_id'], 'integer'],
             [['device_id'], 'validateDeviceId'],
@@ -80,6 +82,26 @@ class Verification extends ActiveRecord
             [['period'], 'integer', 'min' => 1, 'max' => 20],
             [['last_date'], 'date', 'format' => 'php:Y-m-d', 'timestampAttribute' => 'last_date'],
         ];
+    }
+
+    /** Присваивание $attribute . '_id' = Word::findOne(['name' => $attribute])->id
+     * @param $attribute
+     */
+    public function validateId($attribute)
+    {
+        if (!$this->hasErrors()) {
+            $attributeId = $attribute . '_id';
+            $word = Word::findOne(['name' => $this->$attribute]);
+            if (isset($word)) {
+                $parents = Word::getParentByLevel($word);
+                if (Word::getFieldWord('v_' . $attribute) !== $parents[0]->id) {
+                    $this->addError($attribute, 'Значение не из нужной категории');
+                }
+                $this->$attributeId = $word->id;
+            } else {
+                $this->addError($attribute, 'Значение не из списка');
+            }
+        }
     }
 
     /** Проверка: device_id нельзя менять
