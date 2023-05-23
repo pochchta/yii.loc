@@ -12,8 +12,9 @@ use yii\base\Model;
 class AutoCompleteSearch extends Model
 {
     const RULES_AUTO_COMPLETE = [
+        'levels' => [1, 2, 3],
+
         'word' => [
-            'levels' => [1, 2, 3],
             'parent_name' => [
                 'virtualParent' => 1,
                 'levels' => [1,2],
@@ -26,18 +27,18 @@ class AutoCompleteSearch extends Model
                 'source' => 1,
             ]
         ],
+
         'device' => [
-            'levels' => [1, 2, 3],
             'number' => [
                 'source' => 1,
             ]
         ],
         'device_form' => [
-            'levels' => [1, 2, 3],
             'name' => [
                 'levels' => [3],
             ],
         ],
+
         'verification' => [
             'name' => [
                 'source' => 1,
@@ -99,7 +100,8 @@ class AutoCompleteSearch extends Model
         if ($this->validate()) {
             $limit = Yii::$app->params['maxLinesAutoComplete'];
 
-            $levels = $this::RULES_AUTO_COMPLETE[$this->parent]['levels'] ?? null;
+            $levels = $this::RULES_AUTO_COMPLETE['levels'] ?? null;
+            $levels = $this::RULES_AUTO_COMPLETE[$this->parent]['levels'] ?? $levels;
             $levels = $this::RULES_AUTO_COMPLETE[$this->parent][$this->field]['levels'] ?? $levels;
 
             $source = $this::RULES_AUTO_COMPLETE[$this->parent]['source'] ?? null;
