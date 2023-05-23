@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\CatalogTabs;
 use app\models\Device;
 use app\models\Status;
 use app\models\VerificationSearch;
@@ -59,17 +60,32 @@ class VerificationController extends Controller
 
         $device_id = $params['device_id'];
         if ($device_id != NULL) {
-            $searchModel->status = Status::ALL;     // в searchModel по умолчанию status = STATUS_ON; здесь перезаписываем ALL;
-            if ($params['status'] == '') {                // если status не пустой, то он попадет в модель дальше: $searchModel->search($params);
-                $params['status'] = Status::ALL;    // <- это нужно ТОЛЬКО для создания ссылки фильтра для печати
+            $searchModel->status_id = Status::ALL;     // в searchModel по умолчанию status_id = STATUS_ON; здесь перезаписываем ALL;
+            if ($params['status_id'] == '') {                // если status_id не пустой, то он попадет в модель дальше: $searchModel->search($params);
+                $params['status_id'] = Status::ALL;    // <- это нужно ТОЛЬКО для создания ссылки фильтра для печати
             }
             $modelDevice = Device::findOne(['id' => $device_id]);
         }
 
         $dataProvider = $searchModel->search($params);
 
+        $headerMenu = [
+            'device_name',
+            'device_department',
+            'device_number',
+            'name',
+            'status_id',
+            'created_at',
+            'updated_at',
+            'deleted',
+        ];
+        $menu = (new CatalogTabs($headerMenu))
+            ->setSource(['device_number' => 'text', 'name' => 'text', 'status' => 'vStatus', 'created_at' => 'date', 'updated_at' => 'date', 'deleted' => 'deleted'])
+            ->setLabel(['device_number' => 'Номер приб.', 'name' => 'Название', 'status' => 'Статус', 'created_at' => 'Дата создания', 'updated_at' => 'Дата изменения', 'deleted' => 'Удален'])
+            ->setAutoComplete(['device' => ['device_name', 'device_department', 'device_number'], 'verification' => ['name']]);
+
         return $this->render('index', compact(
-            'searchModel','dataProvider', 'params', 'modelDevice'
+            'dataProvider', 'searchModel', 'params', 'modelDevice', 'menu'
         ));
     }
 
@@ -148,16 +164,6 @@ class VerificationController extends Controller
         ]);
     }
 
-    public function actionListAutoComplete()
-    {
-        $modelSearch = new VerificationSearch();
-        $modelSearch->load(Yii::$app->request->queryParams);
-        if ($modelSearch->validate()) {
-            echo $modelSearch->findNames();
-        }
-        die();
-    }
-
     /**
      * Deletes an existing Verification model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
@@ -169,8 +175,8 @@ class VerificationController extends Controller
     {
         $model = $this->findModel($id);
 
-        $model->deleted == Status::NOT_DELETED ? $model->deleted = Status::DELETED :
-            $model->deleted = Status::NOT_DELETED;
+        $model->deleted_id == Status::NOT_DELETED ? $model->deleted_id = Status::DELETED :
+            $model->deleted_id = Status::NOT_DELETED;
         $fileMutex = Yii::$app->mutex;              /* @var $fileMutex yii\mutex\FileMutex */
 
         $saveResult = false;
@@ -187,7 +193,7 @@ class VerificationController extends Controller
             $model->addError('name', 'Поверки редактируются, попробуйте еще раз');
         }
 
-        $textMessage = $model->deleted == Status::NOT_DELETED ? 'восстановлена' : 'удалена';
+        $textMessage = $model->deleted_id == Status::NOT_DELETED ? 'восстановлена' : 'удалена';
         if ($saveResult) {
             Yii::$app->session->setFlash('success', "Запись $textMessage");
         } else {

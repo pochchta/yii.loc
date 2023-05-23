@@ -14,7 +14,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Поверки', 'url' => ['index'
 $this->params['breadcrumbs'][] = $this->title;
 YiiAsset::register($this);
 
-if ($model->deleted == Status::NOT_DELETED) {
+if ($model->deleted_id == Status::NOT_DELETED) {
     $deleteMessage = 'Вы уверены, что хотите удалить этот элемент?';
     $deleteTitle = 'Удалить';
     $deleteText = '';
@@ -53,10 +53,10 @@ if ($model->deleted == Status::NOT_DELETED) {
                 'label' => 'Относится к прибору',
             ],
             [
-                'attribute' => 'status',
+                'attribute' => 'status_id',
                 'format' => 'html',
                 'value' => function ($model) {
-                    if ($model->status == Verification::STATUS_ON) {
+                    if ($model->status_id == Verification::STATUS_ON) {
                         return '<span class="glyphicon glyphicon-ok-circle color-ok" title="Последняя поверка"></span>';
                     } else {
                         return '';
@@ -64,8 +64,8 @@ if ($model->deleted == Status::NOT_DELETED) {
                 },
             ],
             [
-                'attribute' => 'type',
-                'value' => isset(Verification::TYPE_LABEL[$model->type]) ? Verification::TYPE_LABEL[$model->type] : NULL
+                'attribute' => 'type_id',
+                'value' => $model->vtype->name,
             ],
             'description:ntext',
             'last_date:date',

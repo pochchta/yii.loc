@@ -5,19 +5,17 @@ namespace app\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use yii\helpers\Url;
-use yii\web\JsExpression;
+use yii\validators\DefaultValueValidator;
 
 /**
  * VerificationSearch represents the model behind the search form of `app\models\Verification`.
  */
 class VerificationSearch extends Verification
 {
-    const COLUMN_SEARCH = ['id', 'name', 'type'];
     public $limit;
-    public $last_date_start, $last_date_end, $next_date_start, $next_date_end;
+    public $created_at_start, $created_at_end, $updated_at_start, $updated_at_end;
     public $device_name, $device_number, $device_department;
-    public $term, $term_name;
+    public $device_name_id, $device_department_id;
 
     /**
      * {@inheritdoc}
@@ -26,14 +24,15 @@ class VerificationSearch extends Verification
     public function rules()
     {
         return [
-            [['id', 'device_id', 'period', 'created_at', 'updated_at', 'created_by', 'updated_by', 'type', 'status', 'deleted'], 'integer'],
+            [['id', 'device_id', 'period', 'created_at', 'updated_at', 'created_by', 'updated_by', 'type_id', 'status_id', 'deleted_id'], 'integer'],
             [['name', 'description'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
-            [['last_date_start', 'last_date_end', 'next_date_start', 'next_date_end'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
-            [['type'], 'default', 'value' => Status::ALL],
-            [['status'], 'default', 'value' => Verification::STATUS_ON],
-            [['deleted'], 'default', 'value' => Status::NOT_DELETED],
+            [['created_at_start', 'created_at_end', 'updated_at_start', 'updated_at_end'], 'filter',
+                'filter' => function($value) {return strtotime($value) !== false ? strtotime($value) : null;}],
+            [['type_id'], 'default', 'value' => Status::ALL],
+            [['status_id'], 'default', 'value' => Verification::STATUS_ON],
+            [['deleted_id'], 'default', 'value' => Status::NOT_DELETED],
             [['device_name', 'device_number', 'device_department'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']],
-            [['term', 'term_name'], 'string', 'max' => Yii::$app->params['maxLengthSearchParam']]
+            [['device_name_id', 'device_department_id'], 'integer'],
         ];
     }
 
@@ -91,108 +90,75 @@ class VerificationSearch extends Verification
             $query->andFilterWhere(['like', 'name', $this->name . '%', false]);
         }
 
-        if ($this->type == Verification::TYPE_VALUE['Default'] || $this->type == Verification::TYPE_VALUE['Gos']) {
-            $query->andFilterWhere(['type' => $this->type]);
+        if ($this->status_id == Verification::STATUS_OFF || $this->status_id == Verification::STATUS_ON) {
+            $query->andFilterWhere(['status_id' => $this->status_id]);
         }
 
-        if ($this->status == Verification::STATUS_OFF || $this->status == Verification::STATUS_ON) {
-            $query->andFilterWhere(['status' => $this->status]);
+        if ($this->deleted_id == Status::NOT_DELETED || $this->deleted_id == Status::DELETED) {
+            $query->andFilterWhere(['deleted_id' => $this->deleted_id]);
         }
 
-        if ($this->deleted == Status::NOT_DELETED || $this->deleted == Status::DELETED) {
-            $query->andFilterWhere(['deleted' => $this->deleted]);
+        if (strlen($this->created_at_start)) {
+            $query->andFilterWhere(['>=', 'created_at', $this->created_at_start]);
         }
-
-        if ($this->last_date_start != '') {
-            $query->andFilterWhere(['>=', 'last_date', strtotime($this->last_date_start)]);
+        if (strlen($this->created_at_end)) {
+            $query->andFilterWhere(['<=', 'created_at', $this->created_at_end]);
         }
-        if ($this->last_date_end != '') {
-            $query->andFilterWhere(['<', 'last_date', strtotime($this->last_date_end)]);
+        if (strlen($this->updated_at_start)) {
+            $query->andFilterWhere(['>=', 'updated_at', $this->updated_at_start]);
         }
-        if ($this->next_date_start != '') {
-            $query->andFilterWhere(['>=', 'next_date', strtotime($this->next_date_start)]);
-        }
-        if ($this->next_date_end != '') {
-            $query->andFilterWhere(['<', 'next_date', strtotime($this->next_date_end)]);
+        if (strlen($this->updated_at_end)) {
+            $query->andFilterWhere(['<=', 'updated_at', $this->updated_at_end]);
         }
 
         foreach(['name', 'department'] as $item) {
-            $depth = Word::MAX_NUMBER_PARENTS;
-            if ($item == 'department') {
-                $depth = Word::MAX_NUMBER_PARENTS - 1;
+            $item_id = "{$item}_id";
+            $item_with_prefix = "device_{$item}";
+            $item_id_with_prefix = "device_{$item_id}";
+
+            if (strlen($this->$item_with_prefix)) {                                             // поиск по имени
+                $subQueries = Word::getQueriesToGetChildren(['like', 'name', $this->$item_with_prefix . '%', false]);
+                $devQuery = Device::find()->select('id')
+                    ->andFilterWhere(['deleted_id' => Status::NOT_DELETED])
+                    ->andFilterWhere(Word::mergeQueriesOr($subQueries, $item_id, [0,1,2]));
+                $query->andFilterWhere(['device_id' => $devQuery]);
             }
-            $field = $this->{'device_' . $item};
-            if (strlen($field)) {
-                list('condition' => $condition, 'bind' => $bind) = Word::getConditionByParent([
-                    'parents' => [1 => $field],
-                    'columnName' => "{$item}_id",
-                    'depth' => $depth,
-                    'withParent' => true
-                ]);
-                $query->andOnCondition("device_id IN (SELECT id FROM device WHERE $condition)", $bind);
+
+            if (strlen($this->$item_id_with_prefix)) {                                          // поиск по id
+                $subQueries = Word::getQueriesToGetChildren(['id' => $this->$item_id_with_prefix]);
+                $devQuery = Device::find()->select('id')
+                    ->andFilterWhere(['deleted_id' => Status::NOT_DELETED])
+                    ->andFilterWhere(Word::mergeQueriesOr($subQueries, $item_id, [0,1,2]));
+                $query->andFilterWhere(['device_id' => $devQuery]);
             }
         }
 
-        if ($this->device_number != '') {
-            $query->andOnCondition(
-                'device_id IN (SELECT id FROM device WHERE number LIKE :number AND deleted = :not_del)',
-                [':number' => $this->device_number . '%', ':not_del' => Status::NOT_DELETED]
-            );
+        if (strlen($this->device_number)) {
+            $query->andFilterWhere([
+                'device_id' => Device::find()->select('id')
+                    ->andFilterWhere(['deleted_id' => Status::NOT_DELETED])
+                    ->andFilterWhere(['like', 'number', $this->device_number . '%', false])
+            ]);
         }
 
         return $dataProvider;
     }
 
-    public function formName() {
+    public function formName()
+    {
         return '';
     }
 
-    public static function getAutoCompleteOptions($attribute, $prefix = '', $autoSend = false)
+    public function getDefaultValidators()
     {
-        if (strlen($prefix)) {
-            $prefix = $prefix . '_';
-        }
-        $select = '';
-        if ($autoSend) {
-            $select = new JsExpression("function(event, ui) {
-                selectAutoComplete(event, ui, '{$prefix}{$attribute}');
-            }");
-        }
-        return [
-            'clientOptions' => [
-                'source' => new JsExpression("function(request, response) {
-                    $.getJSON('" . Url::to('/device/list-auto-complete') . "', {
-                        term: request.term,
-                        term_name: '{$attribute}',
-                    }, response);
-                }"),
-                'select' => $select,
-                'minLength' => Yii::$app->params['minSymbolsAutoComplete'],
-                'delay' => Yii::$app->params['delayAutoComplete']
-            ],
-            'options' => [
-                'class' => 'form-control',
-            ]
-        ];
+        $validators = $this->getActiveValidators();
+        $validators = array_filter($validators, function ($item) {
+            return $item instanceof DefaultValueValidator;
+        });
+        $arrayValidators = [];
+        $validators = array_walk($validators, function ($item) use (&$arrayValidators) {
+            $arrayValidators[$item->attributes[0]] = $item->value;
+        });
+        return $arrayValidators;
     }
-
-    /** Поиск по номерам для AutoComplete
-     * @return false|string
-     */
-    public function findNames()
-    {
-        $data = [];
-        if (in_array($this->term_name, self::COLUMN_SEARCH)) {
-            $data = Verification::find()
-                ->select(["$this->term_name as value"])
-                ->where(['deleted' => Status::NOT_DELETED])
-                ->andOnCondition("$this->term_name LIKE :term", [':term' => $this->term . '%'])
-                ->orderBy($this->term_name)
-                ->limit(Yii::$app->params['maxLinesAutoComplete'])
-                ->distinct()
-                ->asArray()->all();
-        }
-        return json_encode($data);
-    }
-
 }

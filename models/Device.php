@@ -141,7 +141,7 @@ class Device extends ActiveRecord
 
     public function getActiveVerification()
     {
-        return $this->hasOne(Verification::class, ['device_id' => 'id'])->where(['status' => Verification::STATUS_ON]);
+        return $this->hasOne(Verification::class, ['device_id' => 'id'])->where(['status_id' => Verification::STATUS_ON]);
     }
 
     public function getCreator()

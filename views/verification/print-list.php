@@ -50,13 +50,13 @@ $this->registerCssFile('@web/css/user-print.css');
                 <td><?= $model->device->wordName->name ?></td>
                 <td><?= $model->device->number ?></td>
                 <td><?php
-                    if ($model->status == Verification::STATUS_ON) {
+                    if ($model->status_id == Verification::STATUS_ON) {
                         print 'Действ.';
                     }
                 ?></td>
                 <td><?= Yii::$app->formatter->asDate($model->last_date) ?></td>
                 <td><?= Yii::$app->formatter->asDate($model->next_date) ?></td>
-                <td><?= isset(Verification::TYPE_LABEL[$model->type]) ? Verification::TYPE_LABEL[$model->type] : NULL; ?></td>
+                <td><?= $model->vtype->name; ?></td>
                 <td><?= $model->creator->username ?></td>
                 <td><?= $model->updater->username ?></td>
 

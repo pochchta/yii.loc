@@ -16,7 +16,7 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property int $device_id
  * @property string|null $name
- * @property int $type
+ * @property int $type_id
  * @property string|null $description
  * @property int|null $last_date
  * @property int|null $next_date
@@ -25,8 +25,8 @@ use yii\db\ActiveRecord;
  * @property int|null $updated_at
  * @property int|null $created_by
  * @property int|null $updated_by
- * @property int $status
- * @property int $deleted
+ * @property int $status_id
+ * @property int $deleted_id
  *
  * @property Device $device
  * @property User|null $creator magic property
@@ -34,18 +34,13 @@ use yii\db\ActiveRecord;
  */
 class Verification extends ActiveRecord
 {
-    const TYPE_VALUE = [
-        'Default' => 0,
-        'Gos' => 1
-    ];
-    const TYPE_LABEL = [
-        self::TYPE_VALUE['Default'] => 'Обычная',
-        self::TYPE_VALUE['Gos'] => 'Гос',
-    ];
     const STATUS_OFF = 0;
     const STATUS_ON = 1;
+    const STATUS_ALL = -1;
 
     const PERIOD_BY_DEFAULT = '1';
+
+    public $type;
 
     public static function tableName()
     {
@@ -76,8 +71,8 @@ class Verification extends ActiveRecord
     public function rules()
     {
         return [
-            [['type', 'device_id', 'last_date', 'period'], 'required'],
-            [['type'], 'integer', 'min' => 0, 'max' => 1],
+            [['type_id', 'device_id', 'last_date', 'period'], 'required'],
+            [['type_id'], 'integer', 'min' => 0, 'max' => 1],
             [['description'], 'string'],
             [['device_id'], 'integer'],
             [['device_id'], 'validateDeviceId'],
@@ -111,7 +106,7 @@ class Verification extends ActiveRecord
             'id' => 'ID',
             'device_id' => '№ прибора',
             'name' => 'Имя',
-            'type' => 'Тип',
+            'type_id' => 'Тип', 'type' => 'Тип',
             'description' => 'Описание',
             'last_date' => 'Дата пов.',
             'next_date' => 'Дата след. пов.',
@@ -120,8 +115,8 @@ class Verification extends ActiveRecord
             'updated_at' => 'Обновлено',
             'created_by' => 'Создал',
             'updated_by' => 'Обновил',
-            'status' => 'Последняя',
-            'deleted' => 'Удален'
+            'status_id' => 'Последняя',
+            'deleted_id' => 'Удален'
         ];
     }
 
@@ -159,8 +154,8 @@ class Verification extends ActiveRecord
         $arrVerifications = Verification::find()->where(['device_id' => $this->device_id])->all();
         $arrDate = [];
         foreach ($arrVerifications as $key => $item) {   /** @var $item Verification */
-            $item->status = self::STATUS_OFF;
-            if (empty($item->next_date) || $item->deleted != Status::NOT_DELETED) {
+            $item->status_id = self::STATUS_OFF;
+            if (empty($item->next_date) || $item->deleted_id != Status::NOT_DELETED) {
                 continue;
             }
             $arrDate[$item->next_date] = $key;
@@ -171,9 +166,9 @@ class Verification extends ActiveRecord
         $keyLastVerification = reset($arrDate);
         foreach ($arrVerifications as $key => $item) {   /** @var $item Verification */
             if ($keyLastVerification === $key) {
-                $item->status = self::STATUS_ON;
+                $item->status_id = self::STATUS_ON;
             }
-            if ($item->status !== $item->getOldAttribute('status')) {
+            if ($item->status_id !== $item->getOldAttribute('status')) {
                 if ($item->save(false) == false) {        // validation == false, т.к. в валидаторе преобразуется дата из php:Y-m-d в TimeStamp и
                     return false;                                      // вообще здесь нечего валидировать
                 }
@@ -200,5 +195,10 @@ class Verification extends ActiveRecord
     public function getUpdater()
     {
         return $this->hasOne(User::class, ['id' => 'updated_by']);
+    }
+
+    public function getVtype()
+    {
+        return $this->hasOne(Word::class, ['id' => 'type_id']);
     }
 }

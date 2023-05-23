@@ -56,7 +56,7 @@ if ($model->deleted_id == Status::NOT_DELETED) {
                 'value' => $model->wordName->parent->parent->name
             ],
             [
-                'attribute' => ($attribute = 'type'),
+                'attribute' => ($attribute = 'type_id'),
                 'value' => $model->wordName->parent->name
             ],
             [
