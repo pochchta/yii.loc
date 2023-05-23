@@ -15,28 +15,6 @@ class WordSearch extends Word
     const REPLACE_NAMES = ['value'];
     const COLUMN_NAMES = ['id'];
 
-    const RULES_AUTO_COMPLETE = [
-        'word' => [
-            'virtualParent' => 1,
-            'levels' => [1, 2, 3],
-            'parent_name' => [
-                'levels' => [1,2],
-            ],
-        ],
-        'device' => [
-            'levels' => [1, 2, 3],
-            'kind' => [
-                'levels' => [1],
-            ],
-            'group' => [
-                'levels' => [2],
-            ],
-            'type' => [
-                'levels' => [3],
-            ],
-        ]
-    ];
-
     public $limit;
     public $field, $parent, $parent_v;
     public $name_v;
@@ -162,63 +140,6 @@ class WordSearch extends Word
             }
 
         }
-        return $names;
-    }
-
-    /** Поиск имен в базе и массиве Word::LABEL_FIELD_WORD по name.
-     * @return array
-     */
-    public function findAutoComplete()
-    {
-        $names = [];
-        $limit = Yii::$app->params['maxLinesAutoComplete'];
-
-        if (
-            $this->validate() === false
-            || mb_strlen($this->parent) === 0
-            || mb_strlen($this->field) === 0
-            || mb_strlen($this->name) === 0
-        ) {
-            return $names;
-        }
-
-        $levels = $this::RULES_AUTO_COMPLETE[$this->parent]['levels'];
-        $virtualParent = $this::RULES_AUTO_COMPLETE[$this->parent]['virtualParent'];
-        if (isset($this::RULES_AUTO_COMPLETE[$this->parent][$this->field]['levels'])) {
-            $levels = $this::RULES_AUTO_COMPLETE[$this->parent][$this->field]['levels'];
-        }
-        if (isset($this::RULES_AUTO_COMPLETE[$this->parent][$this->field]['virtualParent'])) {
-            $virtualParent = $this::RULES_AUTO_COMPLETE[$this->parent][$this->field]['virtualParent'];
-        }
-
-        if ($virtualParent) {
-            $names = array_map(function ($item) {
-                return ['value' => Word::LABEL_FIELD_WORD[$item]];
-            }, Word::getNumbersBySimilarLabel($this->name . '%'));
-
-            $names = array_slice($names, 0, $limit);  // обрезка если уже слишком много элементов
-            $limit = $limit - count($names);
-        }
-
-        if ($limit > 0) {
-            $query = Word::find()
-//                ->distinct()
-                ->select(['name as value'])
-                ->orderBy('name')
-                ->andFilterWhere(['like', 'name', $this->name . '%', false])
-                ->limit($limit)
-                ->asArray();
-
-            $queries = Word::getQueriesToGetChildrenIfDepthIsAbsolute();
-            $query->andFilterWhere(Word::mergeQueriesOr($queries, 'id', $levels));
-
-            if ($this->deleted == Status::NOT_DELETED || $this->deleted == Status::DELETED) {
-                $query->andFilterWhere(['deleted' => $this->deleted]);
-            }
-
-            $names = array_merge($names, $query->all());
-        }
-
         return $names;
     }
 }
