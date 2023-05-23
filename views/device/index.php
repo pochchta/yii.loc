@@ -1,8 +1,10 @@
 <?php
 
 use app\assets\GridAsset;
+use app\models\CatalogTabs;
 use app\models\Status;
-use app\widgets\sort\GridColumnSort;
+use app\widgets\csc\CatalogTabsSort;
+use app\widgets\csc\GridColumnSort;
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
@@ -10,12 +12,21 @@ use yii\widgets\Pjax;
 /* @var $this yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $model app\models\Device */
-/* @var $menu app\models\CatalogTabs */
+/* @var $menu CatalogTabs */
 
 $this->title = 'Приборы';
 $this->params['breadcrumbs'][] = $this->title;
 
 GridAsset::register($this);
+
+$catalogTabsSort = new CatalogTabsSort($menu, [
+    'required' => Yii::$app->user->can('ChangingCatalogTabsSort') ? ['Настройки'] : [],
+    'token' => Yii::$app->user->identity->getAuthKey(),
+    'write_url' => '/api/csc/write-column',
+    'read_url' => '/api/csc/read-column',
+    'class' => '\app\models\device',
+    'role' => Yii::$app->user->identity->getProfileView(),
+]);
 ?>
 
 <div class="device-index page-index" id="page-index">
@@ -33,9 +44,8 @@ GridAsset::register($this);
     </p>
 
     <?= $this->render('/catalog-tabs/grid', compact(
-        'menu'
+        'catalogTabsSort'
     )); ?>
-
 
     <?php Pjax::begin([
         'id' => 'my-pjax-container',
@@ -117,14 +127,17 @@ GridAsset::register($this);
             'Кнопки' => [
                 'header' =>
                     Html::a(
-                        '<span class="glyphicon glyphicon-remove reset_sort a-action"></span>',
+                        '<span class="glyphicon glyphicon-remove a-action"></span>',
                         null,
                         ['title' => 'Сбросить сортировку']
                     )
                     . Html::a(
-                        '<span class="glyphicon glyphicon-cog show_grid_column_sort a-action" data-toggle-id="grid_column_sort"></span>',
+                        '<span class="glyphicon glyphicon-cog a-action" data-toggle-id="grid_column_sort"></span>',
                         null,
-                        ['title' => 'Настроить столбцы']
+                        [
+                            'title' => 'Настроить столбцы',
+                            'class' => Yii::$app->user->can('ChangingGridColumnSort') ? '' : 'hide'
+                        ]
                     ),
                 'contentOptions' => ['class' => 'nowrap'],
                 'format' => 'raw',
@@ -151,16 +164,18 @@ GridAsset::register($this);
     ];
 
     $gridColumnSort = new GridColumnSort($gridViewData, [
-        'required' => ['Кнопки'],
+        'required' => Yii::$app->user->can('ChangingGridColumnSort') ? ['Кнопки'] : [],
         'token' => Yii::$app->user->identity->getAuthKey(),
-        'writeUrl' => '/api/gcs/write-column',
-        'readUrl' => '/api/gcs/read-column',
+        'write_url' => '/api/csc/write-column',
+        'read_url' => '/api/csc/read-column',
         'class' => '\app\models\device',
         'role' => Yii::$app->user->identity->getProfileView(),
     ]);
     ?>
 
-    <?= $gridColumnSort->runWidget() ?>
+    <?php if (Yii::$app->user->can('ChangingGridColumnSort')) : ?>
+        <?= $gridColumnSort->runWidget() ?>
+    <?php endif?>
 
     <?= GridView::widget($gridColumnSort->getGridViewData()); ?>
 
