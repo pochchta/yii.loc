@@ -60,7 +60,8 @@ body { /* Принудительная прокрутка, т.к. изменен
 
 .catalogTabs .tabs_title {
     padding: 18px 0 0 39px;
-    overflow: hidden
+    overflow: hidden;
+    user-select: none;
 }
 
 .catalogTabs .tabs_title ul {

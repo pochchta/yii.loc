@@ -1,3 +1,7 @@
+.page-index {
+    position: relative;
+}
+
 .one-button-form #basic-addon{
     padding: 0;
     border: none;
@@ -10,6 +14,7 @@
 
 .a-action {
     padding: 0 1px;
+    cursor: pointer;
 }
 .grid-view table td.nowrap{
     white-space: nowrap;
@@ -49,8 +54,7 @@ span.color-war{
     color: #ffa500;
 }
 
-#grid_id .reset_sort,
-#grid_id .show_grid_column_sort{
+.cursor-pointer {
     cursor: pointer;
 }
 
