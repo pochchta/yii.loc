@@ -8,7 +8,7 @@ $this->registerJs("$('#save_catalog_tabs_sort').on('click', $options, csc.save);
 $this->registerJs("$('#load_catalog_tabs_sort').on('change', $options, csc.load);");
 ?>
 
-<div id='catalog_tabs_sort' class='connected-sortable-columns clearfix'>
+<div id='catalog_tabs_sort' class='connected-sortable-columns clearfix absolute'>
     <h3>Настройка полей фильтра</h3>
     <ul class='connected-sortable sortable1'>
         <? foreach($columns['enabled'] as $value) echo "<li>$value</li>" ?>
