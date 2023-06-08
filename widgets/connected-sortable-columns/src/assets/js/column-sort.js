@@ -29,17 +29,17 @@ class csc {
                 xhr.setRequestHeader('Authorization', 'Bearer ' + e.data.token);
             },
             success: function (msg) {
+                if (msg === true) {
+                    flash.add('Столбцы таблицы: сохранено');
+                } else {
+                    flash.add('Столбцы таблицы: ошибка сохранения', 'danger');
+                }
                 document.dispatchEvent(new CustomEvent("csc:save_success", {
                     detail: {
                         msg: msg,
                         widget_name: e.data.widget_name,
                     }
                 }));
-                if (msg === true) {
-                    flash.add('Столбцы таблицы: сохранено');
-                } else {
-                    flash.add('Столбцы таблицы: ошибка сохранения', 'danger');
-                }
             },
             complete: function (jqXHR, textStatus) {
                 if (textStatus !== 'success') {
