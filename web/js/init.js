@@ -37,8 +37,36 @@ $(window).on('load', function() {
 
     initHideShowByToggleId();
     addAutoCompleteOptions();
+    initWrapResizeObserver();
 })
 
+/**
+ * Увеличение высоты wrap, если .absolute.connected-sortable-columns не влазят
+ */
+function initWrapResizeObserver () {
+    let columnsObserver = new ResizeObserver(function (elements) {
+        for (let element of elements) {
+            let $element = $(element.target);
+            let selectorHeight = $element.outerHeight();
+            let selectorPosition = $element.offset();
+            let selectorTop = selectorPosition.top;
+
+            let $mainWrap = $('#main_wrap');
+            let wrapHeight = $mainWrap.outerHeight();
+
+            if (selectorHeight + selectorTop > wrapHeight) {
+                $mainWrap.outerHeight(selectorHeight + selectorTop);
+            }
+        }
+    })
+    for (let elem of $('.connected-sortable-columns')) {
+        columnsObserver.observe(elem);
+    }
+}
+
+/**
+ * Добавляем автокомплит всем input с классом .ui-autocomplete-input
+ */
 function addAutoCompleteOptions() {
     const PREFIXES = ['device'];
     window.gettingYiiParams().done(function (params) {
