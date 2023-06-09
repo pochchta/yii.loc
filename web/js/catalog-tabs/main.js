@@ -260,7 +260,12 @@ class dataObj {
      * @returns {boolean}
      */
     checkIfNameNeedsToAdd(tabName) {
-        if (this.data[tabName].hasOwnProperty('value')) {
+        if (
+            this.data[tabName].hasOwnProperty('value')
+            || this.data[tabName].hasOwnProperty('_start')
+            || this.data[tabName].hasOwnProperty('_end')
+
+    ) {
             return true;
         }
         if (this.paramsByDefaultWithoutId[tabName] === parseInt(this.data[tabName]['_id'])) {
