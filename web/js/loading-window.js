@@ -16,24 +16,31 @@ class loadingWindow {
         let $absChildren = $element.find('.absolute:not(.hide)');  // с учетом вложенных .absolute
         for (let child of $absChildren) {
             let $child = $(child);
+            if (! $child.is(':visible')) {
+                continue;
+            }
 
             // получаем позицию и размеры дочернего элемента
-            let childPosition = $child.offset();
             let childWidth = $child.outerWidth();
             let childHeight = $child.outerHeight();
-            
+            let childPosition = $child.offset();
+            let childLeft = childPosition.left;
+            let childTop = childPosition.top;
+
             // проверяем, перекрывает ли дочерний элемент родительский
-            if (childPosition.left < selectorLeft) {
-                selectorLeft = childPosition.left;
+            if (childLeft < selectorLeft) {
+                selectorWidth = selectorWidth + selectorLeft - childLeft;
+                selectorLeft = childLeft;
             }
-            if (childPosition.top < selectorTop) {
-                selectorTop = childPosition.top;
+            if (childTop < selectorTop) {
+                selectorHeight = selectorHeight + selectorTop - childTop;
+                selectorTop = childTop;
             }
-            if (childPosition.left + childWidth > selectorLeft + selectorWidth) {
-                selectorWidth = childPosition.left + childWidth - selectorLeft;
+            if (childLeft + childWidth > selectorLeft + selectorWidth) {
+                selectorWidth = childLeft + childWidth - selectorLeft;
             }
-            if (childPosition.top + childHeight > selectorTop + selectorHeight) {
-                selectorHeight = childHeight + childPosition.top - selectorTop;
+            if (childTop + childHeight > selectorTop + selectorHeight) {
+                selectorHeight = childHeight + childTop - selectorTop;
             }
         }
 
