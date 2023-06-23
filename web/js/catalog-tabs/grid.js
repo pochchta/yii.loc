@@ -21,7 +21,7 @@ $(window).on('load', function() {
  * Установка значений в inputs формы filters_form
  */
 function setParamsToFiltersForm() {
-    $('#filters-form input').val('');       // очистка всех установленных значений
+    $('#filters-form input:not(".ignored")').val('');       // очистка всех установленных значений
 
     for (let tab of window.filterTabsData.getArrayForInputs()) {
         for(let name in tab) {
@@ -134,11 +134,9 @@ function setParamsToFiltersItemList() {
 
 /**
  * Обновление pjax с учетом формы фильтрации
- * @param id id формы
  */
-function sendFiltersForm(id) {
-    let $form = $(id);
-    let url = (new locSearch($form.serialize()))
+function sendFiltersForm() {
+    let url = (new locSearch($('#filters-form input:not(".ignored")').serialize()))
         .deleteEmptyValues()
         .concat((new locSearch())
             .deleteEmptyValues()
@@ -171,26 +169,26 @@ function initHandlers() {
     $('.catalogTabs')
         .on('keypress',function(e) {
             if(e.which === 13) {
-                sendFiltersForm('#filters-form')
+                sendFiltersForm()
             }
         })
         .on('click', '.filter_button', function() {
-            sendFiltersForm('#filters-form')
+            sendFiltersForm()
         })
         .on('click', '.checkboxList>span', function() {
             let name = $(this).parent().parent().attr('data-name');
             name = window.filterTabsData.getFieldNameByTabName(name);
             let value = $(this).attr('data-value');
             $('#filters-form input[name=' + name + ']').val(value);
-            sendFiltersForm('#filters-form')
+            sendFiltersForm()
         })
 
     $(document)
         .on("csc:save_success", function (event) {
             if (event.detail.widget_name === 'GridColumnSort') {
-                sendFiltersForm('#filters-form');
+                sendFiltersForm();
             } else if (event.detail.widget_name === 'CatalogTabsSort') {
-                loadingWindow.show($('body'));
+                loadingWindow.show($('#main_wrap'));
                 location.reload();
             }
         })
@@ -223,5 +221,5 @@ function initHandlers() {
 function onSelectAutoComplete(e, ui) {
     let $input = $(e.target);
     $input.val(ui.item.label);
-    sendFiltersForm('#filters-form')
+    sendFiltersForm()
 }
