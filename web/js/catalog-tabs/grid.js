@@ -182,6 +182,36 @@ function initHandlers() {
             $('#filters-form input[name=' + name + ']').val(value);
             sendFiltersForm()
         })
+        .on('click', '.set_month', function() {
+            let value = $(this).siblings('.input_month').val();
+            let date = new Date(value);
+
+            let dateStart = date
+                .toISOString()
+                .slice(0,10);
+            $(this).siblings('.input_start').val(dateStart);
+
+            date.setMonth(date.getMonth() + 1)
+            let dateEnd = date
+                .toISOString()
+                .slice(0,10);
+            $(this).siblings('.input_end').val(dateEnd);
+        })
+        .on('click', '.set_year', function() {
+            let value = $(this).siblings('.input_year').val();
+            let date = new Date(value);
+
+            let dateStart = date
+                .toISOString()
+                .slice(0,10);
+            $(this).siblings('.input_start').val(dateStart);
+
+            date.setFullYear(date.getFullYear() + 1)
+            let dateEnd = date
+                .toISOString()
+                .slice(0,10);
+            $(this).siblings('.input_end').val(dateEnd);
+        })
 
     $(document)
         .on("csc:save_success", function (event) {

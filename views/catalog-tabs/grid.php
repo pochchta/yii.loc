@@ -40,11 +40,13 @@ $menu = $catalogTabsSort->getMenu();
                         <?= Html::input('date', $key . '_end') ?>
                         <?= Html::button('Применить', ['class' => 'filter_button']) ?>
                     <?php elseif($tab['source'] === 'datePeriod'): ?>
-                        <?= Html::input('date', $key . '_start') ?>
-                        <?= Html::input('date', $key . '_end') ?>
-                        <?= Html::input('month', $key . '_month',  date('Y-m'), ['class' => 'ignored']) ?>
-                        <?= Html::input('number', $key . '_year',  date('Y'), ['class' => 'ignored']) ?>
+                        <?= Html::input('date', $key . '_start', null, ['class' => 'input_start']) ?>
+                        <?= Html::input('date', $key . '_end', null, ['class' => 'input_end']) ?>
                         <?= Html::button('Применить', ['class' => 'filter_button']) ?>
+                        <?= Html::input('month', $key . '_month',  date('Y-m', strtotime('+1 month')), ['class' => 'input_month ignored']) ?>
+                        <?= Html::button('Задать', ['class' => 'set_month']) ?>
+                        <?= Html::input('number', $key . '_year',  date('Y', strtotime('+1 year')), ['class' => 'input_year ignored']) ?>
+                        <?= Html::button('Задать', ['class' => 'set_year']) ?>
                     <?php elseif($tab['source'] === 'text'): ?>
                         <?= Html::input('text', $key, '', $tab['autoComplete']) ?>
                         <?= Html::button('Применить', ['class' => 'filter_button']) ?>
