@@ -86,7 +86,8 @@ body { /* Принудительная прокрутка, т.к. изменен
     display: inline-block;
     text-decoration: none;
     font-size: .783em;
-    line-height: 2.348em
+    line-height: 2.348em;
+    font-weight: bold;
 }
 
 .catalogTabs .tabs_title li a:hover {
