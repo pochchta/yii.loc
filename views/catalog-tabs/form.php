@@ -14,6 +14,7 @@ use app\models\Word;
                 <?php foreach ($menu->getMenu() as $key => $tab): ?>
                     <li><a data-value="<?=$tab['id']?>" data-name="<?=$tab['name']?>"><span><?=$tab['label']?></span></a></li>
                 <?php endforeach ?>
+                <div id="block_tabs_title" class="hide"></div>
             </ul>
         </div>
         <div class="tabs_content hide absolute" id="tabs_content1">

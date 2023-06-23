@@ -6,6 +6,12 @@ body { /* Принудительная прокрутка, т.к. изменен
     position: relative;
 }*/
 
+#block_tabs_title {
+    background: white;
+    position: absolute;
+    z-index: 132;
+}
+
 .block_arrow {
     background: #e0fff3;
     position: absolute;

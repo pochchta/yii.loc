@@ -287,6 +287,8 @@ function initCatalogTabs() {
             let id = 'name';
             if (timerArray[id] === undefined) {
                 timerArray[id] = setTimeout(function() {
+                    let $blockTabsTitle = $('.catalogTabs #block_tabs_title');
+                    $blockTabsTitle.addClass('hide');
                     let value = $(this).attr('data-value');
                     $('.catalogTabs li>a.current').removeClass('current');
                     $(this).addClass('current');
@@ -295,7 +297,19 @@ function initCatalogTabs() {
                         loadDataToTab(value);
                     }
                     $('#tabs_content1>#tab' + value).removeClass('hide');
-                    $('#tabs_content1').removeClass('hide');
+                    let $tabsContent1 = $('#tabs_content1');
+                    $tabsContent1.removeClass('hide');
+
+                    if ($(this).offset().top + $(this).outerHeight() !== $tabsContent1.offset().top) {
+                        $blockTabsTitle
+                            .removeClass('hide')
+                            .outerWidth($(this).outerWidth())
+                            .outerHeight($tabsContent1.offset().top - $(this).offset().top - $(this).outerHeight())
+                            .offset({
+                                top: $(this).offset().top + $(this).outerHeight(),
+                                left: $(this).offset().left
+                            })
+                    }
 
                     timerArray[id] = undefined;
                 }.bind(this), SMALL_TIMEOUT);
@@ -315,6 +329,8 @@ function initCatalogTabs() {
             let id = 'main';
             if (timerArray[id] === undefined) {
                 timerArray[id] = setTimeout(function() {
+                    let $blockTabsTitle = $('.catalogTabs #block_tabs_title');
+                    $blockTabsTitle.addClass('hide');
                     $('.catalogTabs li>a.current').removeClass('current');
                     $('.tabs_content').addClass('hide');
 

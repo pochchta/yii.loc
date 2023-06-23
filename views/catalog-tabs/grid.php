@@ -15,6 +15,7 @@ $menu = $catalogTabsSort->getMenu();
                 <?php foreach ($menu->getMenu() as $key => $tab): ?>
                     <li><a data-value="<?=$tab['id']?>" data-name="<?=$tab['name']?>" data-source="<?=$tab['source']?>"><span><?=$tab['label']?></span></a></li>
                 <?php endforeach ?>
+                <div id="block_tabs_title" class="hide"></div>
             </ul>
         </div>
         <div class="tabs_content hide absolute" id="tabs_content1">
@@ -37,6 +38,12 @@ $menu = $catalogTabsSort->getMenu();
                     <?php elseif($tab['source'] === 'date'): ?>
                         <?= Html::input('date', $key . '_start') ?>
                         <?= Html::input('date', $key . '_end') ?>
+                        <?= Html::button('Применить', ['class' => 'filter_button']) ?>
+                    <?php elseif($tab['source'] === 'datePeriod'): ?>
+                        <?= Html::input('date', $key . '_start') ?>
+                        <?= Html::input('date', $key . '_end') ?>
+                        <?= Html::input('month', $key . '_month',  date('Y-m'), ['class' => 'ignored']) ?>
+                        <?= Html::input('number', $key . '_year',  date('Y'), ['class' => 'ignored']) ?>
                         <?= Html::button('Применить', ['class' => 'filter_button']) ?>
                     <?php elseif($tab['source'] === 'text'): ?>
                         <?= Html::input('text', $key, '', $tab['autoComplete']) ?>
