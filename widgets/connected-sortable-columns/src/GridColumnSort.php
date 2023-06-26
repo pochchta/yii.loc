@@ -63,6 +63,11 @@ class GridColumnSort extends MainSort
         $this->columnsForWidget['params'] = $this->params;
     }
 
+    /**
+     * Извлечение label. Порядок: ключ columns > label из класса > classShortName (если есть class)
+     * @param $item
+     * @return false|mixed|string
+     */
     private function extractColumnName($item)
     {
         if (is_string($item)) {
@@ -72,10 +77,12 @@ class GridColumnSort extends MainSort
             }
             return $this->findLabel($item);
         } elseif (is_array($item)) {
-            if (array_key_exists('attribute', $item)) {
+            if (array_key_exists('label', $item)) {
+                return $item['label'];
+            } elseif (array_key_exists('attribute', $item)) {
                 return $this->findLabel($item['attribute']);
             } elseif (array_key_exists('class', $item)) {
-                return $this->getShortClassName($item['class']);
+                return $this->getShortClassName($item['class']);    // # ['class' => 'yii\grid\SerialColumn']
             }
         }
         return 'noname';
