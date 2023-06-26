@@ -11,4 +11,19 @@ $(window).on('load', function() {
         .on('pjax:complete', function() {
             loadingWindow.hide($('#page-index'));
         })
+        .on("csc:resize", function (event) {  // Увеличение высоты wrap, если .absolute.connected-sortable-columns не влазят
+            for (let element of event.detail.elements) {
+                let $element = $(element.target);
+                let selectorHeight = $element.outerHeight();
+                let selectorPosition = $element.offset();
+                let selectorTop = selectorPosition.top;
+
+                let $mainWrap = $('#main_wrap');
+                let wrapHeight = $mainWrap.outerHeight();
+
+                if (selectorHeight + selectorTop > wrapHeight) {
+                    $mainWrap.outerHeight(selectorHeight + selectorTop);
+                }
+            }
+        })
 })
