@@ -119,34 +119,47 @@ class csc {
         }
     }
 
-    static initControl() {
-        $(document)
-            .on('click', function(e) {
-                let $button = $(e.target);
-                if ($button.hasClass('toggle-connected-sortable-columns')) {
-                    $button.closest('.connected-sortable-columns').toggle();
-                }
+    static initControl($element) {
+        $element
+            .on('click', '.toggle-connected-sortable-columns' , function() {
+                $element.toggle();
             })
     }
 
-    static initSortable() {
+    static initSortable($element) {
+        $element.find('ul').sortable({
+            connectWith: ".connected-sortable",
+            placeholder: "ui-state-highlight",
+            cancel: ".ui-state-disabled",
+        }).disableSelection();
+    }
+
+    static initObserver($element) {
+        let observer = new ResizeObserver(function (elements) {
+            document.dispatchEvent(new CustomEvent("csc:resize", {
+                detail: {
+                    elements: elements,
+                }
+            }));
+        });
+        observer.observe($element[0]);
+    }
+
+    static init() {
         let $elements = $('.connected-sortable-columns:not([data-init="true"])');
         for (let element of $elements) {
             let $element = $(element);
-            $element.find('ul').sortable({
-                connectWith: ".connected-sortable",
-                placeholder: "ui-state-highlight",
-                cancel: ".ui-state-disabled",
-            }).disableSelection();
+            csc.initControl($element);
+            csc.initSortable($element);
+            csc.initObserver($element);
             $element.attr('data-init', true);
         }
     }
 }
 
 $(window).on('load', function() {
-    csc.initControl();
-    csc.initSortable();
+    csc.init();
 })
 $(document).on('pjax:complete', function() {
-    csc.initSortable();
+    csc.init();
 })
