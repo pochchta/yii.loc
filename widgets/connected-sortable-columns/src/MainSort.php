@@ -64,6 +64,11 @@ abstract class MainSort
         }
     }
 
+    /**
+     * Получение attributeLabels[$key] класса
+     * @param $key
+     * @return mixed
+     */
     protected function findLabel($key)
     {
         if (class_exists($this->params['class'])) {
